@@ -75,7 +75,7 @@ export default function NotionPage() {
             <Demo />
           </div>
         )}
-        {tab === 'code' && <CodeBlock code={notion.component.code || '// Code à venir'} />}
+        {tab === 'code' && <CodeBlock code={notion.source || '// Code à venir'} />}
         {tab === 'explication' && (
           <div style={{ padding: '16px', background: '#1a1d27', borderRadius: '12px', border: '1px solid #2d3148' }}>
             {(notion.component.explication || '').split('\n').map((line, i) => {
