@@ -26,10 +26,33 @@ function Formulaire() {
   )
 }`
 
-export const explication = `Un **formulaire contrôlé** : React détient la valeur de l'input.
-- \`value={état}\` : React contrôle ce qui s'affiche
-- \`onChange\` : met à jour l'état à chaque frappe
-- \`e.preventDefault()\` évite le rechargement de la page`
+export const explication = `### Formulaire contrôlé vs non contrôlé
+En React, il y a deux approches :
+- **Contrôlé** : React détient la valeur via \`useState\` → recommandé
+- **Non contrôlé** : le DOM gère la valeur via \`useRef\` → cas rares
+
+### Comment ça marche (contrôlé)
+1. L'utilisateur tape → l'événement \`onChange\` se déclenche
+2. \`onChange\` appelle \`setValeur(e.target.value)\`
+3. React re-rend avec la nouvelle valeur dans \`value={valeur}\`
+C'est une **boucle** : état → affichage → événement → état
+
+### Gérer plusieurs champs efficacement
+Au lieu d'un \`useState\` par champ, utilise un objet et le \`name\` de l'input :
+\`const handleChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))\`
+L'attribut \`name\` de l'input devient la clé dans l'objet.
+
+### La soumission du formulaire
+\`onSubmit\` sur la balise \`<form>\` (pas sur le bouton).
+\`e.preventDefault()\` est indispensable pour empêcher le rechargement de page.
+
+### Validation
+- **HTML natif** : \`required\`, \`type="email"\`, \`minLength\`
+- **Manuelle** : vérifier l'état avant de soumettre
+- **Bibliothèques** : React Hook Form, Zod pour des formulaires complexes
+
+⚠️ Si \`value\` est défini sans \`onChange\`, l'input devient **en lecture seule** → erreur dans la console.
+✅ Pour les cases à cocher, utilise \`checked\` et \`onChange\` au lieu de \`value\`.`
 
 const fieldStyle = {
   width: '100%', padding: '10px 14px', borderRadius: '8px',

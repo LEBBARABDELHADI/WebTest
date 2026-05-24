@@ -22,10 +22,28 @@ const tâches = [
   {tâches.map(t => <li key={t.id}>{t.texte}</li>)}
 </ul>`
 
-export const explication = `Pour afficher une liste, on utilise **.map()** pour transformer un tableau en JSX.
-- Chaque élément doit avoir une **key unique** pour les performances
-- La key aide React à détecter les **ajouts, suppressions, réordres**
-- Utiliser l'index comme key est à éviter si la liste peut changer`
+export const explication = `### Afficher une liste en React
+React ne connaît pas les boucles \`for\` dans le JSX. On utilise \`.map()\` qui transforme chaque élément du tableau en JSX.
+
+### Syntaxe
+\`{items.map(item => <li key={item.id}>{item.texte}</li>)}\`
+
+### Pourquoi la prop key ?
+La \`key\` est un identifiant unique que React utilise pour suivre chaque élément lors des mises à jour. Sans key, React ne sait pas **quoi** a changé → il re-rend tout.
+
+### Quelle valeur utiliser comme key ?
+1. **ID unique de la donnée** (base de données, UUID) → recommandé
+2. **Index du tableau** \`i\` → acceptable seulement si la liste ne change jamais d'ordre
+3. **Valeur stable et unique** (ex: un slug, un code)
+
+### Ajouter / supprimer des éléments
+- Ajouter : \`setItems(prev => [...prev, nouvelElement])\` — toujours créer un nouveau tableau
+- Supprimer : \`setItems(prev => prev.filter(i => i.id !== id))\`
+- Modifier : \`setItems(prev => prev.map(i => i.id === id ? {...i, ...changes} : i))\`
+
+⚠️ La \`key\` doit être **unique parmi les frères** (siblings), pas forcément globalement unique.
+⚠️ Ne jamais utiliser \`Math.random()\` comme key — elle change à chaque render et détruit les performances.
+✅ Tu peux aussi utiliser \`.filter()\` avant \`.map()\` pour afficher une liste filtrée.`
 
 const emojis = ['🍎', '🍌', '🍊', '🍇', '🥝', '🍓', '🫐', '🍑']
 

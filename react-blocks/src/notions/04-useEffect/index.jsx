@@ -21,10 +21,30 @@ function Minuterie() {
   return (/* ... */)
 }`
 
-export const explication = `**useEffect** synchronise un composant avec un système externe.
-- S'exécute **après** chaque rendu par défaut
-- Le tableau \`[deps]\` contrôle **quand** il se relance
-- La **fonction de cleanup** évite les fuites mémoire`
+export const explication = `### À quoi sert useEffect ?
+**useEffect** permet de synchroniser ton composant avec quelque chose **en dehors de React** : un timer, une API, le titre de la page, un écouteur d'événement, etc. Il s'exécute **après** que React a mis à jour le DOM.
+
+### Syntaxe complète
+\`useEffect(() => { /* effet */ return () => { /* cleanup */ } }, [deps])\`
+
+### Le tableau de dépendances
+- **Absent** \`useEffect(fn)\` → s'exécute après **chaque** render
+- **Vide** \`useEffect(fn, [])\` → s'exécute **une seule fois** au montage
+- **Avec deps** \`useEffect(fn, [a, b])\` → se relance quand \`a\` ou \`b\` change
+
+### La fonction de cleanup
+Elle s'exécute **avant** le prochain effet, et au **démontage** du composant.
+Indispensable pour : \`clearInterval\`, \`removeEventListener\`, annuler une requête.
+
+### Cas d'usage courants
+1. Charger des données depuis une API au montage
+2. S'abonner à un WebSocket ou un événement
+3. Synchroniser avec \`localStorage\`
+4. Modifier \`document.title\`
+
+⚠️ Ne mets pas \`async\` directement dans useEffect : \`useEffect(async () => {...})\` est incorrect. Crée une fonction async à l'intérieur.
+⚠️ Oublier le cleanup d'un \`setInterval\` provoque une **fuite mémoire** : le timer continue même après que le composant a disparu.
+✅ Si tu te demandes "pourquoi mon effet s'exécute en boucle ?" → vérifie que les dépendances ne changent pas à chaque render (objets/fonctions créés à l'intérieur du composant).`
 
 export default function UseEffectNotion() {
   const [secondes, setSecondes] = useState(0)

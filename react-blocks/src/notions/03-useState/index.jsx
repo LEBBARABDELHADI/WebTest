@@ -33,12 +33,28 @@ function Panier() {
   return (/* ... */)
 }`
 
-export const explication = `**useState** permet à un composant de mémoriser une valeur entre les renders.
-- Syntaxe : \`const [état, setÉtat] = useState(valeurInitiale)\`
-- À chaque \`setÉtat()\` → React **re-rend** le composant avec la nouvelle valeur
-- L'état initial ne s'applique qu'au **premier rendu**
-- Pour mettre à jour selon l'état précédent, utilise la forme fonctionnelle : \`setCount(prev => prev + 1)\`
-- Chaque appel à useState crée un état **indépendant**`
+export const explication = `### Qu'est-ce que l'état ?
+L'**état** (state) est une valeur que le composant mémorise entre ses renders. Quand l'état change, React re-rend le composant automatiquement pour refléter la nouvelle valeur à l'écran.
+
+### Syntaxe
+\`const [valeur, setValeur] = useState(valeurInitiale)\`
+- \`valeur\` → la valeur actuelle de l'état
+- \`setValeur\` → la fonction pour la modifier
+- \`valeurInitiale\` → uniquement utilisée au **premier rendu**
+
+### 2 façons de mettre à jour
+1. **Directe** : \`setCount(count + 1)\` — utilise la valeur courante
+2. **Fonctionnelle** : \`setCount(prev => prev + 1)\` — utilise l'état précédent (recommandé quand la mise à jour dépend de l'état actuel)
+
+### Ce qui déclenche un re-render
+- Appeler \`setValeur()\` avec une **nouvelle valeur** (React compare avec \`Object.is\`)
+- Si la valeur est la même, React ne re-rend **pas**
+
+### Les pièges courants
+⚠️ Ne jamais modifier l'état directement : \`count = count + 1\` → React ne sait pas qu'il y a eu un changement.
+⚠️ Pour les objets et tableaux, toujours créer une **nouvelle référence** : \`setUser({ ...user, nom: 'Alice' })\` et non \`user.nom = 'Alice'\`
+⚠️ \`useState\` est asynchrone : juste après \`setCount(5)\`, \`count\` vaut encore l'ancienne valeur.
+✅ Chaque appel à \`useState\` est indépendant — tu peux en avoir autant que nécessaire dans un composant.`
 
 const ITEMS = ['☕ Café', '🍕 Pizza', '🎮 Jeux', '📚 Livre', '🎧 Casque']
 const COLORS = ['#6c63ff', '#4ade80', '#f87171', '#fbbf24', '#a78bfa']
