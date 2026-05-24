@@ -10,10 +10,11 @@ import UseRefNotion from './09-useRef'
 import HookCustomNotion from './10-hookCustom'
 
 // Import du code source brut de chaque fichier notion via Vite
-const rawFiles = import.meta.glob('./**/index.jsx', { as: 'raw', eager: true })
+const rawFiles = import.meta.glob('./**/index.jsx', { query: '?raw', import: 'default', eager: true })
 
 // Extrait les imports + la fonction export default (code réel de la démo)
 function extractDemoSource(raw) {
+  if (!raw) return '// Source non disponible'
   const lines = raw.split('\n')
   const importLines = lines.filter(l => l.trimStart().startsWith('import'))
   const demoStart = raw.indexOf('export default function')
