@@ -20,10 +20,33 @@ function App() {
   return <input value={nom} onChange={e => setNom(e.target.value)} />
 }`
 
-export const explication = `Un **hook personnalisé** est une fonction dont le nom commence par \`use\` et qui appelle d'autres hooks.
-- Permet de **réutiliser de la logique** entre composants
-- N'est pas un composant : ne retourne pas de JSX
-- Peut appeler \`useState\`, \`useEffect\`, etc.`
+export const explication = `### Qu'est-ce qu'un hook personnalisé ?
+Un **hook personnalisé** est une fonction JavaScript dont le nom commence par \`use\` et qui appelle d'autres hooks React. Ce n'est **pas** un composant — il ne retourne pas de JSX, mais de la logique réutilisable.
+
+### Pourquoi en créer ?
+Quand tu copies-colles la même logique (\`useState\` + \`useEffect\`) dans plusieurs composants, c'est le signe qu'il faut extraire un hook. C'est l'équivalent React des fonctions utilitaires.
+
+### Structure type
+\`function useMonHook(paramètre) {\`
+\`  const [état, setÉtat] = useState(...)\`
+\`  useEffect(() => { ... }, [paramètre])\`
+\`  return état\` ou \`[état, setÉtat]\` ou un objet
+\`}\`
+
+### Les hooks de la démo
+1. **\`useLocalStorage\`** : synchronise un état avec \`localStorage\` → données persistantes
+2. **\`useDebounce\`** : attend la fin de frappe → évite trop d'appels API
+3. **\`useWindowSize\`** : écoute le resize → dimensions en temps réel
+
+### Règles des hooks (s'appliquent aussi aux customs)
+1. Appeler les hooks uniquement au **niveau supérieur** (pas dans des if/boucles)
+2. Appeler les hooks uniquement dans des **composants React** ou d'autres hooks
+
+### Bibliothèques populaires
+Des milliers de hooks prêts à l'emploi existent : \`usehooks-ts\`, \`react-use\`, \`ahooks\`.
+
+⚠️ Le préfixe \`use\` n'est pas optionnel — sans lui, React ne peut pas vérifier les règles des hooks.
+✅ Un bon hook personnalisé : nom clair, une seule responsabilité, bien testé.`
 
 function useLocalStorage(key, init) {
   const [val, setVal] = useState(() => {

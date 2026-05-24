@@ -3,6 +3,97 @@ import { useState } from 'react'
 import { notions } from '../notions'
 import CodeBlock from '../components/CodeBlock'
 
+function InlineText({ text }) {
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/)
+  return parts.map((p, i) => {
+    if (p.startsWith('**') && p.endsWith('**'))
+      return <strong key={i} style={{ color: '#a78bfa' }}>{p.slice(2, -2)}</strong>
+    if (p.startsWith('`') && p.endsWith('`'))
+      return <code key={i} style={{ background: '#0d0f14', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', color: '#fbbf24', fontFamily: 'monospace' }}>{p.slice(1, -1)}</code>
+    return p
+  })
+}
+
+function ExplicationRenderer({ text }) {
+  const lines = text.split('\n')
+  const blocks = []
+  let i = 0
+
+  while (i < lines.length) {
+    const line = lines[i]
+
+    if (!line.trim()) { i++; continue }
+
+    // Section header: ### titre
+    if (line.startsWith('### ')) {
+      blocks.push(
+        <p key={i} style={{ color: '#6c63ff', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '16px 0 8px' }}>
+          {line.slice(4)}
+        </p>
+      )
+    }
+    // Piège / warning: ⚠️ ...
+    else if (line.startsWith('⚠️')) {
+      blocks.push(
+        <div key={i} style={{ padding: '10px 12px', background: '#fbbf2415', border: '1px solid #fbbf2444', borderRadius: '8px', margin: '6px 0' }}>
+          <p style={{ color: '#fbbf24', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>
+            <InlineText text={line} />
+          </p>
+        </div>
+      )
+    }
+    // Tip / bon usage: ✅ ...
+    else if (line.startsWith('✅')) {
+      blocks.push(
+        <div key={i} style={{ padding: '10px 12px', background: '#4ade8015', border: '1px solid #4ade8044', borderRadius: '8px', margin: '6px 0' }}>
+          <p style={{ color: '#4ade80', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>
+            <InlineText text={line} />
+          </p>
+        </div>
+      )
+    }
+    // Numbered list: 1. ...
+    else if (/^\d+\.\s/.test(line)) {
+      const num = line.match(/^(\d+)\.\s/)[1]
+      const content = line.replace(/^\d+\.\s/, '')
+      blocks.push(
+        <div key={i} style={{ display: 'flex', gap: '10px', margin: '4px 0' }}>
+          <span style={{ color: '#6c63ff', fontWeight: 'bold', fontSize: '13px', minWidth: '18px' }}>{num}.</span>
+          <p style={{ color: '#e2e8f0', fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
+            <InlineText text={content} />
+          </p>
+        </div>
+      )
+    }
+    // Bullet list: - ...
+    else if (line.startsWith('- ')) {
+      blocks.push(
+        <div key={i} style={{ display: 'flex', gap: '10px', margin: '4px 0' }}>
+          <span style={{ color: '#6c63ff', fontSize: '16px', lineHeight: '1.4', minWidth: '10px' }}>·</span>
+          <p style={{ color: '#e2e8f0', fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
+            <InlineText text={line.slice(2)} />
+          </p>
+        </div>
+      )
+    }
+    // Normal paragraph
+    else {
+      blocks.push(
+        <p key={i} style={{ color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: '0 0 8px' }}>
+          <InlineText text={line} />
+        </p>
+      )
+    }
+    i++
+  }
+
+  return (
+    <div style={{ padding: '16px', background: '#1a1d27', borderRadius: '12px', border: '1px solid #2d3148' }}>
+      {blocks}
+    </div>
+  )
+}
+
 const niveauColor = {
   'Débutant': '#4ade80',
   'Intermédiaire': '#fbbf24',
@@ -77,24 +168,7 @@ export default function NotionPage() {
         )}
         {tab === 'code' && <CodeBlock code={notion.source || '// Code à venir'} />}
         {tab === 'explication' && (
-          <div style={{ padding: '16px', background: '#1a1d27', borderRadius: '12px', border: '1px solid #2d3148' }}>
-            {(notion.component.explication || '').split('\n').map((line, i) => {
-              const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`)/)
-              return (
-                <p key={i} style={{ color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: '0 0 8px' }}>
-                  {parts.map((p, j) => {
-                    if (p.startsWith('**') && p.endsWith('**'))
-                      return <strong key={j} style={{ color: '#a78bfa' }}>{p.slice(2, -2)}</strong>
-                    if (p.startsWith('`') && p.endsWith('`'))
-                      return <code key={j} style={{ background: '#252836', padding: '1px 5px', borderRadius: '4px', fontSize: '12px', color: '#fbbf24' }}>{p.slice(1, -1)}</code>
-                    if (p.startsWith('- '))
-                      return <span key={j}>• {p.slice(2)}</span>
-                    return p
-                  })}
-                </p>
-              )
-            })}
-          </div>
+          <ExplicationRenderer text={notion.component.explication || ''} />
         )}
       </div>
 

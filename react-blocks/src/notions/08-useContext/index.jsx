@@ -21,10 +21,32 @@ function DeepChild() {
   return <p>Thème actuel : {theme}</p>
 }`
 
-export const explication = `**useContext** permet de partager des données dans tout l'arbre sans passer par chaque niveau.
-- Évite le **prop drilling** (passer les props à chaque niveau)
-- Idéal pour : thème, langue, utilisateur connecté
-- À ne pas sur-utiliser : préférer les props pour des données locales`
+export const explication = `### Le problème : prop drilling
+Imagine transmettre \`utilisateur\` de \`App\` → \`Layout\` → \`Sidebar\` → \`Avatar\`. Chaque niveau doit passer la prop même s'il ne l'utilise pas. C'est le **prop drilling** — long et fragile.
+
+### La solution : Context
+Le Context crée un **canal direct** entre le fournisseur et n'importe quel consommateur dans l'arbre, sans passer par les intermédiaires.
+
+### Les 3 étapes
+1. **Créer** : \`const MonCtx = createContext(valeurParDéfaut)\`
+2. **Fournir** : \`<MonCtx.Provider value={...}>\` enveloppe l'arbre
+3. **Consommer** : \`const valeur = useContext(MonCtx)\` dans n'importe quel enfant
+
+### Quand utiliser le Context ?
+- Thème (dark/light)
+- Langue / internationalisation
+- Utilisateur connecté
+- Panier d'achat global
+
+### Quand NE PAS l'utiliser ?
+- Données locales à 2-3 composants → props suffisent
+- Données qui changent très souvent → risque de re-renders inutiles
+
+### Optimisation
+Chaque composant qui consomme un contexte se re-rend quand la **valeur du Provider change**. Pour les grandes apps, séparer les contextes (ex: \`UserCtx\` et \`ThemeCtx\` séparément).
+
+⚠️ Un \`useContext\` retourne \`undefined\` si le composant n'est pas à l'intérieur du \`Provider\` correspondant.
+✅ Bonne pratique : créer un hook personnalisé \`useTheme()\` qui appelle \`useContext(ThemeCtx)\` — plus propre à utiliser.`
 
 const ThemeCtx = createContext()
 

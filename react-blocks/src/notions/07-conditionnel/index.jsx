@@ -18,10 +18,35 @@ export const code = `function Statut({ connecté }) {
   )
 }`
 
-export const explication = `**3 patterns** pour le rendu conditionnel :
-1. \`if/else\` — sortie anticipée du composant
-2. **Ternaire** \`condition ? <A/> : <B/>\` — choisir entre deux éléments
-3. **Court-circuit** \`condition && <A/>\` — afficher ou rien`
+export const explication = `### Pourquoi le rendu conditionnel ?
+En React, le JSX est du JavaScript — on peut utiliser toutes les structures conditionnelles JS pour décider **quoi afficher** selon l'état ou les props.
+
+### Les 3 patterns essentiels
+
+1. **Early return** : sortir tôt du composant si une condition est remplie
+\`if (!chargé) return <Spinner />\`
+Parfait pour les états de chargement, erreurs, ou données manquantes.
+
+2. **Ternaire** : choisir entre deux éléments
+\`{connecté ? <Dashboard /> : <LoginPage />}\`
+Utilise-le quand tu as toujours **deux options** possibles.
+
+3. **Court-circuit &&** : afficher ou rien
+\`{message && <Toast texte={message} />}\`
+Utilise-le quand tu veux **afficher ou ne rien afficher**.
+
+### Choisir le bon pattern
+- Condition simple → \`&&\`
+- Deux alternatives → ternaire \`? :\`
+- Logique complexe (3+ cas) → \`if/else\` ou variable intermédiaire
+
+### Variable intermédiaire (lisibilité)
+Pour les conditions longues, stocke le JSX dans une variable :
+\`const contenu = isLoading ? <Spinner /> : <Data />\`
+puis \`{contenu}\` dans le JSX.
+
+⚠️ Piège classique avec \`&&\` : si la condition est \`0\` (zéro), React affiche **le chiffre 0** à l'écran au lieu de rien ! Utilise \`items.length > 0 && ...\` plutôt que \`items.length && ...\`
+✅ Évite les ternaires imbriqués — ils deviennent illisibles. Préfère un \`if/else\` ou un switch.`
 
 export default function ConditionnelNotion() {
   const [connecté, setConnecté] = useState(false)

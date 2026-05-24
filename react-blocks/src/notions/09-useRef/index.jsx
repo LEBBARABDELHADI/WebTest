@@ -21,10 +21,34 @@ function Demo() {
   )
 }`
 
-export const explication = `**useRef** retourne un objet \`{ current: valeur }\` qui persiste entre les renders.
-- Accéder au **DOM** : focus, scroll, mesures
-- Stocker une valeur **sans déclencher de re-render**
-- Contrairement à useState, modifier \`.current\` ne re-rend pas`
+export const explication = `### Qu'est-ce que useRef ?
+\`useRef\` retourne un objet \`{ current: valeur }\` qui **persiste entre les renders** mais dont la modification ne déclenche **pas** de re-render. C'est sa différence fondamentale avec \`useState\`.
+
+### Les 2 usages principaux
+
+**1. Accéder au DOM directement**
+\`const inputRef = useRef(null)\`
+\`<input ref={inputRef} />\`
+Puis : \`inputRef.current.focus()\` — accès direct à l'élément HTML.
+
+**2. Mémoriser une valeur sans re-render**
+\`const renderCount = useRef(0)\`
+\`renderCount.current += 1\` — incrémente sans déclencher de re-render.
+Utile pour : compter les renders, stocker l'ID d'un timer, garder la valeur précédente.
+
+### useRef vs useState
+- \`useState\` → valeur qui **affecte l'interface** → déclenche un re-render
+- \`useRef\` → valeur **interne** (timer, DOM, compteur) → pas de re-render
+
+### Usages courants du DOM
+- \`focus()\` sur un input
+- \`scrollIntoView()\` pour scroller vers un élément
+- \`getBoundingClientRect()\` pour mesurer un élément
+- Contrôler une animation ou un canvas
+
+⚠️ Ne pas lire/modifier \`ref.current\` pendant le rendu — seulement dans des event handlers ou \`useEffect\`.
+⚠️ Si tu mets une \`ref\` sur un composant React (et non un élément HTML), il faut utiliser \`forwardRef\`.
+✅ Pour stocker la valeur précédente d'un état : \`const prevCount = useRef(); useEffect(() => { prevCount.current = count }, [count])`
 
 export default function UseRefNotion() {
   const inputRef = useRef(null)
