@@ -120,7 +120,6 @@ export default function NotionPage() {
   }
 
   const Demo = notion.component
-  const { code, explication } = notion.component
 
   return (
     <div style={{ maxWidth: '520px', margin: '0 auto', padding: '16px 16px 40px' }}>
@@ -168,7 +167,7 @@ export default function NotionPage() {
         )}
         {tab === 'code' && <CodeBlock code={notion.source || '// Code à venir'} />}
         {tab === 'explication' && (
-          <ExplicationRenderer text={notion.component.explication || ''} />
+          <ExplicationRenderer text={notion.explication || ''} />
         )}
       </div>
 
