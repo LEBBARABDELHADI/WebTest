@@ -15,6 +15,18 @@
           "type": "tache",
           "texte": "tache1",
           "fait": false
+        },
+        {
+          "id": "muk32jve1oolv",
+          "type": "choix",
+          "question": "",
+          "options": [
+            {
+              "id": "muk32jve5olf9",
+              "texte": ""
+            }
+          ],
+          "sélection": null
         }
       ]
     },
