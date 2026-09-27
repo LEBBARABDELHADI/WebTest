@@ -40,12 +40,14 @@
       "texte": "tto",
       "étiquettes": [
         "e1"
-      ]
+      ],
+      "archivé": true
     },
     {
       "id": "muk2rv15o40rn",
       "colonneId": "c1",
-      "texte": "tata"
+      "texte": "tata",
+      "archivé": true
     },
     {
       "id": "muk2rzccce6dn",
