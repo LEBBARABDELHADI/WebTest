@@ -16,6 +16,12 @@
       "couleur": "#a78bfa"
     }
   ],
-  "cartes": [],
+  "cartes": [
+    {
+      "id": "muk2050oja1lr",
+      "colonneId": "c1",
+      "texte": "test"
+    }
+  ],
   "timeline": []
 }
