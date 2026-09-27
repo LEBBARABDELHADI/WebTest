@@ -23,5 +23,12 @@
       "texte": "test"
     }
   ],
-  "timeline": []
+  "timeline": [
+    {
+      "id": "muk1bi6fjkay7",
+      "colonneId": "c1",
+      "texte": "test",
+      "date": "2026-09-27"
+    }
+  ]
 }
