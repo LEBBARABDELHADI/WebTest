@@ -130,7 +130,8 @@
     {
       "id": "muke25pcszafl",
       "colonneId": "c1",
-      "texte": "test"
+      "texte": "test",
+      "archivé": true
     }
   ],
   "timeline": [
