@@ -28,7 +28,9 @@ export default function Taches() {
   const [texteÉdition, setTexteÉdition] = useState('')
   const [colonneÉditionId, setColonneÉditionId] = useState(null)
   const [titreÉdition, setTitreÉdition] = useState('')
+  const [messageImport, setMessageImport] = useState('')
   const dragCarte = useRef(null)
+  const fichierRef = useRef(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
@@ -92,14 +94,63 @@ export default function Taches() {
     }))
   }
 
+  const exporter = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const date = new Date().toISOString().slice(0, 10)
+    a.href = url
+    a.download = `mes-taches-${date}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const importer = e => {
+    const fichier = e.target.files[0]
+    if (!fichier) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const contenu = JSON.parse(reader.result)
+        if (!Array.isArray(contenu.colonnes) || !Array.isArray(contenu.cartes)) {
+          throw new Error('format invalide')
+        }
+        setData(contenu)
+        setMessageImport('✅ Fichier importé')
+      } catch {
+        setMessageImport('❌ Fichier invalide')
+      }
+      setTimeout(() => setMessageImport(''), 3000)
+    }
+    reader.readAsText(fichier)
+    e.target.value = ''
+  }
+
   return (
     <div style={{ maxWidth: '100%', margin: '0 auto', padding: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', maxWidth: '520px', margin: '0 auto 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', maxWidth: '520px', margin: '0 auto 10px' }}>
         <Link to="/" style={{ color: '#94a3b8', fontSize: '14px' }}>← Accueil</Link>
         <div style={{ flex: 1 }} />
         <h1 style={{ fontSize: '18px', color: '#e2e8f0', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
           📋 Mes tâches
         </h1>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px', maxWidth: '520px', margin: '0 auto 20px' }}>
+        <button onClick={exporter} style={{
+          fontSize: '12px', color: '#94a3b8', background: '#1a1d27', border: '1px solid #2d3148',
+          borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+        }}>⬇ Exporter (.json)</button>
+        <button onClick={() => fichierRef.current?.click()} style={{
+          fontSize: '12px', color: '#94a3b8', background: '#1a1d27', border: '1px solid #2d3148',
+          borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+        }}>⬆ Importer</button>
+        <input ref={fichierRef} type="file" accept="application/json" onChange={importer} style={{ display: 'none' }} />
+        {messageImport && (
+          <span style={{ fontSize: '12px', color: messageImport.startsWith('✅') ? '#4ade80' : '#f87171', alignSelf: 'center' }}>
+            {messageImport}
+          </span>
+        )}
       </div>
 
       <div style={{
@@ -233,6 +284,7 @@ export default function Taches() {
 
       <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
         Glisse une carte vers une autre colonne pour la déplacer · sauvegarde automatique sur cet appareil
+        <br />Utilise « Exporter » pour garder un fichier de sauvegarde ou le transférer vers un autre appareil
       </p>
     </div>
   )
