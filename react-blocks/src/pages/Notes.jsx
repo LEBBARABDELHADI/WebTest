@@ -217,6 +217,25 @@ export default function Notes() {
     })
   }
 
+  const réordonnerNote = (id, direction) => {
+    setData(d => {
+      const note = d.notes.find(n => n.id === id)
+      if (!note) return d
+      const indicesCatégorie = d.notes
+        .map((n, i) => ({ n, i }))
+        .filter(o => o.n.catégorie === note.catégorie)
+        .map(o => o.i)
+      const pos = indicesCatégorie.indexOf(d.notes.indexOf(note))
+      const nouvellePos = pos + direction
+      if (nouvellePos < 0 || nouvellePos >= indicesCatégorie.length) return d
+      const notes = [...d.notes]
+      const iA = indicesCatégorie[pos]
+      const iB = indicesCatégorie[nouvellePos]
+      ;[notes[iA], notes[iB]] = [notes[iB], notes[iA]]
+      return { ...d, notes }
+    })
+  }
+
   const lierTâche = (noteId, espace, carte) => {
     setData(d => ({
       notes: d.notes.map(n => n.id === noteId ? { ...n, carteLiée: { espace, carteId: carte.id, texte: carte.texte } } : n),
@@ -386,9 +405,11 @@ export default function Notes() {
         onBlur={e => { e.currentTarget.style.transform = `rotate(${rotation})` }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span title="Glisser pour réordonner" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
+          <span title="Glisser pour réordonner (ordinateur)" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
             <Icon nom="glisser" taille={14} />
           </span>
+          <BoutonIcone icon="chevronHaut" title="Monter" taille={13} onClick={() => réordonnerNote(note.id, -1)} />
+          <BoutonIcone icon="chevronBas" title="Descendre" taille={13} onClick={() => réordonnerNote(note.id, 1)} />
           <button
             onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
             title="Changer la couleur"
