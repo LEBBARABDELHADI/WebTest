@@ -28,6 +28,7 @@ export default function Home() {
         {[
           { to: '/taches/perso', emoji: '🏡', titre: 'Programme perso', desc: 'Ton tableau personnel — propre fichier de sauvegarde sur GitHub' },
           { to: '/taches/pro', emoji: '💼', titre: 'Programme pro', desc: 'Ton tableau professionnel — indépendant du perso, propre fichier' },
+          { to: '/notes', emoji: '📝', titre: 'Notes', desc: 'Blocs texte, tâches et choix (radio) — encore un fichier à part' },
         ].map(p => (
           <Link key={p.to} to={p.to}>
             <div style={{

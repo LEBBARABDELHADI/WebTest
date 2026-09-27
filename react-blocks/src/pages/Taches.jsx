@@ -4,6 +4,8 @@ import donnéesPerso from '../data/taches-perso.json'
 import donnéesPro from '../data/taches-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
+import { BoutonIcone, Repli } from '../components/UI'
+import { T, grotesk, serif } from '../lib/theme'
 
 const ESPACES = {
   perso: {
@@ -23,23 +25,6 @@ const ESPACES = {
     données: donnéesPro,
   },
 }
-
-const T = {
-  bg: '#141210',
-  surface: '#1c1814',
-  surface2: '#26201a',
-  border: '#3a3125',
-  text: '#f3ecdf',
-  textMuted: '#a99a80',
-  accent: '#f0a839',
-  accentText: '#221806',
-  accentSoft: 'rgba(240,168,57,0.14)',
-  danger: '#e2574c',
-  dangerSoft: 'rgba(226,87,76,0.12)',
-}
-
-const grotesk = "'Space Grotesk', 'Segoe UI', sans-serif"
-const serif = "'Fraunces', Georgia, serif"
 
 const PALETTE_ÉTIQUETTES = [T.accent, T.danger, '#4a9d94', '#5b8dc9', '#8b7ab8']
 
@@ -66,40 +51,6 @@ function uid() {
 
 function formatDateCourte(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-}
-
-function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taille = 15 }) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      aria-label={title}
-      style={{
-        width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'transparent', border: 'none', borderRadius: '7px',
-        color: couleur, cursor: 'pointer', flexShrink: 0,
-      }}
-    >
-      <Icon nom={icon} taille={taille} />
-    </button>
-  )
-}
-
-function Repli({ icon, texte, ouvert, onToggle, marginBottom }) {
-  return (
-    <button
-      onClick={onToggle}
-      style={{
-        display: 'flex', alignItems: 'center', gap: '9px', width: '100%',
-        background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px',
-        padding: '10px 12px', marginBottom, cursor: 'pointer',
-      }}
-    >
-      {icon}
-      <span style={{ fontSize: '12px', color: T.textMuted, flex: 1, textAlign: 'left', fontFamily: grotesk }}>{texte}</span>
-      <Icon nom="chevronBas" taille={14} style={{ color: T.textMuted, transform: ouvert ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
-    </button>
-  )
 }
 
 export default function Taches() {
