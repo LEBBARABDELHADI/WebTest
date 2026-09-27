@@ -10,6 +10,10 @@ const chemins = {
   televerser: 'M12 21V9 M7 14l5-5 5 5 M4 3h16',
   fleche: 'm9 18 6-6-6-6',
   point: 'M12 12h.01',
+  horloge: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M12 7v5l3 3',
+  etiquette: 'M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.41l9 9a2 2 0 0 0 2.82 0l7.17-7.17a2 2 0 0 0 0-2.82ZM7 7h.01',
+  checklist: 'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+  cible: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z',
 }
 
 export default function Icon({ nom, taille = 16, trait = 2, ...props }) {
