@@ -363,7 +363,7 @@ export default function Taches() {
   }[statutSync]
 
   return (
-    <div style={{ background: T.bg, minHeight: '100dvh', padding: '30px 16px 40px' }}>
+    <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 40px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
