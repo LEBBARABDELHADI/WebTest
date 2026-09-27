@@ -371,6 +371,10 @@ export default function Taches() {
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
+            <Link to="/notes" title="Notes" aria-label="Notes" style={{
+              width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: '7px', color: T.textMuted,
+            }}><Icon nom="note" taille={15} /></Link>
             <BoutonIcone icon="telecharger" title="Exporter en .json" onClick={exporter} />
             <BoutonIcone icon="televerser" title="Importer un .json" onClick={() => fichierRef.current?.click()} />
             <input ref={fichierRef} type="file" accept="application/json" onChange={importer} style={{ display: 'none' }} />
