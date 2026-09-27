@@ -1,0 +1,8 @@
+{
+  "colonnes": [
+    { "id": "c1", "titre": "Aujourd'hui", "couleur": "#fbbf24" },
+    { "id": "c2", "titre": "Cette semaine", "couleur": "#4ade80" },
+    { "id": "c3", "titre": "Plus tard", "couleur": "#a78bfa" }
+  ],
+  "cartes": []
+}
