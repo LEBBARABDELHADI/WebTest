@@ -23,46 +23,6 @@
           "fait": false
         }
       ]
-    },
-    {
-      "id": "n1",
-      "titre": "Bienvenue 👋",
-      "couleur": "#f0a839",
-      "blocs": [
-        {
-          "id": "b1",
-          "type": "texte",
-          "contenu": "Ceci est une note. Ajoute des blocs texte, tâche ou choix avec les boutons en bas de la carte."
-        },
-        {
-          "id": "b2",
-          "type": "tache",
-          "texte": "Coche une tâche pour voir l'effet",
-          "fait": false
-        },
-        {
-          "id": "b3",
-          "type": "choix",
-          "question": "Un bloc « choix » = un bouton radio",
-          "options": [
-            {
-              "id": "o1",
-              "texte": "Option A"
-            },
-            {
-              "id": "o2",
-              "texte": "Option B"
-            }
-          ],
-          "sélection": "o1"
-        },
-        {
-          "id": "muk32v93hlzsm",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ]
     }
   ]
 }
