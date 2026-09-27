@@ -111,6 +111,11 @@
       "id": "muk87wwegfb0m",
       "colonneId": "c2",
       "texte": "Bash"
+    },
+    {
+      "id": "muk883gfjhq2s",
+      "colonneId": "c2",
+      "texte": "Gitlab runner"
     }
   ],
   "timeline": [
