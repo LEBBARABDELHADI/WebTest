@@ -12,6 +12,11 @@ function TachesRoute() {
   return <Taches key={espace} />
 }
 
+function NotesRoute() {
+  const { espace } = useParams()
+  return <Notes key={espace} />
+}
+
 function App() {
   return (
     <Routes>
@@ -19,7 +24,8 @@ function App() {
       <Route path="/notion/:id" element={<NotionPage />} />
       <Route path="/taches" element={<Navigate to="/taches/perso" replace />} />
       <Route path="/taches/:espace" element={<TachesRoute />} />
-      <Route path="/notes" element={<Notes />} />
+      <Route path="/notes" element={<Navigate to="/notes/perso" replace />} />
+      <Route path="/notes/:espace" element={<NotesRoute />} />
     </Routes>
   )
 }
