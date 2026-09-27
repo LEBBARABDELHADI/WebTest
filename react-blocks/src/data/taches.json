@@ -17,9 +17,21 @@
     }
   ],
   "étiquettes": [
-    { "id": "e1", "nom": "Urgent", "couleur": "#e2574c" },
-    { "id": "e2", "nom": "Perso", "couleur": "#4a9d94" },
-    { "id": "e3", "nom": "Travail", "couleur": "#5b8dc9" }
+    {
+      "id": "e1",
+      "nom": "Urgent",
+      "couleur": "#e2574c"
+    },
+    {
+      "id": "e2",
+      "nom": "Perso",
+      "couleur": "#4a9d94"
+    },
+    {
+      "id": "e3",
+      "nom": "Travail",
+      "couleur": "#5b8dc9"
+    }
   ],
   "cartes": [
     {
@@ -31,6 +43,11 @@
       "id": "muk20djgred1e",
       "colonneId": "c1",
       "texte": "test2"
+    },
+    {
+      "id": "muk2c4ieaowkn",
+      "colonneId": "c1",
+      "texte": "test"
     }
   ],
   "timeline": [
