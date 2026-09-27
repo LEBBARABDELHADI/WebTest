@@ -7,7 +7,10 @@ const STORAGE_KEY = 'react-blocs-taches'
 function chargerDonnées() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return { ...parsed, timeline: Array.isArray(parsed.timeline) ? parsed.timeline : [] }
+    }
   } catch { /* ignore */ }
   // Aucune sauvegarde locale : on part du fichier data/taches.json du projet
   return donnéesInitiales
@@ -75,6 +78,26 @@ export default function Taches() {
     }
   }
 
+  const ajouterÉvénementTimeline = (carteId, date) => {
+    const carte = data.cartes.find(c => c.id === carteId)
+    if (!carte) return
+    setData(d => ({
+      ...d,
+      timeline: [...d.timeline, { id: uid(), colonneId: carte.colonneId, texte: carte.texte, date }],
+    }))
+  }
+
+  const supprimerÉvénementTimeline = id => {
+    setData(d => ({ ...d, timeline: d.timeline.filter(ev => ev.id !== id) }))
+  }
+
+  const onDropTimeline = date => {
+    if (dragCarte.current) {
+      ajouterÉvénementTimeline(dragCarte.current, date)
+      dragCarte.current = null
+    }
+  }
+
   const démarrerÉditionColonne = col => {
     setColonneÉditionId(col.id)
     setTitreÉdition(col.titre)
@@ -111,7 +134,7 @@ export default function Taches() {
         if (!Array.isArray(contenu.colonnes) || !Array.isArray(contenu.cartes)) {
           throw new Error('format invalide')
         }
-        setData(contenu)
+        setData({ ...contenu, timeline: Array.isArray(contenu.timeline) ? contenu.timeline : [] })
         setMessageImport('✅ Fichier importé')
       } catch {
         setMessageImport('❌ Fichier invalide')
@@ -121,6 +144,17 @@ export default function Taches() {
     reader.readAsText(fichier)
     e.target.value = ''
   }
+
+  const aujourdhuiISO = new Date().toISOString().slice(0, 10)
+  const jours = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() + i)
+    return {
+      iso: d.toISOString().slice(0, 10),
+      label: d.toLocaleDateString('fr-FR', { weekday: 'short' }),
+      num: d.getDate(),
+    }
+  })
 
   return (
     <div style={{ maxWidth: '100%', margin: '0 auto', padding: '16px' }}>
@@ -276,6 +310,60 @@ export default function Taches() {
             </div>
           )
         })}
+      </div>
+
+      <div style={{ maxWidth: '1100px', margin: '28px auto 0' }}>
+        <h2 style={{ fontSize: '15px', color: '#e2e8f0', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          🗓 Timeline
+        </h2>
+        <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 12px' }}>
+          Glisse une carte depuis un bloc et dépose-la sur un jour — une copie est planifiée ici, l'originale reste dans son bloc
+        </p>
+        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '4px 4px 16px' }}>
+          {jours.map(jour => {
+            const événements = data.timeline.filter(ev => ev.date === jour.iso)
+            const estAujourdhui = jour.iso === aujourdhuiISO
+            return (
+              <div
+                key={jour.iso}
+                onDragOver={e => e.preventDefault()}
+                onDrop={() => onDropTimeline(jour.iso)}
+                style={{
+                  minWidth: '140px', maxWidth: '140px', flexShrink: 0,
+                  background: estAujourdhui ? '#6c63ff15' : '#1a1d27',
+                  border: estAujourdhui ? '1px solid #6c63ff' : '1px solid #2d3148',
+                  borderRadius: '10px', padding: '10px',
+                  display: 'flex', flexDirection: 'column', gap: '8px',
+                }}
+              >
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ margin: 0, fontSize: '11px', color: estAujourdhui ? '#a78bfa' : '#94a3b8', textTransform: 'capitalize' }}>
+                    {jour.label}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#e2e8f0' }}>{jour.num}</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minHeight: '30px' }}>
+                  {événements.map(ev => {
+                    const colOrigine = data.colonnes.find(c => c.id === ev.colonneId)
+                    return (
+                      <div key={ev.id} style={{
+                        background: '#252836', borderRadius: '6px', padding: '6px 8px',
+                        borderLeft: `3px solid ${colOrigine?.couleur || '#6c63ff'}`,
+                      }}>
+                        <p style={{ margin: '0 0 4px', fontSize: '11px', color: '#e2e8f0', lineHeight: '1.4', wordBreak: 'break-word' }}>
+                          {ev.texte}
+                        </p>
+                        <button onClick={() => supprimerÉvénementTimeline(ev.id)} style={{
+                          fontSize: '10px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                        }}>🗑 Retirer</button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
