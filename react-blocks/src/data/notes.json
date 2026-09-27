@@ -1,6 +1,13 @@
 {
   "notes": [
     {
+      "id": "mukcdibntfms7",
+      "titre": "Nouvelle note",
+      "couleur": "#8b7ab8",
+      "catégorie": "autres",
+      "blocs": []
+    },
+    {
       "id": "muk5460gsk0f0",
       "titre": "Idée",
       "couleur": "#e2574c",
