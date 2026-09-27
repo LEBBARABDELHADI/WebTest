@@ -16,33 +16,7 @@
       "couleur": "#a78bfa"
     }
   ],
-  "cartes": [
-    {
-      "id": "muk1bfxzgudqv",
-      "colonneId": "c1",
-      "texte": "test"
-    },
-    {
-      "id": "muk1blbrmm7be",
-      "colonneId": "c1",
-      "texte": "tesst2"
-    },
-    {
-      "id": "muk1n586k8ejy",
-      "colonneId": "c1",
-      "texte": "Test"
-    },
-    {
-      "id": "muk1nf2jpr4vi",
-      "colonneId": "c1",
-      "texte": "Prog"
-    },
-    {
-      "id": "muk1nrqouw3bl",
-      "colonneId": "c1",
-      "texte": "Programme"
-    }
-  ],
+  "cartes": [],
   "timeline": [
     {
       "id": "muk1bi6fjkay7",
