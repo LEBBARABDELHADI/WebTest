@@ -225,7 +225,7 @@ export default function Notes() {
   }[statutSync]
 
   return (
-    <div style={{ background: T.bg, minHeight: '100dvh', padding: '2.8cm 16px 60px' }}>
+    <div style={{ background: T.bg, minHeight: '100dvh', padding: '4.8cm 16px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
