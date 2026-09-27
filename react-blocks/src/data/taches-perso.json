@@ -37,12 +37,14 @@
     {
       "id": "muk2050oja1lr",
       "colonneId": "c1",
-      "texte": "test"
+      "texte": "test",
+      "archivé": true
     },
     {
       "id": "muk20djgred1e",
       "colonneId": "c1",
-      "texte": "test2"
+      "texte": "test2",
+      "archivé": true
     },
     {
       "id": "muk2d7c6ew3ou",
@@ -65,7 +67,8 @@
           "texte": "rest",
           "fait": false
         }
-      ]
+      ],
+      "archivé": true
     }
   ],
   "timeline": [
