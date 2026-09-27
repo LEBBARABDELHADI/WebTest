@@ -54,7 +54,13 @@
         "e2",
         "e3"
       ],
-      "checklist": []
+      "checklist": [
+        {
+          "id": "muk2ezgiw8apt",
+          "texte": "test rest",
+          "fait": false
+        }
+      ]
     }
   ],
   "timeline": [
