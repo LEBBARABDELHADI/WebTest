@@ -5,7 +5,7 @@ import donnéesNotesPro from '../data/notes-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
-import { T, grotesk, serif, PALETTE } from '../lib/theme'
+import { T, grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 
 const ESPACES_TÂCHES = [
   { id: 'perso', nom: 'Perso', stockage: 'react-blocs-taches-perso' },
@@ -105,6 +105,8 @@ function nouveauBloc(type) {
 export default function Notes() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES_NOTES[espaceParam] || ESPACES_NOTES.perso
+  const T = useTheme()
+  const { mode, basculer } = useThemeMode()
 
   const [data, setData] = useState(() => chargerDonnées(config))
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '')
@@ -632,6 +634,7 @@ export default function Notes() {
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
+            <BoutonIcone icon={mode === 'sombre' ? 'soleil' : 'lune'} title={mode === 'sombre' ? 'Thème clair' : 'Thème sombre'} onClick={basculer} />
             <Link to={`/taches/${config.id}`} title="Tâches" aria-label="Tâches" style={{
               width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               borderRadius: '7px', color: T.textMuted,
