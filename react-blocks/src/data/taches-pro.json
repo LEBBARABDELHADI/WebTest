@@ -58,7 +58,8 @@
     {
       "id": "muk8b0zhfwr90",
       "colonneId": "c1",
-      "texte": "Donner tdwira à bijouya"
+      "texte": "Donner tdwira à bijouya",
+      "archivé": true
     },
     {
       "id": "muk8aszfmkdco",
@@ -66,7 +67,8 @@
       "texte": "Faire des bisous à bijouya",
       "étiquettes": [
         "e1"
-      ]
+      ],
+      "archivé": true
     },
     {
       "id": "muk8b7t7t4qno",
