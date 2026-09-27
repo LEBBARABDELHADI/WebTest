@@ -10,7 +10,8 @@
           "type": "texte",
           "contenu": ""
         }
-      ]
+      ],
+      "catégorie": "faire"
     },
     {
       "id": "muk326xnya0pn",
@@ -34,7 +35,8 @@
           "texte": "tache 2",
           "fait": false
         }
-      ]
+      ],
+      "catégorie": "autres"
     },
     {
       "id": "muk5455wjf927",
@@ -57,7 +59,8 @@
           "texte": "",
           "fait": false
         }
-      ]
+      ],
+      "catégorie": "autres"
     },
     {
       "id": "muk541q9ybpso",
@@ -82,7 +85,8 @@
           "texte": "",
           "fait": false
         }
-      ]
+      ],
+      "catégorie": "autres"
     }
   ]
 }
