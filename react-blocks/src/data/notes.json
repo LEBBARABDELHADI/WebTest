@@ -61,66 +61,6 @@
       ]
     },
     {
-      "id": "muk53zzufhdoi",
-      "titre": "Idée",
-      "couleur": "#5b8dc9",
-      "blocs": [
-        {
-          "id": "muk53zzu8sj2x",
-          "type": "texte",
-          "contenu": ""
-        }
-      ]
-    },
-    {
-      "id": "muk53yb7wx5i6",
-      "titre": "Réunion",
-      "couleur": "#4a9d94",
-      "blocs": [
-        {
-          "id": "muk53yb7xvm5k",
-          "type": "texte",
-          "contenu": "Ordre du jour : "
-        },
-        {
-          "id": "muk53yb7t6kg7",
-          "type": "texte",
-          "contenu": "Décisions : "
-        },
-        {
-          "id": "muk53yb7yjm3e",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ]
-    },
-    {
-      "id": "muk53v5t6b5ok",
-      "titre": "Courses",
-      "couleur": "#e2574c",
-      "blocs": [
-        {
-          "id": "muk53v5t8yuly",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "muk53v5twxlvx",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "muk53v5tf8x8h",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ]
-    },
-    {
       "id": "muk326xnya0pn",
       "titre": "Nouvelle note",
       "couleur": "#e2574c",
