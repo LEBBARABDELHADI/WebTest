@@ -4,7 +4,13 @@
       "id": "muk326xnya0pn",
       "titre": "Nouvelle note",
       "couleur": "#e2574c",
-      "blocs": []
+      "blocs": [
+        {
+          "id": "muk329rxmhkoh",
+          "type": "texte",
+          "contenu": ""
+        }
+      ]
     },
     {
       "id": "n1",
