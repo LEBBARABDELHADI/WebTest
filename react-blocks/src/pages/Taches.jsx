@@ -1,20 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import donnéesInitiales from '../data/taches.json'
 
 const STORAGE_KEY = 'react-blocs-taches'
-
-const COLONNES_DEFAUT = [
-  { id: 'c1', titre: "Aujourd'hui", couleur: '#fbbf24' },
-  { id: 'c2', titre: 'Cette semaine', couleur: '#4ade80' },
-  { id: 'c3', titre: 'Plus tard', couleur: '#a78bfa' },
-]
 
 function chargerDonnées() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw)
   } catch { /* ignore */ }
-  return { colonnes: COLONNES_DEFAUT, cartes: [] }
+  // Aucune sauvegarde locale : on part du fichier data/taches.json du projet
+  return donnéesInitiales
 }
 
 function uid() {
