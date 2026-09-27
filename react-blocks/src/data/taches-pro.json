@@ -37,7 +37,8 @@
     {
       "id": "muke2rcg8zy5k",
       "colonneId": "c1",
-      "texte": "test"
+      "texte": "test",
+      "échéance": "2026-09-28"
     }
   ],
   "timeline": [
