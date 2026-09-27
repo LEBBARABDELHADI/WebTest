@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import donnéesInitiales from '../data/taches.json'
+import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 
 const STORAGE_KEY = 'react-blocs-taches'
 
@@ -28,12 +29,84 @@ export default function Taches() {
   const [colonneÉditionId, setColonneÉditionId] = useState(null)
   const [titreÉdition, setTitreÉdition] = useState('')
   const [messageImport, setMessageImport] = useState('')
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '')
+  const [tokenSaisi, setTokenSaisi] = useState('')
+  const [statutSync, setStatutSync] = useState(token ? 'chargement' : 'lecture')
+  const [erreurSync, setErreurSync] = useState('')
   const dragCarte = useRef(null)
   const fichierRef = useRef(null)
+  const shaRef = useRef(null)
+  const syncTimeoutRef = useRef(null)
+  const ignoreProchaineÉcritureRef = useRef(false)
+  const prêtPourSyncRef = useRef(false)
+  const dernierEnvoiRef = useRef(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   }, [data])
+
+  // Lecture depuis le fichier data/taches.json du dépôt GitHub (fonctionne
+  // sans token car le dépôt est public) — c'est ce qui permet de retrouver
+  // les mêmes données sur n'importe quel ordinateur.
+  useEffect(() => {
+    let annulé = false
+    setStatutSync(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
+    lireDepuisGitHub(token)
+      .then(({ data: distant, sha }) => {
+        if (annulé) return
+        shaRef.current = sha
+        dernierEnvoiRef.current = JSON.stringify(distant)
+        ignoreProchaineÉcritureRef.current = true
+        setData({ ...distant, timeline: Array.isArray(distant.timeline) ? distant.timeline : [] })
+        setStatutSync(token ? 'connecté' : 'lecture-seule')
+      })
+      .catch(err => {
+        if (annulé) return
+        setStatutSync('erreur')
+        setErreurSync(err.message)
+      })
+      .finally(() => { prêtPourSyncRef.current = true })
+    return () => { annulé = true }
+  }, [token])
+
+  // Écriture différée vers GitHub après chaque modification, si un token
+  // est configuré. Sans token, seule la sauvegarde locale (ci-dessus) joue.
+  useEffect(() => {
+    if (!token) return
+    if (!prêtPourSyncRef.current) return
+    if (ignoreProchaineÉcritureRef.current) { ignoreProchaineÉcritureRef.current = false; return }
+    const contenu = JSON.stringify(data)
+    if (contenu === dernierEnvoiRef.current) return
+    clearTimeout(syncTimeoutRef.current)
+    syncTimeoutRef.current = setTimeout(() => {
+      setStatutSync('synchronisation')
+      écrireVersGitHub(data, token, shaRef.current)
+        .then(({ sha }) => {
+          shaRef.current = sha
+          dernierEnvoiRef.current = contenu
+          setStatutSync('connecté')
+        })
+        .catch(err => {
+          setStatutSync('erreur')
+          setErreurSync(err.message)
+        })
+    }, 1500)
+    return () => clearTimeout(syncTimeoutRef.current)
+  }, [data, token])
+
+  const connecterToken = () => {
+    const t = tokenSaisi.trim()
+    if (!t) return
+    localStorage.setItem(TOKEN_KEY, t)
+    setTokenSaisi('')
+    setToken(t)
+  }
+
+  const déconnecterToken = () => {
+    localStorage.removeItem(TOKEN_KEY)
+    shaRef.current = null
+    setToken('')
+  }
 
   const ajouterCarte = colonneId => {
     const texte = (nouvelleCarte[colonneId] || '').trim()
@@ -180,6 +253,60 @@ export default function Taches() {
           <span style={{ fontSize: '12px', color: messageImport.startsWith('✅') ? '#4ade80' : '#f87171', alignSelf: 'center' }}>
             {messageImport}
           </span>
+        )}
+      </div>
+
+      <div style={{
+        maxWidth: '520px', margin: '0 auto 20px', padding: '12px',
+        background: '#1a1d27', borderRadius: '10px', border: '1px solid #2d3148',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: token ? '0' : '8px' }}>
+          <span style={{
+            width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0,
+            background: { lecture: '#94a3b8', 'lecture-seule': '#94a3b8', chargement: '#fbbf24', synchronisation: '#fbbf24', connecté: '#4ade80', erreur: '#f87171' }[statutSync],
+          }} />
+          <span style={{ fontSize: '12px', color: '#94a3b8', flex: 1 }}>
+            {{
+              lecture: 'Lecture depuis data/taches.json…',
+              'lecture-seule': '📖 Données lues depuis GitHub (lecture seule, pas de token)',
+              chargement: '🔄 Lecture depuis GitHub…',
+              synchronisation: '🔄 Synchronisation vers GitHub…',
+              connecté: '✅ Synchronisé avec GitHub',
+              erreur: `❌ ${erreurSync || 'Erreur de synchronisation'}`,
+            }[statutSync]}
+          </span>
+          {token && (
+            <button onClick={déconnecterToken} style={{
+              fontSize: '11px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            }}>Déconnecter</button>
+          )}
+        </div>
+
+        {!token && (
+          <div>
+            <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 8px', lineHeight: '1.5' }}>
+              Colle ici un token GitHub pour que tes modifications soient écrites dans <code style={{ background: '#0d0f14', padding: '1px 5px', borderRadius: '4px' }}>data/taches.json</code> et visibles sur tous tes appareils.
+              Génère-le sur <strong>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong>WebTest</strong>, permission <strong>Contents: Read and write</strong> uniquement.
+            </p>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <input
+                type="password"
+                value={tokenSaisi}
+                onChange={e => setTokenSaisi(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') connecterToken() }}
+                placeholder="github_pat_…"
+                style={{
+                  flex: 1, background: '#0d0f14', color: '#e2e8f0',
+                  border: '1px solid #2d3148', borderRadius: '6px',
+                  padding: '8px 10px', fontSize: '13px', outline: 'none',
+                }}
+              />
+              <button onClick={connecterToken} style={{
+                background: '#6c63ff', color: '#fff', border: 'none',
+                borderRadius: '6px', padding: '0 14px', fontSize: '13px', cursor: 'pointer',
+              }}>Connecter</button>
+            </div>
+          </div>
         )}
       </div>
 
