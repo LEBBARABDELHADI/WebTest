@@ -38,6 +38,30 @@
       ]
     },
     {
+      "id": "muk5455wjf927",
+      "titre": "Réunion",
+      "couleur": "#f0a839",
+      "blocs": [
+        {
+          "id": "muk5455wegkre",
+          "type": "texte",
+          "contenu": "Ordre du jour : "
+        },
+        {
+          "id": "muk5455wrrv5b",
+          "type": "texte",
+          "contenu": "Décisions : "
+        },
+        {
+          "id": "muk5455wkxi28",
+          "type": "tache",
+          "texte": "",
+          "fait": false
+        }
+      ],
+      "catégorie": "faire"
+    },
+    {
       "id": "mukekfg645ss8",
       "titre": "Courses",
       "couleur": "#f0a839",
@@ -203,30 +227,6 @@
       "couleur": "#f0a839",
       "catégorie": "liens",
       "blocs": []
-    },
-    {
-      "id": "muk5455wjf927",
-      "titre": "Réunion",
-      "couleur": "#f0a839",
-      "blocs": [
-        {
-          "id": "muk5455wegkre",
-          "type": "texte",
-          "contenu": "Ordre du jour : "
-        },
-        {
-          "id": "muk5455wrrv5b",
-          "type": "texte",
-          "contenu": "Décisions : "
-        },
-        {
-          "id": "muk5455wkxi28",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ],
-      "catégorie": "liens"
     },
     {
       "id": "muk5460gsk0f0",
