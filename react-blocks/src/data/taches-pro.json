@@ -37,7 +37,10 @@
     {
       "id": "muk2rsa5uebxw",
       "colonneId": "c1",
-      "texte": "tto"
+      "texte": "tto",
+      "étiquettes": [
+        "e1"
+      ]
     },
     {
       "id": "muk2rv15o40rn",
