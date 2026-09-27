@@ -33,7 +33,13 @@
       "couleur": "#4a9d94"
     }
   ],
-  "cartes": [],
+  "cartes": [
+    {
+      "id": "muke2rcg8zy5k",
+      "colonneId": "c1",
+      "texte": "test"
+    }
+  ],
   "timeline": [
     {
       "id": "muk2s7emsl9gx",
