@@ -116,6 +116,11 @@
       "id": "muk883gfjhq2s",
       "colonneId": "c2",
       "texte": "Gitlab runner"
+    },
+    {
+      "id": "muk88dslhrer2",
+      "colonneId": "c3",
+      "texte": "Linux"
     }
   ],
   "timeline": [
