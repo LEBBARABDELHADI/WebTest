@@ -43,6 +43,11 @@
         {
           "id": "muke2zd2lbboh",
           "texte": "test",
+          "fait": true
+        },
+        {
+          "id": "muke32kbwbsxe",
+          "texte": "test",
           "fait": false
         }
       ]
