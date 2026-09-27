@@ -81,7 +81,10 @@
     {
       "id": "muk7n9v6tuklq",
       "colonneId": "c2",
-      "texte": "Sections restantes kk gitlab"
+      "texte": "Sections restantes kk gitlab",
+      "étiquettes": [
+        "e1"
+      ]
     }
   ],
   "timeline": [
@@ -90,6 +93,20 @@
       "carteId": "muk7jvwcv1s4t",
       "colonneId": "c1",
       "texte": "Section kodekloud gitlab",
+      "date": "2026-09-27"
+    },
+    {
+      "id": "muk7nlbcshaga",
+      "carteId": "muk7n9v6tuklq",
+      "colonneId": "c2",
+      "texte": "Sections restantes kk gitlab",
+      "date": "2026-09-27"
+    },
+    {
+      "id": "muk7npblykjpv",
+      "carteId": "muk7n9v6tuklq",
+      "colonneId": "c2",
+      "texte": "Sections restantes kk gitlab",
       "date": "2026-09-27"
     }
   ]
