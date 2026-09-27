@@ -17,16 +17,10 @@
           "fait": false
         },
         {
-          "id": "muk32jve1oolv",
-          "type": "choix",
-          "question": "",
-          "options": [
-            {
-              "id": "muk32jve5olf9",
-              "texte": ""
-            }
-          ],
-          "sélection": null
+          "id": "muk32mr2q2ar9",
+          "type": "tache",
+          "texte": "",
+          "fait": false
         }
       ]
     },
