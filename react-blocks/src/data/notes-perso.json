@@ -1,6 +1,13 @@
 {
   "notes": [
     {
+      "id": "mukek2hyojgy6",
+      "titre": "Nouvelle note",
+      "couleur": "#8b7ab8",
+      "catégorie": "autres",
+      "blocs": []
+    },
+    {
       "id": "mukcfp8l7e1s7",
       "titre": "Courses",
       "couleur": "#8b7ab8",
