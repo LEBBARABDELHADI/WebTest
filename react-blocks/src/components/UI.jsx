@@ -1,7 +1,8 @@
 import Icon from './Icon'
-import { T, grotesk } from '../lib/theme'
+import { useTheme, grotesk } from '../lib/theme'
 
-export function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taille = 15 }) {
+export function BoutonIcone({ icon, onClick, title, couleur, taille = 15 }) {
+  const T = useTheme()
   return (
     <button
       onClick={onClick}
@@ -10,7 +11,7 @@ export function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taill
       style={{
         width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'transparent', border: 'none', borderRadius: '7px',
-        color: couleur, cursor: 'pointer', flexShrink: 0,
+        color: couleur || T.textMuted, cursor: 'pointer', flexShrink: 0,
       }}
     >
       <Icon nom={icon} taille={taille} />
@@ -19,6 +20,7 @@ export function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taill
 }
 
 export function Repli({ icon, texte, ouvert, onToggle, marginBottom }) {
+  const T = useTheme()
   return (
     <button
       onClick={onToggle}

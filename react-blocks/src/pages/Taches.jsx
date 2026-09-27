@@ -5,7 +5,7 @@ import donnéesPro from '../data/taches-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
-import { T, grotesk, serif } from '../lib/theme'
+import { T, grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 
 const ESPACES = {
   perso: {
@@ -56,6 +56,8 @@ function formatDateCourte(iso) {
 export default function Taches() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES[espaceParam] || ESPACES.perso
+  const T = useTheme()
+  const { mode, basculer } = useThemeMode()
 
   const [data, setData] = useState(() => chargerDonnées(config))
   const [nouvelleCarte, setNouvelleCarte] = useState({})
@@ -76,6 +78,7 @@ export default function Taches() {
   const [nouvelleÉtiquette, setNouvelleÉtiquette] = useState('')
   const [couleurÉtiquette, setCouleurÉtiquette] = useState(PALETTE_ÉTIQUETTES[0])
   const [archivesOuvert, setArchivesOuvert] = useState(false)
+  const [statsOuvert, setStatsOuvert] = useState(false)
   const [moisAffiché, setMoisAffiché] = useState(() => {
     const d = new Date()
     return { année: d.getFullYear(), mois: d.getMonth() }
@@ -225,7 +228,8 @@ export default function Taches() {
   }
 
   const archiverCarte = id => {
-    setData(d => ({ ...d, cartes: d.cartes.map(c => c.id === id ? { ...c, archivé: true } : c) }))
+    const aujourd = new Date().toISOString().slice(0, 10)
+    setData(d => ({ ...d, cartes: d.cartes.map(c => c.id === id ? { ...c, archivé: true, archivéLe: aujourd } : c) }))
   }
 
   const désarchiverCarte = id => {
@@ -469,6 +473,26 @@ export default function Taches() {
   const cartesEnRetard = data.cartes.filter(c => c.échéance && c.échéance < aujourdhuiISO)
   const totalAujourdhui = planifiéesAujourdhui.length + cartesÉchéanceAujourdhui.length + cartesEnRetard.length
 
+  // Statistiques de progression
+  const cartesActives = data.cartes.filter(c => !c.archivé)
+  const cartesArchivées = data.cartes.filter(c => c.archivé)
+  const il7Jours = new Date(); il7Jours.setDate(il7Jours.getDate() - 6)
+  const il7JoursISO = il7Jours.toISOString().slice(0, 10)
+  const archivéesCetteSemaine = cartesArchivées.filter(c => c.archivéLe && c.archivéLe >= il7JoursISO).length
+  const tousLesItems = data.cartes.flatMap(c => c.checklist || [])
+  const itemsFaits = tousLesItems.filter(i => i.fait).length
+  const tauxComplétion = tousLesItems.length > 0 ? Math.round((itemsFaits / tousLesItems.length) * 100) : null
+  const joursActifs = new Set([
+    ...data.timeline.map(ev => ev.date),
+    ...cartesArchivées.filter(c => c.archivéLe).map(c => c.archivéLe),
+  ])
+  let série = 0
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i)
+    if (joursActifs.has(d.toISOString().slice(0, 10))) série++
+    else break
+  }
+
   const statutCouleur = {
     lecture: T.textMuted, 'lecture-seule': T.textMuted, chargement: T.accent,
     synchronisation: T.accent, connecté: '#7fb069', erreur: T.danger,
@@ -492,6 +516,7 @@ export default function Taches() {
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
+            <BoutonIcone icon={mode === 'sombre' ? 'soleil' : 'lune'} title={mode === 'sombre' ? 'Thème clair' : 'Thème sombre'} onClick={basculer} />
             {peutAnnuler && (
               <BoutonIcone icon="annuler" title="Annuler la dernière action" onClick={annuler} />
             )}
@@ -711,6 +736,48 @@ export default function Taches() {
             )}
           </>
         )}
+
+        <Repli
+          icon={<Icon nom="graphique" taille={14} style={{ color: T.textMuted }} />}
+          texte="Statistiques"
+          ouvert={statsOuvert}
+          onToggle={() => setStatsOuvert(o => !o)}
+          marginBottom={statsOuvert ? '8px' : '22px'}
+        />
+
+        {statsOuvert && (
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '16px', marginBottom: '22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <p style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 700, color: T.text, fontFamily: grotesk }}>{cartesActives.length}</p>
+                <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>cartes actives</p>
+              </div>
+              <div>
+                <p style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 700, color: T.text, fontFamily: grotesk }}>{cartesArchivées.length}</p>
+                <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>terminées au total{archivéesCetteSemaine > 0 ? ` (${archivéesCetteSemaine} cette semaine)` : ''}</p>
+              </div>
+            </div>
+
+            {tauxComplétion !== null && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                  <span style={{ fontSize: '11px', color: T.textMuted }}>Sous-tâches complétées</span>
+                  <span style={{ fontSize: '11px', color: T.text, fontFamily: grotesk, fontWeight: 600 }}>{itemsFaits}/{tousLesItems.length} · {tauxComplétion}%</span>
+                </div>
+                <div style={{ height: '6px', borderRadius: '3px', background: T.surface2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${tauxComplétion}%`, background: T.accent, borderRadius: '3px' }} />
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon nom="repeter" taille={14} style={{ color: T.accent }} />
+              <span style={{ fontSize: '12.5px', color: T.text }}>
+                {série > 0 ? <><strong style={{ color: T.accent }}>{série}</strong> jour{série > 1 ? 's' : ''} d'activité d'affilée</> : 'Aucune activité récente'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{
@@ -875,7 +942,7 @@ export default function Taches() {
                                     type="date"
                                     value={carte.échéance || ''}
                                     onChange={e => définirÉchéance(carte.id, e.target.value)}
-                                    style={{ flex: 1, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12px', colorScheme: 'dark' }}
+                                    style={{ flex: 1, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12px', colorScheme: mode }}
                                   />
                                   {carte.échéance && (
                                     <BoutonIcone icon="x" title="Retirer l'échéance" taille={13} onClick={() => définirÉchéance(carte.id, null)} />
