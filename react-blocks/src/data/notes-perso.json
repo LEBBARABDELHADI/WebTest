@@ -1,6 +1,19 @@
 {
   "notes": [
     {
+      "id": "mukelb9attvco",
+      "titre": "Idée",
+      "couleur": "#5b8dc9",
+      "catégorie": "importantes",
+      "blocs": [
+        {
+          "id": "mukelb9a9ll2a",
+          "type": "texte",
+          "contenu": ""
+        }
+      ]
+    },
+    {
       "id": "mukel4uerwbgo",
       "titre": "Réunion",
       "couleur": "#5b8dc9",
