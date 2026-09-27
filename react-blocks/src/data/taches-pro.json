@@ -33,50 +33,7 @@
       "couleur": "#4a9d94"
     }
   ],
-  "cartes": [
-    {
-      "id": "muk2rsa5uebxw",
-      "colonneId": "c1",
-      "texte": "tto",
-      "étiquettes": [
-        "e1"
-      ],
-      "archivé": true
-    },
-    {
-      "id": "muk2rv15o40rn",
-      "colonneId": "c1",
-      "texte": "tata",
-      "archivé": true
-    },
-    {
-      "id": "muk2rzccce6dn",
-      "colonneId": "c2",
-      "texte": "toto",
-      "archivé": true
-    },
-    {
-      "id": "muk8b0zhfwr90",
-      "colonneId": "c1",
-      "texte": "Donner tdwira à bijouya",
-      "archivé": true
-    },
-    {
-      "id": "muk8aszfmkdco",
-      "colonneId": "c1",
-      "texte": "Faire des bisous à bijouya",
-      "étiquettes": [
-        "e1"
-      ],
-      "archivé": true
-    },
-    {
-      "id": "muk8b7t7t4qno",
-      "colonneId": "c1",
-      "texte": "Faire une tisane louiza à bijouya",
-      "archivé": true
-    }
-  ],
+  "cartes": [],
   "timeline": [
     {
       "id": "muk2s7emsl9gx",
