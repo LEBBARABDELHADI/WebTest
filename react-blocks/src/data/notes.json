@@ -1,6 +1,13 @@
 {
   "notes": [
     {
+      "id": "mukcfhhunrepd",
+      "titre": "Nouvelle note",
+      "couleur": "#f0a839",
+      "catégorie": "faire",
+      "blocs": []
+    },
+    {
       "id": "mukcffihj25hl",
       "titre": "Idée",
       "couleur": "#8b7ab8",
