@@ -79,5 +79,13 @@
       ]
     }
   ],
-  "timeline": []
+  "timeline": [
+    {
+      "id": "muk7k3nrd9muu",
+      "carteId": "muk7jvwcv1s4t",
+      "colonneId": "c1",
+      "texte": "Section kodekloud gitlab",
+      "date": "2026-09-27"
+    }
+  ]
 }
