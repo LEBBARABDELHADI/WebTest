@@ -23,20 +23,31 @@ const T = {
 const grotesk = "'Space Grotesk', 'Segoe UI', sans-serif"
 const serif = "'Fraunces', Georgia, serif"
 
+const PALETTE_ÉTIQUETTES = [T.accent, T.danger, '#4a9d94', '#5b8dc9', '#8b7ab8']
+
+function complète(objet) {
+  return {
+    ...objet,
+    timeline: Array.isArray(objet.timeline) ? objet.timeline : [],
+    étiquettes: Array.isArray(objet.étiquettes) ? objet.étiquettes : [],
+  }
+}
+
 function chargerDonnées() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      return { ...parsed, timeline: Array.isArray(parsed.timeline) ? parsed.timeline : [] }
-    }
+    if (raw) return complète(JSON.parse(raw))
   } catch { /* ignore */ }
   // Aucune sauvegarde locale : on part du fichier data/taches.json du projet
-  return donnéesInitiales
+  return complète(donnéesInitiales)
 }
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
+}
+
+function formatDateCourte(iso) {
+  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
 function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taille = 15 }) {
@@ -56,11 +67,30 @@ function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taille = 15 
   )
 }
 
+function Repli({ icon, texte, ouvert, onToggle, marginBottom }) {
+  return (
+    <button
+      onClick={onToggle}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '9px', width: '100%',
+        background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px',
+        padding: '10px 12px', marginBottom, cursor: 'pointer',
+      }}
+    >
+      {icon}
+      <span style={{ fontSize: '12px', color: T.textMuted, flex: 1, textAlign: 'left', fontFamily: grotesk }}>{texte}</span>
+      <Icon nom="chevronBas" taille={14} style={{ color: T.textMuted, transform: ouvert ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+    </button>
+  )
+}
+
 export default function Taches() {
   const [data, setData] = useState(chargerDonnées)
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionId, setÉditionId] = useState(null)
   const [texteÉdition, setTexteÉdition] = useState('')
+  const [détailsId, setDétailsId] = useState(null)
+  const [nouvelItem, setNouvelItem] = useState({})
   const [colonneÉditionId, setColonneÉditionId] = useState(null)
   const [titreÉdition, setTitreÉdition] = useState('')
   const [messageImport, setMessageImport] = useState('')
@@ -70,6 +100,9 @@ export default function Taches() {
   const [statutSync, setStatutSync] = useState(token ? 'chargement' : 'lecture')
   const [erreurSync, setErreurSync] = useState('')
   const [syncOuvert, setSyncOuvert] = useState(false)
+  const [étiquettesOuvert, setÉtiquettesOuvert] = useState(false)
+  const [nouvelleÉtiquette, setNouvelleÉtiquette] = useState('')
+  const [couleurÉtiquette, setCouleurÉtiquette] = useState(PALETTE_ÉTIQUETTES[0])
   const dragCarte = useRef(null)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
@@ -94,7 +127,7 @@ export default function Taches() {
         shaRef.current = sha
         dernierEnvoiRef.current = JSON.stringify(distant)
         ignoreProchaineÉcritureRef.current = true
-        setData({ ...distant, timeline: Array.isArray(distant.timeline) ? distant.timeline : [] })
+        setData(complète(distant))
         setStatutSync(token ? 'connecté' : 'lecture-seule')
       })
       .catch(err => {
@@ -223,6 +256,78 @@ export default function Taches() {
     }))
   }
 
+  const définirÉchéance = (carteId, date) => {
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => {
+        if (c.id !== carteId) return c
+        const copie = { ...c }
+        if (date) copie.échéance = date
+        else delete copie.échéance
+        return copie
+      }),
+    }))
+  }
+
+  const basculerÉtiquette = (carteId, étiquetteId) => {
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => {
+        if (c.id !== carteId) return c
+        const actuelles = c.étiquettes || []
+        const nouvelles = actuelles.includes(étiquetteId)
+          ? actuelles.filter(id => id !== étiquetteId)
+          : [...actuelles, étiquetteId]
+        return { ...c, étiquettes: nouvelles }
+      }),
+    }))
+  }
+
+  const ajouterÉtiquette = () => {
+    const nom = nouvelleÉtiquette.trim()
+    if (!nom) return
+    setData(d => ({ ...d, étiquettes: [...d.étiquettes, { id: uid(), nom, couleur: couleurÉtiquette }] }))
+    setNouvelleÉtiquette('')
+  }
+
+  const supprimerÉtiquette = id => {
+    setData(d => ({
+      ...d,
+      étiquettes: d.étiquettes.filter(e => e.id !== id),
+      cartes: d.cartes.map(c => c.étiquettes ? { ...c, étiquettes: c.étiquettes.filter(eid => eid !== id) } : c),
+    }))
+  }
+
+  const ajouterItemChecklist = carteId => {
+    const texte = (nouvelItem[carteId] || '').trim()
+    if (!texte) return
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => c.id === carteId
+        ? { ...c, checklist: [...(c.checklist || []), { id: uid(), texte, fait: false }] }
+        : c),
+    }))
+    setNouvelItem(n => ({ ...n, [carteId]: '' }))
+  }
+
+  const basculerItemChecklist = (carteId, itemId) => {
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => c.id === carteId
+        ? { ...c, checklist: (c.checklist || []).map(i => i.id === itemId ? { ...i, fait: !i.fait } : i) }
+        : c),
+    }))
+  }
+
+  const supprimerItemChecklist = (carteId, itemId) => {
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => c.id === carteId
+        ? { ...c, checklist: (c.checklist || []).filter(i => i.id !== itemId) }
+        : c),
+    }))
+  }
+
   const exporter = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -244,7 +349,7 @@ export default function Taches() {
         if (!Array.isArray(contenu.colonnes) || !Array.isArray(contenu.cartes)) {
           throw new Error('format invalide')
         }
-        setData({ ...contenu, timeline: Array.isArray(contenu.timeline) ? contenu.timeline : [] })
+        setData(complète(contenu))
         setMessageImport('Fichier importé')
       } catch {
         setMessageImport('Fichier invalide')
@@ -265,6 +370,11 @@ export default function Taches() {
       num: d.getDate(),
     }
   })
+
+  const planifiéesAujourdhui = data.timeline.filter(ev => ev.date === aujourdhuiISO)
+  const cartesÉchéanceAujourdhui = data.cartes.filter(c => c.échéance === aujourdhuiISO)
+  const cartesEnRetard = data.cartes.filter(c => c.échéance && c.échéance < aujourdhuiISO)
+  const totalAujourdhui = planifiéesAujourdhui.length + cartesÉchéanceAujourdhui.length + cartesEnRetard.length
 
   const statutCouleur = {
     lecture: T.textMuted, 'lecture-seule': T.textMuted, chargement: T.accent,
@@ -307,26 +417,50 @@ export default function Taches() {
           <p style={{ fontSize: '12px', color: T.accent, margin: '-14px 0 14px' }}>{messageImport}</p>
         )}
 
-        <button
-          onClick={() => setSyncOuvert(o => !o)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '9px', width: '100%',
-            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px',
-            padding: '10px 12px', marginBottom: syncOuvert ? '8px' : '22px', cursor: 'pointer',
-          }}
-        >
-          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: statutCouleur, flexShrink: 0 }} />
-          <span style={{ fontSize: '12px', color: T.textMuted, flex: 1, textAlign: 'left', fontFamily: grotesk }}>
-            {statutLabel}
-          </span>
-          <Icon nom="chevronBas" taille={14} style={{ color: T.textMuted, transform: syncOuvert ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
-        </button>
+        <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '16px', marginBottom: '22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: totalAujourdhui > 0 ? '12px' : '0' }}>
+            <Icon nom="cible" taille={16} style={{ color: T.accent }} />
+            <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>Aujourd'hui</strong>
+          </div>
+          {totalAujourdhui === 0 ? (
+            <p style={{ fontSize: '12px', color: T.textMuted, margin: 0 }}>Rien de prévu pour aujourd'hui.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              {cartesEnRetard.map(c => (
+                <div key={'r' + c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.danger, flexShrink: 0 }} />
+                  <span style={{ flex: 1 }}>{c.texte}</span>
+                  <span style={{ fontSize: '10px', color: T.danger, flexShrink: 0 }}>en retard</span>
+                </div>
+              ))}
+              {cartesÉchéanceAujourdhui.map(c => (
+                <div key={'e' + c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
+                  <span style={{ flex: 1 }}>{c.texte}</span>
+                  <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>échéance</span>
+                </div>
+              ))}
+              {planifiéesAujourdhui.map(ev => (
+                <div key={'p' + ev.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.textMuted, flexShrink: 0 }} />
+                  <span style={{ flex: 1 }}>{ev.texte}</span>
+                  <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>planifiée</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Repli
+          icon={<span style={{ width: '7px', height: '7px', borderRadius: '50%', background: statutCouleur, flexShrink: 0 }} />}
+          texte={statutLabel}
+          ouvert={syncOuvert}
+          onToggle={() => setSyncOuvert(o => !o)}
+          marginBottom={syncOuvert ? '8px' : '14px'}
+        />
 
         {syncOuvert && (
-          <div style={{
-            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px',
-            padding: '14px', marginBottom: '22px',
-          }}>
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '14px' }}>
             {token ? (
               <button onClick={déconnecterToken} style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
@@ -358,6 +492,55 @@ export default function Taches() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        <Repli
+          icon={<Icon nom="etiquette" taille={14} style={{ color: T.textMuted }} />}
+          texte={`${data.étiquettes.length} étiquette${data.étiquettes.length > 1 ? 's' : ''}`}
+          ouvert={étiquettesOuvert}
+          onToggle={() => setÉtiquettesOuvert(o => !o)}
+          marginBottom={étiquettesOuvert ? '8px' : '22px'}
+        />
+
+        {étiquettesOuvert && (
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '22px' }}>
+            {data.étiquettes.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                {data.étiquettes.map(ét => (
+                  <span key={ét.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontFamily: grotesk,
+                    color: ét.couleur, background: ét.couleur + '18', border: `1px solid ${ét.couleur}55`,
+                    padding: '4px 6px 4px 10px', borderRadius: '20px',
+                  }}>
+                    {ét.nom}
+                    <button onClick={() => supprimerÉtiquette(ét.id)} style={{ display: 'flex', color: ét.couleur, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      <Icon nom="x" taille={11} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <form onSubmit={e => { e.preventDefault(); ajouterÉtiquette() }} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                value={nouvelleÉtiquette}
+                onChange={e => setNouvelleÉtiquette(e.target.value)}
+                placeholder="Nouvelle étiquette…"
+                style={{ flex: 1, minWidth: '120px', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '7px', padding: '8px 10px', fontSize: '13px' }}
+              />
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {PALETTE_ÉTIQUETTES.map(couleur => (
+                  <button key={couleur} type="button" onClick={() => setCouleurÉtiquette(couleur)} style={{
+                    width: '22px', height: '22px', borderRadius: '50%', background: couleur, cursor: 'pointer',
+                    border: couleurÉtiquette === couleur ? `2px solid ${T.text}` : '2px solid transparent',
+                  }} />
+                ))}
+              </div>
+              <button type="submit" style={{
+                background: T.accent, color: T.accentText, border: 'none', borderRadius: '7px',
+                padding: '0 14px', height: '34px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk, fontWeight: 600,
+              }}>Ajouter</button>
+            </form>
           </div>
         )}
       </div>
@@ -414,69 +597,182 @@ export default function Taches() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '20px' }}>
-                {cartes.map(carte => (
-                  <div
-                    key={carte.id}
-                    draggable
-                    onDragStart={() => { dragCarte.current = carte.id }}
-                    style={{
-                      background: T.surface2, borderRadius: '10px', padding: '10px 10px 6px',
-                      border: `1px solid ${T.border}`,
-                    }}
-                  >
-                    {éditionId === carte.id ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <textarea
-                          autoFocus
-                          value={texteÉdition}
-                          onChange={e => setTexteÉdition(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); validerÉdition(carte.id) }
-                            if (e.key === 'Escape') setÉditionId(null)
-                          }}
-                          style={{
-                            width: '100%', background: T.bg, color: T.text,
-                            border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px',
-                            fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
-                          }}
-                        />
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', padding: '2px 0 4px' }}>
-                          <button onClick={() => setÉditionId(null)} style={{
-                            fontSize: '12px', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer',
-                          }}>Annuler</button>
-                          <button onClick={() => validerÉdition(carte.id)} style={{
-                            fontSize: '12px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600,
-                          }}>Valider</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-                          {carte.texte}
-                        </p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          <BoutonIcone icon="crayon" title="Modifier" onClick={() => démarrerÉdition(carte)} taille={14} />
-                          <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} onClick={() => supprimerCarte(carte.id)} taille={14} />
-                          <BoutonIcone icon="calendrier" title="Ajouter au jour sélectionné" couleur={T.accent} onClick={() => ajouterÉvénementTimeline(carte.id, jourSélectionné)} taille={14} />
-                          <select
-                            value={col.id}
-                            onChange={e => déplacerCarte(carte.id, e.target.value)}
-                            title="Déplacer vers un autre bloc"
-                            style={{
-                              fontSize: '11px', color: T.textMuted, background: T.bg,
-                              border: `1px solid ${T.border}`, borderRadius: '6px', padding: '4px 4px',
-                              marginLeft: 'auto', maxWidth: '104px',
+                {cartes.map(carte => {
+                  const checklist = carte.checklist || []
+                  const étiquettesCarte = carte.étiquettes || []
+                  const aBadges = étiquettesCarte.length > 0 || carte.échéance || checklist.length > 0
+                  return (
+                    <div
+                      key={carte.id}
+                      draggable
+                      onDragStart={() => { dragCarte.current = carte.id }}
+                      style={{
+                        background: T.surface2, borderRadius: '10px', padding: '10px 10px 6px',
+                        border: `1px solid ${T.border}`,
+                      }}
+                    >
+                      {éditionId === carte.id ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <textarea
+                            autoFocus
+                            value={texteÉdition}
+                            onChange={e => setTexteÉdition(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); validerÉdition(carte.id) }
+                              if (e.key === 'Escape') setÉditionId(null)
                             }}
-                          >
-                            {data.colonnes.map(c => (
-                              <option key={c.id} value={c.id}>{c.titre}</option>
-                            ))}
-                          </select>
+                            style={{
+                              width: '100%', background: T.bg, color: T.text,
+                              border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px',
+                              fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
+                            }}
+                          />
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', padding: '2px 0 4px' }}>
+                            <button onClick={() => setÉditionId(null)} style={{
+                              fontSize: '12px', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer',
+                            }}>Annuler</button>
+                            <button onClick={() => validerÉdition(carte.id)} style={{
+                              fontSize: '12px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600,
+                            }}>Valider</button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      ) : (
+                        <div>
+                          {aBadges && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '7px' }}>
+                              {étiquettesCarte.map(id => {
+                                const ét = data.étiquettes.find(e => e.id === id)
+                                if (!ét) return null
+                                return (
+                                  <span key={id} style={{ fontSize: '10px', color: ét.couleur, background: ét.couleur + '20', padding: '2px 7px', borderRadius: '20px', fontFamily: grotesk }}>
+                                    {ét.nom}
+                                  </span>
+                                )
+                              })}
+                              {carte.échéance && (
+                                <span style={{
+                                  fontSize: '10px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: grotesk,
+                                  color: carte.échéance < aujourdhuiISO ? T.danger : carte.échéance === aujourdhuiISO ? T.accent : T.textMuted,
+                                  background: carte.échéance < aujourdhuiISO ? T.dangerSoft : carte.échéance === aujourdhuiISO ? T.accentSoft : T.bg,
+                                  padding: '2px 7px', borderRadius: '20px',
+                                }}>
+                                  <Icon nom="horloge" taille={10} /> {formatDateCourte(carte.échéance)}
+                                </span>
+                              )}
+                              {checklist.length > 0 && (
+                                <span style={{
+                                  fontSize: '10px', color: T.textMuted, background: T.bg, padding: '2px 7px',
+                                  borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: grotesk,
+                                }}>
+                                  <Icon nom="checklist" taille={10} /> {checklist.filter(i => i.fait).length}/{checklist.length}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                            {carte.texte}
+                          </p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                            <BoutonIcone icon="crayon" title="Modifier" onClick={() => démarrerÉdition(carte)} taille={14} />
+                            <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} onClick={() => supprimerCarte(carte.id)} taille={14} />
+                            <BoutonIcone icon="calendrier" title="Ajouter au jour sélectionné" couleur={T.accent} onClick={() => ajouterÉvénementTimeline(carte.id, jourSélectionné)} taille={14} />
+                            <button
+                              onClick={() => setDétailsId(d => d === carte.id ? null : carte.id)}
+                              style={{
+                                marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: T.textMuted,
+                                background: 'none', border: 'none', cursor: 'pointer', padding: '6px 4px', fontFamily: grotesk,
+                              }}
+                            >
+                              Détails
+                              <Icon nom="chevronBas" taille={12} style={{ transform: détailsId === carte.id ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }} />
+                            </button>
+                          </div>
+
+                          {détailsId === carte.id && (
+                            <div style={{ marginTop: '4px', paddingTop: '10px', borderTop: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                              <div>
+                                <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Échéance</p>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                  <input
+                                    type="date"
+                                    value={carte.échéance || ''}
+                                    onChange={e => définirÉchéance(carte.id, e.target.value)}
+                                    style={{ flex: 1, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12px', colorScheme: 'dark' }}
+                                  />
+                                  {carte.échéance && (
+                                    <BoutonIcone icon="x" title="Retirer l'échéance" taille={13} onClick={() => définirÉchéance(carte.id, null)} />
+                                  )}
+                                </div>
+                              </div>
+
+                              {data.étiquettes.length > 0 && (
+                                <div>
+                                  <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Étiquettes</p>
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                    {data.étiquettes.map(ét => {
+                                      const actif = étiquettesCarte.includes(ét.id)
+                                      return (
+                                        <button key={ét.id} onClick={() => basculerÉtiquette(carte.id, ét.id)} style={{
+                                          fontSize: '11px', padding: '4px 10px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk,
+                                          background: actif ? ét.couleur : 'transparent',
+                                          color: actif ? T.accentText : ét.couleur,
+                                          border: `1px solid ${ét.couleur}`,
+                                        }}>{ét.nom}</button>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div>
+                                <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Sous-tâches</p>
+                                {checklist.length > 0 && (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '6px' }}>
+                                    {checklist.map(item => (
+                                      <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12.5px', color: item.fait ? T.textMuted : T.text, cursor: 'pointer' }}>
+                                        <input
+                                          type="checkbox"
+                                          checked={item.fait}
+                                          onChange={() => basculerItemChecklist(carte.id, item.id)}
+                                          style={{ accentColor: T.accent, width: '14px', height: '14px', flexShrink: 0 }}
+                                        />
+                                        <span style={{ flex: 1, textDecoration: item.fait ? 'line-through' : 'none' }}>{item.texte}</span>
+                                        <BoutonIcone icon="x" title="Retirer" taille={12} onClick={() => supprimerItemChecklist(carte.id, item.id)} />
+                                      </label>
+                                    ))}
+                                  </div>
+                                )}
+                                <form onSubmit={e => { e.preventDefault(); ajouterItemChecklist(carte.id) }} style={{ display: 'flex', gap: '6px' }}>
+                                  <input
+                                    value={nouvelItem[carte.id] || ''}
+                                    onChange={e => setNouvelItem(n => ({ ...n, [carte.id]: e.target.value }))}
+                                    placeholder="Ajouter une sous-tâche…"
+                                    style={{ flex: 1, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12px' }}
+                                  />
+                                  <button type="submit" style={{
+                                    background: T.surface, border: `1px solid ${T.border}`, borderRadius: '6px', width: '30px',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: T.text,
+                                  }}><Icon nom="plus" taille={13} /></button>
+                                </form>
+                              </div>
+
+                              <div style={{ paddingBottom: '4px' }}>
+                                <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Déplacer vers</p>
+                                <select
+                                  value={col.id}
+                                  onChange={e => déplacerCarte(carte.id, e.target.value)}
+                                  style={{ width: '100%', fontSize: '12px', color: T.text, background: T.bg, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 8px' }}
+                                >
+                                  {data.colonnes.map(c => <option key={c.id} value={c.id}>{c.titre}</option>)}
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               <form

@@ -16,6 +16,11 @@
       "couleur": "#a78bfa"
     }
   ],
+  "étiquettes": [
+    { "id": "e1", "nom": "Urgent", "couleur": "#e2574c" },
+    { "id": "e2", "nom": "Perso", "couleur": "#4a9d94" },
+    { "id": "e3", "nom": "Travail", "couleur": "#5b8dc9" }
+  ],
   "cartes": [
     {
       "id": "muk2050oja1lr",
