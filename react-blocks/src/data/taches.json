@@ -17,12 +17,5 @@
     }
   ],
   "cartes": [],
-  "timeline": [
-    {
-      "id": "muk1bmv6iq92h",
-      "colonneId": "c2",
-      "texte": "tesst2",
-      "date": "2026-09-28"
-    }
-  ]
+  "timeline": []
 }
