@@ -611,7 +611,7 @@ export default function Taches() {
 
       <div style={{
         display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 16px 20px',
-        maxWidth: '1132px', margin: '0 auto',
+        maxWidth: '1132px', margin: '0 auto', justifyContent: 'center',
         scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
       }}>
         {data.colonnes.map(col => {
