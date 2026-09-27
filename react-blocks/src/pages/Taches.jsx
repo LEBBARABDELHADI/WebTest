@@ -2,8 +2,26 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import donnéesInitiales from '../data/taches.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
+import Icon from '../components/Icon'
 
 const STORAGE_KEY = 'react-blocs-taches'
+
+const T = {
+  bg: '#141210',
+  surface: '#1c1814',
+  surface2: '#26201a',
+  border: '#3a3125',
+  text: '#f3ecdf',
+  textMuted: '#a99a80',
+  accent: '#f0a839',
+  accentText: '#221806',
+  accentSoft: 'rgba(240,168,57,0.14)',
+  danger: '#e2574c',
+  dangerSoft: 'rgba(226,87,76,0.12)',
+}
+
+const grotesk = "'Space Grotesk', 'Segoe UI', sans-serif"
+const serif = "'Fraunces', Georgia, serif"
 
 function chargerDonnées() {
   try {
@@ -21,6 +39,23 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 }
 
+function BoutonIcone({ icon, onClick, title, couleur = T.textMuted, taille = 15 }) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+      style={{
+        width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'transparent', border: 'none', borderRadius: '7px',
+        color: couleur, cursor: 'pointer', flexShrink: 0,
+      }}
+    >
+      <Icon nom={icon} taille={taille} />
+    </button>
+  )
+}
+
 export default function Taches() {
   const [data, setData] = useState(chargerDonnées)
   const [nouvelleCarte, setNouvelleCarte] = useState({})
@@ -34,6 +69,7 @@ export default function Taches() {
   const [tokenSaisi, setTokenSaisi] = useState('')
   const [statutSync, setStatutSync] = useState(token ? 'chargement' : 'lecture')
   const [erreurSync, setErreurSync] = useState('')
+  const [syncOuvert, setSyncOuvert] = useState(false)
   const dragCarte = useRef(null)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
@@ -209,9 +245,9 @@ export default function Taches() {
           throw new Error('format invalide')
         }
         setData({ ...contenu, timeline: Array.isArray(contenu.timeline) ? contenu.timeline : [] })
-        setMessageImport('✅ Fichier importé')
+        setMessageImport('Fichier importé')
       } catch {
-        setMessageImport('❌ Fichier invalide')
+        setMessageImport('Fichier invalide')
       }
       setTimeout(() => setMessageImport(''), 3000)
     }
@@ -230,90 +266,105 @@ export default function Taches() {
     }
   })
 
+  const statutCouleur = {
+    lecture: T.textMuted, 'lecture-seule': T.textMuted, chargement: T.accent,
+    synchronisation: T.accent, connecté: '#7fb069', erreur: T.danger,
+  }[statutSync]
+
+  const statutLabel = {
+    lecture: 'Lecture depuis le dépôt…',
+    'lecture-seule': 'Lecture seule — pas de token connecté',
+    chargement: 'Lecture depuis GitHub…',
+    synchronisation: 'Synchronisation en cours…',
+    connecté: 'Synchronisé avec GitHub',
+    erreur: erreurSync || 'Erreur de synchronisation',
+  }[statutSync]
+
   return (
-    <div style={{ maxWidth: '100%', margin: '0 auto', padding: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', maxWidth: '520px', margin: '0 auto 10px' }}>
-        <Link to="/" style={{ color: '#94a3b8', fontSize: '14px' }}>← Accueil</Link>
-        <div style={{ flex: 1 }} />
-        <h1 style={{ fontSize: '18px', color: '#e2e8f0', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📋 Mes tâches
-        </h1>
-      </div>
+    <div style={{ background: T.bg, minHeight: '100dvh', padding: '20px 16px 40px' }}>
+      <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px', maxWidth: '520px', margin: '0 auto 20px' }}>
-        <button onClick={exporter} style={{
-          fontSize: '12px', color: '#94a3b8', background: '#1a1d27', border: '1px solid #2d3148',
-          borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-        }}>⬇ Exporter (.json)</button>
-        <button onClick={() => fichierRef.current?.click()} style={{
-          fontSize: '12px', color: '#94a3b8', background: '#1a1d27', border: '1px solid #2d3148',
-          borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-        }}>⬆ Importer</button>
-        <input ref={fichierRef} type="file" accept="application/json" onChange={importer} style={{ display: 'none' }} />
-        {messageImport && (
-          <span style={{ fontSize: '12px', color: messageImport.startsWith('✅') ? '#4ade80' : '#f87171', alignSelf: 'center' }}>
-            {messageImport}
-          </span>
-        )}
-      </div>
-
-      <div style={{
-        maxWidth: '520px', margin: '0 auto 20px', padding: '12px',
-        background: '#1a1d27', borderRadius: '10px', border: '1px solid #2d3148',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: token ? '0' : '8px' }}>
-          <span style={{
-            width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0,
-            background: { lecture: '#94a3b8', 'lecture-seule': '#94a3b8', chargement: '#fbbf24', synchronisation: '#fbbf24', connecté: '#4ade80', erreur: '#f87171' }[statutSync],
-          }} />
-          <span style={{ fontSize: '12px', color: '#94a3b8', flex: 1 }}>
-            {{
-              lecture: 'Lecture depuis data/taches.json…',
-              'lecture-seule': '📖 Données lues depuis GitHub (lecture seule, pas de token)',
-              chargement: '🔄 Lecture depuis GitHub…',
-              synchronisation: '🔄 Synchronisation vers GitHub…',
-              connecté: '✅ Synchronisé avec GitHub',
-              erreur: `❌ ${erreurSync || 'Erreur de synchronisation'}`,
-            }[statutSync]}
-          </span>
-          {token && (
-            <button onClick={déconnecterToken} style={{
-              fontSize: '11px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-            }}>Déconnecter</button>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
+            <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
+          </Link>
+          <div style={{ display: 'flex', gap: '2px' }}>
+            <BoutonIcone icon="telecharger" title="Exporter en .json" onClick={exporter} />
+            <BoutonIcone icon="televerser" title="Importer un .json" onClick={() => fichierRef.current?.click()} />
+            <input ref={fichierRef} type="file" accept="application/json" onChange={importer} style={{ display: 'none' }} />
+          </div>
         </div>
 
-        {!token && (
-          <div>
-            <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 8px', lineHeight: '1.5' }}>
-              Colle ici un token GitHub pour que tes modifications soient écrites dans <code style={{ background: '#0d0f14', padding: '1px 5px', borderRadius: '4px' }}>data/taches.json</code> et visibles sur tous tes appareils.
-              Génère-le sur <strong>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong>WebTest</strong>, permission <strong>Contents: Read and write</strong> uniquement.
-            </p>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <input
-                type="password"
-                value={tokenSaisi}
-                onChange={e => setTokenSaisi(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') connecterToken() }}
-                placeholder="github_pat_…"
-                style={{
-                  flex: 1, background: '#0d0f14', color: '#e2e8f0',
-                  border: '1px solid #2d3148', borderRadius: '6px',
-                  padding: '8px 10px', fontSize: '13px', outline: 'none',
-                }}
-              />
-              <button onClick={connecterToken} style={{
-                background: '#6c63ff', color: '#fff', border: 'none',
-                borderRadius: '6px', padding: '0 14px', fontSize: '13px', cursor: 'pointer',
-              }}>Connecter</button>
-            </div>
+        <p style={{
+          fontFamily: grotesk, fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase',
+          color: T.accent, margin: '0 0 4px', fontWeight: 600,
+        }}>Planning personnel</p>
+        <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '34px', color: T.text, margin: '0 0 22px', lineHeight: 1.1 }}>
+          Mes tâches
+        </h1>
+
+        {messageImport && (
+          <p style={{ fontSize: '12px', color: T.accent, margin: '-14px 0 14px' }}>{messageImport}</p>
+        )}
+
+        <button
+          onClick={() => setSyncOuvert(o => !o)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '9px', width: '100%',
+            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px',
+            padding: '10px 12px', marginBottom: syncOuvert ? '8px' : '22px', cursor: 'pointer',
+          }}
+        >
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: statutCouleur, flexShrink: 0 }} />
+          <span style={{ fontSize: '12px', color: T.textMuted, flex: 1, textAlign: 'left', fontFamily: grotesk }}>
+            {statutLabel}
+          </span>
+          <Icon nom="chevronBas" taille={14} style={{ color: T.textMuted, transform: syncOuvert ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+        </button>
+
+        {syncOuvert && (
+          <div style={{
+            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px',
+            padding: '14px', marginBottom: '22px',
+          }}>
+            {token ? (
+              <button onClick={déconnecterToken} style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                fontSize: '12px', color: T.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              }}><Icon nom="x" taille={13} /> Déconnecter le token</button>
+            ) : (
+              <div>
+                <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 10px', lineHeight: '1.6' }}>
+                  Colle un token GitHub pour écrire tes modifications dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>data/taches.json</code> — visible ensuite sur tous tes appareils.
+                  Génère-le sur <strong style={{ color: T.text }}>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong style={{ color: T.text }}>WebTest</strong>, permission <strong style={{ color: T.text }}>Contents: Read and write</strong>.
+                </p>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    type="password"
+                    value={tokenSaisi}
+                    onChange={e => setTokenSaisi(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') connecterToken() }}
+                    placeholder="github_pat_…"
+                    style={{
+                      flex: 1, background: T.bg, color: T.text,
+                      border: `1px solid ${T.border}`, borderRadius: '7px',
+                      padding: '9px 10px', fontSize: '13px', outline: 'none',
+                    }}
+                  />
+                  <button onClick={connecterToken} style={{
+                    background: T.accent, color: T.accentText, border: 'none', fontWeight: 600,
+                    borderRadius: '7px', padding: '0 16px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                  }}>Connecter</button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <div style={{
-        display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 4px 20px',
-        maxWidth: '1100px', margin: '0 auto',
+        display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 16px 20px',
+        maxWidth: '1132px', margin: '0 auto',
         scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
       }}>
         {data.colonnes.map(col => {
@@ -324,15 +375,15 @@ export default function Taches() {
               onDragOver={e => e.preventDefault()}
               onDrop={() => onDrop(col.id)}
               style={{
-                minWidth: 'min(260px, 82vw)', maxWidth: 'min(260px, 82vw)', flexShrink: 0,
-                background: '#1a1d27', borderRadius: '12px',
-                border: '1px solid #2d3148', padding: '12px',
-                display: 'flex', flexDirection: 'column', gap: '10px',
+                minWidth: 'min(272px, 84vw)', maxWidth: 'min(272px, 84vw)', flexShrink: 0,
+                background: T.surface, borderRadius: '14px',
+                border: `1px solid ${T.border}`, padding: '14px',
+                display: 'flex', flexDirection: 'column', gap: '12px',
                 scrollSnapAlign: 'start',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.couleur, flexShrink: 0 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <span style={{ width: '3px', height: '16px', borderRadius: '2px', background: col.couleur, flexShrink: 0 }} />
                 {colonneÉditionId === col.id ? (
                   <input
                     autoFocus
@@ -344,21 +395,21 @@ export default function Taches() {
                       if (e.key === 'Escape') setColonneÉditionId(null)
                     }}
                     style={{
-                      flex: 1, background: '#0d0f14', color: '#e2e8f0',
-                      border: '1px solid #6c63ff', borderRadius: '6px',
-                      padding: '2px 6px', fontSize: '14px', fontWeight: 'bold', outline: 'none',
+                      flex: 1, background: T.bg, color: T.text,
+                      border: `1px solid ${T.accent}`, borderRadius: '6px',
+                      padding: '2px 6px', fontSize: '14px', fontWeight: 600, outline: 'none', fontFamily: grotesk,
                     }}
                   />
                 ) : (
                   <strong
                     onClick={() => démarrerÉditionColonne(col)}
-                    title="Cliquer pour renommer"
-                    style={{ color: '#e2e8f0', fontSize: '14px', flex: 1, cursor: 'text' }}
+                    title="Toucher pour renommer"
+                    style={{ color: T.text, fontSize: '14px', flex: 1, cursor: 'text', fontFamily: grotesk, fontWeight: 600 }}
                   >{col.titre}</strong>
                 )}
                 <span style={{
-                  fontSize: '11px', color: col.couleur, background: col.couleur + '22',
-                  padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold',
+                  fontSize: '11px', color: T.textMuted, background: T.bg,
+                  padding: '2px 8px', borderRadius: '20px', fontFamily: 'monospace',
                 }}>{cartes.length}</span>
               </div>
 
@@ -369,8 +420,8 @@ export default function Taches() {
                     draggable
                     onDragStart={() => { dragCarte.current = carte.id }}
                     style={{
-                      background: '#252836', borderRadius: '8px', padding: '10px 12px',
-                      border: '1px solid #2d3148', cursor: 'grab',
+                      background: T.surface2, borderRadius: '10px', padding: '10px 10px 6px',
+                      border: `1px solid ${T.border}`,
                     }}
                   >
                     {éditionId === carte.id ? (
@@ -384,44 +435,37 @@ export default function Taches() {
                             if (e.key === 'Escape') setÉditionId(null)
                           }}
                           style={{
-                            width: '100%', background: '#0d0f14', color: '#e2e8f0',
-                            border: '1px solid #6c63ff', borderRadius: '6px', padding: '6px 8px',
+                            width: '100%', background: T.bg, color: T.text,
+                            border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px',
                             fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
                           }}
                         />
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', padding: '2px 0 4px' }}>
                           <button onClick={() => setÉditionId(null)} style={{
-                            fontSize: '12px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer',
+                            fontSize: '12px', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer',
                           }}>Annuler</button>
                           <button onClick={() => validerÉdition(carte.id)} style={{
-                            fontSize: '12px', color: '#6c63ff', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold',
+                            fontSize: '12px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600,
                           }}>Valider</button>
                         </div>
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#e2e8f0', fontSize: '13px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                        <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                           {carte.texte}
                         </p>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                          <button onClick={() => démarrerÉdition(carte)} style={{
-                            fontSize: '11px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                          }}>✏️ Modifier</button>
-                          <button onClick={() => supprimerCarte(carte.id)} style={{
-                            fontSize: '11px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                          }}>🗑 Supprimer</button>
-                          <button
-                            onClick={() => ajouterÉvénementTimeline(carte.id, jourSélectionné)}
-                            title="Ajouter au jour sélectionné dans la timeline"
-                            style={{ fontSize: '11px', color: '#a78bfa', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                          >📅 Planifier</button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          <BoutonIcone icon="crayon" title="Modifier" onClick={() => démarrerÉdition(carte)} taille={14} />
+                          <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} onClick={() => supprimerCarte(carte.id)} taille={14} />
+                          <BoutonIcone icon="calendrier" title="Ajouter au jour sélectionné" couleur={T.accent} onClick={() => ajouterÉvénementTimeline(carte.id, jourSélectionné)} taille={14} />
                           <select
                             value={col.id}
                             onChange={e => déplacerCarte(carte.id, e.target.value)}
                             title="Déplacer vers un autre bloc"
                             style={{
-                              fontSize: '11px', color: '#94a3b8', background: '#0d0f14',
-                              border: '1px solid #2d3148', borderRadius: '4px', padding: '2px 4px', marginLeft: 'auto',
+                              fontSize: '11px', color: T.textMuted, background: T.bg,
+                              border: `1px solid ${T.border}`, borderRadius: '6px', padding: '4px 4px',
+                              marginLeft: 'auto', maxWidth: '104px',
                             }}
                           >
                             {data.colonnes.map(c => (
@@ -445,31 +489,32 @@ export default function Taches() {
                   placeholder="Ajouter une carte…"
                   enterKeyHint="done"
                   style={{
-                    flex: 1, background: '#0d0f14', color: '#e2e8f0',
-                    border: '1px solid #2d3148', borderRadius: '6px',
-                    padding: '8px 10px', fontSize: '13px', outline: 'none',
+                    flex: 1, background: T.bg, color: T.text,
+                    border: `1px solid ${T.border}`, borderRadius: '7px',
+                    padding: '9px 10px', fontSize: '13px', outline: 'none',
                   }}
                 />
-                <button type="submit" style={{
-                  background: '#6c63ff', color: '#fff', border: 'none',
-                  borderRadius: '6px', padding: '0 12px', fontSize: '16px', cursor: 'pointer',
-                }}>+</button>
+                <button type="submit" aria-label="Ajouter" style={{
+                  background: T.accent, color: T.accentText, border: 'none',
+                  borderRadius: '7px', width: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}><Icon nom="plus" taille={16} trait={2.5} /></button>
               </form>
             </div>
           )
         })}
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '28px auto 0' }}>
-        <h2 style={{ fontSize: '15px', color: '#e2e8f0', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          🗓 Timeline
-        </h2>
-        <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 12px' }}>
-          Sélectionne un jour ci-dessous, puis touche « 📅 Planifier » sur une carte (ou glisse-la ici sur ordinateur) — une copie est ajoutée, l'originale reste dans son bloc
+      <div style={{ maxWidth: '560px', margin: '30px auto 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 4px' }}>
+          <Icon nom="calendrier" taille={16} style={{ color: T.accent }} />
+          <h2 style={{ fontFamily: grotesk, fontSize: '14px', fontWeight: 600, color: T.text, margin: 0 }}>Timeline</h2>
+        </div>
+        <p style={{ color: T.textMuted, fontSize: '12px', margin: '0 0 14px', lineHeight: '1.5' }}>
+          Sélectionne un jour, puis touche l'icône calendrier d'une carte (ou glisse-la ici sur ordinateur).
         </p>
 
         <div style={{
-          display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 4px 10px',
+          display: 'flex', gap: '7px', overflowX: 'auto', padding: '2px 2px 12px',
           scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
         }}>
           {jours.map(jour => {
@@ -481,25 +526,23 @@ export default function Taches() {
                 key={jour.iso}
                 onClick={() => setJourSélectionné(jour.iso)}
                 style={{
-                  minWidth: '52px', flexShrink: 0, scrollSnapAlign: 'start',
-                  background: estSélectionné ? '#6c63ff' : estAujourdhui ? '#6c63ff15' : '#1a1d27',
-                  border: estSélectionné ? '1px solid #6c63ff' : estAujourdhui ? '1px solid #6c63ff' : '1px solid #2d3148',
-                  borderRadius: '10px', padding: '8px 6px', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
+                  minWidth: '50px', flexShrink: 0, scrollSnapAlign: 'start',
+                  background: estSélectionné ? T.accent : T.surface,
+                  border: estSélectionné ? `1px solid ${T.accent}` : estAujourdhui ? `1px dashed ${T.accent}` : `1px solid ${T.border}`,
+                  borderRadius: '10px', padding: '8px 4px', cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
                 }}
               >
-                <span style={{ fontSize: '10px', color: estSélectionné ? '#fff' : '#94a3b8', textTransform: 'capitalize' }}>
+                <span style={{ fontSize: '10px', color: estSélectionné ? T.accentText : T.textMuted, textTransform: 'capitalize', fontFamily: grotesk }}>
                   {jour.label}
                 </span>
-                <span style={{ fontSize: '15px', fontWeight: 'bold', color: estSélectionné ? '#fff' : '#e2e8f0' }}>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: estSélectionné ? T.accentText : T.text, fontFamily: grotesk }}>
                   {jour.num}
                 </span>
-                {nbÉvénements > 0 && (
-                  <span style={{
-                    width: '5px', height: '5px', borderRadius: '50%',
-                    background: estSélectionné ? '#fff' : '#a78bfa',
-                  }} />
-                )}
+                <span style={{
+                  width: '4px', height: '4px', borderRadius: '50%',
+                  background: nbÉvénements > 0 ? (estSélectionné ? T.accentText : T.accent) : 'transparent',
+                }} />
               </button>
             )
           })}
@@ -509,31 +552,29 @@ export default function Taches() {
           onDragOver={e => e.preventDefault()}
           onDrop={() => onDropTimeline(jourSélectionné)}
           style={{
-            background: '#1a1d27', border: '1px solid #2d3148', borderRadius: '12px',
-            padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '80px',
+            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px',
+            padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '84px',
           }}
         >
-          <strong style={{ color: '#e2e8f0', fontSize: '13px', textTransform: 'capitalize' }}>
+          <strong style={{ color: T.text, fontSize: '15px', textTransform: 'capitalize', fontFamily: serif, fontStyle: 'italic', fontWeight: 500 }}>
             {jourSélectionné === aujourdhuiISO ? "Aujourd'hui" : new Date(jourSélectionné).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
           </strong>
           {data.timeline.filter(ev => ev.date === jourSélectionné).length === 0 && (
-            <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>Rien de planifié pour ce jour</p>
+            <p style={{ color: T.textMuted, fontSize: '12px', margin: 0 }}>Rien de planifié pour ce jour</p>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {data.timeline.filter(ev => ev.date === jourSélectionné).map(ev => {
               const colOrigine = data.colonnes.find(c => c.id === ev.colonneId)
               return (
                 <div key={ev.id} style={{
-                  background: '#252836', borderRadius: '8px', padding: '8px 10px',
-                  borderLeft: `3px solid ${colOrigine?.couleur || '#6c63ff'}`,
-                  display: 'flex', alignItems: 'center', gap: '10px',
+                  display: 'flex', alignItems: 'stretch', background: T.surface2,
+                  borderRadius: '8px', border: `1px solid ${T.border}`, overflow: 'hidden',
                 }}>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#e2e8f0', lineHeight: '1.4', flex: 1, wordBreak: 'break-word' }}>
+                  <span style={{ width: '3px', background: colOrigine?.couleur || T.accent, flexShrink: 0 }} />
+                  <p style={{ margin: 0, fontSize: '13px', color: T.text, lineHeight: '1.4', flex: 1, wordBreak: 'break-word', padding: '9px 10px' }}>
                     {ev.texte}
                   </p>
-                  <button onClick={() => supprimerÉvénementTimeline(ev.id)} style={{
-                    fontSize: '11px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0,
-                  }}>🗑</button>
+                  <BoutonIcone icon="corbeille" title="Retirer" couleur={T.danger} taille={13} onClick={() => supprimerÉvénementTimeline(ev.id)} />
                 </div>
               )
             })}
@@ -541,9 +582,9 @@ export default function Taches() {
         </div>
       </div>
 
-      <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
-        Glisse une carte vers une autre colonne pour la déplacer · sauvegarde automatique sur cet appareil
-        <br />Utilise « Exporter » pour garder un fichier de sauvegarde ou le transférer vers un autre appareil
+      <p style={{ textAlign: 'center', color: T.textMuted, fontSize: '11.5px', maxWidth: '440px', margin: '26px auto 0', lineHeight: '1.7' }}>
+        Glisse une carte vers un autre bloc pour la déplacer sur ordinateur, ou utilise le menu déroulant sur mobile.
+        Sauvegarde automatique sur cet appareil — « Exporter » garde un fichier de secours.
       </p>
     </div>
   )

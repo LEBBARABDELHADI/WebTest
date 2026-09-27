@@ -19,7 +19,12 @@ function décoderBase64Utf8(b64) {
 export async function lireDepuisGitHub(token) {
   const headers = { Accept: 'application/vnd.github+json' }
   if (token) headers.Authorization = `Bearer ${token}`
-  const res = await fetch(`${API}?ref=${BRANCHE}`, { headers, cache: 'no-store' })
+  let res
+  try {
+    res = await fetch(`${API}?ref=${BRANCHE}`, { headers, cache: 'no-store' })
+  } catch {
+    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
+  }
   if (!res.ok) {
     if (res.status === 403) throw new Error('Limite de requêtes GitHub atteinte, réessaie plus tard')
     throw new Error(`Lecture impossible (${res.status})`)
@@ -44,16 +49,21 @@ export async function écrireVersGitHub(data, token, shaConnu) {
     sha = actuel.sha
   }
   const contenu = encoderBase64Utf8(JSON.stringify(data, null, 2))
-  const res = await fetch(API, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify({
-      message: `chore: sync tâches ${new Date().toISOString()}`,
-      content: contenu,
-      sha,
-      branch: BRANCHE,
-    }),
-  })
+  let res
+  try {
+    res = await fetch(API, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        message: `chore: sync tâches ${new Date().toISOString()}`,
+        content: contenu,
+        sha,
+        branch: BRANCHE,
+      }),
+    })
+  } catch {
+    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     if (res.status === 401) throw new Error('Token invalide ou expiré')
