@@ -55,6 +55,12 @@
             }
           ],
           "sélection": "o1"
+        },
+        {
+          "id": "muk32v93hlzsm",
+          "type": "tache",
+          "texte": "",
+          "fait": false
         }
       ]
     }
