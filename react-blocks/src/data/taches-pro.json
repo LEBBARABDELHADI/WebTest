@@ -52,7 +52,8 @@
     {
       "id": "muk2rzccce6dn",
       "colonneId": "c2",
-      "texte": "toto"
+      "texte": "toto",
+      "archivé": true
     }
   ],
   "timeline": [
