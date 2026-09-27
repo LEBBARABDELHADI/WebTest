@@ -24,24 +24,31 @@ export default function Home() {
         </p>
       </div>
 
-      <Link to="/taches">
-        <div style={{
-          padding: '14px 16px', background: '#1a1d27', borderRadius: '12px',
-          border: '1px solid #2d3148', display: 'flex', alignItems: 'center', gap: '14px',
-          marginBottom: '28px', cursor: 'pointer',
-        }}>
-          <span style={{ fontSize: '28px' }}>📋</span>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: '600', color: '#e2e8f0', margin: '0 0 2px', fontSize: '15px' }}>
-              Mes tâches
-            </p>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>
-              Un tableau façon Trello — crée, modifie, supprime tes tâches par bloc
-            </p>
-          </div>
-          <span style={{ color: '#6c63ff', fontSize: '18px' }}>›</span>
-        </div>
-      </Link>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '28px' }}>
+        {[
+          { to: '/taches/perso', emoji: '🏡', titre: 'Programme perso', desc: 'Ton tableau personnel — propre fichier de sauvegarde sur GitHub' },
+          { to: '/taches/pro', emoji: '💼', titre: 'Programme pro', desc: 'Ton tableau professionnel — indépendant du perso, propre fichier' },
+        ].map(p => (
+          <Link key={p.to} to={p.to}>
+            <div style={{
+              padding: '14px 16px', background: '#1a1d27', borderRadius: '12px',
+              border: '1px solid #2d3148', display: 'flex', alignItems: 'center', gap: '14px',
+              cursor: 'pointer',
+            }}>
+              <span style={{ fontSize: '28px' }}>{p.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: '600', color: '#e2e8f0', margin: '0 0 2px', fontSize: '15px' }}>
+                  {p.titre}
+                </p>
+                <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>
+                  {p.desc}
+                </p>
+              </div>
+              <span style={{ color: '#6c63ff', fontSize: '18px' }}>›</span>
+            </div>
+          </Link>
+        ))}
+      </div>
 
       {[
         { label: 'Débutant', items: débutant },

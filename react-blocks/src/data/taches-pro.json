@@ -1,0 +1,14 @@
+{
+  "colonnes": [
+    { "id": "c1", "titre": "Aujourd'hui", "couleur": "#fbbf24" },
+    { "id": "c2", "titre": "Cette semaine", "couleur": "#4ade80" },
+    { "id": "c3", "titre": "Plus tard", "couleur": "#a78bfa" }
+  ],
+  "étiquettes": [
+    { "id": "e1", "nom": "Urgent", "couleur": "#e2574c" },
+    { "id": "e2", "nom": "Réunion", "couleur": "#5b8dc9" },
+    { "id": "e3", "nom": "Projet", "couleur": "#4a9d94" }
+  ],
+  "cartes": [],
+  "timeline": []
+}

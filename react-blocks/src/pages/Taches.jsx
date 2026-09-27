@@ -1,10 +1,28 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import donnéesInitiales from '../data/taches.json'
+import { Link, useParams } from 'react-router-dom'
+import donnéesPerso from '../data/taches-perso.json'
+import donnéesPro from '../data/taches-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 
-const STORAGE_KEY = 'react-blocs-taches'
+const ESPACES = {
+  perso: {
+    id: 'perso',
+    titre: 'Programme perso',
+    eyebrow: 'Planning perso',
+    chemin: 'react-blocks/src/data/taches-perso.json',
+    stockage: 'react-blocs-taches-perso',
+    données: donnéesPerso,
+  },
+  pro: {
+    id: 'pro',
+    titre: 'Programme pro',
+    eyebrow: 'Planning pro',
+    chemin: 'react-blocks/src/data/taches-pro.json',
+    stockage: 'react-blocs-taches-pro',
+    données: donnéesPro,
+  },
+}
 
 const T = {
   bg: '#141210',
@@ -33,13 +51,13 @@ function complète(objet) {
   }
 }
 
-function chargerDonnées() {
+function chargerDonnées(config) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(config.stockage)
     if (raw) return complète(JSON.parse(raw))
   } catch { /* ignore */ }
-  // Aucune sauvegarde locale : on part du fichier data/taches.json du projet
-  return complète(donnéesInitiales)
+  // Aucune sauvegarde locale : on part du fichier data du projet pour cet espace
+  return complète(config.données)
 }
 
 function uid() {
@@ -85,7 +103,10 @@ function Repli({ icon, texte, ouvert, onToggle, marginBottom }) {
 }
 
 export default function Taches() {
-  const [data, setData] = useState(chargerDonnées)
+  const { espace: espaceParam } = useParams()
+  const config = ESPACES[espaceParam] || ESPACES.perso
+
+  const [data, setData] = useState(() => chargerDonnées(config))
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionId, setÉditionId] = useState(null)
   const [texteÉdition, setTexteÉdition] = useState('')
@@ -112,16 +133,16 @@ export default function Taches() {
   const dernierEnvoiRef = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  }, [data])
+    localStorage.setItem(config.stockage, JSON.stringify(data))
+  }, [data, config.stockage])
 
-  // Lecture depuis le fichier data/taches.json du dépôt GitHub (fonctionne
-  // sans token car le dépôt est public) — c'est ce qui permet de retrouver
-  // les mêmes données sur n'importe quel ordinateur.
+  // Lecture depuis le fichier data/taches-{espace}.json du dépôt GitHub
+  // (fonctionne sans token car le dépôt est public) — c'est ce qui permet
+  // de retrouver les mêmes données sur n'importe quel ordinateur.
   useEffect(() => {
     let annulé = false
     setStatutSync(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
-    lireDepuisGitHub(token)
+    lireDepuisGitHub(token, config.chemin)
       .then(({ data: distant, sha }) => {
         if (annulé) return
         shaRef.current = sha
@@ -137,7 +158,7 @@ export default function Taches() {
       })
       .finally(() => { prêtPourSyncRef.current = true })
     return () => { annulé = true }
-  }, [token])
+  }, [token, config.chemin])
 
   // Écriture différée vers GitHub après chaque modification, si un token
   // est configuré. Sans token, seule la sauvegarde locale (ci-dessus) joue.
@@ -150,7 +171,7 @@ export default function Taches() {
     clearTimeout(syncTimeoutRef.current)
     syncTimeoutRef.current = setTimeout(() => {
       setStatutSync('synchronisation')
-      écrireVersGitHub(data, token, shaRef.current)
+      écrireVersGitHub(data, token, shaRef.current, config.chemin)
         .then(({ sha }) => {
           shaRef.current = sha
           dernierEnvoiRef.current = contenu
@@ -162,7 +183,7 @@ export default function Taches() {
         })
     }, 1500)
     return () => clearTimeout(syncTimeoutRef.current)
-  }, [data, token])
+  }, [data, token, config.chemin])
 
   const connecterToken = () => {
     const t = tokenSaisi.trim()
@@ -334,7 +355,7 @@ export default function Taches() {
     const a = document.createElement('a')
     const date = new Date().toISOString().slice(0, 10)
     a.href = url
-    a.download = `mes-taches-${date}.json`
+    a.download = `taches-${config.id}-${date}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -405,13 +426,30 @@ export default function Taches() {
           </div>
         </div>
 
-        <p style={{
-          fontFamily: grotesk, fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase',
-          color: T.accent, margin: '0 0 4px', fontWeight: 600,
-        }}>Planning personnel</p>
-        <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '34px', color: T.text, margin: '0 0 22px', lineHeight: 1.1 }}>
-          Mes tâches
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', marginBottom: '22px' }}>
+          <div>
+            <p style={{
+              fontFamily: grotesk, fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase',
+              color: T.accent, margin: '0 0 4px', fontWeight: 600,
+            }}>{config.eyebrow}</p>
+            <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '34px', color: T.text, margin: 0, lineHeight: 1.1 }}>
+              {config.titre}
+            </h1>
+          </div>
+          <div style={{ display: 'flex', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '9px', padding: '3px', flexShrink: 0 }}>
+            {Object.values(ESPACES).map(e => (
+              <Link
+                key={e.id}
+                to={`/taches/${e.id}`}
+                style={{
+                  fontSize: '11px', fontFamily: grotesk, fontWeight: 600, padding: '6px 10px', borderRadius: '6px',
+                  background: e.id === config.id ? T.accent : 'transparent',
+                  color: e.id === config.id ? T.accentText : T.textMuted,
+                }}
+              >{e.id === 'perso' ? 'Perso' : 'Pro'}</Link>
+            ))}
+          </div>
+        </div>
 
         {messageImport && (
           <p style={{ fontSize: '12px', color: T.accent, margin: '-14px 0 14px' }}>{messageImport}</p>
@@ -427,17 +465,43 @@ export default function Taches() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
               {cartesEnRetard.map(c => (
-                <div key={'r' + c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.danger, flexShrink: 0 }} />
-                  <span style={{ flex: 1 }}>{c.texte}</span>
-                  <span style={{ fontSize: '10px', color: T.danger, flexShrink: 0 }}>en retard</span>
+                <div key={'r' + c.id}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.danger, flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>{c.texte}</span>
+                    <span style={{ fontSize: '10px', color: T.danger, flexShrink: 0 }}>en retard</span>
+                  </div>
+                  {(c.checklist || []).length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 0 14px' }}>
+                      {c.checklist.map(item => (
+                        <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: item.fait ? T.textMuted : T.text, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={item.fait} onChange={() => basculerItemChecklist(c.id, item.id)}
+                            style={{ accentColor: T.accent, width: '12px', height: '12px', flexShrink: 0 }} />
+                          <span style={{ textDecoration: item.fait ? 'line-through' : 'none' }}>{item.texte}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               {cartesÉchéanceAujourdhui.map(c => (
-                <div key={'e' + c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
-                  <span style={{ flex: 1 }}>{c.texte}</span>
-                  <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>échéance</span>
+                <div key={'e' + c.id}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>{c.texte}</span>
+                    <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>échéance</span>
+                  </div>
+                  {(c.checklist || []).length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 0 14px' }}>
+                      {c.checklist.map(item => (
+                        <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: item.fait ? T.textMuted : T.text, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={item.fait} onChange={() => basculerItemChecklist(c.id, item.id)}
+                            style={{ accentColor: T.accent, width: '12px', height: '12px', flexShrink: 0 }} />
+                          <span style={{ textDecoration: item.fait ? 'line-through' : 'none' }}>{item.texte}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               {planifiéesAujourdhui.map(ev => (
@@ -469,7 +533,7 @@ export default function Taches() {
             ) : (
               <div>
                 <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 10px', lineHeight: '1.6' }}>
-                  Colle un token GitHub pour écrire tes modifications dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>data/taches.json</code> — visible ensuite sur tous tes appareils.
+                  Colle un token GitHub pour écrire tes modifications dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>taches-{config.id}.json</code> — visible ensuite sur tous tes appareils.
                   Génère-le sur <strong style={{ color: T.text }}>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong style={{ color: T.text }}>WebTest</strong>, permission <strong style={{ color: T.text }}>Contents: Read and write</strong>.
                 </p>
                 <div style={{ display: 'flex', gap: '6px' }}>
