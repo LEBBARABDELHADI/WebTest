@@ -13,11 +13,11 @@ export default function Home() {
   const avancé = notions.filter(n => n.niveau === 'Avancé')
 
   return (
-    <div style={{ maxWidth: '520px', margin: '0 auto', padding: '24px 16px' }}>
+    <div style={{ maxWidth: '520px', margin: '0 auto', padding: '64px 16px 24px' }}>
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '8px' }}>⚛️</div>
+        <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏠</div>
         <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#e2e8f0', margin: '0 0 8px' }}>
-          React Blocs
+          Home
         </h1>
         <p style={{ color: '#94a3b8', fontSize: '14px' }}>
           Apprends React notion par notion, avec des démos interactives.
