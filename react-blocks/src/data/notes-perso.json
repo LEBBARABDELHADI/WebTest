@@ -78,32 +78,6 @@
       "blocs": []
     },
     {
-      "id": "mukcfp8l7e1s7",
-      "titre": "Courses",
-      "couleur": "#8b7ab8",
-      "catégorie": "importantes",
-      "blocs": [
-        {
-          "id": "mukcfp8lw3w3r",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "mukcfp8lauale",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "mukcfp8lze91m",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ]
-    },
-    {
       "id": "mukcfn9mcaby2",
       "titre": "Réunion",
       "couleur": "#5b8dc9",
