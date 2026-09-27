@@ -1,58 +1,6 @@
 {
   "notes": [
     {
-      "id": "mukcfqgu6py5k",
-      "titre": "Courses",
-      "couleur": "#e2574c",
-      "catégorie": "importantes",
-      "blocs": [
-        {
-          "id": "mukcfqgua8zh1",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "mukcfqguofrsp",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "mukcfqgusumei",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ]
-    },
-    {
-      "id": "mukcfpkr5mevu",
-      "titre": "Courses",
-      "couleur": "#f0a839",
-      "catégorie": "importantes",
-      "blocs": [
-        {
-          "id": "mukcfpkr5tji6",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "mukcfpkrvpi40",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        },
-        {
-          "id": "mukcfpkr9tzxz",
-          "type": "tache",
-          "texte": "",
-          "fait": false
-        }
-      ]
-    },
-    {
       "id": "mukcfp8l7e1s7",
       "titre": "Courses",
       "couleur": "#8b7ab8",
@@ -238,31 +186,6 @@
           "id": "muk5460gbp9z0",
           "type": "texte",
           "contenu": ""
-        }
-      ],
-      "catégorie": "importantes"
-    },
-    {
-      "id": "muk326xnya0pn",
-      "titre": "Nouvelle note",
-      "couleur": "#e2574c",
-      "blocs": [
-        {
-          "id": "muk329rxmhkoh",
-          "type": "texte",
-          "contenu": "tessts"
-        },
-        {
-          "id": "muk32cy97qkbv",
-          "type": "tache",
-          "texte": "tache1",
-          "fait": false
-        },
-        {
-          "id": "muk32mr2q2ar9",
-          "type": "tache",
-          "texte": "tache 2",
-          "fait": false
         }
       ],
       "catégorie": "importantes"
