@@ -26,6 +26,8 @@ export default function Taches() {
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionId, setÉditionId] = useState(null)
   const [texteÉdition, setTexteÉdition] = useState('')
+  const [colonneÉditionId, setColonneÉditionId] = useState(null)
+  const [titreÉdition, setTitreÉdition] = useState('')
   const dragCarte = useRef(null)
 
   useEffect(() => {
@@ -75,6 +77,21 @@ export default function Taches() {
     }
   }
 
+  const démarrerÉditionColonne = col => {
+    setColonneÉditionId(col.id)
+    setTitreÉdition(col.titre)
+  }
+
+  const validerÉditionColonne = id => {
+    const titre = titreÉdition.trim()
+    setColonneÉditionId(null)
+    if (!titre) return
+    setData(d => ({
+      ...d,
+      colonnes: d.colonnes.map(c => c.id === id ? { ...c, titre } : c),
+    }))
+  }
+
   return (
     <div style={{ maxWidth: '100%', margin: '0 auto', padding: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', maxWidth: '520px', margin: '0 auto 20px' }}>
@@ -104,8 +121,30 @@ export default function Taches() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.couleur }} />
-                <strong style={{ color: '#e2e8f0', fontSize: '14px', flex: 1 }}>{col.titre}</strong>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.couleur, flexShrink: 0 }} />
+                {colonneÉditionId === col.id ? (
+                  <input
+                    autoFocus
+                    value={titreÉdition}
+                    onChange={e => setTitreÉdition(e.target.value)}
+                    onBlur={() => validerÉditionColonne(col.id)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { e.preventDefault(); validerÉditionColonne(col.id) }
+                      if (e.key === 'Escape') setColonneÉditionId(null)
+                    }}
+                    style={{
+                      flex: 1, background: '#0d0f14', color: '#e2e8f0',
+                      border: '1px solid #6c63ff', borderRadius: '6px',
+                      padding: '2px 6px', fontSize: '14px', fontWeight: 'bold', outline: 'none',
+                    }}
+                  />
+                ) : (
+                  <strong
+                    onClick={() => démarrerÉditionColonne(col)}
+                    title="Cliquer pour renommer"
+                    style={{ color: '#e2e8f0', fontSize: '14px', flex: 1, cursor: 'text' }}
+                  >{col.titre}</strong>
+                )}
                 <span style={{
                   fontSize: '11px', color: col.couleur, background: col.couleur + '22',
                   padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold',
