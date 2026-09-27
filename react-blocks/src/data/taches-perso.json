@@ -73,7 +73,10 @@
     {
       "id": "muk7jvwcv1s4t",
       "colonneId": "c1",
-      "texte": "Section kodekloud gitlab"
+      "texte": "Section kodekloud gitlab",
+      "étiquettes": [
+        "e2"
+      ]
     }
   ],
   "timeline": []
