@@ -29,6 +29,7 @@ export default function Taches() {
   const [colonneÉditionId, setColonneÉditionId] = useState(null)
   const [titreÉdition, setTitreÉdition] = useState('')
   const [messageImport, setMessageImport] = useState('')
+  const [jourSélectionné, setJourSélectionné] = useState(() => new Date().toISOString().slice(0, 10))
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '')
   const [tokenSaisi, setTokenSaisi] = useState('')
   const [statutSync, setStatutSync] = useState(token ? 'chargement' : 'lecture')
@@ -313,6 +314,7 @@ export default function Taches() {
       <div style={{
         display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 4px 20px',
         maxWidth: '1100px', margin: '0 auto',
+        scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
       }}>
         {data.colonnes.map(col => {
           const cartes = data.cartes.filter(c => c.colonneId === col.id)
@@ -322,10 +324,11 @@ export default function Taches() {
               onDragOver={e => e.preventDefault()}
               onDrop={() => onDrop(col.id)}
               style={{
-                minWidth: '260px', maxWidth: '260px', flexShrink: 0,
+                minWidth: 'min(260px, 82vw)', maxWidth: 'min(260px, 82vw)', flexShrink: 0,
                 background: '#1a1d27', borderRadius: '12px',
                 border: '1px solid #2d3148', padding: '12px',
                 display: 'flex', flexDirection: 'column', gap: '10px',
+                scrollSnapAlign: 'start',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -400,13 +403,31 @@ export default function Taches() {
                         <p style={{ color: '#e2e8f0', fontSize: '13px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                           {carte.texte}
                         </p>
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                           <button onClick={() => démarrerÉdition(carte)} style={{
                             fontSize: '11px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                           }}>✏️ Modifier</button>
                           <button onClick={() => supprimerCarte(carte.id)} style={{
                             fontSize: '11px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                           }}>🗑 Supprimer</button>
+                          <button
+                            onClick={() => ajouterÉvénementTimeline(carte.id, jourSélectionné)}
+                            title="Ajouter au jour sélectionné dans la timeline"
+                            style={{ fontSize: '11px', color: '#a78bfa', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                          >📅 Planifier</button>
+                          <select
+                            value={col.id}
+                            onChange={e => déplacerCarte(carte.id, e.target.value)}
+                            title="Déplacer vers un autre bloc"
+                            style={{
+                              fontSize: '11px', color: '#94a3b8', background: '#0d0f14',
+                              border: '1px solid #2d3148', borderRadius: '4px', padding: '2px 4px', marginLeft: 'auto',
+                            }}
+                          >
+                            {data.colonnes.map(c => (
+                              <option key={c.id} value={c.id}>{c.titre}</option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     )}
@@ -444,52 +465,79 @@ export default function Taches() {
           🗓 Timeline
         </h2>
         <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 12px' }}>
-          Glisse une carte depuis un bloc et dépose-la sur un jour — une copie est planifiée ici, l'originale reste dans son bloc
+          Sélectionne un jour ci-dessous, puis touche « 📅 Planifier » sur une carte (ou glisse-la ici sur ordinateur) — une copie est ajoutée, l'originale reste dans son bloc
         </p>
-        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '4px 4px 16px' }}>
+
+        <div style={{
+          display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 4px 10px',
+          scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
+        }}>
           {jours.map(jour => {
-            const événements = data.timeline.filter(ev => ev.date === jour.iso)
+            const nbÉvénements = data.timeline.filter(ev => ev.date === jour.iso).length
             const estAujourdhui = jour.iso === aujourdhuiISO
+            const estSélectionné = jour.iso === jourSélectionné
             return (
-              <div
+              <button
                 key={jour.iso}
-                onDragOver={e => e.preventDefault()}
-                onDrop={() => onDropTimeline(jour.iso)}
+                onClick={() => setJourSélectionné(jour.iso)}
                 style={{
-                  minWidth: '140px', maxWidth: '140px', flexShrink: 0,
-                  background: estAujourdhui ? '#6c63ff15' : '#1a1d27',
-                  border: estAujourdhui ? '1px solid #6c63ff' : '1px solid #2d3148',
-                  borderRadius: '10px', padding: '10px',
-                  display: 'flex', flexDirection: 'column', gap: '8px',
+                  minWidth: '52px', flexShrink: 0, scrollSnapAlign: 'start',
+                  background: estSélectionné ? '#6c63ff' : estAujourdhui ? '#6c63ff15' : '#1a1d27',
+                  border: estSélectionné ? '1px solid #6c63ff' : estAujourdhui ? '1px solid #6c63ff' : '1px solid #2d3148',
+                  borderRadius: '10px', padding: '8px 6px', cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
                 }}
               >
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ margin: 0, fontSize: '11px', color: estAujourdhui ? '#a78bfa' : '#94a3b8', textTransform: 'capitalize' }}>
-                    {jour.label}
-                  </p>
-                  <p style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#e2e8f0' }}>{jour.num}</p>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minHeight: '30px' }}>
-                  {événements.map(ev => {
-                    const colOrigine = data.colonnes.find(c => c.id === ev.colonneId)
-                    return (
-                      <div key={ev.id} style={{
-                        background: '#252836', borderRadius: '6px', padding: '6px 8px',
-                        borderLeft: `3px solid ${colOrigine?.couleur || '#6c63ff'}`,
-                      }}>
-                        <p style={{ margin: '0 0 4px', fontSize: '11px', color: '#e2e8f0', lineHeight: '1.4', wordBreak: 'break-word' }}>
-                          {ev.texte}
-                        </p>
-                        <button onClick={() => supprimerÉvénementTimeline(ev.id)} style={{
-                          fontSize: '10px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                        }}>🗑 Retirer</button>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+                <span style={{ fontSize: '10px', color: estSélectionné ? '#fff' : '#94a3b8', textTransform: 'capitalize' }}>
+                  {jour.label}
+                </span>
+                <span style={{ fontSize: '15px', fontWeight: 'bold', color: estSélectionné ? '#fff' : '#e2e8f0' }}>
+                  {jour.num}
+                </span>
+                {nbÉvénements > 0 && (
+                  <span style={{
+                    width: '5px', height: '5px', borderRadius: '50%',
+                    background: estSélectionné ? '#fff' : '#a78bfa',
+                  }} />
+                )}
+              </button>
             )
           })}
+        </div>
+
+        <div
+          onDragOver={e => e.preventDefault()}
+          onDrop={() => onDropTimeline(jourSélectionné)}
+          style={{
+            background: '#1a1d27', border: '1px solid #2d3148', borderRadius: '12px',
+            padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '80px',
+          }}
+        >
+          <strong style={{ color: '#e2e8f0', fontSize: '13px', textTransform: 'capitalize' }}>
+            {jourSélectionné === aujourdhuiISO ? "Aujourd'hui" : new Date(jourSélectionné).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </strong>
+          {data.timeline.filter(ev => ev.date === jourSélectionné).length === 0 && (
+            <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>Rien de planifié pour ce jour</p>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {data.timeline.filter(ev => ev.date === jourSélectionné).map(ev => {
+              const colOrigine = data.colonnes.find(c => c.id === ev.colonneId)
+              return (
+                <div key={ev.id} style={{
+                  background: '#252836', borderRadius: '8px', padding: '8px 10px',
+                  borderLeft: `3px solid ${colOrigine?.couleur || '#6c63ff'}`,
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                }}>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#e2e8f0', lineHeight: '1.4', flex: 1, wordBreak: 'break-word' }}>
+                    {ev.texte}
+                  </p>
+                  <button onClick={() => supprimerÉvénementTimeline(ev.id)} style={{
+                    fontSize: '11px', color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0,
+                  }}>🗑</button>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
 
