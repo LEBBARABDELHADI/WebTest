@@ -18,6 +18,10 @@ const chemins = {
   radio: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
   note: 'M14 3v4a1 1 0 0 0 1 1h4 M6 3h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z M9 13h6 M9 17h4',
   epingle: 'M12 2 9 9l-6 1 4.5 4.5L6 21l6-3.5 6 3.5-1.5-6.5L21 10l-6-1-3-7Z',
+  chevronHaut: 'm18 15-6-6-6 6',
+  archive: 'M3 4h18v4H3z M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8 M10 13h4',
+  repeter: 'M17 1l4 4-4 4 M3 11V9a4 4 0 0 1 4-4h14 M7 23l-4-4 4-4 M21 13v2a4 4 0 0 1-4 4H3',
+  annuler: 'M9 14 4 9l5-5 M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
 }
 
 export default function Icon({ nom, taille = 16, trait = 2, ...props }) {

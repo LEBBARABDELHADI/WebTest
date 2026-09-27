@@ -75,17 +75,43 @@ export default function Taches() {
   const [étiquettesOuvert, setÉtiquettesOuvert] = useState(false)
   const [nouvelleÉtiquette, setNouvelleÉtiquette] = useState('')
   const [couleurÉtiquette, setCouleurÉtiquette] = useState(PALETTE_ÉTIQUETTES[0])
+  const [archivesOuvert, setArchivesOuvert] = useState(false)
+  const [moisAffiché, setMoisAffiché] = useState(() => {
+    const d = new Date()
+    return { année: d.getFullYear(), mois: d.getMonth() }
+  })
+  const [peutAnnuler, setPeutAnnuler] = useState(false)
   const dragCarte = useRef(null)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
   const ignoreProchaineÉcritureRef = useRef(false)
+  const ignoreProchainUndoRef = useRef(false)
   const prêtPourSyncRef = useRef(false)
   const dernierEnvoiRef = useRef(null)
+  const pileAnnulerRef = useRef([])
+  const donnéesPrécédentesRef = useRef(data)
+  const récurrenceAppliquéeRef = useRef(false)
 
   useEffect(() => {
     localStorage.setItem(config.stockage, JSON.stringify(data))
   }, [data, config.stockage])
+
+  // Historique pour « Annuler » : on garde l'état précédent avant chaque
+  // changement, sauf pour les remplacements silencieux (lecture GitHub,
+  // récurrence automatique, un « annuler » lui-même).
+  useEffect(() => {
+    if (donnéesPrécédentesRef.current === data) return
+    if (ignoreProchainUndoRef.current) {
+      ignoreProchainUndoRef.current = false
+      donnéesPrécédentesRef.current = data
+      return
+    }
+    pileAnnulerRef.current.push(donnéesPrécédentesRef.current)
+    if (pileAnnulerRef.current.length > 25) pileAnnulerRef.current.shift()
+    donnéesPrécédentesRef.current = data
+    setPeutAnnuler(true)
+  }, [data])
 
   // Lecture depuis le fichier data/taches-{espace}.json du dépôt GitHub
   // (fonctionne sans token car le dépôt est public) — c'est ce qui permet
@@ -99,6 +125,7 @@ export default function Taches() {
         shaRef.current = sha
         dernierEnvoiRef.current = JSON.stringify(distant)
         ignoreProchaineÉcritureRef.current = true
+        ignoreProchainUndoRef.current = true
         setData(complète(distant))
         setStatutSync(token ? 'connecté' : 'lecture-seule')
       })
@@ -110,6 +137,29 @@ export default function Taches() {
       .finally(() => { prêtPourSyncRef.current = true })
     return () => { annulé = true }
   }, [token, config.chemin])
+
+  // Replanifie une fois, au premier chargement, les cartes récurrentes qui
+  // n'ont pas encore de copie dans la timeline pour aujourd'hui.
+  useEffect(() => {
+    if (récurrenceAppliquéeRef.current) return
+    if (!['connecté', 'lecture-seule', 'erreur'].includes(statutSync)) return
+    récurrenceAppliquéeRef.current = true
+    const aujourd = new Date().toISOString().slice(0, 10)
+    const jourSemaine = new Date().getDay()
+    setData(d => {
+      const nouveaux = []
+      d.cartes.forEach(c => {
+        if (!c.récurrence || c.archivé) return
+        if (c.récurrence === 'hebdomadaire' && c.récurrenceJour !== jourSemaine) return
+        const déjà = d.timeline.some(ev => ev.carteId === c.id && ev.date === aujourd)
+        if (déjà) return
+        nouveaux.push({ id: uid(), carteId: c.id, colonneId: c.colonneId, texte: c.texte, date: aujourd })
+      })
+      if (nouveaux.length === 0) return d
+      ignoreProchainUndoRef.current = true
+      return { ...d, timeline: [...d.timeline, ...nouveaux] }
+    })
+  }, [statutSync])
 
   // Écriture différée vers GitHub après chaque modification, si un token
   // est configuré. Sans token, seule la sauvegarde locale (ci-dessus) joue.
@@ -150,6 +200,16 @@ export default function Taches() {
     setToken('')
   }
 
+  const annuler = () => {
+    const pile = pileAnnulerRef.current
+    if (pile.length === 0) return
+    const précédent = pile.pop()
+    ignoreProchainUndoRef.current = true
+    donnéesPrécédentesRef.current = précédent
+    setData(précédent)
+    setPeutAnnuler(pile.length > 0)
+  }
+
   const ajouterCarte = colonneId => {
     const texte = (nouvelleCarte[colonneId] || '').trim()
     if (!texte) return
@@ -162,6 +222,48 @@ export default function Taches() {
 
   const supprimerCarte = id => {
     setData(d => ({ ...d, cartes: d.cartes.filter(c => c.id !== id) }))
+  }
+
+  const archiverCarte = id => {
+    setData(d => ({ ...d, cartes: d.cartes.map(c => c.id === id ? { ...c, archivé: true } : c) }))
+  }
+
+  const désarchiverCarte = id => {
+    setData(d => ({ ...d, cartes: d.cartes.map(c => c.id === id ? { ...c, archivé: false } : c) }))
+  }
+
+  const réordonnerCarte = (carteId, direction) => {
+    setData(d => {
+      const carte = d.cartes.find(c => c.id === carteId)
+      if (!carte) return d
+      const indicesColonne = d.cartes
+        .map((c, i) => ({ c, i }))
+        .filter(o => o.c.colonneId === carte.colonneId && !o.c.archivé)
+        .map(o => o.i)
+      const pos = indicesColonne.indexOf(d.cartes.indexOf(carte))
+      const nouvellePos = pos + direction
+      if (nouvellePos < 0 || nouvellePos >= indicesColonne.length) return d
+      const cartes = [...d.cartes]
+      const iA = indicesColonne[pos]
+      const iB = indicesColonne[nouvellePos]
+      ;[cartes[iA], cartes[iB]] = [cartes[iB], cartes[iA]]
+      return { ...d, cartes }
+    })
+  }
+
+  const définirRécurrence = (carteId, valeur) => {
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => {
+        if (c.id !== carteId) return c
+        const copie = { ...c }
+        if (!valeur) { delete copie.récurrence; delete copie.récurrenceJour; return copie }
+        copie.récurrence = valeur
+        if (valeur === 'hebdomadaire') copie.récurrenceJour = new Date().getDay()
+        else delete copie.récurrenceJour
+        return copie
+      }),
+    }))
   }
 
   const démarrerÉdition = carte => {
@@ -198,7 +300,7 @@ export default function Taches() {
     if (!carte) return
     setData(d => ({
       ...d,
-      timeline: [...d.timeline, { id: uid(), colonneId: carte.colonneId, texte: carte.texte, date }],
+      timeline: [...d.timeline, { id: uid(), carteId: carte.id, colonneId: carte.colonneId, texte: carte.texte, date }],
     }))
   }
 
@@ -343,6 +445,19 @@ export default function Taches() {
     }
   })
 
+  const premierJourMois = new Date(moisAffiché.année, moisAffiché.mois, 1)
+  const nbJoursMois = new Date(moisAffiché.année, moisAffiché.mois + 1, 0).getDate()
+  const décalageDébut = (premierJourMois.getDay() + 6) % 7 // lundi = 0
+  const grilleMois = [
+    ...Array.from({ length: décalageDébut }, () => null),
+    ...Array.from({ length: nbJoursMois }, (_, j) => {
+      const d = new Date(moisAffiché.année, moisAffiché.mois, j + 1)
+      return { iso: d.toISOString().slice(0, 10), num: j + 1 }
+    }),
+  ]
+  const nomMois = new Date(moisAffiché.année, moisAffiché.mois, 1)
+    .toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+
   const planifiéesAujourdhui = data.timeline.filter(ev => ev.date === aujourdhuiISO)
   const cartesÉchéanceAujourdhui = data.cartes.filter(c => c.échéance === aujourdhuiISO)
   const cartesEnRetard = data.cartes.filter(c => c.échéance && c.échéance < aujourdhuiISO)
@@ -371,6 +486,9 @@ export default function Taches() {
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
+            {peutAnnuler && (
+              <BoutonIcone icon="annuler" title="Annuler la dernière action" onClick={annuler} />
+            )}
             <Link to="/notes" title="Notes" aria-label="Notes" style={{
               width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               borderRadius: '7px', color: T.textMuted,
@@ -562,15 +680,40 @@ export default function Taches() {
             </form>
           </div>
         )}
+
+        {data.cartes.some(c => c.archivé) && (
+          <>
+            <Repli
+              icon={<Icon nom="archive" taille={14} style={{ color: T.textMuted }} />}
+              texte={`${data.cartes.filter(c => c.archivé).length} carte${data.cartes.filter(c => c.archivé).length > 1 ? 's' : ''} archivée${data.cartes.filter(c => c.archivé).length > 1 ? 's' : ''}`}
+              ouvert={archivesOuvert}
+              onToggle={() => setArchivesOuvert(o => !o)}
+              marginBottom={archivesOuvert ? '8px' : '22px'}
+            />
+            {archivesOuvert && (
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '22px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {data.cartes.filter(c => c.archivé).map(c => (
+                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: T.textMuted }}>
+                    <span style={{ flex: 1, textDecoration: 'line-through' }}>{c.texte}</span>
+                    <button onClick={() => désarchiverCarte(c.id)} title="Restaurer" style={{
+                      fontSize: '11px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', padding: '4px', fontFamily: grotesk,
+                    }}>Restaurer</button>
+                    <BoutonIcone icon="corbeille" title="Supprimer définitivement" couleur={T.danger} taille={13} onClick={() => supprimerCarte(c.id)} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <div style={{
         display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 16px 20px',
-        maxWidth: '1132px', margin: '0 auto', justifyContent: 'center',
+        maxWidth: '1132px', margin: '0 auto', justifyContent: 'safe center',
         scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
       }}>
         {data.colonnes.map(col => {
-          const cartes = data.cartes.filter(c => c.colonneId === col.id)
+          const cartes = data.cartes.filter(c => c.colonneId === col.id && !c.archivé)
           return (
             <div
               key={col.id}
@@ -619,7 +762,7 @@ export default function Taches() {
                 {cartes.map(carte => {
                   const checklist = carte.checklist || []
                   const étiquettesCarte = carte.étiquettes || []
-                  const aBadges = étiquettesCarte.length > 0 || carte.échéance || checklist.length > 0
+                  const aBadges = étiquettesCarte.length > 0 || carte.échéance || checklist.length > 0 || carte.récurrence
                   return (
                     <div
                       key={carte.id}
@@ -686,6 +829,14 @@ export default function Taches() {
                                   <Icon nom="checklist" taille={10} /> {checklist.filter(i => i.fait).length}/{checklist.length}
                                 </span>
                               )}
+                              {carte.récurrence && (
+                                <span style={{
+                                  fontSize: '10px', color: T.textMuted, background: T.bg, padding: '2px 7px',
+                                  borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: grotesk,
+                                }}>
+                                  <Icon nom="repeter" taille={10} /> {carte.récurrence === 'quotidienne' ? 'Quotidienne' : 'Hebdomadaire'}
+                                </span>
+                              )}
                             </div>
                           )}
                           <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
@@ -693,8 +844,10 @@ export default function Taches() {
                           </p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                             <BoutonIcone icon="crayon" title="Modifier" onClick={() => démarrerÉdition(carte)} taille={14} />
-                            <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} onClick={() => supprimerCarte(carte.id)} taille={14} />
+                            <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} onClick={() => archiverCarte(carte.id)} taille={14} />
                             <BoutonIcone icon="calendrier" title="Ajouter au jour sélectionné" couleur={T.accent} onClick={() => ajouterÉvénementTimeline(carte.id, jourSélectionné)} taille={14} />
+                            <BoutonIcone icon="chevronHaut" title="Monter" taille={14} onClick={() => réordonnerCarte(carte.id, -1)} />
+                            <BoutonIcone icon="chevronBas" title="Descendre" taille={14} onClick={() => réordonnerCarte(carte.id, 1)} />
                             <button
                               onClick={() => setDétailsId(d => d === carte.id ? null : carte.id)}
                               style={{
@@ -773,6 +926,24 @@ export default function Taches() {
                                     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: T.text,
                                   }}><Icon nom="plus" taille={13} /></button>
                                 </form>
+                              </div>
+
+                              <div>
+                                <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Récurrence</p>
+                                <select
+                                  value={carte.récurrence || ''}
+                                  onChange={e => définirRécurrence(carte.id, e.target.value || null)}
+                                  style={{ width: '100%', fontSize: '12px', color: T.text, background: T.bg, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 8px' }}
+                                >
+                                  <option value="">Aucune</option>
+                                  <option value="quotidienne">Quotidienne</option>
+                                  <option value="hebdomadaire">Hebdomadaire (chaque {new Date().toLocaleDateString('fr-FR', { weekday: 'long' })})</option>
+                                </select>
+                                {carte.récurrence && (
+                                  <p style={{ fontSize: '10px', color: T.textMuted, margin: '5px 0 0' }}>
+                                    Se replanifie automatiquement dans la timeline à chaque ouverture.
+                                  </p>
+                                )}
                               </div>
 
                               <div style={{ paddingBottom: '4px' }}>
@@ -895,6 +1066,73 @@ export default function Taches() {
             })}
           </div>
         </div>
+      </div>
+
+      <div style={{ maxWidth: '560px', margin: '30px auto 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '17px', color: T.text, textTransform: 'capitalize' }}>
+            {nomMois}
+          </strong>
+          <div style={{ display: 'flex', gap: '2px' }}>
+            <button
+              title="Mois précédent" aria-label="Mois précédent"
+              onClick={() => setMoisAffiché(m => {
+                const d = new Date(m.année, m.mois - 1, 1)
+                return { année: d.getFullYear(), mois: d.getMonth() }
+              })}
+              style={{
+                width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'transparent', border: 'none', borderRadius: '7px', color: T.textMuted, cursor: 'pointer',
+              }}
+            ><Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /></button>
+            <button
+              title="Mois suivant" aria-label="Mois suivant"
+              onClick={() => setMoisAffiché(m => {
+                const d = new Date(m.année, m.mois + 1, 1)
+                return { année: d.getFullYear(), mois: d.getMonth() }
+              })}
+              style={{
+                width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'transparent', border: 'none', borderRadius: '7px', color: T.textMuted, cursor: 'pointer',
+              }}
+            ><Icon nom="fleche" taille={13} /></button>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '4px' }}>
+          {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(j => (
+            <div key={j} style={{ textAlign: 'center', fontSize: '10px', color: T.textMuted, fontFamily: grotesk }}>{j}</div>
+          ))}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+          {grilleMois.map((jour, i) => {
+            if (!jour) return <div key={`vide-${i}`} />
+            const nbÉvénements = data.timeline.filter(ev => ev.date === jour.iso).length
+            const estAujourdhui = jour.iso === aujourdhuiISO
+            const estSélectionné = jour.iso === jourSélectionné
+            return (
+              <button
+                key={jour.iso}
+                onClick={() => setJourSélectionné(jour.iso)}
+                style={{
+                  aspectRatio: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px',
+                  background: estSélectionné ? T.accent : T.surface,
+                  border: estSélectionné ? `1px solid ${T.accent}` : estAujourdhui ? `1px dashed ${T.accent}` : `1px solid ${T.border}`,
+                  borderRadius: '8px', cursor: 'pointer',
+                }}
+              >
+                <span style={{ fontSize: '12px', fontWeight: 600, color: estSélectionné ? T.accentText : T.text, fontFamily: grotesk }}>{jour.num}</span>
+                <span style={{
+                  width: '4px', height: '4px', borderRadius: '50%',
+                  background: nbÉvénements > 0 ? (estSélectionné ? T.accentText : T.accent) : 'transparent',
+                }} />
+              </button>
+            )
+          })}
+        </div>
+        <p style={{ color: T.textMuted, fontSize: '11px', margin: '10px 0 0', lineHeight: '1.5' }}>
+          Touche un jour pour l'ouvrir dans la timeline ci-dessus.
+        </p>
       </div>
 
       <p style={{ textAlign: 'center', color: T.textMuted, fontSize: '11.5px', maxWidth: '440px', margin: '26px auto 0', lineHeight: '1.7' }}>
