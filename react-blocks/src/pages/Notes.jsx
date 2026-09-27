@@ -123,6 +123,8 @@ export default function Notes() {
   const [noteSurvolée, setNoteSurvolée] = useState(null)
   const [sectionSurvolée, setSectionSurvolée] = useState(null)
   const [catégorieChoisie, setCatégorieChoisie] = useState('autres')
+  const [noteEnPleinÉcran, setNoteEnPleinÉcran] = useState(null)
+  const [archivesOuvertes, setArchivesOuvertes] = useState(false)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
@@ -211,6 +213,39 @@ export default function Notes() {
 
   const supprimerNote = id => {
     setData(d => ({ notes: d.notes.filter(n => n.id !== id) }))
+  }
+
+  const archiverNote = id => {
+    const aujourd = new Date().toISOString().slice(0, 10)
+    setData(d => ({ notes: d.notes.map(n => n.id === id ? { ...n, archivé: true, archivéLe: aujourd } : n) }))
+  }
+
+  const désarchiverNote = id => {
+    setData(d => ({ notes: d.notes.map(n => n.id === id ? { ...n, archivé: false } : n) }))
+  }
+
+  const dupliquerNote = id => {
+    setData(d => {
+      const iSource = d.notes.findIndex(n => n.id === id)
+      if (iSource === -1) return d
+      const original = d.notes[iSource]
+      const copie = {
+        ...original,
+        id: uid(),
+        titre: `${original.titre} (copie)`,
+        archivé: false,
+        blocs: original.blocs.map(b => ({
+          ...b,
+          id: uid(),
+          ...(b.type === 'choix' ? { options: b.options.map(o => ({ ...o, id: uid() })) } : {}),
+        })),
+      }
+      delete copie.archivéLe
+      delete copie.épinglé
+      const notes = [...d.notes]
+      notes.splice(iSource + 1, 0, copie)
+      return { ...d, notes }
+    })
   }
 
   const renommerNote = (id, titre) => {
@@ -375,8 +410,11 @@ export default function Notes() {
 
   const q = recherche.trim().toLowerCase()
   const notesFiltrées = [...data.notes]
+    .filter(n => !n.archivé)
     .filter(n => !q || noteCorrespond(n, q))
     .sort((a, b) => (b.épinglé ? 1 : 0) - (a.épinglé ? 1 : 0))
+  const notesArchivées = data.notes.filter(n => n.archivé)
+  const noteEnPleinÉcranObjet = noteEnPleinÉcran ? data.notes.find(n => n.id === noteEnPleinÉcran) : null
 
   const statutCouleur = {
     lecture: T.textMuted, 'lecture-seule': T.textMuted, chargement: T.accent,
@@ -392,13 +430,13 @@ export default function Notes() {
     erreur: erreurSync || 'Erreur de synchronisation',
   }[statutSync]
 
-  function CarteNote({ note, index }) {
-    const rotation = index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
+  function CarteNote({ note, index, pleinÉcran = false }) {
+    const rotation = pleinÉcran ? '0deg' : index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
     const enGlissement = noteEnGlissement === note.id
     const survolée = noteSurvolée === note.id
     return (
       <div
-        draggable
+        draggable={!pleinÉcran}
         onDragStart={() => setNoteEnGlissement(note.id)}
         onDragEnd={() => { setNoteEnGlissement(null); setNoteSurvolée(null); setSectionSurvolée(null) }}
         onDragOver={e => {
@@ -423,15 +461,15 @@ export default function Notes() {
           transform: `rotate(${rotation})`, transition: 'transform .15s, opacity .15s',
           opacity: enGlissement ? 0.4 : 1,
         }}
-        onFocus={e => { e.currentTarget.style.transform = 'rotate(0deg)' }}
-        onBlur={e => { e.currentTarget.style.transform = `rotate(${rotation})` }}
+        onFocus={e => { if (!pleinÉcran) e.currentTarget.style.transform = 'rotate(0deg)' }}
+        onBlur={e => { if (!pleinÉcran) e.currentTarget.style.transform = `rotate(${rotation})` }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span title="Glisser pour réordonner (ordinateur)" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
-            <Icon nom="glisser" taille={14} />
-          </span>
-          <BoutonIcone icon="chevronHaut" title="Monter" taille={13} onClick={() => réordonnerNote(note.id, -1)} />
-          <BoutonIcone icon="chevronBas" title="Descendre" taille={13} onClick={() => réordonnerNote(note.id, 1)} />
+          {!pleinÉcran && (
+            <span title="Glisser pour réordonner (ordinateur)" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
+              <Icon nom="glisser" taille={14} />
+            </span>
+          )}
           <button
             onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
             title="Changer la couleur"
@@ -445,12 +483,27 @@ export default function Notes() {
             onChange={e => renommerNote(note.id, e.target.value)}
             style={{
               flex: 1, background: 'none', border: 'none', outline: 'none', minWidth: 0,
-              color: T.text, fontFamily: grotesk, fontWeight: 600, fontSize: '14px', padding: '2px 0',
+              color: T.text, fontFamily: grotesk, fontWeight: 600, fontSize: pleinÉcran ? '18px' : '14px', padding: '2px 0',
             }}
           />
           <BoutonIcone icon="epingle" title={note.épinglé ? 'Désépingler' : 'Épingler'} couleur={note.épinglé ? T.accent : T.textMuted} taille={14} onClick={() => basculerÉpingle(note.id)} />
+          {pleinÉcran ? (
+            <BoutonIcone icon="x" title="Fermer" taille={16} onClick={() => setNoteEnPleinÉcran(null)} />
+          ) : (
+            <BoutonIcone icon="agrandir" title="Agrandir" taille={14} onClick={() => setNoteEnPleinÉcran(note.id)} />
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexWrap: 'wrap' }}>
+          {!pleinÉcran && (
+            <>
+              <BoutonIcone icon="chevronHaut" title="Monter" taille={13} onClick={() => réordonnerNote(note.id, -1)} />
+              <BoutonIcone icon="chevronBas" title="Descendre" taille={13} onClick={() => réordonnerNote(note.id, 1)} />
+            </>
+          )}
           <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
-          <BoutonIcone icon="corbeille" title="Supprimer la note" couleur={T.danger} taille={14} onClick={() => supprimerNote(note.id)} />
+          <BoutonIcone icon="dupliquer" title="Dupliquer" taille={14} onClick={() => dupliquerNote(note.id)} />
+          <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} taille={14} onClick={() => { archiverNote(note.id); if (pleinÉcran) setNoteEnPleinÉcran(null) }} />
         </div>
 
         {couleurOuvertePour === note.id && (
@@ -757,6 +810,31 @@ export default function Notes() {
             }}
           />
         </div>
+
+        {notesArchivées.length > 0 && (
+          <>
+            <Repli
+              icon={<Icon nom="archive" taille={14} style={{ color: T.textMuted }} />}
+              texte={`${notesArchivées.length} note${notesArchivées.length > 1 ? 's' : ''} archivée${notesArchivées.length > 1 ? 's' : ''}`}
+              ouvert={archivesOuvertes}
+              onToggle={() => setArchivesOuvertes(o => !o)}
+              marginBottom={archivesOuvertes ? '8px' : '22px'}
+            />
+            {archivesOuvertes && (
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '22px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {notesArchivées.map(n => (
+                  <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: T.textMuted }}>
+                    <span style={{ flex: 1, textDecoration: 'line-through' }}>{n.titre}</span>
+                    <button onClick={() => désarchiverNote(n.id)} title="Restaurer" style={{
+                      fontSize: '11px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', padding: '4px', fontFamily: grotesk,
+                    }}>Restaurer</button>
+                    <BoutonIcone icon="corbeille" title="Supprimer définitivement" couleur={T.danger} taille={13} onClick={() => supprimerNote(n.id)} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {SECTIONS.map(section => {
@@ -807,6 +885,21 @@ export default function Notes() {
         <p style={{ textAlign: 'center', color: T.textMuted, fontSize: '13px', marginTop: '20px' }}>
           Aucune note ne correspond à « {recherche} ».
         </p>
+      )}
+
+      {noteEnPleinÉcranObjet && (
+        <div
+          onClick={() => setNoteEnPleinÉcran(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 50,
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            padding: '40px 16px', overflowY: 'auto',
+          }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '600px' }}>
+            <CarteNote note={noteEnPleinÉcranObjet} index={0} pleinÉcran />
+          </div>
+        </div>
       )}
     </div>
   )
