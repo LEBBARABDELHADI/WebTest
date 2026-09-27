@@ -167,23 +167,26 @@ export default function Taches() {
                 ))}
               </div>
 
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <form
+                onSubmit={e => { e.preventDefault(); ajouterCarte(col.id) }}
+                style={{ display: 'flex', gap: '6px' }}
+              >
                 <input
                   value={nouvelleCarte[col.id] || ''}
                   onChange={e => setNouvelleCarte(n => ({ ...n, [col.id]: e.target.value }))}
-                  onKeyDown={e => { if (e.key === 'Enter') ajouterCarte(col.id) }}
                   placeholder="Ajouter une carte…"
+                  enterKeyHint="done"
                   style={{
                     flex: 1, background: '#0d0f14', color: '#e2e8f0',
                     border: '1px solid #2d3148', borderRadius: '6px',
                     padding: '8px 10px', fontSize: '13px', outline: 'none',
                   }}
                 />
-                <button onClick={() => ajouterCarte(col.id)} style={{
+                <button type="submit" style={{
                   background: '#6c63ff', color: '#fff', border: 'none',
                   borderRadius: '6px', padding: '0 12px', fontSize: '16px', cursor: 'pointer',
                 }}>+</button>
-              </div>
+              </form>
             </div>
           )
         })}
