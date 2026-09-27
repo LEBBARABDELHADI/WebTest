@@ -89,6 +89,8 @@ export default function Notes() {
   const [couleurOuvertePour, setCouleurOuvertePour] = useState(null)
   const [lienOuvertPour, setLienOuvertPour] = useState(null)
   const [espaceLienChoisi, setEspaceLienChoisi] = useState('perso')
+  const [noteEnGlissement, setNoteEnGlissement] = useState(null)
+  const [noteSurvolée, setNoteSurvolée] = useState(null)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
@@ -184,6 +186,18 @@ export default function Notes() {
 
   const basculerÉpingle = id => {
     setData(d => ({ notes: d.notes.map(n => n.id === id ? { ...n, épinglé: !n.épinglé } : n) }))
+  }
+
+  const réordonnerNotes = (idSource, idCible) => {
+    setData(d => {
+      const notes = [...d.notes]
+      const iSource = notes.findIndex(n => n.id === idSource)
+      const iCible = notes.findIndex(n => n.id === idCible)
+      if (iSource === -1 || iCible === -1 || iSource === iCible) return d
+      const [élément] = notes.splice(iSource, 1)
+      notes.splice(iCible, 0, élément)
+      return { ...d, notes }
+    })
   }
 
   const lierTâche = (noteId, espace, carte) => {
@@ -426,16 +440,40 @@ export default function Notes() {
       }}>
         {notesFiltrées.map((note, i) => {
           const rotation = i % 3 === 0 ? '-0.6deg' : i % 3 === 1 ? '0.5deg' : '-0.3deg'
+          const enGlissement = noteEnGlissement === note.id
+          const survolée = noteSurvolée === note.id
           return (
-            <div key={note.id} style={{
-              background: T.surface, border: `1px solid ${note.épinglé ? T.accent : T.border}`, borderRadius: '14px',
-              padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
-              transform: `rotate(${rotation})`, transition: 'transform .15s',
-            }}
+            <div
+              key={note.id}
+              draggable
+              onDragStart={() => setNoteEnGlissement(note.id)}
+              onDragEnd={() => { setNoteEnGlissement(null); setNoteSurvolée(null) }}
+              onDragOver={e => {
+                e.preventDefault()
+                if (noteEnGlissement && noteEnGlissement !== note.id) setNoteSurvolée(note.id)
+              }}
+              onDragLeave={() => setNoteSurvolée(s => (s === note.id ? null : s))}
+              onDrop={e => {
+                e.preventDefault()
+                if (noteEnGlissement && noteEnGlissement !== note.id) réordonnerNotes(noteEnGlissement, note.id)
+                setNoteEnGlissement(null)
+                setNoteSurvolée(null)
+              }}
+              style={{
+                background: T.surface,
+                border: survolée ? `2px dashed ${T.accent}` : `1px solid ${note.épinglé ? T.accent : T.border}`,
+                borderRadius: '14px',
+                padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
+                transform: `rotate(${rotation})`, transition: 'transform .15s, opacity .15s',
+                opacity: enGlissement ? 0.4 : 1,
+              }}
               onFocus={e => { e.currentTarget.style.transform = 'rotate(0deg)' }}
               onBlur={e => { e.currentTarget.style.transform = `rotate(${rotation})` }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span title="Glisser pour réordonner" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
+                  <Icon nom="glisser" taille={14} />
+                </span>
                 <button
                   onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
                   title="Changer la couleur"
