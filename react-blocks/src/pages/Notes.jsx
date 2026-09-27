@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import donnéesInitiales from '../data/notes.json'
+import { Link, useParams } from 'react-router-dom'
+import donnéesNotesPerso from '../data/notes-perso.json'
+import donnéesNotesPro from '../data/notes-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
@@ -10,6 +11,25 @@ const ESPACES_TÂCHES = [
   { id: 'perso', nom: 'Perso', stockage: 'react-blocs-taches-perso' },
   { id: 'pro', nom: 'Pro', stockage: 'react-blocs-taches-pro' },
 ]
+
+const ESPACES_NOTES = {
+  perso: {
+    id: 'perso',
+    titre: 'Notes perso',
+    eyebrow: 'Carnet perso',
+    chemin: 'react-blocks/src/data/notes-perso.json',
+    stockage: 'react-blocs-notes-perso',
+    données: donnéesNotesPerso,
+  },
+  pro: {
+    id: 'pro',
+    titre: 'Notes pro',
+    eyebrow: 'Carnet pro',
+    chemin: 'react-blocks/src/data/notes-pro.json',
+    stockage: 'react-blocs-notes-pro',
+    données: donnéesNotesPro,
+  },
+}
 
 const MODÈLES = [
   {
@@ -52,20 +72,17 @@ function TexteFormaté({ texte }) {
   )
 }
 
-const STORAGE_KEY = 'react-blocs-notes'
-const CHEMIN = 'react-blocks/src/data/notes.json'
-
 function complète(objet) {
   const notes = Array.isArray(objet.notes) ? objet.notes : []
   return { notes: notes.map(n => ({ ...n, catégorie: n.catégorie || 'autres' })) }
 }
 
-function chargerDonnées() {
+function chargerDonnées(config) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(config.stockage)
     if (raw) return complète(JSON.parse(raw))
   } catch { /* ignore */ }
-  return complète(donnéesInitiales)
+  return complète(config.données)
 }
 
 function uid() {
@@ -86,7 +103,10 @@ function nouveauBloc(type) {
 }
 
 export default function Notes() {
-  const [data, setData] = useState(chargerDonnées)
+  const { espace: espaceParam } = useParams()
+  const config = ESPACES_NOTES[espaceParam] || ESPACES_NOTES.perso
+
+  const [data, setData] = useState(() => chargerDonnées(config))
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '')
   const [tokenSaisi, setTokenSaisi] = useState('')
   const [statutSync, setStatutSync] = useState(token ? 'chargement' : 'lecture')
@@ -109,13 +129,13 @@ export default function Notes() {
   const dernierEnvoiRef = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  }, [data])
+    localStorage.setItem(config.stockage, JSON.stringify(data))
+  }, [data, config.stockage])
 
   useEffect(() => {
     let annulé = false
     setStatutSync(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
-    lireDepuisGitHub(token, CHEMIN)
+    lireDepuisGitHub(token, config.chemin)
       .then(({ data: distant, sha }) => {
         if (annulé) return
         shaRef.current = sha
@@ -131,7 +151,7 @@ export default function Notes() {
       })
       .finally(() => { prêtPourSyncRef.current = true })
     return () => { annulé = true }
-  }, [token])
+  }, [token, config.chemin])
 
   useEffect(() => {
     if (!token) return
@@ -142,7 +162,7 @@ export default function Notes() {
     clearTimeout(syncTimeoutRef.current)
     syncTimeoutRef.current = setTimeout(() => {
       setStatutSync('synchronisation')
-      écrireVersGitHub(data, token, shaRef.current, CHEMIN)
+      écrireVersGitHub(data, token, shaRef.current, config.chemin)
         .then(({ sha }) => {
           shaRef.current = sha
           dernierEnvoiRef.current = contenu
@@ -154,7 +174,7 @@ export default function Notes() {
         })
     }, 1500)
     return () => clearTimeout(syncTimeoutRef.current)
-  }, [data, token])
+  }, [data, token, config.chemin])
 
   const connecterToken = () => {
     const t = tokenSaisi.trim()
@@ -317,7 +337,7 @@ export default function Notes() {
     const a = document.createElement('a')
     const date = new Date().toISOString().slice(0, 10)
     a.href = url
-    a.download = `notes-${date}.json`
+    a.download = `notes-${config.id}-${date}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -612,19 +632,40 @@ export default function Notes() {
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
+            <Link to={`/taches/${config.id}`} title="Tâches" aria-label="Tâches" style={{
+              width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: '7px', color: T.textMuted,
+            }}><Icon nom="checklist" taille={15} /></Link>
             <BoutonIcone icon="telecharger" title="Exporter en .json" onClick={exporter} />
             <BoutonIcone icon="televerser" title="Importer un .json" onClick={() => fichierRef.current?.click()} />
             <input ref={fichierRef} type="file" accept="application/json" onChange={importer} style={{ display: 'none' }} />
           </div>
         </div>
 
-        <p style={{
-          fontFamily: grotesk, fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase',
-          color: T.accent, margin: '0 0 4px', fontWeight: 600,
-        }}>Carnet</p>
-        <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '34px', color: T.text, margin: '0 0 22px', lineHeight: 1.1 }}>
-          Notes
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', marginBottom: '22px' }}>
+          <div>
+            <p style={{
+              fontFamily: grotesk, fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase',
+              color: T.accent, margin: '0 0 4px', fontWeight: 600,
+            }}>{config.eyebrow}</p>
+            <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '34px', color: T.text, margin: 0, lineHeight: 1.1 }}>
+              {config.titre}
+            </h1>
+          </div>
+          <div style={{ display: 'flex', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '9px', padding: '3px', flexShrink: 0 }}>
+            {Object.values(ESPACES_NOTES).map(e => (
+              <Link
+                key={e.id}
+                to={`/notes/${e.id}`}
+                style={{
+                  fontSize: '11px', fontFamily: grotesk, fontWeight: 600, padding: '6px 10px', borderRadius: '6px',
+                  background: e.id === config.id ? T.accent : 'transparent',
+                  color: e.id === config.id ? T.accentText : T.textMuted,
+                }}
+              >{e.id === 'perso' ? 'Perso' : 'Pro'}</Link>
+            ))}
+          </div>
+        </div>
 
         {messageImport && (
           <p style={{ fontSize: '12px', color: T.accent, margin: '-14px 0 14px' }}>{messageImport}</p>
@@ -648,7 +689,7 @@ export default function Notes() {
             ) : (
               <div>
                 <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 10px', lineHeight: '1.6' }}>
-                  Colle un token GitHub pour écrire tes notes dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>notes.json</code> — visible ensuite sur tous tes appareils.
+                  Colle un token GitHub pour écrire tes notes dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>notes-{config.id}.json</code> — visible ensuite sur tous tes appareils.
                   Même token que la page Tâches si tu l'as déjà connecté là-bas.
                 </p>
                 <div style={{ display: 'flex', gap: '6px' }}>

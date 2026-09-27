@@ -495,7 +495,7 @@ export default function Taches() {
             {peutAnnuler && (
               <BoutonIcone icon="annuler" title="Annuler la dernière action" onClick={annuler} />
             )}
-            <Link to="/notes" title="Notes" aria-label="Notes" style={{
+            <Link to={`/notes/${config.id}`} title="Notes" aria-label="Notes" style={{
               width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               borderRadius: '7px', color: T.textMuted,
             }}><Icon nom="note" taille={15} /></Link>
