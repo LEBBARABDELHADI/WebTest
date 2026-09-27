@@ -296,12 +296,18 @@ export default function Taches() {
   }
 
   const ajouterÉvénementTimeline = (carteId, date) => {
-    const carte = data.cartes.find(c => c.id === carteId)
-    if (!carte) return
-    setData(d => ({
-      ...d,
-      timeline: [...d.timeline, { id: uid(), carteId: carte.id, colonneId: carte.colonneId, texte: carte.texte, date }],
-    }))
+    setData(d => {
+      const carte = d.cartes.find(c => c.id === carteId)
+      if (!carte) return d
+      // Idempotent : une même carte ne se retrouve pas planifiée deux fois
+      // le même jour (protège aussi contre un double déclenchement du clic).
+      const déjà = d.timeline.some(ev => ev.carteId === carte.id && ev.date === date)
+      if (déjà) return d
+      return {
+        ...d,
+        timeline: [...d.timeline, { id: uid(), carteId: carte.id, colonneId: carte.colonneId, texte: carte.texte, date }],
+      }
+    })
   }
 
   const supprimerÉvénementTimeline = id => {

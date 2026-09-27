@@ -30,6 +30,13 @@ const MODÈLES = [
   },
 ]
 
+const SECTIONS = [
+  { id: 'importantes', titre: 'Importantes', icon: 'epingle' },
+  { id: 'liens', titre: 'Liens utiles', icon: 'lien' },
+  { id: 'faire', titre: 'À faire', icon: 'checklist' },
+  { id: 'autres', titre: 'Autres', icon: 'note' },
+]
+
 // Rendu très simple **gras** et *italique* pour les blocs texte
 function TexteFormaté({ texte }) {
   if (!texte) return null
@@ -49,7 +56,8 @@ const STORAGE_KEY = 'react-blocs-notes'
 const CHEMIN = 'react-blocks/src/data/notes.json'
 
 function complète(objet) {
-  return { notes: Array.isArray(objet.notes) ? objet.notes : [] }
+  const notes = Array.isArray(objet.notes) ? objet.notes : []
+  return { notes: notes.map(n => ({ ...n, catégorie: n.catégorie || 'autres' })) }
 }
 
 function chargerDonnées() {
@@ -91,6 +99,8 @@ export default function Notes() {
   const [espaceLienChoisi, setEspaceLienChoisi] = useState('perso')
   const [noteEnGlissement, setNoteEnGlissement] = useState(null)
   const [noteSurvolée, setNoteSurvolée] = useState(null)
+  const [sectionSurvolée, setSectionSurvolée] = useState(null)
+  const [catégorieChoisie, setCatégorieChoisie] = useState('autres')
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
@@ -167,9 +177,14 @@ export default function Notes() {
         id: uid(),
         titre: modèle ? modèle.titre : 'Nouvelle note',
         couleur,
+        catégorie: catégorieChoisie,
         blocs: modèle ? modèle.blocs() : [],
       }, ...d.notes],
     }))
+  }
+
+  const changerCatégorieNote = (id, catégorie) => {
+    setData(d => ({ notes: d.notes.map(n => n.id === id ? { ...n, catégorie } : n) }))
   }
 
   const supprimerNote = id => {
@@ -192,10 +207,12 @@ export default function Notes() {
     setData(d => {
       const notes = [...d.notes]
       const iSource = notes.findIndex(n => n.id === idSource)
-      const iCible = notes.findIndex(n => n.id === idCible)
-      if (iSource === -1 || iCible === -1 || iSource === iCible) return d
+      const iCibleInitiale = notes.findIndex(n => n.id === idCible)
+      if (iSource === -1 || iCibleInitiale === -1 || iSource === iCibleInitiale) return d
+      const catégorieCible = notes[iCibleInitiale].catégorie
       const [élément] = notes.splice(iSource, 1)
-      notes.splice(iCible, 0, élément)
+      const iCible = notes.findIndex(n => n.id === idCible)
+      notes.splice(iCible, 0, { ...élément, catégorie: catégorieCible })
       return { ...d, notes }
     })
   }
@@ -334,6 +351,238 @@ export default function Notes() {
     erreur: erreurSync || 'Erreur de synchronisation',
   }[statutSync]
 
+  function CarteNote({ note, index }) {
+    const rotation = index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
+    const enGlissement = noteEnGlissement === note.id
+    const survolée = noteSurvolée === note.id
+    return (
+      <div
+        draggable
+        onDragStart={() => setNoteEnGlissement(note.id)}
+        onDragEnd={() => { setNoteEnGlissement(null); setNoteSurvolée(null); setSectionSurvolée(null) }}
+        onDragOver={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (noteEnGlissement && noteEnGlissement !== note.id) setNoteSurvolée(note.id)
+        }}
+        onDragLeave={() => setNoteSurvolée(s => (s === note.id ? null : s))}
+        onDrop={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (noteEnGlissement && noteEnGlissement !== note.id) réordonnerNotes(noteEnGlissement, note.id)
+          setNoteEnGlissement(null)
+          setNoteSurvolée(null)
+          setSectionSurvolée(null)
+        }}
+        style={{
+          background: T.surface,
+          border: survolée ? `2px dashed ${T.accent}` : `1px solid ${note.épinglé ? T.accent : T.border}`,
+          borderRadius: '14px',
+          padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
+          transform: `rotate(${rotation})`, transition: 'transform .15s, opacity .15s',
+          opacity: enGlissement ? 0.4 : 1,
+        }}
+        onFocus={e => { e.currentTarget.style.transform = 'rotate(0deg)' }}
+        onBlur={e => { e.currentTarget.style.transform = `rotate(${rotation})` }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span title="Glisser pour réordonner" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
+            <Icon nom="glisser" taille={14} />
+          </span>
+          <button
+            onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
+            title="Changer la couleur"
+            style={{
+              width: '18px', height: '18px', borderRadius: '50%', background: note.couleur,
+              border: 'none', cursor: 'pointer', flexShrink: 0, marginRight: '4px',
+            }}
+          />
+          <input
+            value={note.titre}
+            onChange={e => renommerNote(note.id, e.target.value)}
+            style={{
+              flex: 1, background: 'none', border: 'none', outline: 'none', minWidth: 0,
+              color: T.text, fontFamily: grotesk, fontWeight: 600, fontSize: '14px', padding: '2px 0',
+            }}
+          />
+          <BoutonIcone icon="epingle" title={note.épinglé ? 'Désépingler' : 'Épingler'} couleur={note.épinglé ? T.accent : T.textMuted} taille={14} onClick={() => basculerÉpingle(note.id)} />
+          <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
+          <BoutonIcone icon="corbeille" title="Supprimer la note" couleur={T.danger} taille={14} onClick={() => supprimerNote(note.id)} />
+        </div>
+
+        {couleurOuvertePour === note.id && (
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {PALETTE.map(c => (
+              <button key={c} onClick={() => { changerCouleurNote(note.id, c); setCouleurOuvertePour(null) }} style={{
+                width: '22px', height: '22px', borderRadius: '50%', background: c, cursor: 'pointer',
+                border: note.couleur === c ? `2px solid ${T.text}` : '2px solid transparent',
+              }} />
+            ))}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+          {SECTIONS.map(s => (
+            <button key={s.id} onClick={() => changerCatégorieNote(note.id, s.id)} title={`Déplacer vers ${s.titre}`} style={{
+              fontSize: '10px', padding: '2px 8px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk,
+              background: note.catégorie === s.id ? T.accentSoft : 'transparent',
+              color: note.catégorie === s.id ? T.accent : T.textMuted,
+              border: `1px solid ${note.catégorie === s.id ? T.accent : T.border}`,
+            }}>{s.titre}</button>
+          ))}
+        </div>
+
+        {note.carteLiée && (
+          <Link to={`/taches/${note.carteLiée.espace}`} style={{
+            display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: T.accent,
+            background: T.accentSoft, borderRadius: '7px', padding: '6px 8px',
+          }}>
+            <Icon nom="lien" taille={11} />
+            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{note.carteLiée.texte}</span>
+            <span onClick={e => { e.preventDefault(); délierTâche(note.id) }} style={{ display: 'flex' }}><Icon nom="x" taille={11} /></span>
+          </Link>
+        )}
+
+        {lienOuvertPour === note.id && (
+          <div style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {ESPACES_TÂCHES.map(e => (
+                <button key={e.id} onClick={() => setEspaceLienChoisi(e.id)} style={{
+                  flex: 1, fontSize: '11px', padding: '6px', borderRadius: '6px', cursor: 'pointer', fontFamily: grotesk,
+                  background: espaceLienChoisi === e.id ? T.accent : T.surface,
+                  color: espaceLienChoisi === e.id ? T.accentText : T.textMuted,
+                  border: `1px solid ${espaceLienChoisi === e.id ? T.accent : T.border}`,
+                }}>{e.nom}</button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
+              {cartesDisponibles(espaceLienChoisi).length === 0 && (
+                <p style={{ fontSize: '11px', color: T.textMuted, margin: 0 }}>Aucune carte trouvée pour cet espace sur cet appareil.</p>
+              )}
+              {cartesDisponibles(espaceLienChoisi).map(c => (
+                <button key={c.id} onClick={() => lierTâche(note.id, espaceLienChoisi, c)} style={{
+                  textAlign: 'left', fontSize: '12px', color: T.text, background: T.surface,
+                  border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', cursor: 'pointer',
+                }}>{c.texte}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {note.blocs.map(bloc => {
+            if (bloc.type === 'texte') return (
+              <div key={bloc.id}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                  <textarea
+                    value={bloc.contenu}
+                    onChange={e => majBloc(note.id, bloc.id, { contenu: e.target.value })}
+                    placeholder="Écris quelque chose… (**gras**, *italique*)"
+                    rows={2}
+                    style={{
+                      flex: 1, background: T.surface2, color: T.text, border: `1px solid ${T.border}`,
+                      borderRadius: '8px', padding: '8px 10px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
+                    }}
+                  />
+                  <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+                </div>
+                {/\*\*[^*]+\*\*|\*[^*]+\*/.test(bloc.contenu) && (
+                  <div style={{ padding: '6px 10px' }}>
+                    <TexteFormaté texte={bloc.contenu} />
+                  </div>
+                )}
+              </div>
+            )
+
+            if (bloc.type === 'tache') return (
+              <div key={bloc.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  checked={bloc.fait}
+                  onChange={() => majBloc(note.id, bloc.id, { fait: !bloc.fait })}
+                  style={{ accentColor: T.accent, width: '15px', height: '15px', flexShrink: 0 }}
+                />
+                <input
+                  value={bloc.texte}
+                  onChange={e => majBloc(note.id, bloc.id, { texte: e.target.value })}
+                  placeholder="Une tâche…"
+                  style={{
+                    flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
+                    color: bloc.fait ? T.textMuted : T.text, textDecoration: bloc.fait ? 'line-through' : 'none',
+                    fontSize: '13px', padding: '3px 0', fontFamily: 'inherit',
+                  }}
+                />
+                <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+              </div>
+            )
+
+            // choix : groupe de boutons radio
+            return (
+              <div key={bloc.id} style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px' }}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
+                  <input
+                    value={bloc.question}
+                    onChange={e => majBloc(note.id, bloc.id, { question: e.target.value })}
+                    placeholder="Question…"
+                    style={{
+                      flex: 1, background: 'none', border: 'none', outline: 'none',
+                      color: T.text, fontSize: '12.5px', fontWeight: 600, fontFamily: grotesk,
+                    }}
+                  />
+                  <BoutonIcone icon="x" title="Retirer le bloc" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {bloc.options.map(opt => (
+                    <div key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="radio"
+                        name={`choix-${bloc.id}`}
+                        checked={bloc.sélection === opt.id}
+                        onChange={() => majBloc(note.id, bloc.id, { sélection: opt.id })}
+                        style={{ accentColor: T.accent, width: '14px', height: '14px', flexShrink: 0 }}
+                      />
+                      <input
+                        value={opt.texte}
+                        onChange={e => majOption(note.id, bloc.id, opt.id, e.target.value)}
+                        placeholder="Option…"
+                        style={{
+                          flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
+                          color: T.text, fontSize: '12.5px', padding: '2px 0', fontFamily: 'inherit',
+                        }}
+                      />
+                      <button onClick={() => supprimerOption(note.id, bloc.id, opt.id)} style={{
+                        background: 'none', border: 'none', color: T.textMuted, cursor: 'pointer', display: 'flex', padding: 0,
+                      }}><Icon nom="x" taille={11} /></button>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => ajouterOption(note.id, bloc.id)} style={{
+                  marginTop: '8px', fontSize: '11px', color: T.accent, background: 'none', border: 'none',
+                  cursor: 'pointer', padding: 0, fontFamily: grotesk, display: 'flex', alignItems: 'center', gap: '4px',
+                }}><Icon nom="plus" taille={11} /> Option</button>
+              </div>
+            )
+          })}
+        </div>
+
+        <div style={{ display: 'flex', gap: '4px', borderTop: `1px solid ${T.border}`, paddingTop: '10px' }}>
+          {TYPES_BLOC.map(t => (
+            <button
+              key={t.type}
+              onClick={() => ajouterBloc(note.id, t.type)}
+              title={`Ajouter un bloc ${t.label}`}
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                fontSize: '11px', color: T.textMuted, background: T.surface2, border: `1px solid ${T.border}`,
+                borderRadius: '7px', padding: '7px 4px', cursor: 'pointer', fontFamily: grotesk,
+              }}
+            ><Icon nom={t.icon} taille={12} /> {t.label}</button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
@@ -407,10 +656,21 @@ export default function Notes() {
         <button onClick={() => ajouterNote(null)} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%',
           background: T.accent, color: T.accentText, border: 'none', borderRadius: '10px',
-          padding: '12px', fontSize: '13px', fontWeight: 600, fontFamily: grotesk, cursor: 'pointer', marginBottom: '10px',
+          padding: '12px', fontSize: '13px', fontWeight: 600, fontFamily: grotesk, cursor: 'pointer', marginBottom: '8px',
         }}>
-          <Icon nom="plus" taille={15} trait={2.5} /> Nouvelle note
+          <Icon nom="plus" taille={15} trait={2.5} /> Nouvelle note dans « {SECTIONS.find(s => s.id === catégorieChoisie)?.titre} »
         </button>
+
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '10px' }}>
+          {SECTIONS.map(s => (
+            <button key={s.id} onClick={() => setCatégorieChoisie(s.id)} style={{
+              flex: 1, fontSize: '10.5px', padding: '6px 2px', borderRadius: '6px', cursor: 'pointer', fontFamily: grotesk,
+              background: catégorieChoisie === s.id ? T.accent : T.surface,
+              color: catégorieChoisie === s.id ? T.accentText : T.textMuted,
+              border: `1px solid ${catégorieChoisie === s.id ? T.accent : T.border}`,
+            }}>{s.titre}</button>
+          ))}
+        </div>
 
         <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
           {MODÈLES.map(m => (
@@ -434,229 +694,44 @@ export default function Notes() {
         </div>
       </div>
 
-      <div style={{
-        display: 'grid', gap: '16px', maxWidth: '1132px', margin: '0 auto',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 300px))', justifyContent: 'center',
-      }}>
-        {notesFiltrées.map((note, i) => {
-          const rotation = i % 3 === 0 ? '-0.6deg' : i % 3 === 1 ? '0.5deg' : '-0.3deg'
-          const enGlissement = noteEnGlissement === note.id
-          const survolée = noteSurvolée === note.id
-          return (
+      {SECTIONS.map(section => {
+        const notesSection = notesFiltrées.filter(n => n.catégorie === section.id)
+        const survolée = sectionSurvolée === section.id
+        return (
+          <div key={section.id} style={{ maxWidth: '1132px', margin: '0 auto 28px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0 16px 10px' }}>
+              <Icon nom={section.icon} taille={15} style={{ color: T.accent }} />
+              <h2 style={{ fontFamily: grotesk, fontSize: '13px', fontWeight: 600, color: T.text, margin: 0 }}>{section.titre}</h2>
+              <span style={{ fontSize: '11px', color: T.textMuted, background: T.surface, padding: '1px 8px', borderRadius: '20px', fontFamily: 'monospace' }}>
+                {notesSection.length}
+              </span>
+            </div>
             <div
-              key={note.id}
-              draggable
-              onDragStart={() => setNoteEnGlissement(note.id)}
-              onDragEnd={() => { setNoteEnGlissement(null); setNoteSurvolée(null) }}
-              onDragOver={e => {
-                e.preventDefault()
-                if (noteEnGlissement && noteEnGlissement !== note.id) setNoteSurvolée(note.id)
-              }}
-              onDragLeave={() => setNoteSurvolée(s => (s === note.id ? null : s))}
+              onDragOver={e => { e.preventDefault(); if (noteEnGlissement) setSectionSurvolée(section.id) }}
+              onDragLeave={() => setSectionSurvolée(s => (s === section.id ? null : s))}
               onDrop={e => {
                 e.preventDefault()
-                if (noteEnGlissement && noteEnGlissement !== note.id) réordonnerNotes(noteEnGlissement, note.id)
+                if (noteEnGlissement) changerCatégorieNote(noteEnGlissement, section.id)
                 setNoteEnGlissement(null)
                 setNoteSurvolée(null)
+                setSectionSurvolée(null)
               }}
               style={{
-                background: T.surface,
-                border: survolée ? `2px dashed ${T.accent}` : `1px solid ${note.épinglé ? T.accent : T.border}`,
-                borderRadius: '14px',
-                padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
-                transform: `rotate(${rotation})`, transition: 'transform .15s, opacity .15s',
-                opacity: enGlissement ? 0.4 : 1,
+                display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 300px))', justifyContent: 'center',
+                minHeight: '56px', borderRadius: '14px', padding: '6px',
+                border: survolée ? `2px dashed ${T.accent}` : '2px dashed transparent',
               }}
-              onFocus={e => { e.currentTarget.style.transform = 'rotate(0deg)' }}
-              onBlur={e => { e.currentTarget.style.transform = `rotate(${rotation})` }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span title="Glisser pour réordonner" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
-                  <Icon nom="glisser" taille={14} />
-                </span>
-                <button
-                  onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
-                  title="Changer la couleur"
-                  style={{
-                    width: '18px', height: '18px', borderRadius: '50%', background: note.couleur,
-                    border: 'none', cursor: 'pointer', flexShrink: 0, marginRight: '4px',
-                  }}
-                />
-                <input
-                  value={note.titre}
-                  onChange={e => renommerNote(note.id, e.target.value)}
-                  style={{
-                    flex: 1, background: 'none', border: 'none', outline: 'none', minWidth: 0,
-                    color: T.text, fontFamily: grotesk, fontWeight: 600, fontSize: '14px', padding: '2px 0',
-                  }}
-                />
-                <BoutonIcone icon="epingle" title={note.épinglé ? 'Désépingler' : 'Épingler'} couleur={note.épinglé ? T.accent : T.textMuted} taille={14} onClick={() => basculerÉpingle(note.id)} />
-                <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
-                <BoutonIcone icon="corbeille" title="Supprimer la note" couleur={T.danger} taille={14} onClick={() => supprimerNote(note.id)} />
-              </div>
-
-              {couleurOuvertePour === note.id && (
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  {PALETTE.map(c => (
-                    <button key={c} onClick={() => { changerCouleurNote(note.id, c); setCouleurOuvertePour(null) }} style={{
-                      width: '22px', height: '22px', borderRadius: '50%', background: c, cursor: 'pointer',
-                      border: note.couleur === c ? `2px solid ${T.text}` : '2px solid transparent',
-                    }} />
-                  ))}
-                </div>
+              {notesSection.length === 0 && (
+                <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: T.textMuted, fontSize: '12px', padding: '10px 0', margin: 0 }}>
+                  Aucune note ici — glisse-en une ou crée-en une nouvelle dans cette section.
+                </p>
               )}
-
-              {note.carteLiée && (
-                <Link to={`/taches/${note.carteLiée.espace}`} style={{
-                  display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: T.accent,
-                  background: T.accentSoft, borderRadius: '7px', padding: '6px 8px',
-                }}>
-                  <Icon nom="lien" taille={11} />
-                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{note.carteLiée.texte}</span>
-                  <span onClick={e => { e.preventDefault(); délierTâche(note.id) }} style={{ display: 'flex' }}><Icon nom="x" taille={11} /></span>
-                </Link>
-              )}
-
-              {lienOuvertPour === note.id && (
-                <div style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    {ESPACES_TÂCHES.map(e => (
-                      <button key={e.id} onClick={() => setEspaceLienChoisi(e.id)} style={{
-                        flex: 1, fontSize: '11px', padding: '6px', borderRadius: '6px', cursor: 'pointer', fontFamily: grotesk,
-                        background: espaceLienChoisi === e.id ? T.accent : T.surface,
-                        color: espaceLienChoisi === e.id ? T.accentText : T.textMuted,
-                        border: `1px solid ${espaceLienChoisi === e.id ? T.accent : T.border}`,
-                      }}>{e.nom}</button>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
-                    {cartesDisponibles(espaceLienChoisi).length === 0 && (
-                      <p style={{ fontSize: '11px', color: T.textMuted, margin: 0 }}>Aucune carte trouvée pour cet espace sur cet appareil.</p>
-                    )}
-                    {cartesDisponibles(espaceLienChoisi).map(c => (
-                      <button key={c.id} onClick={() => lierTâche(note.id, espaceLienChoisi, c)} style={{
-                        textAlign: 'left', fontSize: '12px', color: T.text, background: T.surface,
-                        border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', cursor: 'pointer',
-                      }}>{c.texte}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {note.blocs.map(bloc => {
-                  if (bloc.type === 'texte') return (
-                    <div key={bloc.id}>
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-                        <textarea
-                          value={bloc.contenu}
-                          onChange={e => majBloc(note.id, bloc.id, { contenu: e.target.value })}
-                          placeholder="Écris quelque chose… (**gras**, *italique*)"
-                          rows={2}
-                          style={{
-                            flex: 1, background: T.surface2, color: T.text, border: `1px solid ${T.border}`,
-                            borderRadius: '8px', padding: '8px 10px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
-                          }}
-                        />
-                        <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
-                      </div>
-                      {/\*\*[^*]+\*\*|\*[^*]+\*/.test(bloc.contenu) && (
-                        <div style={{ padding: '6px 10px' }}>
-                          <TexteFormaté texte={bloc.contenu} />
-                        </div>
-                      )}
-                    </div>
-                  )
-
-                  if (bloc.type === 'tache') return (
-                    <div key={bloc.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input
-                        type="checkbox"
-                        checked={bloc.fait}
-                        onChange={() => majBloc(note.id, bloc.id, { fait: !bloc.fait })}
-                        style={{ accentColor: T.accent, width: '15px', height: '15px', flexShrink: 0 }}
-                      />
-                      <input
-                        value={bloc.texte}
-                        onChange={e => majBloc(note.id, bloc.id, { texte: e.target.value })}
-                        placeholder="Une tâche…"
-                        style={{
-                          flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
-                          color: bloc.fait ? T.textMuted : T.text, textDecoration: bloc.fait ? 'line-through' : 'none',
-                          fontSize: '13px', padding: '3px 0', fontFamily: 'inherit',
-                        }}
-                      />
-                      <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
-                    </div>
-                  )
-
-                  // choix : groupe de boutons radio
-                  return (
-                    <div key={bloc.id} style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px' }}>
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
-                        <input
-                          value={bloc.question}
-                          onChange={e => majBloc(note.id, bloc.id, { question: e.target.value })}
-                          placeholder="Question…"
-                          style={{
-                            flex: 1, background: 'none', border: 'none', outline: 'none',
-                            color: T.text, fontSize: '12.5px', fontWeight: 600, fontFamily: grotesk,
-                          }}
-                        />
-                        <BoutonIcone icon="x" title="Retirer le bloc" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {bloc.options.map(opt => (
-                          <div key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <input
-                              type="radio"
-                              name={`choix-${bloc.id}`}
-                              checked={bloc.sélection === opt.id}
-                              onChange={() => majBloc(note.id, bloc.id, { sélection: opt.id })}
-                              style={{ accentColor: T.accent, width: '14px', height: '14px', flexShrink: 0 }}
-                            />
-                            <input
-                              value={opt.texte}
-                              onChange={e => majOption(note.id, bloc.id, opt.id, e.target.value)}
-                              placeholder="Option…"
-                              style={{
-                                flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
-                                color: T.text, fontSize: '12.5px', padding: '2px 0', fontFamily: 'inherit',
-                              }}
-                            />
-                            <button onClick={() => supprimerOption(note.id, bloc.id, opt.id)} style={{
-                              background: 'none', border: 'none', color: T.textMuted, cursor: 'pointer', display: 'flex', padding: 0,
-                            }}><Icon nom="x" taille={11} /></button>
-                          </div>
-                        ))}
-                      </div>
-                      <button onClick={() => ajouterOption(note.id, bloc.id)} style={{
-                        marginTop: '8px', fontSize: '11px', color: T.accent, background: 'none', border: 'none',
-                        cursor: 'pointer', padding: 0, fontFamily: grotesk, display: 'flex', alignItems: 'center', gap: '4px',
-                      }}><Icon nom="plus" taille={11} /> Option</button>
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div style={{ display: 'flex', gap: '4px', borderTop: `1px solid ${T.border}`, paddingTop: '10px' }}>
-                {TYPES_BLOC.map(t => (
-                  <button
-                    key={t.type}
-                    onClick={() => ajouterBloc(note.id, t.type)}
-                    title={`Ajouter un bloc ${t.label}`}
-                    style={{
-                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
-                      fontSize: '11px', color: T.textMuted, background: T.surface2, border: `1px solid ${T.border}`,
-                      borderRadius: '7px', padding: '7px 4px', cursor: 'pointer', fontFamily: grotesk,
-                    }}
-                  ><Icon nom={t.icon} taille={12} /> {t.label}</button>
-                ))}
-              </div>
+              {notesSection.map((note, i) => <CarteNote key={note.id} note={note} index={i} />)}
             </div>
-          )
-        })}
-      </div>
+          </div>
+        )
+      })}
 
       {data.notes.length === 0 && (
         <p style={{ textAlign: 'center', color: T.textMuted, fontSize: '13px', marginTop: '20px' }}>
