@@ -48,7 +48,11 @@
       "id": "muk2d7c6ew3ou",
       "colonneId": "c1",
       "texte": "etstst",
-      "échéance": "2026-09-30"
+      "échéance": "2026-09-30",
+      "étiquettes": [
+        "e2",
+        "e1"
+      ]
     }
   ],
   "timeline": [
