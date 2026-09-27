@@ -58,7 +58,10 @@
     {
       "id": "muk8aszfmkdco",
       "colonneId": "c1",
-      "texte": "Faire des bisous à bijouya"
+      "texte": "Faire des bisous à bijouya",
+      "étiquettes": [
+        "e1"
+      ]
     },
     {
       "id": "muk8b0zhfwr90",
