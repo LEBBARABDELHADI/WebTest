@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Home from './pages/Home'
 import NotionPage from './pages/NotionPage'
 import Taches from './pages/Taches'
+import Notes from './pages/Notes'
 import './App.css'
 
 function TachesRoute() {
@@ -18,6 +19,7 @@ function App() {
       <Route path="/notion/:id" element={<NotionPage />} />
       <Route path="/taches" element={<Navigate to="/taches/perso" replace />} />
       <Route path="/taches/:espace" element={<TachesRoute />} />
+      <Route path="/notes" element={<Notes />} />
     </Routes>
   )
 }
