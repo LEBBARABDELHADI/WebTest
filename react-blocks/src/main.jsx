@@ -17,6 +17,24 @@ createRoot(document.getElementById('root')).render(
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/WebTest/sw.js', { scope: '/WebTest/' }).catch(() => {})
+    navigator.serviceWorker.register('/WebTest/sw.js', { scope: '/WebTest/' })
+      .then(inscription => {
+        // Vérifie s'il existe une nouvelle version dès l'ouverture de la page,
+        // au lieu d'attendre le prochain cycle de contrôle du navigateur.
+        inscription.update().catch(() => {})
+      })
+      .catch(() => {})
+
+    // Le service worker « saute » déjà l'attente (skipWaiting côté sw.js),
+    // mais un onglet déjà ouvert garde son JS chargé en mémoire tant qu'il
+    // n'est pas rechargé — d'où un vieux code qui persiste malgré la mise
+    // à jour. On force un rechargement unique dès que le nouveau service
+    // worker prend le contrôle.
+    let déjàRechargé = false
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (déjàRechargé) return
+      déjàRechargé = true
+      window.location.reload()
+    })
   })
 }
