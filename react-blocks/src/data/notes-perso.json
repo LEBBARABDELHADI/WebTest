@@ -276,7 +276,9 @@
           "contenu": ""
         }
       ],
-      "catégorie": "importantes"
+      "catégorie": "importantes",
+      "archivé": true,
+      "archivéLe": "2026-09-28"
     },
     {
       "id": "mukcdibntfms7",
