@@ -5,7 +5,14 @@
       "titre": "Nouvelle note",
       "couleur": "#f0a839",
       "catégorie": "importantes",
-      "blocs": []
+      "blocs": [
+        {
+          "id": "mul5vwprtr35a",
+          "type": "tache",
+          "texte": "",
+          "fait": false
+        }
+      ]
     }
   ]
 }
