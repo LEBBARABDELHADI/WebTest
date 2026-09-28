@@ -137,6 +137,11 @@
       "id": "mukvjn3krwuhm",
       "colonneId": "c1",
       "texte": "Nat"
+    },
+    {
+      "id": "mukvk1lwszjnq",
+      "colonneId": "c1",
+      "texte": "Gitlab runners"
     }
   ],
   "timeline": [
