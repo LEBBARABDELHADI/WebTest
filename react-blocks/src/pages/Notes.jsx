@@ -102,6 +102,273 @@ function nouveauBloc(type) {
   return { id, type, question: '', options: [{ id: uid(), texte: '' }], sélection: null }
 }
 
+// Composant à part entière (jamais défini à l'intérieur de Notes) : un
+// composant recréé à chaque rendu du parent perdrait son identité, ce qui
+// forcerait React à démonter/remonter tout son DOM à chaque frappe — et
+// donc à faire perdre le focus du champ actif (le clavier virtuel se
+// referme aussitôt sur mobile). L'état et les actions du parent lui sont
+// passés via la prop ctx plutôt que par fermeture.
+function CarteNote({ note, index, pleinÉcran = false, ctx }) {
+  const T = useTheme()
+  const {
+    noteEnGlissement, setNoteEnGlissement, noteSurvolée, setNoteSurvolée, setSectionSurvolée,
+    réordonnerNotes, réordonnerNote,
+    couleurOuvertePour, setCouleurOuvertePour, changerCouleurNote,
+    renommerNote, basculerÉpingle, dupliquerNote, archiverNote,
+    setNoteEnPleinÉcran,
+    changerCatégorieNote,
+    lienOuvertPour, setLienOuvertPour, espaceLienChoisi, setEspaceLienChoisi, cartesDisponibles, lierTâche, délierTâche,
+    majBloc, ajouterBloc, supprimerBloc, ajouterOption, majOption, supprimerOption,
+  } = ctx
+
+  const rotation = pleinÉcran ? '0deg' : index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
+  const enGlissement = noteEnGlissement === note.id
+  const survolée = noteSurvolée === note.id
+  return (
+    <div
+      draggable={!pleinÉcran}
+      onDragStart={() => setNoteEnGlissement(note.id)}
+      onDragEnd={() => { setNoteEnGlissement(null); setNoteSurvolée(null); setSectionSurvolée(null) }}
+      onDragOver={e => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (noteEnGlissement && noteEnGlissement !== note.id) setNoteSurvolée(note.id)
+      }}
+      onDragLeave={() => setNoteSurvolée(s => (s === note.id ? null : s))}
+      onDrop={e => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (noteEnGlissement && noteEnGlissement !== note.id) réordonnerNotes(noteEnGlissement, note.id)
+        setNoteEnGlissement(null)
+        setNoteSurvolée(null)
+        setSectionSurvolée(null)
+      }}
+      style={{
+        background: T.surface,
+        border: survolée ? `2px dashed ${T.accent}` : `1px solid ${note.épinglé ? T.accent : T.border}`,
+        borderRadius: '14px',
+        padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
+        transform: `rotate(${rotation})`, transition: 'transform .15s, opacity .15s',
+        opacity: enGlissement ? 0.4 : 1,
+      }}
+      onFocus={e => { if (!pleinÉcran) e.currentTarget.style.transform = 'rotate(0deg)' }}
+      onBlur={e => { if (!pleinÉcran) e.currentTarget.style.transform = `rotate(${rotation})` }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {!pleinÉcran && (
+          <span title="Glisser pour réordonner (ordinateur)" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
+            <Icon nom="glisser" taille={14} />
+          </span>
+        )}
+        <button
+          onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
+          title="Changer la couleur"
+          style={{
+            width: '18px', height: '18px', borderRadius: '50%', background: note.couleur,
+            border: 'none', cursor: 'pointer', flexShrink: 0, marginRight: '4px',
+          }}
+        />
+        <input
+          value={note.titre}
+          onChange={e => renommerNote(note.id, e.target.value)}
+          style={{
+            flex: 1, background: 'none', border: 'none', outline: 'none', minWidth: 0,
+            color: T.text, fontFamily: grotesk, fontWeight: 600, fontSize: pleinÉcran ? '18px' : '14px', padding: '2px 0',
+          }}
+        />
+        <BoutonIcone icon="epingle" title={note.épinglé ? 'Désépingler' : 'Épingler'} couleur={note.épinglé ? T.accent : T.textMuted} taille={14} onClick={() => basculerÉpingle(note.id)} />
+        {pleinÉcran ? (
+          <BoutonIcone icon="x" title="Fermer" taille={16} onClick={() => setNoteEnPleinÉcran(null)} />
+        ) : (
+          <BoutonIcone icon="agrandir" title="Agrandir" taille={14} onClick={() => setNoteEnPleinÉcran(note.id)} />
+        )}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexWrap: 'wrap' }}>
+        {!pleinÉcran && (
+          <>
+            <BoutonIcone icon="chevronHaut" title="Monter" taille={13} onClick={() => réordonnerNote(note.id, -1)} />
+            <BoutonIcone icon="chevronBas" title="Descendre" taille={13} onClick={() => réordonnerNote(note.id, 1)} />
+          </>
+        )}
+        <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
+        <BoutonIcone icon="dupliquer" title="Dupliquer" taille={14} onClick={() => dupliquerNote(note.id)} />
+        <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} taille={14} onClick={() => { archiverNote(note.id); if (pleinÉcran) setNoteEnPleinÉcran(null) }} />
+      </div>
+
+      {couleurOuvertePour === note.id && (
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {PALETTE.map(c => (
+            <button key={c} onClick={() => { changerCouleurNote(note.id, c); setCouleurOuvertePour(null) }} style={{
+              width: '22px', height: '22px', borderRadius: '50%', background: c, cursor: 'pointer',
+              border: note.couleur === c ? `2px solid ${T.text}` : '2px solid transparent',
+            }} />
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        {SECTIONS.map(s => (
+          <button key={s.id} onClick={() => changerCatégorieNote(note.id, s.id)} title={`Déplacer vers ${s.titre}`} style={{
+            fontSize: '10px', padding: '2px 8px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk,
+            background: note.catégorie === s.id ? T.accentSoft : 'transparent',
+            color: note.catégorie === s.id ? T.accent : T.textMuted,
+            border: `1px solid ${note.catégorie === s.id ? T.accent : T.border}`,
+          }}>{s.titre}</button>
+        ))}
+      </div>
+
+      {note.carteLiée && (
+        <Link to={`/taches/${note.carteLiée.espace}`} style={{
+          display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: T.accent,
+          background: T.accentSoft, borderRadius: '7px', padding: '6px 8px',
+        }}>
+          <Icon nom="lien" taille={11} />
+          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{note.carteLiée.texte}</span>
+          <span onClick={e => { e.preventDefault(); délierTâche(note.id) }} style={{ display: 'flex' }}><Icon nom="x" taille={11} /></span>
+        </Link>
+      )}
+
+      {lienOuvertPour === note.id && (
+        <div style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {ESPACES_TÂCHES.map(e => (
+              <button key={e.id} onClick={() => setEspaceLienChoisi(e.id)} style={{
+                flex: 1, fontSize: '11px', padding: '6px', borderRadius: '6px', cursor: 'pointer', fontFamily: grotesk,
+                background: espaceLienChoisi === e.id ? T.accent : T.surface,
+                color: espaceLienChoisi === e.id ? T.accentText : T.textMuted,
+                border: `1px solid ${espaceLienChoisi === e.id ? T.accent : T.border}`,
+              }}>{e.nom}</button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
+            {cartesDisponibles(espaceLienChoisi).length === 0 && (
+              <p style={{ fontSize: '11px', color: T.textMuted, margin: 0 }}>Aucune carte trouvée pour cet espace sur cet appareil.</p>
+            )}
+            {cartesDisponibles(espaceLienChoisi).map(c => (
+              <button key={c.id} onClick={() => lierTâche(note.id, espaceLienChoisi, c)} style={{
+                textAlign: 'left', fontSize: '12px', color: T.text, background: T.surface,
+                border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', cursor: 'pointer',
+              }}>{c.texte}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {note.blocs.map(bloc => {
+          if (bloc.type === 'texte') return (
+            <div key={bloc.id}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                <textarea
+                  value={bloc.contenu}
+                  onChange={e => majBloc(note.id, bloc.id, { contenu: e.target.value })}
+                  placeholder="Écris quelque chose… (**gras**, *italique*)"
+                  rows={2}
+                  style={{
+                    flex: 1, background: T.surface2, color: T.text, border: `1px solid ${T.border}`,
+                    borderRadius: '8px', padding: '8px 10px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
+                  }}
+                />
+                <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+              </div>
+              {/\*\*[^*]+\*\*|\*[^*]+\*/.test(bloc.contenu) && (
+                <div style={{ padding: '6px 10px' }}>
+                  <TexteFormaté texte={bloc.contenu} />
+                </div>
+              )}
+            </div>
+          )
+
+          if (bloc.type === 'tache') return (
+            <div key={bloc.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                checked={bloc.fait}
+                onChange={() => majBloc(note.id, bloc.id, { fait: !bloc.fait })}
+                style={{ accentColor: T.accent, width: '15px', height: '15px', flexShrink: 0 }}
+              />
+              <input
+                value={bloc.texte}
+                onChange={e => majBloc(note.id, bloc.id, { texte: e.target.value })}
+                placeholder="Une tâche…"
+                style={{
+                  flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
+                  color: bloc.fait ? T.textMuted : T.text, textDecoration: bloc.fait ? 'line-through' : 'none',
+                  fontSize: '13px', padding: '3px 0', fontFamily: 'inherit',
+                }}
+              />
+              <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+            </div>
+          )
+
+          // choix : groupe de boutons radio
+          return (
+            <div key={bloc.id} style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px' }}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
+                <input
+                  value={bloc.question}
+                  onChange={e => majBloc(note.id, bloc.id, { question: e.target.value })}
+                  placeholder="Question…"
+                  style={{
+                    flex: 1, background: 'none', border: 'none', outline: 'none',
+                    color: T.text, fontSize: '12.5px', fontWeight: 600, fontFamily: grotesk,
+                  }}
+                />
+                <BoutonIcone icon="x" title="Retirer le bloc" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {bloc.options.map(opt => (
+                  <div key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="radio"
+                      name={`choix-${bloc.id}`}
+                      checked={bloc.sélection === opt.id}
+                      onChange={() => majBloc(note.id, bloc.id, { sélection: opt.id })}
+                      style={{ accentColor: T.accent, width: '14px', height: '14px', flexShrink: 0 }}
+                    />
+                    <input
+                      value={opt.texte}
+                      onChange={e => majOption(note.id, bloc.id, opt.id, e.target.value)}
+                      placeholder="Option…"
+                      style={{
+                        flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
+                        color: T.text, fontSize: '12.5px', padding: '2px 0', fontFamily: 'inherit',
+                      }}
+                    />
+                    <button onClick={() => supprimerOption(note.id, bloc.id, opt.id)} style={{
+                      background: 'none', border: 'none', color: T.textMuted, cursor: 'pointer', display: 'flex', padding: 0,
+                    }}><Icon nom="x" taille={11} /></button>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => ajouterOption(note.id, bloc.id)} style={{
+                marginTop: '8px', fontSize: '11px', color: T.accent, background: 'none', border: 'none',
+                cursor: 'pointer', padding: 0, fontFamily: grotesk, display: 'flex', alignItems: 'center', gap: '4px',
+              }}><Icon nom="plus" taille={11} /> Option</button>
+            </div>
+          )
+        })}
+      </div>
+
+      <div style={{ display: 'flex', gap: '4px', borderTop: `1px solid ${T.border}`, paddingTop: '10px' }}>
+        {TYPES_BLOC.map(t => (
+          <button
+            key={t.type}
+            onClick={() => ajouterBloc(note.id, t.type)}
+            title={`Ajouter un bloc ${t.label}`}
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
+              fontSize: '11px', color: T.textMuted, background: T.surface2, border: `1px solid ${T.border}`,
+              borderRadius: '7px', padding: '7px 4px', cursor: 'pointer', fontFamily: grotesk,
+            }}
+          ><Icon nom={t.icon} taille={12} /> {t.label}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Notes() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES_NOTES[espaceParam] || ESPACES_NOTES.perso
@@ -430,253 +697,20 @@ export default function Notes() {
     erreur: erreurSync || 'Erreur de synchronisation',
   }[statutSync]
 
-  function CarteNote({ note, index, pleinÉcran = false }) {
-    const rotation = pleinÉcran ? '0deg' : index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
-    const enGlissement = noteEnGlissement === note.id
-    const survolée = noteSurvolée === note.id
-    return (
-      <div
-        draggable={!pleinÉcran}
-        onDragStart={() => setNoteEnGlissement(note.id)}
-        onDragEnd={() => { setNoteEnGlissement(null); setNoteSurvolée(null); setSectionSurvolée(null) }}
-        onDragOver={e => {
-          e.preventDefault()
-          e.stopPropagation()
-          if (noteEnGlissement && noteEnGlissement !== note.id) setNoteSurvolée(note.id)
-        }}
-        onDragLeave={() => setNoteSurvolée(s => (s === note.id ? null : s))}
-        onDrop={e => {
-          e.preventDefault()
-          e.stopPropagation()
-          if (noteEnGlissement && noteEnGlissement !== note.id) réordonnerNotes(noteEnGlissement, note.id)
-          setNoteEnGlissement(null)
-          setNoteSurvolée(null)
-          setSectionSurvolée(null)
-        }}
-        style={{
-          background: T.surface,
-          border: survolée ? `2px dashed ${T.accent}` : `1px solid ${note.épinglé ? T.accent : T.border}`,
-          borderRadius: '14px',
-          padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
-          transform: `rotate(${rotation})`, transition: 'transform .15s, opacity .15s',
-          opacity: enGlissement ? 0.4 : 1,
-        }}
-        onFocus={e => { if (!pleinÉcran) e.currentTarget.style.transform = 'rotate(0deg)' }}
-        onBlur={e => { if (!pleinÉcran) e.currentTarget.style.transform = `rotate(${rotation})` }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {!pleinÉcran && (
-            <span title="Glisser pour réordonner (ordinateur)" style={{ display: 'flex', color: T.textMuted, cursor: 'grab', flexShrink: 0 }}>
-              <Icon nom="glisser" taille={14} />
-            </span>
-          )}
-          <button
-            onClick={() => setCouleurOuvertePour(p => p === note.id ? null : note.id)}
-            title="Changer la couleur"
-            style={{
-              width: '18px', height: '18px', borderRadius: '50%', background: note.couleur,
-              border: 'none', cursor: 'pointer', flexShrink: 0, marginRight: '4px',
-            }}
-          />
-          <input
-            value={note.titre}
-            onChange={e => renommerNote(note.id, e.target.value)}
-            style={{
-              flex: 1, background: 'none', border: 'none', outline: 'none', minWidth: 0,
-              color: T.text, fontFamily: grotesk, fontWeight: 600, fontSize: pleinÉcran ? '18px' : '14px', padding: '2px 0',
-            }}
-          />
-          <BoutonIcone icon="epingle" title={note.épinglé ? 'Désépingler' : 'Épingler'} couleur={note.épinglé ? T.accent : T.textMuted} taille={14} onClick={() => basculerÉpingle(note.id)} />
-          {pleinÉcran ? (
-            <BoutonIcone icon="x" title="Fermer" taille={16} onClick={() => setNoteEnPleinÉcran(null)} />
-          ) : (
-            <BoutonIcone icon="agrandir" title="Agrandir" taille={14} onClick={() => setNoteEnPleinÉcran(note.id)} />
-          )}
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexWrap: 'wrap' }}>
-          {!pleinÉcran && (
-            <>
-              <BoutonIcone icon="chevronHaut" title="Monter" taille={13} onClick={() => réordonnerNote(note.id, -1)} />
-              <BoutonIcone icon="chevronBas" title="Descendre" taille={13} onClick={() => réordonnerNote(note.id, 1)} />
-            </>
-          )}
-          <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
-          <BoutonIcone icon="dupliquer" title="Dupliquer" taille={14} onClick={() => dupliquerNote(note.id)} />
-          <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} taille={14} onClick={() => { archiverNote(note.id); if (pleinÉcran) setNoteEnPleinÉcran(null) }} />
-        </div>
-
-        {couleurOuvertePour === note.id && (
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {PALETTE.map(c => (
-              <button key={c} onClick={() => { changerCouleurNote(note.id, c); setCouleurOuvertePour(null) }} style={{
-                width: '22px', height: '22px', borderRadius: '50%', background: c, cursor: 'pointer',
-                border: note.couleur === c ? `2px solid ${T.text}` : '2px solid transparent',
-              }} />
-            ))}
-          </div>
-        )}
-
-        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          {SECTIONS.map(s => (
-            <button key={s.id} onClick={() => changerCatégorieNote(note.id, s.id)} title={`Déplacer vers ${s.titre}`} style={{
-              fontSize: '10px', padding: '2px 8px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk,
-              background: note.catégorie === s.id ? T.accentSoft : 'transparent',
-              color: note.catégorie === s.id ? T.accent : T.textMuted,
-              border: `1px solid ${note.catégorie === s.id ? T.accent : T.border}`,
-            }}>{s.titre}</button>
-          ))}
-        </div>
-
-        {note.carteLiée && (
-          <Link to={`/taches/${note.carteLiée.espace}`} style={{
-            display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: T.accent,
-            background: T.accentSoft, borderRadius: '7px', padding: '6px 8px',
-          }}>
-            <Icon nom="lien" taille={11} />
-            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{note.carteLiée.texte}</span>
-            <span onClick={e => { e.preventDefault(); délierTâche(note.id) }} style={{ display: 'flex' }}><Icon nom="x" taille={11} /></span>
-          </Link>
-        )}
-
-        {lienOuvertPour === note.id && (
-          <div style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {ESPACES_TÂCHES.map(e => (
-                <button key={e.id} onClick={() => setEspaceLienChoisi(e.id)} style={{
-                  flex: 1, fontSize: '11px', padding: '6px', borderRadius: '6px', cursor: 'pointer', fontFamily: grotesk,
-                  background: espaceLienChoisi === e.id ? T.accent : T.surface,
-                  color: espaceLienChoisi === e.id ? T.accentText : T.textMuted,
-                  border: `1px solid ${espaceLienChoisi === e.id ? T.accent : T.border}`,
-                }}>{e.nom}</button>
-              ))}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
-              {cartesDisponibles(espaceLienChoisi).length === 0 && (
-                <p style={{ fontSize: '11px', color: T.textMuted, margin: 0 }}>Aucune carte trouvée pour cet espace sur cet appareil.</p>
-              )}
-              {cartesDisponibles(espaceLienChoisi).map(c => (
-                <button key={c.id} onClick={() => lierTâche(note.id, espaceLienChoisi, c)} style={{
-                  textAlign: 'left', fontSize: '12px', color: T.text, background: T.surface,
-                  border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', cursor: 'pointer',
-                }}>{c.texte}</button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {note.blocs.map(bloc => {
-            if (bloc.type === 'texte') return (
-              <div key={bloc.id}>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-                  <textarea
-                    value={bloc.contenu}
-                    onChange={e => majBloc(note.id, bloc.id, { contenu: e.target.value })}
-                    placeholder="Écris quelque chose… (**gras**, *italique*)"
-                    rows={2}
-                    style={{
-                      flex: 1, background: T.surface2, color: T.text, border: `1px solid ${T.border}`,
-                      borderRadius: '8px', padding: '8px 10px', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit',
-                    }}
-                  />
-                  <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
-                </div>
-                {/\*\*[^*]+\*\*|\*[^*]+\*/.test(bloc.contenu) && (
-                  <div style={{ padding: '6px 10px' }}>
-                    <TexteFormaté texte={bloc.contenu} />
-                  </div>
-                )}
-              </div>
-            )
-
-            if (bloc.type === 'tache') return (
-              <div key={bloc.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input
-                  type="checkbox"
-                  checked={bloc.fait}
-                  onChange={() => majBloc(note.id, bloc.id, { fait: !bloc.fait })}
-                  style={{ accentColor: T.accent, width: '15px', height: '15px', flexShrink: 0 }}
-                />
-                <input
-                  value={bloc.texte}
-                  onChange={e => majBloc(note.id, bloc.id, { texte: e.target.value })}
-                  placeholder="Une tâche…"
-                  style={{
-                    flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
-                    color: bloc.fait ? T.textMuted : T.text, textDecoration: bloc.fait ? 'line-through' : 'none',
-                    fontSize: '13px', padding: '3px 0', fontFamily: 'inherit',
-                  }}
-                />
-                <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
-              </div>
-            )
-
-            // choix : groupe de boutons radio
-            return (
-              <div key={bloc.id} style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px' }}>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
-                  <input
-                    value={bloc.question}
-                    onChange={e => majBloc(note.id, bloc.id, { question: e.target.value })}
-                    placeholder="Question…"
-                    style={{
-                      flex: 1, background: 'none', border: 'none', outline: 'none',
-                      color: T.text, fontSize: '12.5px', fontWeight: 600, fontFamily: grotesk,
-                    }}
-                  />
-                  <BoutonIcone icon="x" title="Retirer le bloc" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {bloc.options.map(opt => (
-                    <div key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input
-                        type="radio"
-                        name={`choix-${bloc.id}`}
-                        checked={bloc.sélection === opt.id}
-                        onChange={() => majBloc(note.id, bloc.id, { sélection: opt.id })}
-                        style={{ accentColor: T.accent, width: '14px', height: '14px', flexShrink: 0 }}
-                      />
-                      <input
-                        value={opt.texte}
-                        onChange={e => majOption(note.id, bloc.id, opt.id, e.target.value)}
-                        placeholder="Option…"
-                        style={{
-                          flex: 1, background: 'none', border: 'none', outline: 'none', borderBottom: `1px solid ${T.border}`,
-                          color: T.text, fontSize: '12.5px', padding: '2px 0', fontFamily: 'inherit',
-                        }}
-                      />
-                      <button onClick={() => supprimerOption(note.id, bloc.id, opt.id)} style={{
-                        background: 'none', border: 'none', color: T.textMuted, cursor: 'pointer', display: 'flex', padding: 0,
-                      }}><Icon nom="x" taille={11} /></button>
-                    </div>
-                  ))}
-                </div>
-                <button onClick={() => ajouterOption(note.id, bloc.id)} style={{
-                  marginTop: '8px', fontSize: '11px', color: T.accent, background: 'none', border: 'none',
-                  cursor: 'pointer', padding: 0, fontFamily: grotesk, display: 'flex', alignItems: 'center', gap: '4px',
-                }}><Icon nom="plus" taille={11} /> Option</button>
-              </div>
-            )
-          })}
-        </div>
-
-        <div style={{ display: 'flex', gap: '4px', borderTop: `1px solid ${T.border}`, paddingTop: '10px' }}>
-          {TYPES_BLOC.map(t => (
-            <button
-              key={t.type}
-              onClick={() => ajouterBloc(note.id, t.type)}
-              title={`Ajouter un bloc ${t.label}`}
-              style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
-                fontSize: '11px', color: T.textMuted, background: T.surface2, border: `1px solid ${T.border}`,
-                borderRadius: '7px', padding: '7px 4px', cursor: 'pointer', fontFamily: grotesk,
-              }}
-            ><Icon nom={t.icon} taille={12} /> {t.label}</button>
-          ))}
-        </div>
-      </div>
-    )
+  // Regroupe l'état et les actions dont CarteNote a besoin, pour ne pas
+  // avoir à en faire un composant imbriqué (voir sa définition plus haut :
+  // un composant défini à l'intérieur du rendu serait recréé à chaque
+  // frappe et ferait perdre le focus du champ actif — fatal au clavier
+  // virtuel sur mobile).
+  const ctx = {
+    noteEnGlissement, setNoteEnGlissement, noteSurvolée, setNoteSurvolée, setSectionSurvolée,
+    réordonnerNotes, réordonnerNote,
+    couleurOuvertePour, setCouleurOuvertePour, changerCouleurNote,
+    renommerNote, basculerÉpingle, dupliquerNote, archiverNote,
+    setNoteEnPleinÉcran,
+    changerCatégorieNote,
+    lienOuvertPour, setLienOuvertPour, espaceLienChoisi, setEspaceLienChoisi, cartesDisponibles, lierTâche, délierTâche,
+    majBloc, ajouterBloc, supprimerBloc, ajouterOption, majOption, supprimerOption,
   }
 
   return (
@@ -870,7 +904,7 @@ export default function Notes() {
                   Aucune note ici — glisse-en une ou crée-en une nouvelle dans cette section.
                 </p>
               )}
-              {notesSection.map((note, i) => <CarteNote key={note.id} note={note} index={i} />)}
+              {notesSection.map((note, i) => <CarteNote key={note.id} note={note} index={i} ctx={ctx} />)}
             </div>
           </div>
         )
@@ -897,7 +931,7 @@ export default function Notes() {
           }}
         >
           <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '600px' }}>
-            <CarteNote note={noteEnPleinÉcranObjet} index={0} pleinÉcran />
+            <CarteNote note={noteEnPleinÉcranObjet} index={0} pleinÉcran ctx={ctx} />
           </div>
         </div>
       )}
