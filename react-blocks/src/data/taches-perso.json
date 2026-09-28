@@ -165,7 +165,10 @@
     {
       "id": "mukvliw3gfu6y",
       "colonneId": "c1",
-      "texte": "Sad server"
+      "texte": "Sad server",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
     }
   ],
   "timeline": [
