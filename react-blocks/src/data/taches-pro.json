@@ -62,7 +62,9 @@
     {
       "id": "mul0rdfbgicz7",
       "colonneId": "c1",
-      "texte": "dynatrice"
+      "texte": "dynatrice",
+      "archivé": true,
+      "archivéLe": "2026-09-28"
     }
   ],
   "timeline": [
