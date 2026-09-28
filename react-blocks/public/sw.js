@@ -1,9 +1,15 @@
-const CACHE = 'react-blocs-v1'
+const CACHE = 'react-blocs-v2'
 const APP_SHELL = ['/WebTest/', '/WebTest/index.html']
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(APP_SHELL)).catch(() => {}))
   self.skipWaiting()
+})
+
+// Permet au client (main.jsx) de forcer l'activation immédiate d'une
+// nouvelle version si besoin, en plus du skipWaiting automatique ci-dessus.
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting()
 })
 
 self.addEventListener('activate', e => {
