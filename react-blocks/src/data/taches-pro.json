@@ -56,7 +56,8 @@
     {
       "id": "mul0qgwrsl7hh",
       "colonneId": "c1",
-      "texte": "check notes and clean"
+      "texte": "check notes and clean",
+      "récurrence": "quotidienne"
     }
   ],
   "timeline": [
