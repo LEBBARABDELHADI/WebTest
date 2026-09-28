@@ -1,6 +1,32 @@
 {
   "notes": [
     {
+      "id": "mulguyu5a7fqg",
+      "titre": "Courses",
+      "couleur": "#8b7ab8",
+      "catégorie": "importantes",
+      "blocs": [
+        {
+          "id": "mulguyu5juad2",
+          "type": "tache",
+          "texte": "",
+          "fait": false
+        },
+        {
+          "id": "mulguyu55j1fq",
+          "type": "tache",
+          "texte": "",
+          "fait": false
+        },
+        {
+          "id": "mulguyu59h5pn",
+          "type": "tache",
+          "texte": "",
+          "fait": false
+        }
+      ]
+    },
+    {
       "id": "mukelb9attvco",
       "titre": "Idée",
       "couleur": "#5b8dc9",
