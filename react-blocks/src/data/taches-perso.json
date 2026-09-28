@@ -157,7 +157,10 @@
     {
       "id": "muk7pbpqzvxnw",
       "colonneId": "c1",
-      "texte": "Lab aws"
+      "texte": "Lab aws",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
     },
     {
       "id": "mukvliw3gfu6y",
