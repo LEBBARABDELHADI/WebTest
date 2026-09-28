@@ -10,12 +10,6 @@
           "id": "mukelb9a9ll2a",
           "type": "texte",
           "contenu": "- [ ] Impots\n- [ ] Docs nat\n- [ ] Constat\n- [x] Declaration aout\n- [ ] Assurance \n- [x] Ameli\n- [ ] Bezons stationnement \n"
-        },
-        {
-          "id": "mul5s0rj7ipg4",
-          "type": "tache",
-          "texte": "I",
-          "fait": false
         }
       ]
     },
