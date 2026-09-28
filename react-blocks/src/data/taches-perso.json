@@ -149,7 +149,10 @@
     {
       "id": "mukvk1lwszjnq",
       "colonneId": "c1",
-      "texte": "Gitlab runners"
+      "texte": "Gitlab runners",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
     },
     {
       "id": "muk7pbpqzvxnw",
