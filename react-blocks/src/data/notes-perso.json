@@ -39,6 +39,12 @@
           "type": "tache",
           "texte": "Assurance ",
           "fait": false
+        },
+        {
+          "id": "mumc4jh8rp8l8",
+          "type": "tache",
+          "texte": "",
+          "fait": false
         }
       ]
     },
