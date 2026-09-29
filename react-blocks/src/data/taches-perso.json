@@ -108,12 +108,9 @@
       "texte": "Sad server"
     },
     {
-      "id": "muk7jvwcv1s4t",
+      "id": "mumyl9xyd6ogf",
       "colonneId": "c1",
-      "texte": "Section kodekloud gitlab",
-      "étiquettes": [
-        "mukz7vqk5frkh"
-      ]
+      "texte": "Ai"
     },
     {
       "id": "muk7pmkh4c47y",
@@ -147,9 +144,12 @@
       "archivé": true
     },
     {
-      "id": "mumyl9xyd6ogf",
+      "id": "muk7jvwcv1s4t",
       "colonneId": "c1",
-      "texte": "Ai"
+      "texte": "Section kodekloud gitlab",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
     },
     {
       "id": "mukvk1lwszjnq",
