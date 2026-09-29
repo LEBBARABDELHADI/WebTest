@@ -17,6 +17,12 @@
           "type": "tache",
           "texte": "Cra",
           "fait": false
+        },
+        {
+          "id": "mumc79bkg75t9",
+          "type": "tache",
+          "texte": "",
+          "fait": false
         }
       ]
     }
