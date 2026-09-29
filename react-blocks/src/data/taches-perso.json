@@ -155,6 +155,11 @@
       ]
     },
     {
+      "id": "mumyl9xyd6ogf",
+      "colonneId": "c1",
+      "texte": "Ai"
+    },
+    {
       "id": "muk7pbpqzvxnw",
       "colonneId": "c1",
       "texte": "Lab aws",
@@ -169,11 +174,6 @@
       "étiquettes": [
         "mukz7vqk5frkh"
       ]
-    },
-    {
-      "id": "mumyl9xyd6ogf",
-      "colonneId": "c1",
-      "texte": "Ai"
     }
   ],
   "timeline": [
