@@ -11,6 +11,12 @@
           "type": "tache",
           "texte": "Astreinte ",
           "fait": false
+        },
+        {
+          "id": "mumc70arfo7gq",
+          "type": "tache",
+          "texte": "",
+          "fait": false
         }
       ]
     }
