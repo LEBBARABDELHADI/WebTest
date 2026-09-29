@@ -33,7 +33,14 @@
       "titre": "Idée",
       "couleur": "#5b8dc9",
       "catégorie": "importantes",
-      "blocs": []
+      "blocs": [
+        {
+          "id": "mumc46xrl0ee0",
+          "type": "tache",
+          "texte": "",
+          "fait": false
+        }
+      ]
     },
     {
       "id": "mukel4uerwbgo",
