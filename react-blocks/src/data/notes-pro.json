@@ -1,6 +1,19 @@
 {
   "notes": [
     {
+      "id": "mumgcvdia2hl8",
+      "titre": "Idée",
+      "couleur": "#e2574c",
+      "catégorie": "importantes",
+      "blocs": [
+        {
+          "id": "mumgcvdi8kcr5",
+          "type": "texte",
+          "contenu": ""
+        }
+      ]
+    },
+    {
       "id": "mul5vv4by8uf4",
       "titre": "Nouvelle note",
       "couleur": "#f0a839",
