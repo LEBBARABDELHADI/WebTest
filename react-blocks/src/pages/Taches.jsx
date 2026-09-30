@@ -79,6 +79,12 @@ export default function Taches() {
   const [couleurÉtiquette, setCouleurÉtiquette] = useState(PALETTE_ÉTIQUETTES[0])
   const [archivesOuvert, setArchivesOuvert] = useState(false)
   const [statsOuvert, setStatsOuvert] = useState(false)
+  const [sectionsMasquées, setSectionsMasquées] = useState(() => {
+    try {
+      const raw = localStorage.getItem('react-blocs-sections-masquees')
+      return raw ? JSON.parse(raw) : []
+    } catch { return [] }
+  })
   const [moisAffiché, setMoisAffiché] = useState(() => {
     const d = new Date()
     return { année: d.getFullYear(), mois: d.getMonth() }
@@ -99,6 +105,10 @@ export default function Taches() {
   useEffect(() => {
     localStorage.setItem(config.stockage, JSON.stringify(data))
   }, [data, config.stockage])
+
+  useEffect(() => {
+    localStorage.setItem('react-blocs-sections-masquees', JSON.stringify(sectionsMasquées))
+  }, [sectionsMasquées])
 
   // Historique pour « Annuler » : on garde l'état précédent avant chaque
   // changement, sauf pour les remplacements silencieux (lecture GitHub,
@@ -202,6 +212,12 @@ export default function Taches() {
     shaRef.current = null
     setToken('')
   }
+
+  const masquerSection = id => {
+    setSectionsMasquées(s => s.includes(id) ? s : [...s, id])
+  }
+
+  const réafficherSections = () => setSectionsMasquées([])
 
   const annuler = () => {
     const pile = pileAnnulerRef.current
@@ -641,100 +657,110 @@ export default function Taches() {
           )}
         </div>
 
-        <Repli
-          icon={<span style={{ width: '7px', height: '7px', borderRadius: '50%', background: statutCouleur, flexShrink: 0 }} />}
-          texte={statutLabel}
-          ouvert={syncOuvert}
-          onToggle={() => setSyncOuvert(o => !o)}
-          marginBottom={syncOuvert ? '8px' : '14px'}
-        />
+        {!sectionsMasquées.includes('sync') && (
+          <>
+            <Repli
+              icon={<span style={{ width: '7px', height: '7px', borderRadius: '50%', background: statutCouleur, flexShrink: 0 }} />}
+              texte={statutLabel}
+              ouvert={syncOuvert}
+              onToggle={() => setSyncOuvert(o => !o)}
+              marginBottom={syncOuvert ? '8px' : '14px'}
+              onMasquer={() => masquerSection('sync')}
+            />
 
-        {syncOuvert && (
-          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '14px' }}>
-            {token ? (
-              <button onClick={déconnecterToken} style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                fontSize: '12px', color: T.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-              }}><Icon nom="x" taille={13} /> Déconnecter le token</button>
-            ) : (
-              <div>
-                <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 10px', lineHeight: '1.6' }}>
-                  Colle un token GitHub pour écrire tes modifications dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>taches-{config.id}.json</code> — visible ensuite sur tous tes appareils.
-                  Génère-le sur <strong style={{ color: T.text }}>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong style={{ color: T.text }}>WebTest</strong>, permission <strong style={{ color: T.text }}>Contents: Read and write</strong>.
-                </p>
-                <div style={{ display: 'flex', gap: '6px' }}>
+            {syncOuvert && (
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '14px' }}>
+                {token ? (
+                  <button onClick={déconnecterToken} style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    fontSize: '12px', color: T.danger, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  }}><Icon nom="x" taille={13} /> Déconnecter le token</button>
+                ) : (
+                  <div>
+                    <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 10px', lineHeight: '1.6' }}>
+                      Colle un token GitHub pour écrire tes modifications dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>taches-{config.id}.json</code> — visible ensuite sur tous tes appareils.
+                      Génère-le sur <strong style={{ color: T.text }}>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong style={{ color: T.text }}>WebTest</strong>, permission <strong style={{ color: T.text }}>Contents: Read and write</strong>.
+                    </p>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <input
+                        type="password"
+                        value={tokenSaisi}
+                        onChange={e => setTokenSaisi(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') connecterToken() }}
+                        placeholder="github_pat_…"
+                        style={{
+                          flex: 1, background: T.bg, color: T.text,
+                          border: `1px solid ${T.border}`, borderRadius: '7px',
+                          padding: '9px 10px', fontSize: '13px', outline: 'none',
+                        }}
+                      />
+                      <button onClick={connecterToken} style={{
+                        background: T.accent, color: T.accentText, border: 'none', fontWeight: 600,
+                        borderRadius: '7px', padding: '0 16px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                      }}>Connecter</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+        {!sectionsMasquées.includes('etiquettes') && (
+          <>
+            <Repli
+              icon={<Icon nom="etiquette" taille={14} style={{ color: T.textMuted }} />}
+              texte={`${data.étiquettes.length} étiquette${data.étiquettes.length > 1 ? 's' : ''}`}
+              ouvert={étiquettesOuvert}
+              onToggle={() => setÉtiquettesOuvert(o => !o)}
+              marginBottom={étiquettesOuvert ? '8px' : '22px'}
+              onMasquer={() => masquerSection('etiquettes')}
+            />
+
+            {étiquettesOuvert && (
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '22px' }}>
+                {data.étiquettes.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                    {data.étiquettes.map(ét => (
+                      <span key={ét.id} style={{
+                        display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontFamily: grotesk,
+                        color: ét.couleur, background: ét.couleur + '18', border: `1px solid ${ét.couleur}55`,
+                        padding: '4px 6px 4px 10px', borderRadius: '20px',
+                      }}>
+                        {ét.nom}
+                        <button onClick={() => supprimerÉtiquette(ét.id)} style={{ display: 'flex', color: ét.couleur, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                          <Icon nom="x" taille={11} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <form onSubmit={e => { e.preventDefault(); ajouterÉtiquette() }} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <input
-                    type="password"
-                    value={tokenSaisi}
-                    onChange={e => setTokenSaisi(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') connecterToken() }}
-                    placeholder="github_pat_…"
-                    style={{
-                      flex: 1, background: T.bg, color: T.text,
-                      border: `1px solid ${T.border}`, borderRadius: '7px',
-                      padding: '9px 10px', fontSize: '13px', outline: 'none',
-                    }}
+                    value={nouvelleÉtiquette}
+                    onChange={e => setNouvelleÉtiquette(e.target.value)}
+                    placeholder="Nouvelle étiquette…"
+                    style={{ flex: 1, minWidth: '120px', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '7px', padding: '8px 10px', fontSize: '13px' }}
                   />
-                  <button onClick={connecterToken} style={{
-                    background: T.accent, color: T.accentText, border: 'none', fontWeight: 600,
-                    borderRadius: '7px', padding: '0 16px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
-                  }}>Connecter</button>
-                </div>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {PALETTE_ÉTIQUETTES.map(couleur => (
+                      <button key={couleur} type="button" onClick={() => setCouleurÉtiquette(couleur)} style={{
+                        width: '22px', height: '22px', borderRadius: '50%', background: couleur, cursor: 'pointer',
+                        border: couleurÉtiquette === couleur ? `2px solid ${T.text}` : '2px solid transparent',
+                      }} />
+                    ))}
+                  </div>
+                  <button type="submit" style={{
+                    background: T.accent, color: T.accentText, border: 'none', borderRadius: '7px',
+                    padding: '0 14px', height: '34px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk, fontWeight: 600,
+                  }}>Ajouter</button>
+                </form>
               </div>
             )}
-          </div>
+          </>
         )}
 
-        <Repli
-          icon={<Icon nom="etiquette" taille={14} style={{ color: T.textMuted }} />}
-          texte={`${data.étiquettes.length} étiquette${data.étiquettes.length > 1 ? 's' : ''}`}
-          ouvert={étiquettesOuvert}
-          onToggle={() => setÉtiquettesOuvert(o => !o)}
-          marginBottom={étiquettesOuvert ? '8px' : '22px'}
-        />
-
-        {étiquettesOuvert && (
-          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '22px' }}>
-            {data.étiquettes.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                {data.étiquettes.map(ét => (
-                  <span key={ét.id} style={{
-                    display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontFamily: grotesk,
-                    color: ét.couleur, background: ét.couleur + '18', border: `1px solid ${ét.couleur}55`,
-                    padding: '4px 6px 4px 10px', borderRadius: '20px',
-                  }}>
-                    {ét.nom}
-                    <button onClick={() => supprimerÉtiquette(ét.id)} style={{ display: 'flex', color: ét.couleur, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                      <Icon nom="x" taille={11} />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <form onSubmit={e => { e.preventDefault(); ajouterÉtiquette() }} style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <input
-                value={nouvelleÉtiquette}
-                onChange={e => setNouvelleÉtiquette(e.target.value)}
-                placeholder="Nouvelle étiquette…"
-                style={{ flex: 1, minWidth: '120px', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '7px', padding: '8px 10px', fontSize: '13px' }}
-              />
-              <div style={{ display: 'flex', gap: '4px' }}>
-                {PALETTE_ÉTIQUETTES.map(couleur => (
-                  <button key={couleur} type="button" onClick={() => setCouleurÉtiquette(couleur)} style={{
-                    width: '22px', height: '22px', borderRadius: '50%', background: couleur, cursor: 'pointer',
-                    border: couleurÉtiquette === couleur ? `2px solid ${T.text}` : '2px solid transparent',
-                  }} />
-                ))}
-              </div>
-              <button type="submit" style={{
-                background: T.accent, color: T.accentText, border: 'none', borderRadius: '7px',
-                padding: '0 14px', height: '34px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk, fontWeight: 600,
-              }}>Ajouter</button>
-            </form>
-          </div>
-        )}
-
-        {data.cartes.some(c => c.archivé) && (
+        {data.cartes.some(c => c.archivé) && !sectionsMasquées.includes('archives') && (
           <>
             <Repli
               icon={<Icon nom="archive" taille={14} style={{ color: T.textMuted }} />}
@@ -742,6 +768,7 @@ export default function Taches() {
               ouvert={archivesOuvert}
               onToggle={() => setArchivesOuvert(o => !o)}
               marginBottom={archivesOuvert ? '8px' : '22px'}
+              onMasquer={() => masquerSection('archives')}
             />
             {archivesOuvert && (
               <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '14px', marginBottom: '22px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -759,46 +786,63 @@ export default function Taches() {
           </>
         )}
 
-        <Repli
-          icon={<Icon nom="graphique" taille={14} style={{ color: T.textMuted }} />}
-          texte="Statistiques"
-          ouvert={statsOuvert}
-          onToggle={() => setStatsOuvert(o => !o)}
-          marginBottom={statsOuvert ? '8px' : '22px'}
-        />
+        {!sectionsMasquées.includes('stats') && (
+          <>
+            <Repli
+              icon={<Icon nom="graphique" taille={14} style={{ color: T.textMuted }} />}
+              texte="Statistiques"
+              ouvert={statsOuvert}
+              onToggle={() => setStatsOuvert(o => !o)}
+              marginBottom={statsOuvert ? '8px' : '22px'}
+              onMasquer={() => masquerSection('stats')}
+            />
 
-        {statsOuvert && (
-          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '16px', marginBottom: '22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <div>
-                <p style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 700, color: T.text, fontFamily: grotesk }}>{cartesActives.length}</p>
-                <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>cartes actives</p>
-              </div>
-              <div>
-                <p style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 700, color: T.text, fontFamily: grotesk }}>{cartesArchivées.length}</p>
-                <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>terminées au total{archivéesCetteSemaine > 0 ? ` (${archivéesCetteSemaine} cette semaine)` : ''}</p>
-              </div>
-            </div>
-
-            {tauxComplétion !== null && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <span style={{ fontSize: '11px', color: T.textMuted }}>Sous-tâches complétées</span>
-                  <span style={{ fontSize: '11px', color: T.text, fontFamily: grotesk, fontWeight: 600 }}>{itemsFaits}/{tousLesItems.length} · {tauxComplétion}%</span>
+            {statsOuvert && (
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '16px', marginBottom: '22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <p style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 700, color: T.text, fontFamily: grotesk }}>{cartesActives.length}</p>
+                    <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>cartes actives</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: '0 0 2px', fontSize: '22px', fontWeight: 700, color: T.text, fontFamily: grotesk }}>{cartesArchivées.length}</p>
+                    <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>terminées au total{archivéesCetteSemaine > 0 ? ` (${archivéesCetteSemaine} cette semaine)` : ''}</p>
+                  </div>
                 </div>
-                <div style={{ height: '6px', borderRadius: '3px', background: T.surface2, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${tauxComplétion}%`, background: T.accent, borderRadius: '3px' }} />
+
+                {tauxComplétion !== null && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                      <span style={{ fontSize: '11px', color: T.textMuted }}>Sous-tâches complétées</span>
+                      <span style={{ fontSize: '11px', color: T.text, fontFamily: grotesk, fontWeight: 600 }}>{itemsFaits}/{tousLesItems.length} · {tauxComplétion}%</span>
+                    </div>
+                    <div style={{ height: '6px', borderRadius: '3px', background: T.surface2, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${tauxComplétion}%`, background: T.accent, borderRadius: '3px' }} />
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Icon nom="repeter" taille={14} style={{ color: T.accent }} />
+                  <span style={{ fontSize: '12.5px', color: T.text }}>
+                    {série > 0 ? <><strong style={{ color: T.accent }}>{série}</strong> jour{série > 1 ? 's' : ''} d'activité d'affilée</> : 'Aucune activité récente'}
+                  </span>
                 </div>
               </div>
             )}
+          </>
+        )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Icon nom="repeter" taille={14} style={{ color: T.accent }} />
-              <span style={{ fontSize: '12.5px', color: T.text }}>
-                {série > 0 ? <><strong style={{ color: T.accent }}>{série}</strong> jour{série > 1 ? 's' : ''} d'activité d'affilée</> : 'Aucune activité récente'}
-              </span>
-            </div>
-          </div>
+        {sectionsMasquées.length > 0 && (
+          <button
+            onClick={réafficherSections}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: T.textMuted,
+              background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 22px', fontFamily: grotesk,
+            }}
+          >
+            <Icon nom="annuler" taille={12} /> Réafficher les sections masquées ({sectionsMasquées.length})
+          </button>
         )}
       </div>
 
