@@ -34,6 +34,12 @@
           "type": "tache",
           "texte": "Commande maven",
           "fait": false
+        },
+        {
+          "id": "muo4s66tnmadk",
+          "type": "tache",
+          "texte": "Csp dans akamaie Web hook Fork Commande maven",
+          "fait": false
         }
       ]
     },
