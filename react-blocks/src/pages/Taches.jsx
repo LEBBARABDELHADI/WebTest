@@ -612,6 +612,7 @@ export default function Taches() {
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.danger, flexShrink: 0 }} />
                     <span style={{ flex: 1 }}>{c.texte}</span>
                     <span style={{ fontSize: '10px', color: T.danger, flexShrink: 0 }}>en retard</span>
+                    <BoutonIcone icon="x" title="Retirer l'échéance" taille={11} onClick={() => définirÉchéance(c.id, null)} />
                   </div>
                   {(c.checklist || []).length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 0 14px' }}>
@@ -632,6 +633,7 @@ export default function Taches() {
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
                     <span style={{ flex: 1 }}>{c.texte}</span>
                     <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>échéance</span>
+                    <BoutonIcone icon="x" title="Retirer l'échéance" taille={11} onClick={() => définirÉchéance(c.id, null)} />
                   </div>
                   {(c.checklist || []).length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 0 14px' }}>
@@ -651,6 +653,7 @@ export default function Taches() {
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.textMuted, flexShrink: 0 }} />
                   <span style={{ flex: 1 }}>{ev.texte}</span>
                   <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>planifiée</span>
+                  <BoutonIcone icon="x" title="Retirer de la timeline" taille={11} onClick={() => supprimerÉvénementTimeline(ev.id)} />
                 </div>
               ))}
             </div>
