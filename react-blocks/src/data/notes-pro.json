@@ -10,6 +10,12 @@
           "id": "mumgcvdi8kcr5",
           "type": "texte",
           "contenu": "-APM\n- runner comment ça était développé dans aws (terraform)\n-carpebter"
+        },
+        {
+          "id": "munsp12h5yvso",
+          "type": "tache",
+          "texte": "",
+          "fait": false
         }
       ]
     },
