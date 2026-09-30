@@ -20,7 +20,13 @@
         {
           "id": "muo4rorosf6m5",
           "type": "tache",
-          "texte": "MVN JIB Csp dans akamaie Web hook ",
+          "texte": "MVN JIB Csp dans akamaie Web hook Fork Commande maven",
+          "fait": false
+        },
+        {
+          "id": "muo4rw78771ze",
+          "type": "tache",
+          "texte": "Fork Commande maven",
           "fait": false
         }
       ]
