@@ -340,6 +340,28 @@ export default function Taches() {
     }))
   }
 
+  const supprimerColonne = (id, titre) => {
+    if (data.colonnes.length <= 1) {
+      window.alert('Impossible de supprimer le dernier bloc restant.')
+      return
+    }
+    const nbCartes = data.cartes.filter(c => c.colonneId === id).length
+    if (nbCartes > 0) {
+      const ok = window.confirm(
+        `Le bloc « ${titre} » contient ${nbCartes} carte${nbCartes > 1 ? 's' : ''} (actives ou archivées). Les supprimer aussi ?`
+      )
+      if (!ok) return
+    } else if (!window.confirm(`Supprimer le bloc « ${titre} » ?`)) {
+      return
+    }
+    setData(d => ({
+      ...d,
+      colonnes: d.colonnes.filter(c => c.id !== id),
+      cartes: d.cartes.filter(c => c.colonneId !== id),
+      timeline: d.timeline.filter(ev => ev.colonneId !== id),
+    }))
+  }
+
   const définirÉchéance = (carteId, date) => {
     setData(d => ({
       ...d,
@@ -829,6 +851,7 @@ export default function Taches() {
                   fontSize: '11px', color: T.textMuted, background: T.bg,
                   padding: '2px 8px', borderRadius: '20px', fontFamily: 'monospace',
                 }}>{cartes.length}</span>
+                <BoutonIcone icon="corbeille" title="Supprimer ce bloc" couleur={T.danger} taille={13} onClick={() => supprimerColonne(col.id, col.titre)} />
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '20px' }}>
