@@ -40,6 +40,12 @@
           "type": "tache",
           "texte": "Csp dans akamaie Web hook ",
           "fait": false
+        },
+        {
+          "id": "muo8wykwwghni",
+          "type": "tache",
+          "texte": " runner comment ça était développé dans aws (terraform) -",
+          "fait": false
         }
       ]
     },
