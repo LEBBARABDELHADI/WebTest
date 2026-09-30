@@ -510,6 +510,7 @@ export default function Taches() {
   const cartesÉchéanceAujourdhui = data.cartes.filter(c => c.échéance === aujourdhuiISO)
   const cartesEnRetard = data.cartes.filter(c => c.échéance && c.échéance < aujourdhuiISO)
   const totalAujourdhui = planifiéesAujourdhui.length + cartesÉchéanceAujourdhui.length + cartesEnRetard.length
+  const colonneTerminée = data.colonnes.find(c => c.titre === 'Terminé')
 
   // Statistiques de progression
   const cartesActives = data.cartes.filter(c => !c.archivé)
@@ -612,6 +613,9 @@ export default function Taches() {
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.danger, flexShrink: 0 }} />
                     <span style={{ flex: 1 }}>{c.texte}</span>
                     <span style={{ fontSize: '10px', color: T.danger, flexShrink: 0 }}>en retard</span>
+                    {colonneTerminée && (
+                      <BoutonIcone icon="checklist" title="Déplacer vers Terminé" couleur={colonneTerminée.couleur} taille={12} onClick={() => déplacerCarte(c.id, colonneTerminée.id)} />
+                    )}
                     <BoutonIcone icon="x" title="Retirer l'échéance" taille={11} onClick={() => définirÉchéance(c.id, null)} />
                   </div>
                   {(c.checklist || []).length > 0 && (
@@ -633,6 +637,9 @@ export default function Taches() {
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
                     <span style={{ flex: 1 }}>{c.texte}</span>
                     <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>échéance</span>
+                    {colonneTerminée && (
+                      <BoutonIcone icon="checklist" title="Déplacer vers Terminé" couleur={colonneTerminée.couleur} taille={12} onClick={() => déplacerCarte(c.id, colonneTerminée.id)} />
+                    )}
                     <BoutonIcone icon="x" title="Retirer l'échéance" taille={11} onClick={() => définirÉchéance(c.id, null)} />
                   </div>
                   {(c.checklist || []).length > 0 && (
@@ -653,6 +660,9 @@ export default function Taches() {
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.textMuted, flexShrink: 0 }} />
                   <span style={{ flex: 1 }}>{ev.texte}</span>
                   <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>planifiée</span>
+                  {colonneTerminée && (
+                    <BoutonIcone icon="checklist" title="Déplacer vers Terminé" couleur={colonneTerminée.couleur} taille={12} onClick={() => déplacerCarte(ev.carteId, colonneTerminée.id)} />
+                  )}
                   <BoutonIcone icon="x" title="Retirer de la timeline" taille={11} onClick={() => supprimerÉvénementTimeline(ev.id)} />
                 </div>
               ))}
