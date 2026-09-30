@@ -16,6 +16,12 @@
           "type": "tache",
           "texte": "template jinja2",
           "fait": false
+        },
+        {
+          "id": "muo4rorosf6m5",
+          "type": "tache",
+          "texte": "MVN JIB Csp dans akamaie Web hook Fork Commande maven",
+          "fait": false
         }
       ]
     },
