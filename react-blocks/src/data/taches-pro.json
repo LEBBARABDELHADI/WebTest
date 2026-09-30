@@ -108,7 +108,10 @@
     {
       "id": "muns6yfnrkeae",
       "colonneId": "c1",
-      "texte": "Taches OCH batch"
+      "texte": "Taches OCH batch",
+      "étiquettes": [
+        "munzs0aki4ch3"
+      ]
     }
   ],
   "timeline": [
