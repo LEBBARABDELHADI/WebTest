@@ -190,6 +190,11 @@
       "id": "musf3nnu5enkr",
       "colonneId": "c3",
       "texte": "K8s"
+    },
+    {
+      "id": "musf7yltjugfk",
+      "colonneId": "c3",
+      "texte": "Systemctl journalctl"
     }
   ],
   "timeline": [
