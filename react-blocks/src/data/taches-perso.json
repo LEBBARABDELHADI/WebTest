@@ -189,14 +189,14 @@
       "texte": "Docker"
     },
     {
-      "id": "musf3nnu5enkr",
-      "colonneId": "c3",
-      "texte": "K8s"
-    },
-    {
       "id": "musf9xf33r3xb",
       "colonneId": "c3",
       "texte": "Terraform"
+    },
+    {
+      "id": "musf3nnu5enkr",
+      "colonneId": "c3",
+      "texte": "K8s"
     },
     {
       "id": "musf7yltjugfk",
