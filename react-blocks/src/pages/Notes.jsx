@@ -726,6 +726,10 @@ export default function Notes() {
               width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               borderRadius: '7px', color: T.textMuted,
             }}><Icon nom="checklist" taille={15} /></Link>
+            <Link to={`/memoriser/${config.id}`} title="Mémoriser" aria-label="Mémoriser" style={{
+              width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: '7px', color: T.textMuted,
+            }}><Icon nom="repeter" taille={15} /></Link>
             <BoutonIcone icon="telecharger" title="Exporter en .json" onClick={exporter} />
             <BoutonIcone icon="televerser" title="Importer un .json" onClick={() => fichierRef.current?.click()} />
             <input ref={fichierRef} type="file" accept="application/json" onChange={importer} style={{ display: 'none' }} />

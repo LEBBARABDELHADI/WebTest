@@ -30,6 +30,8 @@ export default function Home() {
           { to: '/taches/pro', emoji: '💼', titre: 'Programme pro', desc: 'Ton tableau professionnel — indépendant du perso, propre fichier' },
           { to: '/notes/perso', emoji: '📝', titre: 'Notes perso', desc: 'Blocs texte, tâches et choix — propre fichier, indépendant du pro' },
           { to: '/notes/pro', emoji: '🗒️', titre: 'Notes pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
+          { to: '/memoriser/perso', emoji: '🧠', titre: 'Mémoriser perso', desc: 'Flashcards en répétition espacée — propre fichier, indépendant du pro' },
+          { to: '/memoriser/pro', emoji: '📚', titre: 'Mémoriser pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
         ].map(p => (
           <Link key={p.to} to={p.to}>
             <div style={{

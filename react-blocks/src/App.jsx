@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import NotionPage from './pages/NotionPage'
 import Taches from './pages/Taches'
 import Notes from './pages/Notes'
+import Memoriser from './pages/Memoriser'
 import './App.css'
 
 function TachesRoute() {
@@ -17,6 +18,11 @@ function NotesRoute() {
   return <Notes key={espace} />
 }
 
+function MemoriserRoute() {
+  const { espace } = useParams()
+  return <Memoriser key={espace} />
+}
+
 function App() {
   return (
     <Routes>
@@ -26,6 +32,8 @@ function App() {
       <Route path="/taches/:espace" element={<TachesRoute />} />
       <Route path="/notes" element={<Navigate to="/notes/perso" replace />} />
       <Route path="/notes/:espace" element={<NotesRoute />} />
+      <Route path="/memoriser" element={<Navigate to="/memoriser/perso" replace />} />
+      <Route path="/memoriser/:espace" element={<MemoriserRoute />} />
     </Routes>
   )
 }
