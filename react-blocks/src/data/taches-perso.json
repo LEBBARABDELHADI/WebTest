@@ -142,7 +142,9 @@
     {
       "id": "muk88jmtl3epy",
       "colonneId": "c3",
-      "texte": "Process"
+      "texte": "Process",
+      "archivé": true,
+      "archivéLe": "2026-10-03"
     },
     {
       "id": "muke25pcszafl",
