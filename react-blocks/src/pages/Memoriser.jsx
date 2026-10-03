@@ -88,6 +88,7 @@ export default function Memoriser() {
   const [paquetOuvertId, setPaquetOuvertId] = useState(null)
   const [paquetÉditionId, setPaquetÉditionId] = useState(null)
   const [nomÉditionPaquet, setNomÉditionPaquet] = useState('')
+  const [rechercheCarte, setRechercheCarte] = useState('')
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionCarteId, setÉditionCarteId] = useState(null)
   const [éditionRecto, setÉditionRecto] = useState('')
@@ -191,6 +192,11 @@ export default function Memoriser() {
       cartes: d.cartes.filter(c => c.paquetId !== id),
     }))
     if (paquetOuvertId === id) setPaquetOuvertId(null)
+  }
+
+  const basculerPaquetOuvert = id => {
+    setPaquetOuvertId(p => (p === id ? null : id))
+    setRechercheCarte('')
   }
 
   const démarrerÉditionPaquet = paquet => {
@@ -432,7 +438,7 @@ export default function Memoriser() {
                           />
                         ) : (
                           <button
-                            onClick={() => setPaquetOuvertId(ouvert ? null : paquet.id)}
+                            onClick={() => basculerPaquetOuvert(paquet.id)}
                             style={{
                               flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
                               background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
@@ -446,7 +452,7 @@ export default function Memoriser() {
                         )}
                         <BoutonIcone icon="crayon" title="Renommer ce paquet" taille={13} onClick={() => démarrerÉditionPaquet(paquet)} />
                         <BoutonIcone icon="corbeille" title="Supprimer ce paquet" couleur={T.danger} taille={13} onClick={() => supprimerPaquet(paquet.id, paquet.nom)} />
-                        <BoutonIcone icon={ouvert ? 'chevronHaut' : 'chevronBas'} title={ouvert ? 'Replier' : 'Voir les cartes'} taille={13} onClick={() => setPaquetOuvertId(ouvert ? null : paquet.id)} />
+                        <BoutonIcone icon={ouvert ? 'chevronHaut' : 'chevronBas'} title={ouvert ? 'Replier' : 'Voir les cartes'} taille={13} onClick={() => basculerPaquetOuvert(paquet.id)} />
                       </div>
 
                       {cartesPaquet.length > 0 && (
@@ -468,7 +474,28 @@ export default function Memoriser() {
 
                       {ouvert && (
                         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {cartesPaquet.map(carte => (
+                          {cartesPaquet.length > 0 && (
+                            <div style={{ position: 'relative' }}>
+                              <input
+                                value={rechercheCarte}
+                                onChange={e => setRechercheCarte(e.target.value)}
+                                placeholder="Rechercher une carte…"
+                                style={{
+                                  width: '100%', background: T.bg, color: T.text, border: `1px solid ${T.border}`,
+                                  borderRadius: '7px', padding: '7px 9px', fontSize: '12.5px', boxSizing: 'border-box',
+                                }}
+                              />
+                            </div>
+                          )}
+                          {(() => {
+                            const q = rechercheCarte.trim().toLowerCase()
+                            const cartesAffichées = q
+                              ? cartesPaquet.filter(c => c.recto.toLowerCase().includes(q) || c.verso.toLowerCase().includes(q))
+                              : cartesPaquet
+                            if (q && cartesAffichées.length === 0) {
+                              return <p style={{ fontSize: '12px', color: T.textMuted, margin: '2px 0' }}>Aucune carte ne correspond à « {rechercheCarte.trim()} ».</p>
+                            }
+                            return cartesAffichées.map(carte => (
                             <div key={carte.id} style={{ background: T.surface2, borderRadius: '8px', padding: '8px 10px', border: `1px solid ${T.border}` }}>
                               {éditionCarteId === carte.id ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -502,7 +529,8 @@ export default function Memoriser() {
                                 </div>
                               )}
                             </div>
-                          ))}
+                            ))
+                          })()}
 
                           <form onSubmit={e => { e.preventDefault(); ajouterCarte(paquet.id) }} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                             <input
