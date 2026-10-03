@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import donnéesPerso from '../data/memoriser-perso.json'
 import donnéesPro from '../data/memoriser-pro.json'
@@ -35,6 +35,9 @@ const INTERVALLES = [0, 1, 3, 7, 14, 30, 90]
 // Une carte ratée ce nombre de fois d'affilée (ou plus) rejoint le carnet
 // des points faibles, indépendamment de son planning de révision Leitner.
 const SEUIL_POINT_FAIBLE = 2
+
+// Mode examen : temps alloué par carte avant révélation/correction forcée.
+const DURÉE_EXAMEN = 20
 
 function complète(objet) {
   return {
@@ -110,6 +113,20 @@ function TexteFormaté({ texte, couleurDéfaut }) {
       {seg.texte}
     </span>
   ))
+}
+
+// Texte sans le balisage **gras**/{{#hex|couleur}}, pour la lecture audio.
+function texteBrut(texte) {
+  return analyserTexte(texte || '').map(seg => seg.texte).join('')
+}
+
+// Lit un texte à voix haute via la synthèse vocale du navigateur.
+function lireTexte(texte) {
+  if (!texte || !window.speechSynthesis) return
+  window.speechSynthesis.cancel()
+  const u = new SpeechSynthesisUtterance(texteBrut(texte))
+  u.lang = 'fr-FR'
+  window.speechSynthesis.speak(u)
 }
 
 // Barre d'outils gras + couleur qui s'applique uniquement au texte
@@ -204,6 +221,11 @@ export default function Memoriser() {
   const [indexRévision, setIndexRévision] = useState(0)
   const [estRetournée, setEstRetournée] = useState(false)
   const [sues, setSues] = useState(0)
+  const [estExamen, setEstExamen] = useState(false)
+  const [estQCM, setEstQCM] = useState(false)
+  const [tempsRestant, setTempsRestant] = useState(DURÉE_EXAMEN)
+  const [réponseQCM, setRéponseQCM] = useState(null)
+  const [lectureAuto, setLectureAuto] = useState(false)
 
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
@@ -213,6 +235,7 @@ export default function Memoriser() {
   const refsNouvelleCarte = useRef({})
   const refÉditionRecto = useRef(null)
   const refÉditionVerso = useRef(null)
+  const examenIntervalRef = useRef(null)
 
   useEffect(() => {
     localStorage.setItem(config.stockage, JSON.stringify(data))
@@ -374,7 +397,7 @@ export default function Memoriser() {
     return data.cartes.filter(c => (!paquetId || c.paquetId === paquetId) && (!c.prochaineRevision || c.prochaineRevision <= auj))
   }
 
-  const démarrerRévision = (paquetId, { tout = false, cartesIds = null, titre = null } = {}) => {
+  const démarrerRévision = (paquetId, { tout = false, cartesIds = null, titre = null, examen = false, qcm = false } = {}) => {
     const source = cartesIds
       ? data.cartes.filter(c => cartesIds.includes(c.id))
       : tout
@@ -388,11 +411,18 @@ export default function Memoriser() {
     setIndexRévision(0)
     setEstRetournée(false)
     setSues(0)
+    setEstExamen(examen)
+    setEstQCM(qcm)
     setVue('revision')
+    if (lectureAuto) {
+      const première = data.cartes.find(c => c.id === file[0])
+      if (première) lireTexte(première.recto)
+    }
   }
 
   const répondre = su => {
     const carteId = fileRévision[indexRévision]
+    const indexSuivant = indexRévision + 1
     setData(d => ({
       ...d,
       cartes: d.cartes.map(c => {
@@ -404,10 +434,23 @@ export default function Memoriser() {
     }))
     if (su) setSues(s => s + 1)
     setEstRetournée(false)
-    setIndexRévision(i => i + 1)
+    setIndexRévision(indexSuivant)
+    if (lectureAuto && indexSuivant < fileRévision.length) {
+      const prochaine = data.cartes.find(c => c.id === fileRévision[indexSuivant])
+      if (prochaine) lireTexte(prochaine.recto)
+    }
+  }
+
+  const choisirQCM = option => {
+    if (réponseQCM) return
+    clearInterval(examenIntervalRef.current)
+    setRéponseQCM(option.id)
+    const correct = option.id === carteActuelle?.id
+    setTimeout(() => répondre(correct), 900)
   }
 
   const quitterRévision = () => {
+    clearInterval(examenIntervalRef.current)
     setVue('liste')
     setFileRévision([])
   }
@@ -431,6 +474,46 @@ export default function Memoriser() {
   const carteActuelle = data.cartes.find(c => c.id === fileRévision[indexRévision])
   const nomPaquetRévision = paquetRévisionId ? data.paquets.find(p => p.id === paquetRévisionId)?.nom : null
   const titreRévision = titreRévisionPersonnalisé || nomPaquetRévision || 'Tous les paquets'
+
+  // Options du QCM pour la carte en cours : la bonne réponse + jusqu'à 3
+  // réponses piquées au hasard dans d'autres cartes du même périmètre
+  // (paquet, ou tous les paquets en mode « tous »).
+  const optionsQCM = useMemo(() => {
+    if (!estQCM || !carteActuelle) return []
+    const périmètre = data.cartes.filter(c => !paquetRévisionId || c.paquetId === paquetRévisionId)
+    const autres = mélanger(périmètre.filter(c => c.id !== carteActuelle.id)).slice(0, 3)
+    return mélanger([carteActuelle, ...autres])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estQCM, carteActuelle?.id, paquetRévisionId])
+
+  // Remet à zéro la réponse QCM choisie à chaque nouvelle carte.
+  useEffect(() => {
+    setRéponseQCM(null)
+  }, [indexRévision])
+
+  // Minuteur du mode examen : revient à DURÉE_EXAMEN à chaque nouvelle
+  // carte, et force la révélation (ou une réponse « ratée ») à zéro.
+  useEffect(() => {
+    clearInterval(examenIntervalRef.current)
+    if (!estExamen || vue !== 'revision' || indexRévision >= fileRévision.length) return
+    setTempsRestant(DURÉE_EXAMEN)
+    let restant = DURÉE_EXAMEN
+    examenIntervalRef.current = setInterval(() => {
+      restant -= 1
+      setTempsRestant(restant)
+      if (restant <= 0) {
+        clearInterval(examenIntervalRef.current)
+        if (estQCM) {
+          setRéponseQCM(id => id ?? '__temps_écoulé__')
+          setTimeout(() => répondre(false), 900)
+        } else {
+          setEstRetournée(true)
+        }
+      }
+    }, 1000)
+    return () => clearInterval(examenIntervalRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estExamen, estQCM, vue, indexRévision])
 
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 60px' }}>
@@ -623,6 +706,18 @@ export default function Memoriser() {
                             border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
                             fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
                           }}><Icon nom="checklist" taille={12} /> Réviser tout le paquet ({cartesPaquet.length})</button>
+                          <button onClick={() => démarrerRévision(paquet.id, { tout: true, examen: true })} style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                            border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}><Icon nom="horloge" taille={12} /> Mode examen</button>
+                          {cartesPaquet.length >= 2 && (
+                            <button onClick={() => démarrerRévision(paquet.id, { tout: true, qcm: true })} style={{
+                              display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                              border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                              fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                            }}><Icon nom="radio" taille={12} /> QCM</button>
+                          )}
                         </div>
                       )}
 
@@ -798,6 +893,31 @@ export default function Memoriser() {
               </span>
             </div>
 
+            {indexRévision < fileRévision.length && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                {estExamen ? (
+                  <span style={{ fontSize: '12px', fontFamily: grotesk, fontWeight: 700, color: tempsRestant <= 5 ? T.danger : T.textMuted }}>
+                    ⏱ {tempsRestant}s
+                  </span>
+                ) : <span />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button onClick={() => setLectureAuto(a => !a)} title="Lecture automatique à voix haute" style={{
+                    display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontFamily: grotesk,
+                    background: lectureAuto ? T.accentSoft : 'transparent', color: lectureAuto ? T.accent : T.textMuted,
+                    border: `1px solid ${lectureAuto ? T.accent : T.border}`, borderRadius: '20px', padding: '4px 10px', cursor: 'pointer',
+                  }}>{lectureAuto ? '🔊' : '🔈'} Auto</button>
+                  <button
+                    onClick={() => lireTexte(estQCM ? carteActuelle?.recto : (estRetournée ? carteActuelle?.verso : carteActuelle?.recto))}
+                    title="Écouter"
+                    style={{
+                      width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'transparent', border: `1px solid ${T.border}`, borderRadius: '50%', cursor: 'pointer', fontSize: '12px',
+                    }}
+                  >🔊</button>
+                </div>
+              </div>
+            )}
+
             {indexRévision >= fileRévision.length ? (
               <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                 <p style={{ fontSize: '40px', margin: '0 0 12px' }}>🎉</p>
@@ -812,10 +932,49 @@ export default function Memoriser() {
                   borderRadius: '8px', padding: '10px 20px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
                 }}>Retour aux paquets</button>
               </div>
+            ) : estQCM ? (
+              <>
+                <div style={{
+                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px',
+                  padding: '28px 22px', textAlign: 'center', marginBottom: '14px',
+                }}>
+                  <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px', fontFamily: grotesk }}>
+                    Question
+                  </p>
+                  <p style={{ fontSize: '17px', lineHeight: '1.5', margin: 0, fontFamily: serif, wordBreak: 'break-word' }}>
+                    <TexteFormaté texte={carteActuelle?.recto} couleurDéfaut={T.text} />
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {optionsQCM.map(option => {
+                    const estCorrecte = option.id === carteActuelle?.id
+                    const estChoisie = réponseQCM === option.id
+                    const révélé = réponseQCM !== null
+                    let bg = T.surface, bordure = T.border, couleur = T.text
+                    if (révélé && estCorrecte) { bg = T.accentSoft; bordure = T.accent; couleur = T.accent }
+                    else if (révélé && estChoisie) { bg = T.dangerSoft; bordure = T.danger; couleur = T.danger }
+                    return (
+                      <button
+                        key={option.id} disabled={révélé} onClick={() => choisirQCM(option)}
+                        style={{
+                          textAlign: 'left', padding: '12px 14px', borderRadius: '10px', fontSize: '13.5px',
+                          background: bg, border: `1px solid ${bordure}`, color: couleur,
+                          cursor: révélé ? 'default' : 'pointer', fontFamily: 'inherit',
+                        }}
+                      ><TexteFormaté texte={option.verso} couleurDéfaut={couleur} /></button>
+                    )
+                  })}
+                </div>
+              </>
             ) : (
               <>
                 <div
-                  onClick={() => setEstRetournée(r => !r)}
+                  onClick={() => {
+                    clearInterval(examenIntervalRef.current)
+                    const nouvel = !estRetournée
+                    setEstRetournée(nouvel)
+                    if (lectureAuto) lireTexte(nouvel ? carteActuelle?.verso : carteActuelle?.recto)
+                  }}
                   style={{
                     background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px',
                     padding: '40px 24px', minHeight: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center',
