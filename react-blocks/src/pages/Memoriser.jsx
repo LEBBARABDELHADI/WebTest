@@ -70,6 +70,42 @@ function mélanger(tableau) {
   return copie
 }
 
+// Petite barre d'outils gras + couleur, pour le recto ou le verso d'une
+// carte. La mise en forme porte sur tout le champ (pas une sélection) —
+// plus simple et plus fiable au doigt que de sélectionner du texte.
+function OutilsTexte({ gras, couleur, onToggleGras, onCouleur, T }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px' }}>
+      <button
+        type="button"
+        onClick={onToggleGras}
+        title="Gras"
+        style={{
+          width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          borderRadius: '5px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk,
+          background: gras ? T.accent : 'transparent', color: gras ? T.accentText : T.textMuted,
+          border: `1px solid ${gras ? T.accent : T.border}`, flexShrink: 0,
+        }}
+      >B</button>
+      {[null, ...PALETTE].map(c => (
+        <button
+          key={c || 'défaut'}
+          type="button"
+          title={c ? 'Couleur du texte' : 'Couleur par défaut'}
+          onClick={() => onCouleur(c)}
+          style={{
+            width: '16px', height: '16px', borderRadius: '50%', cursor: 'pointer', flexShrink: 0,
+            background: c || 'transparent',
+            border: c
+              ? (couleur === c ? `2px solid ${T.text}` : '2px solid transparent')
+              : `1.5px dashed ${!couleur ? T.text : T.border}`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function Memoriser() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES[espaceParam] || ESPACES.perso
@@ -93,6 +129,10 @@ export default function Memoriser() {
   const [éditionCarteId, setÉditionCarteId] = useState(null)
   const [éditionRecto, setÉditionRecto] = useState('')
   const [éditionVerso, setÉditionVerso] = useState('')
+  const [éditionRectoGras, setÉditionRectoGras] = useState(false)
+  const [éditionRectoCouleur, setÉditionRectoCouleur] = useState(null)
+  const [éditionVersoGras, setÉditionVersoGras] = useState(false)
+  const [éditionVersoCouleur, setÉditionVersoCouleur] = useState(null)
 
   const [vue, setVue] = useState('liste') // 'liste' | 'revision'
   const [paquetRévisionId, setPaquetRévisionId] = useState(null) // null = tous les paquets
@@ -218,7 +258,11 @@ export default function Memoriser() {
     if (!recto || !verso) return
     setData(d => ({
       ...d,
-      cartes: [...d.cartes, { id: uid(), paquetId, recto, verso, niveau: 0, prochaineRevision: aujourdhuiISO() }],
+      cartes: [...d.cartes, {
+        id: uid(), paquetId, recto, verso, niveau: 0, prochaineRevision: aujourdhuiISO(),
+        rectoGras: !!saisie.rectoGras, rectoCouleur: saisie.rectoCouleur || null,
+        versoGras: !!saisie.versoGras, versoCouleur: saisie.versoCouleur || null,
+      }],
     }))
     setNouvelleCarte(n => ({ ...n, [paquetId]: { recto: '', verso: '' } }))
   }
@@ -231,6 +275,10 @@ export default function Memoriser() {
     setÉditionCarteId(carte.id)
     setÉditionRecto(carte.recto)
     setÉditionVerso(carte.verso)
+    setÉditionRectoGras(!!carte.rectoGras)
+    setÉditionRectoCouleur(carte.rectoCouleur || null)
+    setÉditionVersoGras(!!carte.versoGras)
+    setÉditionVersoCouleur(carte.versoCouleur || null)
   }
 
   const validerÉditionCarte = id => {
@@ -238,7 +286,14 @@ export default function Memoriser() {
     const verso = éditionVerso.trim()
     setÉditionCarteId(null)
     if (!recto || !verso) return
-    setData(d => ({ ...d, cartes: d.cartes.map(c => c.id === id ? { ...c, recto, verso } : c) }))
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => c.id === id ? {
+        ...c, recto, verso,
+        rectoGras: éditionRectoGras, rectoCouleur: éditionRectoCouleur,
+        versoGras: éditionVersoGras, versoCouleur: éditionVersoCouleur,
+      } : c),
+    }))
   }
 
   const cartesDues = paquetId => {
@@ -499,20 +554,42 @@ export default function Memoriser() {
                             <div key={carte.id} style={{ background: T.surface2, borderRadius: '8px', padding: '8px 10px', border: `1px solid ${T.border}` }}>
                               {éditionCarteId === carte.id ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                  <input
-                                    autoFocus
-                                    value={éditionRecto}
-                                    onChange={e => setÉditionRecto(e.target.value)}
-                                    placeholder="Recto"
-                                    style={{ background: T.bg, color: T.text, border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12.5px' }}
-                                  />
-                                  <input
-                                    value={éditionVerso}
-                                    onChange={e => setÉditionVerso(e.target.value)}
-                                    placeholder="Verso"
-                                    onKeyDown={e => { if (e.key === 'Enter') validerÉditionCarte(carte.id) }}
-                                    style={{ background: T.bg, color: T.text, border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12.5px' }}
-                                  />
+                                  <div>
+                                    <input
+                                      autoFocus
+                                      value={éditionRecto}
+                                      onChange={e => setÉditionRecto(e.target.value)}
+                                      placeholder="Recto"
+                                      style={{
+                                        width: '100%', boxSizing: 'border-box', background: T.bg, color: éditionRectoCouleur || T.text,
+                                        fontWeight: éditionRectoGras ? 700 : 400,
+                                        border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12.5px',
+                                      }}
+                                    />
+                                    <OutilsTexte
+                                      T={T} gras={éditionRectoGras} couleur={éditionRectoCouleur}
+                                      onToggleGras={() => setÉditionRectoGras(g => !g)}
+                                      onCouleur={c => setÉditionRectoCouleur(c)}
+                                    />
+                                  </div>
+                                  <div>
+                                    <input
+                                      value={éditionVerso}
+                                      onChange={e => setÉditionVerso(e.target.value)}
+                                      placeholder="Verso"
+                                      onKeyDown={e => { if (e.key === 'Enter') validerÉditionCarte(carte.id) }}
+                                      style={{
+                                        width: '100%', boxSizing: 'border-box', background: T.bg, color: éditionVersoCouleur || T.text,
+                                        fontWeight: éditionVersoGras ? 700 : 400,
+                                        border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12.5px',
+                                      }}
+                                    />
+                                    <OutilsTexte
+                                      T={T} gras={éditionVersoGras} couleur={éditionVersoCouleur}
+                                      onToggleGras={() => setÉditionVersoGras(g => !g)}
+                                      onCouleur={c => setÉditionVersoCouleur(c)}
+                                    />
+                                  </div>
                                   <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                                     <button onClick={() => setÉditionCarteId(null)} style={{ fontSize: '12px', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer' }}>Annuler</button>
                                     <button onClick={() => validerÉditionCarte(carte.id)} style={{ fontSize: '12px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Valider</button>
@@ -521,8 +598,8 @@ export default function Memoriser() {
                               ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <p style={{ margin: 0, fontSize: '12.5px', color: T.text, wordBreak: 'break-word' }}>{carte.recto}</p>
-                                    <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: T.textMuted, wordBreak: 'break-word' }}>{carte.verso}</p>
+                                    <p style={{ margin: 0, fontSize: '12.5px', color: carte.rectoCouleur || T.text, fontWeight: carte.rectoGras ? 700 : 400, wordBreak: 'break-word' }}>{carte.recto}</p>
+                                    <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: carte.versoCouleur || T.textMuted, fontWeight: carte.versoGras ? 700 : 400, wordBreak: 'break-word' }}>{carte.verso}</p>
                                   </div>
                                   <BoutonIcone icon="crayon" title="Modifier" taille={13} onClick={() => démarrerÉditionCarte(carte)} />
                                   <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} taille={13} onClick={() => supprimerCarte(carte.id)} />
@@ -533,23 +610,45 @@ export default function Memoriser() {
                           })()}
 
                           <form onSubmit={e => { e.preventDefault(); ajouterCarte(paquet.id) }} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                            <input
-                              value={(nouvelleCarte[paquet.id] || {}).recto || ''}
-                              onChange={e => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), recto: e.target.value } }))}
-                              placeholder="Recto (question)"
-                              style={{ background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', fontSize: '12.5px' }}
-                            />
-                            <div style={{ display: 'flex', gap: '6px' }}>
+                            <div>
                               <input
-                                value={(nouvelleCarte[paquet.id] || {}).verso || ''}
-                                onChange={e => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), verso: e.target.value } }))}
-                                placeholder="Verso (réponse)"
-                                style={{ flex: 1, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', fontSize: '12.5px' }}
+                                value={(nouvelleCarte[paquet.id] || {}).recto || ''}
+                                onChange={e => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), recto: e.target.value } }))}
+                                placeholder="Recto (question)"
+                                style={{
+                                  width: '100%', boxSizing: 'border-box', background: T.bg, color: (nouvelleCarte[paquet.id] || {}).rectoCouleur || T.text,
+                                  fontWeight: (nouvelleCarte[paquet.id] || {}).rectoGras ? 700 : 400,
+                                  border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', fontSize: '12.5px',
+                                }}
                               />
-                              <button type="submit" style={{
-                                background: T.accent, color: T.accentText, border: 'none', borderRadius: '6px', width: '32px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                              }}><Icon nom="plus" taille={14} /></button>
+                              <OutilsTexte
+                                T={T} gras={!!(nouvelleCarte[paquet.id] || {}).rectoGras} couleur={(nouvelleCarte[paquet.id] || {}).rectoCouleur || null}
+                                onToggleGras={() => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), rectoGras: !(n[paquet.id] || {}).rectoGras } }))}
+                                onCouleur={c => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), rectoCouleur: c } }))}
+                              />
+                            </div>
+                            <div>
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <input
+                                  value={(nouvelleCarte[paquet.id] || {}).verso || ''}
+                                  onChange={e => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), verso: e.target.value } }))}
+                                  placeholder="Verso (réponse)"
+                                  style={{
+                                    flex: 1, minWidth: 0, background: T.bg, color: (nouvelleCarte[paquet.id] || {}).versoCouleur || T.text,
+                                    fontWeight: (nouvelleCarte[paquet.id] || {}).versoGras ? 700 : 400,
+                                    border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', fontSize: '12.5px',
+                                  }}
+                                />
+                                <button type="submit" style={{
+                                  background: T.accent, color: T.accentText, border: 'none', borderRadius: '6px', width: '32px',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+                                }}><Icon nom="plus" taille={14} /></button>
+                              </div>
+                              <OutilsTexte
+                                T={T} gras={!!(nouvelleCarte[paquet.id] || {}).versoGras} couleur={(nouvelleCarte[paquet.id] || {}).versoCouleur || null}
+                                onToggleGras={() => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), versoGras: !(n[paquet.id] || {}).versoGras } }))}
+                                onCouleur={c => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), versoCouleur: c } }))}
+                              />
                             </div>
                           </form>
                         </div>
@@ -624,7 +723,11 @@ export default function Memoriser() {
                     <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px', fontFamily: grotesk }}>
                       {estRetournée ? 'Réponse' : 'Question'}
                     </p>
-                    <p style={{ fontSize: '19px', color: T.text, lineHeight: '1.5', margin: 0, fontFamily: serif, wordBreak: 'break-word' }}>
+                    <p style={{
+                      fontSize: '19px', lineHeight: '1.5', margin: 0, fontFamily: serif, wordBreak: 'break-word',
+                      color: (estRetournée ? carteActuelle?.versoCouleur : carteActuelle?.rectoCouleur) || T.text,
+                      fontWeight: (estRetournée ? carteActuelle?.versoGras : carteActuelle?.rectoGras) ? 700 : 400,
+                    }}>
                       {estRetournée ? carteActuelle?.verso : carteActuelle?.recto}
                     </p>
                     {!estRetournée && (
