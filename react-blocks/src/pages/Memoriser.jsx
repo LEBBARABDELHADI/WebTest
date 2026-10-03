@@ -32,6 +32,10 @@ const ESPACES = {
 // renvoie direct au niveau 0 (revue dès aujourd'hui).
 const INTERVALLES = [0, 1, 3, 7, 14, 30, 90]
 
+// Une carte ratée ce nombre de fois d'affilée (ou plus) rejoint le carnet
+// des points faibles, indépendamment de son planning de révision Leitner.
+const SEUIL_POINT_FAIBLE = 2
+
 function complète(objet) {
   return {
     paquets: Array.isArray(objet.paquets) ? objet.paquets : [],
@@ -195,6 +199,7 @@ export default function Memoriser() {
 
   const [vue, setVue] = useState('liste') // 'liste' | 'revision'
   const [paquetRévisionId, setPaquetRévisionId] = useState(null) // null = tous les paquets
+  const [titreRévisionPersonnalisé, setTitreRévisionPersonnalisé] = useState(null)
   const [fileRévision, setFileRévision] = useState([])
   const [indexRévision, setIndexRévision] = useState(0)
   const [estRetournée, setEstRetournée] = useState(false)
@@ -301,7 +306,7 @@ export default function Memoriser() {
     const copiesCartes = data.cartes
       .filter(c => c.paquetId === paquet.id)
       .map(c => ({
-        ...c, id: uid(), paquetId: nouveauId, niveau: 0, prochaineRevision: aujourdhuiISO(),
+        ...c, id: uid(), paquetId: nouveauId, niveau: 0, prochaineRevision: aujourdhuiISO(), fautesConsécutives: 0,
       }))
     setData(d => ({
       ...d,
@@ -346,7 +351,7 @@ export default function Memoriser() {
   const dupliquerCarte = carte => {
     setData(d => ({
       ...d,
-      cartes: [...d.cartes, { ...carte, id: uid(), niveau: 0, prochaineRevision: aujourdhuiISO() }],
+      cartes: [...d.cartes, { ...carte, id: uid(), niveau: 0, prochaineRevision: aujourdhuiISO(), fautesConsécutives: 0 }],
     }))
   }
 
@@ -369,13 +374,16 @@ export default function Memoriser() {
     return data.cartes.filter(c => (!paquetId || c.paquetId === paquetId) && (!c.prochaineRevision || c.prochaineRevision <= auj))
   }
 
-  const démarrerRévision = (paquetId, { tout = false } = {}) => {
-    const source = tout
-      ? data.cartes.filter(c => !paquetId || c.paquetId === paquetId)
-      : cartesDues(paquetId)
+  const démarrerRévision = (paquetId, { tout = false, cartesIds = null, titre = null } = {}) => {
+    const source = cartesIds
+      ? data.cartes.filter(c => cartesIds.includes(c.id))
+      : tout
+        ? data.cartes.filter(c => !paquetId || c.paquetId === paquetId)
+        : cartesDues(paquetId)
     const file = mélanger(source.map(c => c.id))
     if (file.length === 0) return
     setPaquetRévisionId(paquetId)
+    setTitreRévisionPersonnalisé(titre)
     setFileRévision(file)
     setIndexRévision(0)
     setEstRetournée(false)
@@ -390,7 +398,8 @@ export default function Memoriser() {
       cartes: d.cartes.map(c => {
         if (c.id !== carteId) return c
         const niveau = su ? Math.min((c.niveau || 0) + 1, INTERVALLES.length - 1) : 0
-        return { ...c, niveau, prochaineRevision: dateDans(INTERVALLES[niveau]) }
+        const fautesConsécutives = su ? 0 : (c.fautesConsécutives || 0) + 1
+        return { ...c, niveau, prochaineRevision: dateDans(INTERVALLES[niveau]), fautesConsécutives }
       }),
     }))
     if (su) setSues(s => s + 1)
@@ -418,8 +427,10 @@ export default function Memoriser() {
   }[statutSync]
 
   const totalDû = cartesDues(null).length
+  const pointsFaibles = data.cartes.filter(c => (c.fautesConsécutives || 0) >= SEUIL_POINT_FAIBLE)
   const carteActuelle = data.cartes.find(c => c.id === fileRévision[indexRévision])
   const nomPaquetRévision = paquetRévisionId ? data.paquets.find(p => p.id === paquetRévisionId)?.nom : null
+  const titreRévision = titreRévisionPersonnalisé || nomPaquetRévision || 'Tous les paquets'
 
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 60px' }}>
@@ -526,6 +537,25 @@ export default function Memoriser() {
                 }}><Icon nom="repeter" taille={14} /> Réviser tout</button>
               )}
             </div>
+
+            {pointsFaibles.length > 0 && (
+              <div style={{ background: T.dangerSoft, border: `1px solid ${T.danger}55`, borderRadius: '12px', padding: '16px', marginBottom: '22px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '15px' }}>⚠️</span>
+                  <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>
+                    {pointsFaibles.length} point{pointsFaibles.length > 1 ? 's' : ''} faible{pointsFaibles.length > 1 ? 's' : ''}
+                  </strong>
+                </div>
+                <p style={{ fontSize: '11.5px', color: T.textMuted, margin: '0 0 12px', lineHeight: '1.5' }}>
+                  Cartes ratées {SEUIL_POINT_FAIBLE} fois ou plus d'affilée, tous paquets confondus.
+                </p>
+                <button onClick={() => démarrerRévision(null, { cartesIds: pointsFaibles.map(c => c.id), titre: 'Points faibles' })} style={{
+                  background: T.danger, color: '#fff', border: 'none', fontWeight: 600,
+                  borderRadius: '8px', padding: '9px 16px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                }}><Icon nom="repeter" taille={14} /> Réviser les points faibles</button>
+              </div>
+            )}
 
             {data.paquets.length === 0 && (
               <p style={{ fontSize: '13px', color: T.textMuted, textAlign: 'center', margin: '0 0 22px', lineHeight: '1.6' }}>
@@ -659,7 +689,10 @@ export default function Memoriser() {
                               ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <p style={{ margin: 0, fontSize: '12.5px', wordBreak: 'break-word' }}><TexteFormaté texte={carte.recto} couleurDéfaut={T.text} /></p>
+                                    <p style={{ margin: 0, fontSize: '12.5px', wordBreak: 'break-word' }}>
+                                      {(carte.fautesConsécutives || 0) >= SEUIL_POINT_FAIBLE && <span title="Point faible" style={{ marginRight: '4px' }}>⚠️</span>}
+                                      <TexteFormaté texte={carte.recto} couleurDéfaut={T.text} />
+                                    </p>
                                     <p style={{ margin: '2px 0 0', fontSize: '11.5px', wordBreak: 'break-word' }}><TexteFormaté texte={carte.verso} couleurDéfaut={T.textMuted} /></p>
                                   </div>
                                   <BoutonIcone icon="crayon" title="Modifier" taille={13} onClick={() => démarrerÉditionCarte(carte)} />
@@ -761,7 +794,7 @@ export default function Memoriser() {
                 background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: grotesk,
               }}><Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Quitter</button>
               <span style={{ fontSize: '12px', color: T.textMuted, fontFamily: grotesk }}>
-                {nomPaquetRévision || 'Tous les paquets'} · {Math.min(indexRévision + 1, fileRévision.length)}/{fileRévision.length}
+                {titreRévision} · {Math.min(indexRévision + 1, fileRévision.length)}/{fileRévision.length}
               </span>
             </div>
 
