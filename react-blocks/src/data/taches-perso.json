@@ -185,6 +185,11 @@
       "id": "musf3cthntjp3",
       "colonneId": "c3",
       "texte": "Docker"
+    },
+    {
+      "id": "musf3nnu5enkr",
+      "colonneId": "c3",
+      "texte": "K8s"
     }
   ],
   "timeline": [
