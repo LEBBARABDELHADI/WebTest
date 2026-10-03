@@ -234,6 +234,20 @@ export default function Memoriser() {
     if (paquetOuvertId === id) setPaquetOuvertId(null)
   }
 
+  const dupliquerPaquet = paquet => {
+    const nouveauId = uid()
+    const copiesCartes = data.cartes
+      .filter(c => c.paquetId === paquet.id)
+      .map(c => ({
+        ...c, id: uid(), paquetId: nouveauId, niveau: 0, prochaineRevision: aujourdhuiISO(),
+      }))
+    setData(d => ({
+      ...d,
+      paquets: [...d.paquets, { id: nouveauId, nom: `${paquet.nom} (copie)`, couleur: paquet.couleur }],
+      cartes: [...d.cartes, ...copiesCartes],
+    }))
+  }
+
   const basculerPaquetOuvert = id => {
     setPaquetOuvertId(p => (p === id ? null : id))
     setRechercheCarte('')
@@ -269,6 +283,13 @@ export default function Memoriser() {
 
   const supprimerCarte = id => {
     setData(d => ({ ...d, cartes: d.cartes.filter(c => c.id !== id) }))
+  }
+
+  const dupliquerCarte = carte => {
+    setData(d => ({
+      ...d,
+      cartes: [...d.cartes, { ...carte, id: uid(), niveau: 0, prochaineRevision: aujourdhuiISO() }],
+    }))
   }
 
   const démarrerÉditionCarte = carte => {
@@ -506,6 +527,7 @@ export default function Memoriser() {
                           </button>
                         )}
                         <BoutonIcone icon="crayon" title="Renommer ce paquet" taille={13} onClick={() => démarrerÉditionPaquet(paquet)} />
+                        <BoutonIcone icon="dupliquer" title="Dupliquer ce paquet" taille={13} onClick={() => dupliquerPaquet(paquet)} />
                         <BoutonIcone icon="corbeille" title="Supprimer ce paquet" couleur={T.danger} taille={13} onClick={() => supprimerPaquet(paquet.id, paquet.nom)} />
                         <BoutonIcone icon={ouvert ? 'chevronHaut' : 'chevronBas'} title={ouvert ? 'Replier' : 'Voir les cartes'} taille={13} onClick={() => basculerPaquetOuvert(paquet.id)} />
                       </div>
@@ -602,6 +624,7 @@ export default function Memoriser() {
                                     <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: carte.versoCouleur || T.textMuted, fontWeight: carte.versoGras ? 700 : 400, wordBreak: 'break-word' }}>{carte.verso}</p>
                                   </div>
                                   <BoutonIcone icon="crayon" title="Modifier" taille={13} onClick={() => démarrerÉditionCarte(carte)} />
+                                  <BoutonIcone icon="dupliquer" title="Dupliquer" taille={13} onClick={() => dupliquerCarte(carte)} />
                                   <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} taille={13} onClick={() => supprimerCarte(carte.id)} />
                                 </div>
                               )}
