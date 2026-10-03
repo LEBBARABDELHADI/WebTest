@@ -6,6 +6,7 @@ import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSyn
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
+import { TexteFormaté, texteBrut, lireTexte } from '../lib/texteFormate'
 
 const ESPACES = {
   perso: {
@@ -75,58 +76,6 @@ function mélanger(tableau) {
     ;[copie[i], copie[j]] = [copie[j], copie[i]]
   }
   return copie
-}
-
-// Analyse une chaîne avec mise en forme intégrée (**gras**, et
-// {{#RRGGBB|couleur}} pour une couleur), récursivement pour que les deux
-// puissent se combiner ou s'imbriquer, et renvoie une liste de segments
-// {texte, gras?, couleur?} prêts à être rendus en <span>.
-function analyserTexte(texte, style = {}) {
-  if (!texte) return []
-  const mCouleur = texte.match(/\{\{(#[0-9a-fA-F]{6})\|([\s\S]*?)\}\}/)
-  if (mCouleur) {
-    const avant = texte.slice(0, mCouleur.index)
-    const après = texte.slice(mCouleur.index + mCouleur[0].length)
-    return [
-      ...analyserTexte(avant, style),
-      ...analyserTexte(mCouleur[2], { ...style, couleur: mCouleur[1] }),
-      ...analyserTexte(après, style),
-    ]
-  }
-  const mGras = texte.match(/\*\*([\s\S]+?)\*\*/)
-  if (mGras) {
-    const avant = texte.slice(0, mGras.index)
-    const après = texte.slice(mGras.index + mGras[0].length)
-    return [
-      ...analyserTexte(avant, style),
-      ...analyserTexte(mGras[1], { ...style, gras: true }),
-      ...analyserTexte(après, style),
-    ]
-  }
-  return [{ texte, ...style }]
-}
-
-// Rendu du recto/verso d'une carte avec sa mise en forme (liste, révision).
-function TexteFormaté({ texte, couleurDéfaut }) {
-  return analyserTexte(texte || '').map((seg, i) => (
-    <span key={i} style={{ color: seg.couleur || couleurDéfaut, fontWeight: seg.gras ? 700 : 'inherit' }}>
-      {seg.texte}
-    </span>
-  ))
-}
-
-// Texte sans le balisage **gras**/{{#hex|couleur}}, pour la lecture audio.
-function texteBrut(texte) {
-  return analyserTexte(texte || '').map(seg => seg.texte).join('')
-}
-
-// Lit un texte à voix haute via la synthèse vocale du navigateur.
-function lireTexte(texte) {
-  if (!texte || !window.speechSynthesis) return
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(texteBrut(texte))
-  u.lang = 'fr-FR'
-  window.speechSynthesis.speak(u)
 }
 
 // Barre d'outils gras + couleur qui s'applique uniquement au texte
@@ -336,6 +285,20 @@ export default function Memoriser() {
       paquets: [...d.paquets, { id: nouveauId, nom: `${paquet.nom} (copie)`, couleur: paquet.couleur }],
       cartes: [...d.cartes, ...copiesCartes],
     }))
+  }
+
+  const exporterPourInterroger = paquet => {
+    const cartes = data.cartes.filter(c => c.paquetId === paquet.id)
+    if (cartes.length === 0) return
+    const lignes = cartes.map((c, i) => `${i + 1}. ${texteBrut(c.recto)}\n   Réponse : ${texteBrut(c.verso)}`)
+    const contenu = `${paquet.nom}\n${'='.repeat(paquet.nom.length)}\n\n${lignes.join('\n\n')}\n`
+    const blob = new Blob([contenu], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${paquet.nom.replace(/[^\w\-]+/g, '_') || 'paquet'}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const basculerPaquetOuvert = id => {
@@ -687,6 +650,7 @@ export default function Memoriser() {
                           </button>
                         )}
                         <BoutonIcone icon="crayon" title="Renommer ce paquet" taille={13} onClick={() => démarrerÉditionPaquet(paquet)} />
+                        <BoutonIcone icon="telecharger" title="Exporter en .txt pour se faire interroger" taille={13} onClick={() => exporterPourInterroger(paquet)} />
                         <BoutonIcone icon="dupliquer" title="Dupliquer ce paquet" taille={13} onClick={() => dupliquerPaquet(paquet)} />
                         <BoutonIcone icon="corbeille" title="Supprimer ce paquet" couleur={T.danger} taille={13} onClick={() => supprimerPaquet(paquet.id, paquet.nom)} />
                         <BoutonIcone icon={ouvert ? 'chevronHaut' : 'chevronBas'} title={ouvert ? 'Replier' : 'Voir les cartes'} taille={13} onClick={() => basculerPaquetOuvert(paquet.id)} />

@@ -1,5 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { notions } from '../notions'
+import donnéesMémoPerso from '../data/memoriser-perso.json'
+import donnéesMémoPro from '../data/memoriser-pro.json'
+import { TexteFormaté } from '../lib/texteFormate'
 
 const niveauColor = {
   'Débutant': '#4ade80',
@@ -7,10 +11,34 @@ const niveauColor = {
   'Avancé': '#f87171',
 }
 
+// Un hash simple et stable de la date du jour, pour que la carte du jour
+// reste la même toute la journée (et change le lendemain) sans backend.
+function hashJour(chaîne) {
+  let h = 0
+  for (let i = 0; i < chaîne.length; i++) h = (h * 31 + chaîne.charCodeAt(i)) >>> 0
+  return h
+}
+
+function carteDuJour() {
+  const toutes = [
+    ...(donnéesMémoPerso.cartes || []).map(c => ({
+      ...c, espace: 'perso', paquet: (donnéesMémoPerso.paquets || []).find(p => p.id === c.paquetId),
+    })),
+    ...(donnéesMémoPro.cartes || []).map(c => ({
+      ...c, espace: 'pro', paquet: (donnéesMémoPro.paquets || []).find(p => p.id === c.paquetId),
+    })),
+  ]
+  if (toutes.length === 0) return null
+  const aujourd = new Date().toISOString().slice(0, 10)
+  return toutes[hashJour(aujourd) % toutes.length]
+}
+
 export default function Home() {
+  const [retournée, setRetournée] = useState(false)
   const débutant = notions.filter(n => n.niveau === 'Débutant')
   const intermédiaire = notions.filter(n => n.niveau === 'Intermédiaire')
   const avancé = notions.filter(n => n.niveau === 'Avancé')
+  const carte = carteDuJour()
 
   return (
     <div style={{ maxWidth: '520px', margin: '0 auto', padding: '64px 16px 24px' }}>
@@ -23,6 +51,33 @@ export default function Home() {
           Apprends React notion par notion, avec des démos interactives.
         </p>
       </div>
+
+      {carte && (
+        <div
+          onClick={() => setRetournée(r => !r)}
+          style={{
+            padding: '16px', background: '#1a1d27', borderRadius: '12px',
+            border: '1px solid #2d3148', marginBottom: '28px', cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <span style={{ fontSize: '11px', color: '#6c63ff', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              🧠 Carte du jour{carte.paquet ? ` · ${carte.paquet.nom}` : ''}
+            </span>
+            <Link
+              to={`/memoriser/${carte.espace}`}
+              onClick={e => e.stopPropagation()}
+              style={{ fontSize: '11px', color: '#94a3b8' }}
+            >Ouvrir →</Link>
+          </div>
+          <p style={{ color: '#e2e8f0', fontSize: '15px', margin: '0 0 6px', lineHeight: '1.5' }}>
+            <TexteFormaté texte={retournée ? carte.verso : carte.recto} couleurDéfaut="#e2e8f0" />
+          </p>
+          <p style={{ color: '#94a3b8', fontSize: '11px', margin: 0 }}>
+            {retournée ? 'Touche pour revoir la question' : 'Touche pour voir la réponse'}
+          </p>
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '28px' }}>
         {[
