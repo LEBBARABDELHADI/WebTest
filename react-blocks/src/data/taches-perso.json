@@ -1,0 +1,256 @@
+{
+  "colonnes": [
+    {
+      "id": "c1",
+      "titre": "Aujourd'hui",
+      "couleur": "#fbbf24"
+    },
+    {
+      "id": "c2",
+      "titre": "Cette semaine",
+      "couleur": "#4ade80"
+    },
+    {
+      "id": "c3",
+      "titre": "Plus tard",
+      "couleur": "#a78bfa"
+    },
+    {
+      "id": "c4",
+      "titre": "Terminé",
+      "couleur": "#7fb069"
+    }
+  ],
+  "étiquettes": [
+    {
+      "id": "e1",
+      "nom": "Urgent",
+      "couleur": "#e2574c"
+    },
+    {
+      "id": "e2",
+      "nom": "Perso",
+      "couleur": "#4a9d94"
+    },
+    {
+      "id": "e3",
+      "nom": "Travail",
+      "couleur": "#5b8dc9"
+    },
+    {
+      "id": "mukz7fpdhntb3",
+      "nom": "DONE",
+      "couleur": "#4a9d94"
+    },
+    {
+      "id": "mukz7vqk5frkh",
+      "nom": "TODO",
+      "couleur": "#f0a839"
+    }
+  ],
+  "cartes": [
+    {
+      "id": "muk2050oja1lr",
+      "colonneId": "c1",
+      "texte": "test",
+      "archivé": true
+    },
+    {
+      "id": "muk20djgred1e",
+      "colonneId": "c1",
+      "texte": "test2",
+      "archivé": true
+    },
+    {
+      "id": "muk2d7c6ew3ou",
+      "colonneId": "c1",
+      "texte": "etstst",
+      "étiquettes": [
+        "e1",
+        "e2",
+        "e3"
+      ],
+      "checklist": [
+        {
+          "id": "muk2ezgiw8apt",
+          "texte": "test rest",
+          "fait": true
+        },
+        {
+          "id": "muk2f2opz87b1",
+          "texte": "rest",
+          "fait": true
+        }
+      ],
+      "archivé": true
+    },
+    {
+      "id": "mukvjn3krwuhm",
+      "colonneId": "c1",
+      "texte": "Nat",
+      "étiquettes": [
+        "e2"
+      ]
+    },
+    {
+      "id": "muk7n9v6tuklq",
+      "colonneId": "c2",
+      "texte": "Sections restantes kk gitlab",
+      "étiquettes": [
+        "e1"
+      ],
+      "archivé": true
+    },
+    {
+      "id": "muk7otrfgi78j",
+      "colonneId": "c2",
+      "texte": "Section kk gitlab restantes"
+    },
+    {
+      "id": "muk7p51d6p7wm",
+      "colonneId": "c2",
+      "texte": "Sad server"
+    },
+    {
+      "id": "muk7jvwcv1s4t",
+      "colonneId": "c1",
+      "texte": "kodekloud gitlab finish",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
+    },
+    {
+      "id": "muk7pmkh4c47y",
+      "colonneId": "c2",
+      "texte": "Nat"
+    },
+    {
+      "id": "muk87wwegfb0m",
+      "colonneId": "c2",
+      "texte": "Bash"
+    },
+    {
+      "id": "muk883gfjhq2s",
+      "colonneId": "c2",
+      "texte": "Gitlab runner"
+    },
+    {
+      "id": "muk88dslhrer2",
+      "colonneId": "c3",
+      "texte": "Linux - process"
+    },
+    {
+      "id": "muk88jmtl3epy",
+      "colonneId": "c3",
+      "texte": "Process",
+      "archivé": true,
+      "archivéLe": "2026-10-03"
+    },
+    {
+      "id": "muke25pcszafl",
+      "colonneId": "c1",
+      "texte": "test",
+      "archivé": true
+    },
+    {
+      "id": "mumyl9xyd6ogf",
+      "colonneId": "c1",
+      "texte": "Ai"
+    },
+    {
+      "id": "mukvk1lwszjnq",
+      "colonneId": "c1",
+      "texte": "Gitlab runners",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ],
+      "archivé": true,
+      "archivéLe": "2026-09-30"
+    },
+    {
+      "id": "muk7pbpqzvxnw",
+      "colonneId": "c1",
+      "texte": "Lab aws",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
+    },
+    {
+      "id": "mukvliw3gfu6y",
+      "colonneId": "c1",
+      "texte": "Sad server",
+      "étiquettes": [
+        "mukz7vqk5frkh"
+      ]
+    },
+    {
+      "id": "musf3cthntjp3",
+      "colonneId": "c3",
+      "texte": "Docker"
+    },
+    {
+      "id": "musf9xf33r3xb",
+      "colonneId": "c3",
+      "texte": "Terraform"
+    },
+    {
+      "id": "musf3nnu5enkr",
+      "colonneId": "c3",
+      "texte": "K8s"
+    },
+    {
+      "id": "musf7yltjugfk",
+      "colonneId": "c3",
+      "texte": "Systemctl journalctl"
+    },
+    {
+      "id": "musmz9v6v0at8",
+      "colonneId": "c3",
+      "texte": "Akamaie"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "muk7k3nrd9muu",
+      "carteId": "muk7jvwcv1s4t",
+      "colonneId": "c1",
+      "texte": "Section kodekloud gitlab",
+      "date": "2026-09-27"
+    },
+    {
+      "id": "muk7pdb3uuzg6",
+      "carteId": "muk7pbpqzvxnw",
+      "colonneId": "c1",
+      "texte": "Lab aws",
+      "date": "2026-09-27"
+    },
+    {
+      "id": "mukvk66pjr1o4",
+      "carteId": "mukvjn3krwuhm",
+      "colonneId": "c1",
+      "texte": "Nat",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "mukvkc29eg19s",
+      "carteId": "mukvk1lwszjnq",
+      "colonneId": "c1",
+      "texte": "Gitlab runners",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "mukvkjzv0co3u",
+      "carteId": "muk7jvwcv1s4t",
+      "colonneId": "c1",
+      "texte": "Section kodekloud gitlab",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "mukvln45z3ewx",
+      "carteId": "mukvliw3gfu6y",
+      "colonneId": "c1",
+      "texte": "Sad server",
+      "date": "2026-09-28"
+    }
+  ]
+}

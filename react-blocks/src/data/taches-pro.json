@@ -1,0 +1,181 @@
+{
+  "colonnes": [
+    {
+      "id": "c1",
+      "titre": "Aujourd'hui",
+      "couleur": "#fbbf24"
+    },
+    {
+      "id": "c2",
+      "titre": "Cette semaine",
+      "couleur": "#4ade80"
+    },
+    {
+      "id": "c3",
+      "titre": "Plus tard",
+      "couleur": "#a78bfa"
+    },
+    {
+      "id": "c4",
+      "titre": "Terminé",
+      "couleur": "#7fb069"
+    }
+  ],
+  "étiquettes": [
+    {
+      "id": "e1",
+      "nom": "Urgent",
+      "couleur": "#e2574c"
+    },
+    {
+      "id": "e2",
+      "nom": "Réunion",
+      "couleur": "#5b8dc9"
+    },
+    {
+      "id": "e3",
+      "nom": "Projet",
+      "couleur": "#4a9d94"
+    },
+    {
+      "id": "munzs0aki4ch3",
+      "nom": "Done",
+      "couleur": "#4a9d94"
+    }
+  ],
+  "cartes": [
+    {
+      "id": "muke2rcg8zy5k",
+      "colonneId": "c1",
+      "texte": "test",
+      "checklist": [
+        {
+          "id": "muke2zd2lbboh",
+          "texte": "test",
+          "fait": true
+        },
+        {
+          "id": "muke32kbwbsxe",
+          "texte": "test",
+          "fait": false
+        }
+      ],
+      "archivé": true
+    },
+    {
+      "id": "mul0qgwrsl7hh",
+      "colonneId": "c2",
+      "texte": "check notes and clean",
+      "récurrence": "quotidienne"
+    },
+    {
+      "id": "mul0rdfbgicz7",
+      "colonneId": "c1",
+      "texte": "dynatrice",
+      "archivé": true,
+      "archivéLe": "2026-09-28"
+    },
+    {
+      "id": "mul0s67xu1n17",
+      "colonneId": "c1",
+      "texte": "dynatrice",
+      "archivé": true,
+      "archivéLe": "2026-09-30"
+    },
+    {
+      "id": "mul0sha216pnj",
+      "colonneId": "c4",
+      "texte": "Orchestra batch"
+    },
+    {
+      "id": "muns67i0wz3zb",
+      "colonneId": "c4",
+      "texte": "orchestra batch",
+      "étiquettes": [
+        "munzs0aki4ch3"
+      ]
+    },
+    {
+      "id": "muns6j6r0r1um",
+      "colonneId": "c3",
+      "texte": "pprod entitlement"
+    },
+    {
+      "id": "muns6luqqca2q",
+      "colonneId": "c3",
+      "texte": "Dd D&T"
+    },
+    {
+      "id": "muns6yfnrkeae",
+      "colonneId": "c4",
+      "texte": "Taches OCH batch",
+      "étiquettes": [
+        "munzs0aki4ch3"
+      ]
+    },
+    {
+      "id": "muo00gs9ijlyv",
+      "colonneId": "c4",
+      "texte": "iCX"
+    },
+    {
+      "id": "muo00qku39m66",
+      "colonneId": "c4",
+      "texte": "Check backlog one ticket"
+    },
+    {
+      "id": "muqnyvp7n1dse",
+      "colonneId": "c1",
+      "texte": "revue"
+    },
+    {
+      "id": "muqnz1v1kjirv",
+      "colonneId": "c1",
+      "texte": "psp"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "muk4kojflbyo9",
+      "carteId": "muk2rv15o40rn",
+      "colonneId": "c1",
+      "texte": "tata",
+      "date": "2026-08-31"
+    },
+    {
+      "id": "mul0r37v3y1ef",
+      "carteId": "mul0qgwrsl7hh",
+      "colonneId": "c1",
+      "texte": "check notes and clean",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "mul0s7p5mc1u1",
+      "carteId": "mul0s67xu1n17",
+      "colonneId": "c1",
+      "texte": "dynatrice",
+      "date": "2026-09-28"
+    },
+    {
+      "id": "mumcs1g1souyt",
+      "carteId": "mul0qgwrsl7hh",
+      "colonneId": "c1",
+      "texte": "check notes and clean",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "munzre9jsf3zd",
+      "carteId": "mul0qgwrsl7hh",
+      "colonneId": "c1",
+      "texte": "check notes and clean",
+      "date": "2026-09-30"
+    },
+    {
+      "id": "muqnys1lcryht",
+      "carteId": "mul0qgwrsl7hh",
+      "colonneId": "c2",
+      "texte": "check notes and clean",
+      "date": "2026-10-02"
+    }
+  ]
+}
