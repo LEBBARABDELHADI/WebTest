@@ -6,7 +6,7 @@ import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSyn
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
-import { TexteFormaté, texteBrut, lireTexte } from '../lib/texteFormate'
+import { analyserTexte, TexteFormaté, texteBrut, lireTexte } from '../lib/texteFormate'
 
 const ESPACES = {
   perso: {
@@ -77,6 +77,75 @@ function mélanger(tableau) {
   }
   return copie
 }
+
+// Indice progressif : 1 = initiales de chaque mot, puis on dévoile un
+// tiers des mots à chaque palier, jusqu'à la réponse complète.
+const NIVEAU_INDICE_MAX = 4
+
+function construireIndice(verso, niveau) {
+  const morceaux = texteBrut(verso).split(/(\s+)/)
+  const nbMots = morceaux.filter(m => m.trim()).length
+  const révélés = niveau <= 1 ? 0 : Math.ceil((nbMots * (niveau - 1)) / (NIVEAU_INDICE_MAX - 1))
+  let rang = 0
+  return morceaux.map(m => {
+    if (!m.trim()) return m
+    rang += 1
+    if (rang <= révélés) return m
+    return m.replace(/[\p{L}\p{N}]/gu, (c, i) => (i === m.search(/[\p{L}\p{N}]/u) ? c : '_'))
+  }).join('')
+}
+
+const MOTS_VIDES = new Set([
+  'avec', 'dans', 'pour', 'sans', 'sous', 'leur', 'leurs', 'cette', 'ces', 'elle', 'elles', 'ils', 'nous', 'vous',
+  'sont', 'etre', 'avoir', 'fait', 'faire', 'comme', 'mais', 'donc', 'plus', 'tous', 'tout', 'toute', 'toutes',
+  'aussi', 'meme', 'entre', 'depuis', 'pendant', 'apres', 'avant', 'quel', 'quelle', 'quelque', 'qui', 'que',
+  'quoi', 'dont', 'etait', 'ont', 'une', 'des', 'les', 'aux', 'par', 'sur', 'est', 'pas', 'non', 'bien', 'cela',
+  'ceci', 'celui', 'celle', 'ainsi', 'alors', 'encore', 'chaque', 'autre', 'autres', 'tres', 'peut', 'selon',
+  'the', 'and', 'with', 'that', 'this', 'from', 'for',
+])
+
+function normaliser(texte) {
+  return texte.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+// Mots-clés attendus : les passages en gras du verso s'il y en a (on
+// choisit soi-même l'essentiel), sinon les mots significatifs.
+function extraireMotsClés(verso) {
+  const gras = analyserTexte(verso || '').filter(s => s.gras).map(s => s.texte.trim()).filter(Boolean)
+  const candidats = gras.length > 0
+    ? gras
+    : texteBrut(verso).split(/[^\p{L}\p{N}]+/u).filter(m => {
+      const n = normaliser(m)
+      return (/^\d{2,}$/.test(n) || n.length >= 4) && !MOTS_VIDES.has(n)
+    })
+  const vus = new Set()
+  return candidats.filter(m => {
+    const n = normaliser(m)
+    if (!n || vus.has(n)) return false
+    vus.add(n)
+    return true
+  })
+}
+
+// Tolère pluriels et petites variantes : on compare sur la racine du mot.
+function motPrésent(mot, motsSaisis) {
+  const racine = mot.length > 5 ? mot.slice(0, mot.length - 2) : mot
+  return motsSaisis.some(m => m === mot || (mot.length > 5 && m.startsWith(racine)))
+}
+
+function vérifierMotsClés(verso, saisie) {
+  const motsSaisis = normaliser(saisie).split(' ').filter(Boolean)
+  return extraireMotsClés(verso).map(motClé => {
+    const morceaux = normaliser(motClé).split(' ').filter(m => m.length >= 2 && !MOTS_VIDES.has(m))
+    const trouvé = morceaux.length > 0 && morceaux.every(m => motPrésent(m, motsSaisis))
+    return { motClé, trouvé }
+  })
+}
+
+const SpeechRecognitionAPI = typeof window !== 'undefined'
+  ? (window.SpeechRecognition || window.webkitSpeechRecognition)
+  : null
 
 // Barre d'outils gras + couleur qui s'applique uniquement au texte
 // sélectionné dans le champ (pas tout le champ) : on enveloppe la
@@ -175,6 +244,9 @@ export default function Memoriser() {
   const [tempsRestant, setTempsRestant] = useState(DURÉE_EXAMEN)
   const [réponseQCM, setRéponseQCM] = useState(null)
   const [lectureAuto, setLectureAuto] = useState(false)
+  const [niveauIndice, setNiveauIndice] = useState(0)
+  const [réponseSaisie, setRéponseSaisie] = useState('')
+  const [écoute, setÉcoute] = useState(false)
 
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
@@ -185,6 +257,7 @@ export default function Memoriser() {
   const refÉditionRecto = useRef(null)
   const refÉditionVerso = useRef(null)
   const examenIntervalRef = useRef(null)
+  const reconnaissanceRef = useRef(null)
 
   useEffect(() => {
     localStorage.setItem(config.stockage, JSON.stringify(data))
@@ -412,8 +485,45 @@ export default function Memoriser() {
     setTimeout(() => répondre(correct), 900)
   }
 
+  const arrêterDictée = () => {
+    reconnaissanceRef.current?.stop()
+    reconnaissanceRef.current = null
+    setÉcoute(false)
+  }
+
+  const basculerDictée = () => {
+    if (!SpeechRecognitionAPI) return
+    if (écoute) { arrêterDictée(); return }
+    window.speechSynthesis?.cancel()
+    const r = new SpeechRecognitionAPI()
+    r.lang = 'fr-FR'
+    r.continuous = true
+    r.interimResults = false
+    r.onresult = e => {
+      let texte = ''
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) texte += e.results[i][0].transcript
+      }
+      if (texte.trim()) setRéponseSaisie(s => (s ? `${s} ` : '') + texte.trim())
+    }
+    r.onend = () => setÉcoute(false)
+    r.onerror = () => setÉcoute(false)
+    reconnaissanceRef.current = r
+    r.start()
+    setÉcoute(true)
+  }
+
+  const retournerCarte = () => {
+    clearInterval(examenIntervalRef.current)
+    arrêterDictée()
+    const nouvel = !estRetournée
+    setEstRetournée(nouvel)
+    if (lectureAuto) lireTexte(nouvel ? carteActuelle?.verso : carteActuelle?.recto)
+  }
+
   const quitterRévision = () => {
     clearInterval(examenIntervalRef.current)
+    arrêterDictée()
     setVue('liste')
     setFileRévision([])
   }
@@ -449,10 +559,23 @@ export default function Memoriser() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [estQCM, carteActuelle?.id, paquetRévisionId])
 
-  // Remet à zéro la réponse QCM choisie à chaque nouvelle carte.
+  // Remet à zéro tout ce qui est propre à une carte (QCM, indice,
+  // réponse saisie, dictée) à chaque nouvelle carte.
   useEffect(() => {
     setRéponseQCM(null)
+    setNiveauIndice(0)
+    setRéponseSaisie('')
+    reconnaissanceRef.current?.stop()
+    reconnaissanceRef.current = null
+    setÉcoute(false)
   }, [indexRévision])
+
+  useEffect(() => () => reconnaissanceRef.current?.stop(), [])
+
+  const vérification = estRetournée && réponseSaisie.trim() && carteActuelle
+    ? vérifierMotsClés(carteActuelle.verso, réponseSaisie)
+    : null
+  const nbTrouvés = vérification ? vérification.filter(v => v.trouvé).length : 0
 
   // Minuteur du mode examen : revient à DURÉE_EXAMEN à chaque nouvelle
   // carte, et force la révélation (ou une réponse « ratée ») à zéro.
@@ -933,12 +1056,7 @@ export default function Memoriser() {
             ) : (
               <>
                 <div
-                  onClick={() => {
-                    clearInterval(examenIntervalRef.current)
-                    const nouvel = !estRetournée
-                    setEstRetournée(nouvel)
-                    if (lectureAuto) lireTexte(nouvel ? carteActuelle?.verso : carteActuelle?.recto)
-                  }}
+                  onClick={retournerCarte}
                   style={{
                     background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px',
                     padding: '40px 24px', minHeight: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -957,6 +1075,93 @@ export default function Memoriser() {
                     )}
                   </div>
                 </div>
+
+                {!estRetournée && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                    {niveauIndice > 0 && (
+                      <div style={{
+                        background: T.accentSoft, border: `1px dashed ${T.accent}`, borderRadius: '10px',
+                        padding: '10px 12px', fontSize: '14px', color: T.text, lineHeight: '1.6',
+                        letterSpacing: '0.04em', wordBreak: 'break-word',
+                      }}>
+                        <span style={{ fontSize: '10px', color: T.accent, fontFamily: grotesk, fontWeight: 700, display: 'block', marginBottom: '4px', letterSpacing: '0.08em' }}>
+                          INDICE {niveauIndice}/{NIVEAU_INDICE_MAX}
+                        </span>
+                        {construireIndice(carteActuelle?.verso, niveauIndice)}
+                      </div>
+                    )}
+                    <textarea
+                      value={réponseSaisie}
+                      onChange={e => setRéponseSaisie(e.target.value)}
+                      placeholder={SpeechRecognitionAPI ? 'Tape ou dicte ta réponse (facultatif)…' : 'Tape ta réponse (facultatif)…'}
+                      rows={2}
+                      style={{
+                        width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text, resize: 'vertical',
+                        border: `1px solid ${écoute ? T.danger : T.border}`, borderRadius: '10px', padding: '10px 12px',
+                        fontSize: '13.5px', fontFamily: 'inherit',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => setNiveauIndice(n => Math.min(n + 1, NIVEAU_INDICE_MAX))}
+                        disabled={niveauIndice >= NIVEAU_INDICE_MAX}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                          border: `1px solid ${T.border}`, borderRadius: '20px', padding: '7px 14px', fontSize: '12px',
+                          fontWeight: 600, fontFamily: grotesk,
+                          cursor: niveauIndice >= NIVEAU_INDICE_MAX ? 'default' : 'pointer',
+                          opacity: niveauIndice >= NIVEAU_INDICE_MAX ? 0.5 : 1,
+                        }}
+                      >💡 {niveauIndice === 0 ? 'Indice' : 'Indice suivant'}</button>
+                      {SpeechRecognitionAPI && (
+                        <button onClick={basculerDictée} style={{
+                          display: 'flex', alignItems: 'center', gap: '5px',
+                          background: écoute ? T.dangerSoft : T.surface2, color: écoute ? T.danger : T.text,
+                          border: `1px solid ${écoute ? T.danger : T.border}`, borderRadius: '20px', padding: '7px 14px',
+                          fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                        }}>🎤 {écoute ? 'Arrêter' : 'Dicter'}</button>
+                      )}
+                      {réponseSaisie.trim() && (
+                        <button onClick={retournerCarte} style={{
+                          marginLeft: 'auto', background: T.accent, color: T.accentText, border: 'none',
+                          borderRadius: '20px', padding: '7px 16px', fontSize: '12px', fontWeight: 600,
+                          cursor: 'pointer', fontFamily: grotesk,
+                        }}>Vérifier</button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {vérification && (
+                  <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px', marginBottom: '14px' }}>
+                    <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 4px', fontFamily: grotesk }}>Ta réponse</p>
+                    <p style={{ fontSize: '13px', color: T.text, margin: '0 0 12px', lineHeight: '1.5', wordBreak: 'break-word' }}>{réponseSaisie}</p>
+                    {vérification.length > 0 ? (
+                      <>
+                        <p style={{
+                          fontSize: '12.5px', fontWeight: 700, fontFamily: grotesk, margin: '0 0 8px',
+                          color: nbTrouvés / vérification.length >= 0.7 ? T.accent : T.danger,
+                        }}>
+                          {nbTrouvés}/{vérification.length} mot{vérification.length > 1 ? 's' : ''}-clé{vérification.length > 1 ? 's' : ''} retrouvé{nbTrouvés > 1 ? 's' : ''}
+                          {' · '}{nbTrouvés / vérification.length >= 0.7 ? 'tu peux compter « Je savais »' : 'plutôt à revoir'}
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {vérification.map(({ motClé, trouvé }) => (
+                            <span key={motClé} style={{
+                              fontSize: '11.5px', padding: '3px 9px', borderRadius: '20px', fontFamily: grotesk,
+                              background: trouvé ? T.accentSoft : T.dangerSoft,
+                              color: trouvé ? T.accent : T.danger,
+                              border: `1px solid ${trouvé ? T.accent : T.danger}55`,
+                              textDecoration: trouvé ? 'none' : 'line-through',
+                            }}>{trouvé ? '✓' : '✗'} {motClé}</span>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p style={{ fontSize: '12px', color: T.textMuted, margin: 0 }}>Pas de mot-clé détectable dans la réponse attendue — compare à l'œil.</p>
+                    )}
+                  </div>
+                )}
 
                 {estRetournée && (
                   <div style={{ display: 'flex', gap: '10px' }}>
