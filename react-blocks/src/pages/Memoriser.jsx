@@ -86,6 +86,8 @@ export default function Memoriser() {
   const [nouveauPaquetNom, setNouveauPaquetNom] = useState('')
   const [couleurPaquet, setCouleurPaquet] = useState(PALETTE[0])
   const [paquetOuvertId, setPaquetOuvertId] = useState(null)
+  const [paquetÉditionId, setPaquetÉditionId] = useState(null)
+  const [nomÉditionPaquet, setNomÉditionPaquet] = useState('')
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionCarteId, setÉditionCarteId] = useState(null)
   const [éditionRecto, setÉditionRecto] = useState('')
@@ -191,6 +193,18 @@ export default function Memoriser() {
     if (paquetOuvertId === id) setPaquetOuvertId(null)
   }
 
+  const démarrerÉditionPaquet = paquet => {
+    setPaquetÉditionId(paquet.id)
+    setNomÉditionPaquet(paquet.nom)
+  }
+
+  const validerÉditionPaquet = id => {
+    const nom = nomÉditionPaquet.trim()
+    setPaquetÉditionId(null)
+    if (!nom) return
+    setData(d => ({ ...d, paquets: d.paquets.map(p => p.id === id ? { ...p, nom } : p) }))
+  }
+
   const ajouterCarte = paquetId => {
     const saisie = nouvelleCarte[paquetId] || {}
     const recto = (saisie.recto || '').trim()
@@ -226,8 +240,11 @@ export default function Memoriser() {
     return data.cartes.filter(c => (!paquetId || c.paquetId === paquetId) && (!c.prochaineRevision || c.prochaineRevision <= auj))
   }
 
-  const démarrerRévision = paquetId => {
-    const file = mélanger(cartesDues(paquetId).map(c => c.id))
+  const démarrerRévision = (paquetId, { tout = false } = {}) => {
+    const source = tout
+      ? data.cartes.filter(c => !paquetId || c.paquetId === paquetId)
+      : cartesDues(paquetId)
+    const file = mélanger(source.map(c => c.id))
     if (file.length === 0) return
     setPaquetRévisionId(paquetId)
     setFileRévision(file)
@@ -397,24 +414,57 @@ export default function Memoriser() {
                     <div key={paquet.id} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: paquet.couleur, flexShrink: 0 }} />
-                        <button
-                          onClick={() => setPaquetOuvertId(ouvert ? null : paquet.id)}
-                          style={{
-                            flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                            background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
-                          }}
-                        >
-                          <strong style={{ fontFamily: grotesk, fontSize: '14px', color: T.text, fontWeight: 600 }}>{paquet.nom}</strong>
-                          <span style={{ fontSize: '11px', color: T.textMuted }}>
-                            {cartesPaquet.length} carte{cartesPaquet.length > 1 ? 's' : ''}{dues > 0 ? ` · ${dues} à réviser` : ''}
-                          </span>
-                        </button>
-                        {dues > 0 && (
-                          <BoutonIcone icon="repeter" title="Réviser ce paquet" couleur={T.accent} onClick={() => démarrerRévision(paquet.id)} />
+                        {paquetÉditionId === paquet.id ? (
+                          <input
+                            autoFocus
+                            value={nomÉditionPaquet}
+                            onChange={e => setNomÉditionPaquet(e.target.value)}
+                            onBlur={() => validerÉditionPaquet(paquet.id)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') { e.preventDefault(); validerÉditionPaquet(paquet.id) }
+                              if (e.key === 'Escape') setPaquetÉditionId(null)
+                            }}
+                            style={{
+                              flex: 1, minWidth: 0, background: T.bg, color: T.text,
+                              border: `1px solid ${T.accent}`, borderRadius: '6px',
+                              padding: '3px 7px', fontSize: '14px', fontWeight: 600, outline: 'none', fontFamily: grotesk,
+                            }}
+                          />
+                        ) : (
+                          <button
+                            onClick={() => setPaquetOuvertId(ouvert ? null : paquet.id)}
+                            style={{
+                              flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                              background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
+                            }}
+                          >
+                            <strong style={{ fontFamily: grotesk, fontSize: '14px', color: T.text, fontWeight: 600 }}>{paquet.nom}</strong>
+                            <span style={{ fontSize: '11px', color: T.textMuted }}>
+                              {cartesPaquet.length} carte{cartesPaquet.length > 1 ? 's' : ''}{dues > 0 ? ` · ${dues} à réviser` : ''}
+                            </span>
+                          </button>
                         )}
+                        <BoutonIcone icon="crayon" title="Renommer ce paquet" taille={13} onClick={() => démarrerÉditionPaquet(paquet)} />
                         <BoutonIcone icon="corbeille" title="Supprimer ce paquet" couleur={T.danger} taille={13} onClick={() => supprimerPaquet(paquet.id, paquet.nom)} />
                         <BoutonIcone icon={ouvert ? 'chevronHaut' : 'chevronBas'} title={ouvert ? 'Replier' : 'Voir les cartes'} taille={13} onClick={() => setPaquetOuvertId(ouvert ? null : paquet.id)} />
                       </div>
+
+                      {cartesPaquet.length > 0 && (
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+                          {dues > 0 && (
+                            <button onClick={() => démarrerRévision(paquet.id)} style={{
+                              display: 'flex', alignItems: 'center', gap: '5px', background: T.accentSoft, color: T.accent,
+                              border: `1px solid ${T.accent}55`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                              fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                            }}><Icon nom="repeter" taille={12} /> Réviser les {dues} due{dues > 1 ? 's' : ''}</button>
+                          )}
+                          <button onClick={() => démarrerRévision(paquet.id, { tout: true })} style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                            border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}><Icon nom="checklist" taille={12} /> Réviser tout le paquet ({cartesPaquet.length})</button>
+                        </div>
+                      )}
 
                       {ouvert && (
                         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: '8px' }}>
