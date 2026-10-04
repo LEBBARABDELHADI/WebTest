@@ -2,34 +2,34 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import donnéesNotesPerso from '../data/notes-perso.json'
 import donnéesNotesPro from '../data/notes-pro.json'
+import donnéesNotesIdrissiPerso from '../data/notes-idrissi-perso.json'
+import donnéesNotesIdrissiPro from '../data/notes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
+import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 
-const ESPACES_TÂCHES = [
-  { id: 'perso', nom: 'Perso', stockage: 'react-blocs-taches-perso' },
-  { id: 'pro', nom: 'Pro', stockage: 'react-blocs-taches-pro' },
-]
+// Espaces de tâches auxquels une note peut être liée (filtrés par foyer).
+const ESPACES_TÂCHES = Object.values(espacesPourTousLesFoyers((foyer, type, id) => ({
+  nom: type === 'perso' ? 'Perso' : 'Pro',
+  stockage: `react-blocs-taches-${id}`,
+})))
 
-const ESPACES_NOTES = {
-  perso: {
-    id: 'perso',
-    titre: 'Notes perso',
-    eyebrow: 'Carnet perso',
-    chemin: 'react-blocks/src/data/notes-perso.json',
-    stockage: 'react-blocs-notes-perso',
-    données: donnéesNotesPerso,
-  },
-  pro: {
-    id: 'pro',
-    titre: 'Notes pro',
-    eyebrow: 'Carnet pro',
-    chemin: 'react-blocks/src/data/notes-pro.json',
-    stockage: 'react-blocs-notes-pro',
-    données: donnéesNotesPro,
-  },
+const DONNÉES_NOTES = {
+  perso: donnéesNotesPerso,
+  pro: donnéesNotesPro,
+  'idrissi-perso': donnéesNotesIdrissiPerso,
+  'idrissi-pro': donnéesNotesIdrissiPro,
 }
+
+const ESPACES_NOTES = espacesPourTousLesFoyers((foyer, type, id) => ({
+  titre: `Notes ${type}`,
+  eyebrow: `${foyer.nom} · Carnet ${type}`,
+  chemin: `react-blocks/src/data/notes-${id}.json`,
+  stockage: `react-blocs-notes-${id}`,
+  données: DONNÉES_NOTES[id],
+}))
 
 const MODÈLES = [
   {
@@ -232,7 +232,7 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
       {lienOuvertPour === note.id && (
         <div style={{ background: T.surface2, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '4px' }}>
-            {ESPACES_TÂCHES.map(e => (
+            {ctx.espacesTâches.map(e => (
               <button key={e.id} onClick={() => setEspaceLienChoisi(e.id)} style={{
                 flex: 1, fontSize: '11px', padding: '6px', borderRadius: '6px', cursor: 'pointer', fontFamily: grotesk,
                 background: espaceLienChoisi === e.id ? T.accent : T.surface,
@@ -385,7 +385,7 @@ export default function Notes() {
   const [recherche, setRecherche] = useState('')
   const [couleurOuvertePour, setCouleurOuvertePour] = useState(null)
   const [lienOuvertPour, setLienOuvertPour] = useState(null)
-  const [espaceLienChoisi, setEspaceLienChoisi] = useState('perso')
+  const [espaceLienChoisi, setEspaceLienChoisi] = useState(config.id)
   const [noteEnGlissement, setNoteEnGlissement] = useState(null)
   const [noteSurvolée, setNoteSurvolée] = useState(null)
   const [sectionSurvolée, setSectionSurvolée] = useState(null)
@@ -703,6 +703,7 @@ export default function Notes() {
   // frappe et ferait perdre le focus du champ actif — fatal au clavier
   // virtuel sur mobile).
   const ctx = {
+    espacesTâches: ESPACES_TÂCHES.filter(e => e.foyer === config.foyer),
     noteEnGlissement, setNoteEnGlissement, noteSurvolée, setNoteSurvolée, setSectionSurvolée,
     réordonnerNotes, réordonnerNote,
     couleurOuvertePour, setCouleurOuvertePour, changerCouleurNote,
@@ -717,7 +718,7 @@ export default function Notes() {
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
+          <Link to={FOYERS[config.foyer].accueil} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
@@ -747,7 +748,7 @@ export default function Notes() {
             </h1>
           </div>
           <div style={{ display: 'flex', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '9px', padding: '3px', flexShrink: 0 }}>
-            {Object.values(ESPACES_NOTES).map(e => (
+            {Object.values(ESPACES_NOTES).filter(e => e.foyer === config.foyer).map(e => (
               <Link
                 key={e.id}
                 to={`/notes/${e.id}`}
@@ -756,7 +757,7 @@ export default function Notes() {
                   background: e.id === config.id ? T.accent : 'transparent',
                   color: e.id === config.id ? T.accentText : T.textMuted,
                 }}
-              >{e.id === 'perso' ? 'Perso' : 'Pro'}</Link>
+              >{e.type === 'perso' ? 'Perso' : 'Pro'}</Link>
             ))}
           </div>
         </div>

@@ -3,7 +3,17 @@ import { Link } from 'react-router-dom'
 import { notions } from '../notions'
 import donnéesMémoPerso from '../data/memoriser-perso.json'
 import donnéesMémoPro from '../data/memoriser-pro.json'
+import donnéesMémoIdrissiPerso from '../data/memoriser-idrissi-perso.json'
+import donnéesMémoIdrissiPro from '../data/memoriser-idrissi-pro.json'
 import { TexteFormaté } from '../lib/texteFormate'
+import { FOYERS } from '../lib/foyers'
+
+const DONNÉES_MÉMO = {
+  perso: donnéesMémoPerso,
+  pro: donnéesMémoPro,
+  'idrissi-perso': donnéesMémoIdrissiPerso,
+  'idrissi-pro': donnéesMémoIdrissiPro,
+}
 
 const niveauColor = {
   'Débutant': '#4ade80',
@@ -19,37 +29,45 @@ function hashJour(chaîne) {
   return h
 }
 
-function carteDuJour() {
-  const toutes = [
-    ...(donnéesMémoPerso.cartes || []).map(c => ({
-      ...c, espace: 'perso', paquet: (donnéesMémoPerso.paquets || []).find(p => p.id === c.paquetId),
-    })),
-    ...(donnéesMémoPro.cartes || []).map(c => ({
-      ...c, espace: 'pro', paquet: (donnéesMémoPro.paquets || []).find(p => p.id === c.paquetId),
-    })),
-  ]
+function carteDuJour(foyer) {
+  const toutes = ['perso', 'pro'].flatMap(type => {
+    const espace = `${foyer.préfixe}${type}`
+    const données = DONNÉES_MÉMO[espace]
+    return (données.cartes || []).map(c => ({
+      ...c, espace, paquet: (données.paquets || []).find(p => p.id === c.paquetId),
+    }))
+  })
   if (toutes.length === 0) return null
   const aujourd = new Date().toISOString().slice(0, 10)
   return toutes[hashJour(aujourd) % toutes.length]
 }
 
-export default function Home() {
+export default function Home({ foyerId = 'lebbar' }) {
+  const foyer = FOYERS[foyerId]
+  const autresFoyers = Object.values(FOYERS).filter(f => f.id !== foyer.id)
   const [retournée, setRetournée] = useState(false)
   const débutant = notions.filter(n => n.niveau === 'Débutant')
   const intermédiaire = notions.filter(n => n.niveau === 'Intermédiaire')
   const avancé = notions.filter(n => n.niveau === 'Avancé')
-  const carte = carteDuJour()
+  const carte = carteDuJour(foyer)
+  const préfixe = foyer.préfixe
 
   return (
     <div style={{ maxWidth: '520px', margin: '0 auto', padding: '64px 16px 24px' }}>
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏠</div>
         <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#e2e8f0', margin: '0 0 8px' }}>
-          Home
+          {foyer.nom}
         </h1>
-        <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+        <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 12px' }}>
           Apprends React notion par notion, avec des démos interactives.
         </p>
+        {autresFoyers.map(f => (
+          <Link key={f.id} to={f.accueil} style={{
+            display: 'inline-block', fontSize: '12px', color: '#6c63ff', border: '1px solid #2d3148',
+            borderRadius: '20px', padding: '5px 12px',
+          }}>Aller à {f.nom} →</Link>
+        ))}
       </div>
 
       {carte && (
@@ -81,12 +99,12 @@ export default function Home() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '28px' }}>
         {[
-          { to: '/taches/perso', emoji: '🏡', titre: 'Programme perso', desc: 'Ton tableau personnel — propre fichier de sauvegarde sur GitHub' },
-          { to: '/taches/pro', emoji: '💼', titre: 'Programme pro', desc: 'Ton tableau professionnel — indépendant du perso, propre fichier' },
-          { to: '/notes/perso', emoji: '📝', titre: 'Notes perso', desc: 'Blocs texte, tâches et choix — propre fichier, indépendant du pro' },
-          { to: '/notes/pro', emoji: '🗒️', titre: 'Notes pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
-          { to: '/memoriser/perso', emoji: '🧠', titre: 'Mémoriser perso', desc: 'Flashcards en répétition espacée — propre fichier, indépendant du pro' },
-          { to: '/memoriser/pro', emoji: '📚', titre: 'Mémoriser pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
+          { to: `/taches/${préfixe}perso`, emoji: '🏡', titre: 'Programme perso', desc: 'Ton tableau personnel — propre fichier de sauvegarde sur GitHub' },
+          { to: `/taches/${préfixe}pro`, emoji: '💼', titre: 'Programme pro', desc: 'Ton tableau professionnel — indépendant du perso, propre fichier' },
+          { to: `/notes/${préfixe}perso`, emoji: '📝', titre: 'Notes perso', desc: 'Blocs texte, tâches et choix — propre fichier, indépendant du pro' },
+          { to: `/notes/${préfixe}pro`, emoji: '🗒️', titre: 'Notes pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
+          { to: `/memoriser/${préfixe}perso`, emoji: '🧠', titre: 'Mémoriser perso', desc: 'Flashcards en répétition espacée — propre fichier, indépendant du pro' },
+          { to: `/memoriser/${préfixe}pro`, emoji: '📚', titre: 'Mémoriser pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
         ].map(p => (
           <Link key={p.to} to={p.to}>
             <div style={{

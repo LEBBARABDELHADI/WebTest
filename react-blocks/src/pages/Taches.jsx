@@ -2,29 +2,28 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import donnéesPerso from '../data/taches-perso.json'
 import donnéesPro from '../data/taches-pro.json'
+import donnéesIdrissiPerso from '../data/taches-idrissi-perso.json'
+import donnéesIdrissiPro from '../data/taches-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
+import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 
-const ESPACES = {
-  perso: {
-    id: 'perso',
-    titre: 'Programme perso',
-    eyebrow: 'Planning perso',
-    chemin: 'react-blocks/src/data/taches-perso.json',
-    stockage: 'react-blocs-taches-perso',
-    données: donnéesPerso,
-  },
-  pro: {
-    id: 'pro',
-    titre: 'Programme pro',
-    eyebrow: 'Planning pro',
-    chemin: 'react-blocks/src/data/taches-pro.json',
-    stockage: 'react-blocs-taches-pro',
-    données: donnéesPro,
-  },
+const DONNÉES = {
+  perso: donnéesPerso,
+  pro: donnéesPro,
+  'idrissi-perso': donnéesIdrissiPerso,
+  'idrissi-pro': donnéesIdrissiPro,
 }
+
+const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
+  titre: `Programme ${type}`,
+  eyebrow: `${foyer.nom} · Planning ${type}`,
+  chemin: `react-blocks/src/data/taches-${id}.json`,
+  stockage: `react-blocs-taches-${id}`,
+  données: DONNÉES[id],
+}))
 
 const PALETTE_ÉTIQUETTES = [T.accent, T.danger, '#4a9d94', '#5b8dc9', '#8b7ab8']
 
@@ -551,7 +550,7 @@ export default function Taches() {
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
+          <Link to={FOYERS[config.foyer].accueil} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
@@ -584,7 +583,7 @@ export default function Taches() {
             </h1>
           </div>
           <div style={{ display: 'flex', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '9px', padding: '3px', flexShrink: 0 }}>
-            {Object.values(ESPACES).map(e => (
+            {Object.values(ESPACES).filter(e => e.foyer === config.foyer).map(e => (
               <Link
                 key={e.id}
                 to={`/taches/${e.id}`}
@@ -593,7 +592,7 @@ export default function Taches() {
                   background: e.id === config.id ? T.accent : 'transparent',
                   color: e.id === config.id ? T.accentText : T.textMuted,
                 }}
-              >{e.id === 'perso' ? 'Perso' : 'Pro'}</Link>
+              >{e.type === 'perso' ? 'Perso' : 'Pro'}</Link>
             ))}
           </div>
         </div>

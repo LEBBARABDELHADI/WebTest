@@ -26,7 +26,8 @@ function MemoriserRoute() {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Home key="lebbar" foyerId="lebbar" />} />
+      <Route path="/idrissi" element={<Home key="idrissi" foyerId="idrissi" />} />
       <Route path="/notion/:id" element={<NotionPage />} />
       <Route path="/taches" element={<Navigate to="/taches/perso" replace />} />
       <Route path="/taches/:espace" element={<TachesRoute />} />

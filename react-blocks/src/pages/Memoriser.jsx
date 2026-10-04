@@ -2,30 +2,29 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import donnéesPerso from '../data/memoriser-perso.json'
 import donnéesPro from '../data/memoriser-pro.json'
+import donnéesIdrissiPerso from '../data/memoriser-idrissi-perso.json'
+import donnéesIdrissiPro from '../data/memoriser-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { analyserTexte, TexteFormaté, texteBrut, lireTexte } from '../lib/texteFormate'
+import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 
-const ESPACES = {
-  perso: {
-    id: 'perso',
-    titre: 'Mémoriser perso',
-    eyebrow: 'Flashcards perso',
-    chemin: 'react-blocks/src/data/memoriser-perso.json',
-    stockage: 'react-blocs-memoriser-perso',
-    données: donnéesPerso,
-  },
-  pro: {
-    id: 'pro',
-    titre: 'Mémoriser pro',
-    eyebrow: 'Flashcards pro',
-    chemin: 'react-blocks/src/data/memoriser-pro.json',
-    stockage: 'react-blocs-memoriser-pro',
-    données: donnéesPro,
-  },
+const DONNÉES = {
+  perso: donnéesPerso,
+  pro: donnéesPro,
+  'idrissi-perso': donnéesIdrissiPerso,
+  'idrissi-pro': donnéesIdrissiPro,
 }
+
+const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
+  titre: `Mémoriser ${type}`,
+  eyebrow: `${foyer.nom} · Flashcards ${type}`,
+  chemin: `react-blocks/src/data/memoriser-${id}.json`,
+  stockage: `react-blocs-memoriser-${id}`,
+  données: DONNÉES[id],
+}))
 
 // Répétition espacée façon Leitner : chaque carte a un niveau (index dans
 // INTERVALLES) qui fixe dans combien de jours elle revient. Une bonne
@@ -605,7 +604,7 @@ export default function Memoriser() {
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
+          <Link to={FOYERS[config.foyer].accueil} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
           </Link>
           <div style={{ display: 'flex', gap: '2px' }}>
@@ -632,7 +631,7 @@ export default function Memoriser() {
             </h1>
           </div>
           <div style={{ display: 'flex', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '9px', padding: '3px', flexShrink: 0 }}>
-            {Object.values(ESPACES).map(e => (
+            {Object.values(ESPACES).filter(e => e.foyer === config.foyer).map(e => (
               <Link
                 key={e.id}
                 to={`/memoriser/${e.id}`}
@@ -641,7 +640,7 @@ export default function Memoriser() {
                   background: e.id === config.id ? T.accent : 'transparent',
                   color: e.id === config.id ? T.accentText : T.textMuted,
                 }}
-              >{e.id === 'perso' ? 'Perso' : 'Pro'}</Link>
+              >{e.type === 'perso' ? 'Perso' : 'Pro'}</Link>
             ))}
           </div>
         </div>
