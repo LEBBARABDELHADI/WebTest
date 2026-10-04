@@ -46,10 +46,37 @@ export function texteBrut(texte) {
   return analyserTexte(texte || '').map(seg => seg.texte).join('')
 }
 
-// Préférences de lecture (voix, vitesse, hauteur), propres à l'appareil
-// puisque les voix disponibles dépendent du téléphone/navigateur.
+// Préférences de lecture, propres à l'appareil puisque les voix disponibles
+// dépendent du téléphone/navigateur. `voixRéponse` vide = même voix que la
+// question ; `style` = dernier style prédéfini appliqué ('' si réglé à la main).
 const CLÉ_VOIX = 'react-blocs-voix'
-const PRÉFÉRENCES_PAR_DÉFAUT = { voix: '', vitesse: 1, hauteur: 1 }
+const PRÉFÉRENCES_PAR_DÉFAUT = {
+  voix: '', voixRéponse: '', vitesse: 1, hauteur: 1, style: 'naturel', autresLangues: false,
+}
+
+// Styles applicables à n'importe quelle voix (même s'il n'y en a qu'une
+// installée), en jouant sur la vitesse et la hauteur.
+export const STYLES_VOIX = [
+  { id: 'naturel', nom: 'Naturel', emoji: '🙂', vitesse: 1, hauteur: 1 },
+  { id: 'pose', nom: 'Posé', emoji: '📖', vitesse: 0.85, hauteur: 0.95 },
+  { id: 'professeur', nom: 'Professeur', emoji: '🎓', vitesse: 0.9, hauteur: 0.75 },
+  { id: 'dictee', nom: 'Dictée lente', emoji: '🐢', vitesse: 0.6, hauteur: 1 },
+  { id: 'dynamique', nom: 'Dynamique', emoji: '⚡', vitesse: 1.3, hauteur: 1.1 },
+  { id: 'express', nom: 'Express', emoji: '🚀', vitesse: 1.7, hauteur: 1 },
+  { id: 'grave', nom: 'Grave', emoji: '🐻', vitesse: 0.95, hauteur: 0.4 },
+  { id: 'enfant', nom: 'Enfant', emoji: '🧒', vitesse: 1.1, hauteur: 1.6 },
+  { id: 'souris', nom: 'Souris', emoji: '🐭', vitesse: 1.3, hauteur: 2 },
+  { id: 'robot', nom: 'Robot', emoji: '🤖', vitesse: 0.9, hauteur: 0 },
+]
+
+const nomsDeLangues = typeof Intl !== 'undefined' && Intl.DisplayNames
+  ? new Intl.DisplayNames(['fr'], { type: 'language' })
+  : null
+
+// « fr-CA » → « français (Canada) », « en-GB » → « anglais (Royaume-Uni) ».
+export function nomDeLangue(lang) {
+  try { return nomsDeLangues?.of(lang.replace('_', '-')) || lang } catch { return lang }
+}
 
 export function lirePréférencesVoix() {
   try {
@@ -63,12 +90,15 @@ export function enregistrerPréférencesVoix(préférences) {
   try { localStorage.setItem(CLÉ_VOIX, JSON.stringify(préférences)) } catch { /* ignore */ }
 }
 
-// Voix françaises installées sur l'appareil. La liste arrive parfois après
-// le chargement de la page (Chrome), d'où l'écoute de « voiceschanged ».
-export function useVoixFrançaises() {
-  const lire = () => (window.speechSynthesis?.getVoices() || [])
-    .filter(v => v.lang.toLowerCase().startsWith('fr'))
-    .sort((a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name))
+const estFrançaise = v => v.lang.toLowerCase().startsWith('fr')
+
+// Voix installées sur l'appareil : les françaises d'abord, puis (si
+// demandé) celles des autres langues, qui lisent le français avec leur
+// accent. La liste arrive parfois après le chargement de la page (Chrome),
+// d'où l'écoute de « voiceschanged ».
+export function useVoix() {
+  const lire = () => [...(window.speechSynthesis?.getVoices() || [])]
+    .sort((a, b) => (estFrançaise(b) - estFrançaise(a)) || a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name))
   const [voix, setVoix] = useState(lire)
   useEffect(() => {
     const synthèse = window.speechSynthesis
@@ -78,16 +108,18 @@ export function useVoixFrançaises() {
     maj()
     return () => synthèse.removeEventListener('voiceschanged', maj)
   }, [])
-  return voix
+  return { françaises: voix.filter(estFrançaise), autres: voix.filter(v => !estFrançaise(v)) }
 }
 
-// Lit un texte à voix haute via la synthèse vocale du navigateur, avec la
-// voix, la vitesse et la hauteur choisies (ou celles passées en argument).
-export function lireTexte(texte, préférences = lirePréférencesVoix()) {
+// Lit un texte à voix haute via la synthèse vocale du navigateur.
+// `réponse` : utilise la voix choisie pour les réponses, si elle diffère.
+// `voix` : force une voix précise (extrait d'essai dans les réglages).
+export function lireTexte(texte, { réponse = false, voix: voixForcée, préférences = lirePréférencesVoix() } = {}) {
   if (!texte || !window.speechSynthesis) return
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(texteBrut(texte))
-  const voix = window.speechSynthesis.getVoices().find(v => v.voiceURI === préférences.voix)
+  const voixVoulue = voixForcée ?? ((réponse && préférences.voixRéponse) || préférences.voix)
+  const voix = window.speechSynthesis.getVoices().find(v => v.voiceURI === voixVoulue)
   if (voix) u.voice = voix
   u.lang = voix ? voix.lang : 'fr-FR'
   u.rate = préférences.vitesse
