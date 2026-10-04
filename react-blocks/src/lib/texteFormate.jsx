@@ -104,8 +104,9 @@ export function qualitéVoix(v) {
 
 // Voix installées sur l'appareil : les françaises d'abord, puis (si
 // demandé) celles des autres langues, qui lisent le français avec leur
-// accent. La liste arrive parfois après le chargement de la page (Chrome),
-// d'où l'écoute de « voiceschanged ».
+// accent. La liste arrive parfois après le chargement de la page (Chrome)
+// ou seulement après une première lecture (iPhone) : d'où l'écoute de
+// « voiceschanged » et la fonction `actualiser`.
 export function useVoix() {
   const lire = () => [...(window.speechSynthesis?.getVoices() || [])]
     .sort((a, b) => (estFrançaise(b) - estFrançaise(a))
@@ -121,15 +122,21 @@ export function useVoix() {
     maj()
     return () => synthèse.removeEventListener('voiceschanged', maj)
   }, [])
-  return { françaises: voix.filter(estFrançaise), autres: voix.filter(v => !estFrançaise(v)) }
+  const actualiser = () => {
+    déverrouillerAudio()
+    setVoix(lire())
+    setTimeout(() => setVoix(lire()), 400)
+    setTimeout(() => setVoix(lire()), 1500)
+  }
+  return {
+    françaises: voix.filter(estFrançaise),
+    autres: voix.filter(v => !estFrançaise(v)),
+    total: voix.length,
+    actualiser,
+  }
 }
 
-// Lit un texte à voix haute via la synthèse vocale du navigateur.
-// `réponse` : utilise la voix choisie pour les réponses, si elle diffère.
-// `voix` : force une voix précise (extrait d'essai dans les réglages).
-export function lireTexte(texte, { réponse = false, voix: voixForcée, préférences = lirePréférencesVoix() } = {}) {
-  if (!texte || !window.speechSynthesis) return
-  window.speechSynthesis.cancel()
+function créerÉnonciation(texte, { réponse = false, voix: voixForcée, préférences = lirePréférencesVoix() } = {}) {
   const u = new SpeechSynthesisUtterance(texteBrut(texte))
   const voixVoulue = voixForcée ?? ((réponse && préférences.voixRéponse) || préférences.voix)
   const voix = window.speechSynthesis.getVoices().find(v => v.voiceURI === voixVoulue)
@@ -137,5 +144,70 @@ export function lireTexte(texte, { réponse = false, voix: voixForcée, préfér
   u.lang = voix ? voix.lang : 'fr-FR'
   u.rate = préférences.vitesse
   u.pitch = préférences.hauteur
-  window.speechSynthesis.speak(u)
+  return u
+}
+
+// Lit un texte à voix haute via la synthèse vocale du navigateur.
+// `réponse` : utilise la voix choisie pour les réponses, si elle diffère.
+// `voix` : force une voix précise (extrait d'essai dans les réglages).
+export function lireTexte(texte, options = {}) {
+  if (!texte || !window.speechSynthesis) return
+  window.speechSynthesis.cancel()
+  window.speechSynthesis.speak(créerÉnonciation(texte, options))
+}
+
+// Comme lireTexte, mais renvoie une promesse résolue quand la lecture est
+// finie, pour enchaîner (podcast, entretien). Filet de sécurité : certains
+// navigateurs oublient parfois de signaler la fin, on n'attend donc jamais
+// plus que la durée estimée du texte.
+export function direTexte(texte, options = {}) {
+  return new Promise(resolve => {
+    if (!texte || !window.speechSynthesis) { resolve(); return }
+    window.speechSynthesis.cancel()
+    const u = créerÉnonciation(texte, options)
+    let fini = false
+    const terminer = () => {
+      if (fini) return
+      fini = true
+      clearTimeout(filet)
+      resolve()
+    }
+    const durée = 2500 + (texteBrut(texte).length * 90) / (u.rate || 1)
+    const filet = setTimeout(terminer, durée)
+    u.onend = terminer
+    u.onerror = terminer
+    window.speechSynthesis.speak(u)
+  })
+}
+
+// Sur iPhone, le son (voix et bips) doit être lancé une première fois par un
+// toucher de l'utilisateur ; ensuite les lectures automatiques sont permises.
+// À appeler directement dans le gestionnaire du bouton qui démarre un mode.
+let contexteAudio = null
+export function déverrouillerAudio() {
+  try {
+    if (window.speechSynthesis) {
+      const u = new SpeechSynthesisUtterance(' ')
+      u.volume = 0
+      window.speechSynthesis.speak(u)
+    }
+    const Contexte = window.AudioContext || window.webkitAudioContext
+    if (Contexte && !contexteAudio) contexteAudio = new Contexte()
+    contexteAudio?.resume?.()
+  } catch { /* ignore */ }
+}
+
+// Petit bip (signal « à toi de parler »).
+export function bip(fréquence = 880, durée = 0.15) {
+  try {
+    if (!contexteAudio) return
+    const osc = contexteAudio.createOscillator()
+    const gain = contexteAudio.createGain()
+    osc.frequency.value = fréquence
+    gain.gain.setValueAtTime(0.18, contexteAudio.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, contexteAudio.currentTime + durée)
+    osc.connect(gain).connect(contexteAudio.destination)
+    osc.start()
+    osc.stop(contexteAudio.currentTime + durée)
+  } catch { /* ignore */ }
 }

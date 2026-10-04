@@ -14,6 +14,9 @@ import {
 } from '../lib/texteFormate'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import CarteBulles from '../components/CarteBulles'
+import ModePodcast from '../components/ModePodcast'
+import EntretienSimule from '../components/EntretienSimule'
+import { vérifierMotsClés } from '../lib/motsCles'
 
 const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
 
@@ -108,54 +111,6 @@ function construireIndice(verso, niveau) {
     if (rang <= révélés) return m
     return m.replace(/[\p{L}\p{N}]/gu, (c, i) => (i === m.search(/[\p{L}\p{N}]/u) ? c : '_'))
   }).join('')
-}
-
-const MOTS_VIDES = new Set([
-  'avec', 'dans', 'pour', 'sans', 'sous', 'leur', 'leurs', 'cette', 'ces', 'elle', 'elles', 'ils', 'nous', 'vous',
-  'sont', 'etre', 'avoir', 'fait', 'faire', 'comme', 'mais', 'donc', 'plus', 'tous', 'tout', 'toute', 'toutes',
-  'aussi', 'meme', 'entre', 'depuis', 'pendant', 'apres', 'avant', 'quel', 'quelle', 'quelque', 'qui', 'que',
-  'quoi', 'dont', 'etait', 'ont', 'une', 'des', 'les', 'aux', 'par', 'sur', 'est', 'pas', 'non', 'bien', 'cela',
-  'ceci', 'celui', 'celle', 'ainsi', 'alors', 'encore', 'chaque', 'autre', 'autres', 'tres', 'peut', 'selon',
-  'the', 'and', 'with', 'that', 'this', 'from', 'for',
-])
-
-function normaliser(texte) {
-  return texte.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
-}
-
-// Mots-clés attendus : les passages en gras du verso s'il y en a (on
-// choisit soi-même l'essentiel), sinon les mots significatifs.
-function extraireMotsClés(verso) {
-  const gras = analyserTexte(verso || '').filter(s => s.gras).map(s => s.texte.trim()).filter(Boolean)
-  const candidats = gras.length > 0
-    ? gras
-    : texteBrut(verso).split(/[^\p{L}\p{N}]+/u).filter(m => {
-      const n = normaliser(m)
-      return (/^\d{2,}$/.test(n) || n.length >= 4) && !MOTS_VIDES.has(n)
-    })
-  const vus = new Set()
-  return candidats.filter(m => {
-    const n = normaliser(m)
-    if (!n || vus.has(n)) return false
-    vus.add(n)
-    return true
-  })
-}
-
-// Tolère pluriels et petites variantes : on compare sur la racine du mot.
-function motPrésent(mot, motsSaisis) {
-  const racine = mot.length > 5 ? mot.slice(0, mot.length - 2) : mot
-  return motsSaisis.some(m => m === mot || (mot.length > 5 && m.startsWith(racine)))
-}
-
-function vérifierMotsClés(verso, saisie) {
-  const motsSaisis = normaliser(saisie).split(' ').filter(Boolean)
-  return extraireMotsClés(verso).map(motClé => {
-    const morceaux = normaliser(motClé).split(' ').filter(m => m.length >= 2 && !MOTS_VIDES.has(m))
-    const trouvé = morceaux.length > 0 && morceaux.every(m => motPrésent(m, motsSaisis))
-    return { motClé, trouvé }
-  })
 }
 
 const SpeechRecognitionAPI = typeof window !== 'undefined'
@@ -265,7 +220,8 @@ export default function Memoriser() {
   const [préférencesVoix, setPréférencesVoix] = useState(lirePréférencesVoix)
   const [réglagesVoixOuverts, setRéglagesVoixOuverts] = useState(false)
   const [carteBullesId, setCarteBullesId] = useState(null)
-  const { françaises: voixFrançaises, autres: voixAutres } = useVoix()
+  const [modeVocal, setModeVocal] = useState(null) // { type: 'podcast' | 'entretien', paquetId }
+  const { françaises: voixFrançaises, autres: voixAutres, total: totalVoix, actualiser: actualiserVoix } = useVoix()
   const voixDisponibles = préférencesVoix.autresLangues ? [...voixFrançaises, ...voixAutres] : voixFrançaises
 
   const majPréférencesVoix = changement => {
@@ -832,6 +788,16 @@ export default function Memoriser() {
                               fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
                             }}><Icon nom="radio" taille={12} /> QCM</button>
                           )}
+                          <button onClick={() => setModeVocal({ type: 'podcast', paquetId: paquet.id })} style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                            border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}>🎧 Podcast</button>
+                          <button onClick={() => setModeVocal({ type: 'entretien', paquetId: paquet.id })} style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                            border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}>🎙️ Entretien</button>
                         </div>
                       )}
 
@@ -1088,8 +1054,18 @@ export default function Memoriser() {
 
                 <div>
                   <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 6px', fontFamily: grotesk }}>
-                    Voix des questions ({voixDisponibles.length} sur cet appareil)
+                    Voix des questions
                   </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ flex: 1, fontSize: '11.5px', color: T.textMuted, lineHeight: 1.4 }}>
+                      Le navigateur voit {totalVoix} voix sur cet appareil, dont {voixFrançaises.length} en français.
+                      Les voix « Siri » n'en font jamais partie (Apple les réserve à l'iPhone).
+                    </span>
+                    <button onClick={actualiserVoix} style={{
+                      flexShrink: 0, fontSize: '11.5px', fontFamily: grotesk, fontWeight: 600, padding: '5px 10px', borderRadius: '20px',
+                      background: T.surface2, color: T.text, border: `1px solid ${T.border}`, cursor: 'pointer',
+                    }}>🔄 Actualiser</button>
+                  </div>
                   {voixDisponibles.length === 0 ? (
                     <p style={{ fontSize: '12px', color: T.textMuted, margin: 0, lineHeight: '1.5' }}>
                       Aucune voix détectée : la voix par défaut du navigateur est utilisée.
@@ -1365,6 +1341,25 @@ export default function Memoriser() {
           </div>
         )}
       </div>
+      {modeVocal?.type === 'podcast' && (
+        <ModePodcast
+          cartes={data.cartes.filter(c => c.paquetId === modeVocal.paquetId)}
+          titre={data.paquets.find(p => p.id === modeVocal.paquetId)?.nom || ''}
+          onFermer={() => setModeVocal(null)}
+        />
+      )}
+      {modeVocal?.type === 'entretien' && (
+        <EntretienSimule
+          cartes={data.cartes.filter(c => c.paquetId === modeVocal.paquetId)}
+          titre={data.paquets.find(p => p.id === modeVocal.paquetId)?.nom || ''}
+          onFermer={() => setModeVocal(null)}
+          onRetravailler={ids => {
+            const paquetId = modeVocal.paquetId
+            setModeVocal(null)
+            démarrerRévision(paquetId, { cartesIds: ids, titre: 'À retravailler' })
+          }}
+        />
+      )}
       {carteBullesId && data.cartes.find(c => c.id === carteBullesId) && (
         <CarteBulles carte={data.cartes.find(c => c.id === carteBullesId)} onFermer={() => setCarteBullesId(null)} />
       )}
