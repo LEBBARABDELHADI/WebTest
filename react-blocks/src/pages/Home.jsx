@@ -7,6 +7,7 @@ import donnéesMémoIdrissiPerso from '../data/memoriser-idrissi-perso.json'
 import donnéesMémoIdrissiPro from '../data/memoriser-idrissi-pro.json'
 import { TexteFormaté } from '../lib/texteFormate'
 import { FOYERS } from '../lib/foyers'
+import { verrouiller } from '../components/Verrou'
 
 const DONNÉES_MÉMO = {
   perso: donnéesMémoPerso,
@@ -68,6 +69,10 @@ export default function Home({ foyerId = 'lebbar' }) {
             borderRadius: '20px', padding: '5px 12px',
           }}>Aller à {f.nom} →</Link>
         ))}
+        <button onClick={verrouiller} style={{
+          display: 'inline-block', marginLeft: '8px', fontSize: '12px', color: '#94a3b8', background: 'none',
+          border: '1px solid #2d3148', borderRadius: '20px', padding: '5px 12px', cursor: 'pointer',
+        }}>🔒 Verrouiller</button>
       </div>
 
       {carte && (

@@ -4,6 +4,7 @@ import NotionPage from './pages/NotionPage'
 import Taches from './pages/Taches'
 import Notes from './pages/Notes'
 import Memoriser from './pages/Memoriser'
+import Verrou from './components/Verrou'
 import './App.css'
 
 function TachesRoute() {
@@ -25,17 +26,19 @@ function MemoriserRoute() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home key="lebbar" foyerId="lebbar" />} />
-      <Route path="/idrissi" element={<Home key="idrissi" foyerId="idrissi" />} />
-      <Route path="/notion/:id" element={<NotionPage />} />
-      <Route path="/taches" element={<Navigate to="/taches/perso" replace />} />
-      <Route path="/taches/:espace" element={<TachesRoute />} />
-      <Route path="/notes" element={<Navigate to="/notes/perso" replace />} />
-      <Route path="/notes/:espace" element={<NotesRoute />} />
-      <Route path="/memoriser" element={<Navigate to="/memoriser/perso" replace />} />
-      <Route path="/memoriser/:espace" element={<MemoriserRoute />} />
-    </Routes>
+    <Verrou>
+      <Routes>
+        <Route path="/" element={<Home key="lebbar" foyerId="lebbar" />} />
+        <Route path="/idrissi" element={<Home key="idrissi" foyerId="idrissi" />} />
+        <Route path="/notion/:id" element={<NotionPage />} />
+        <Route path="/taches" element={<Navigate to="/taches/perso" replace />} />
+        <Route path="/taches/:espace" element={<TachesRoute />} />
+        <Route path="/notes" element={<Navigate to="/notes/perso" replace />} />
+        <Route path="/notes/:espace" element={<NotesRoute />} />
+        <Route path="/memoriser" element={<Navigate to="/memoriser/perso" replace />} />
+        <Route path="/memoriser/:espace" element={<MemoriserRoute />} />
+      </Routes>
+    </Verrou>
   )
 }
 
