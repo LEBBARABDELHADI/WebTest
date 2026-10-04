@@ -6,6 +6,12 @@ export const FOYERS = {
   idrissi: { id: 'idrissi', nom: 'Home Idrissi', accueil: '/idrissi', préfixe: 'idrissi-' },
 }
 
+// Foyer auquel appartient un identifiant d'espace (« idrissi-pro » → idrissi).
+export function foyerDeLEspace(espaceId = '') {
+  const foyer = Object.values(FOYERS).find(f => f.préfixe && espaceId.startsWith(f.préfixe))
+  return foyer ? foyer.id : 'lebbar'
+}
+
 // Construit les entrées de configuration d'une page pour tous les foyers.
 // `créer(foyer, type, id)` renvoie la config spécifique à la page.
 export function espacesPourTousLesFoyers(créer) {

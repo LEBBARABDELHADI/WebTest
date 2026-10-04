@@ -1,12 +1,17 @@
 import { useState } from 'react'
 import { useTheme, grotesk, serif } from '../lib/theme'
+import { FOYERS } from '../lib/foyers'
 
-// Le dépôt est public : on n'y met jamais le mot de passe en clair, seulement
-// son empreinte SHA-256 (salée). C'est un verrou d'accès côté navigateur, pas
-// une protection des données (les fichiers JSON restent lisibles sur GitHub).
+// Le dépôt est public : on n'y met jamais les mots de passe en clair,
+// seulement leur empreinte SHA-256 (salée), une par foyer. C'est un verrou
+// d'accès côté navigateur, pas une protection des données (les fichiers
+// JSON restent lisibles sur GitHub).
 const SEL = 'react-blocs:'
-const EMPREINTE = '905acc0a373e3812fa271365d0636a7587472d3445253722bea2e7062527f172'
-const CLÉ_ACCÈS = 'react-blocs-acces'
+const EMPREINTES = {
+  lebbar: '8b3b3ef272dbec4908e0cea0c60cefdfd5b9ec1f2e4933c80104de2a57bc9515',
+  idrissi: '905acc0a373e3812fa271365d0636a7587472d3445253722bea2e7062527f172',
+}
+const cléAccès = foyerId => `react-blocs-acces-${foyerId}`
 
 async function empreinte(motDePasse) {
   const octets = new TextEncoder().encode(SEL + motDePasse)
@@ -14,18 +19,23 @@ async function empreinte(motDePasse) {
   return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-function accèsMémorisé() {
-  try { return localStorage.getItem(CLÉ_ACCÈS) === EMPREINTE } catch { return false }
+function accèsMémorisé(foyerId) {
+  try { return localStorage.getItem(cléAccès(foyerId)) === EMPREINTES[foyerId] } catch { return false }
 }
 
 export function verrouiller() {
-  try { localStorage.removeItem(CLÉ_ACCÈS) } catch { /* ignore */ }
+  try {
+    Object.keys(EMPREINTES).forEach(f => localStorage.removeItem(cléAccès(f)))
+    localStorage.removeItem('react-blocs-acces')
+  } catch { /* ignore */ }
   window.location.reload()
 }
 
-export default function Verrou({ children }) {
+// `foyers` : foyers dont l'accès suffit à ouvrir la page (un seul pour les
+// pages d'un foyer, les deux pour les pages communes comme les notions).
+export default function Verrou({ foyers, children }) {
   const T = useTheme()
-  const [ouvert, setOuvert] = useState(accèsMémorisé)
+  const [ouvert, setOuvert] = useState(() => foyers.some(accèsMémorisé))
   const [saisie, setSaisie] = useState('')
   const [erreur, setErreur] = useState('')
   const [enCours, setEnCours] = useState(false)
@@ -40,10 +50,11 @@ export default function Verrou({ children }) {
       return
     }
     setEnCours(true)
-    const correct = (await empreinte(saisie)) === EMPREINTE
+    const saisieHachée = await empreinte(saisie)
     setEnCours(false)
-    if (correct) {
-      try { localStorage.setItem(CLÉ_ACCÈS, EMPREINTE) } catch { /* ignore */ }
+    const foyerOuvert = foyers.find(f => EMPREINTES[f] === saisieHachée)
+    if (foyerOuvert) {
+      try { localStorage.setItem(cléAccès(foyerOuvert), saisieHachée) } catch { /* ignore */ }
       setOuvert(true)
     } else {
       setErreur('Mot de passe incorrect')
@@ -62,7 +73,7 @@ export default function Verrou({ children }) {
           Accès privé
         </h1>
         <p style={{ fontSize: '12.5px', color: T.textMuted, margin: '0 0 18px' }}>
-          Home Lebbar · Home Idrissi
+          {foyers.map(f => FOYERS[f].nom).join(' · ')}
         </p>
         <input
           type="password"
