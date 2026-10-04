@@ -8,7 +8,17 @@ import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSyn
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
-import { analyserTexte, TexteFormaté, texteBrut, lireTexte } from '../lib/texteFormate'
+import {
+  analyserTexte, TexteFormaté, texteBrut, lireTexte,
+  lirePréférencesVoix, enregistrerPréférencesVoix, useVoixFrançaises,
+} from '../lib/texteFormate'
+
+const RÉGIONS = { fr: '', 'fr-fr': 'France', 'fr-ca': 'Canada', 'fr-be': 'Belgique', 'fr-ch': 'Suisse' }
+
+function libelléVoix(v) {
+  const région = RÉGIONS[v.lang.toLowerCase().replace('_', '-')] ?? v.lang
+  return région ? `${v.name} · ${région}` : v.name
+}
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 
 const DONNÉES = {
@@ -246,6 +256,16 @@ export default function Memoriser() {
   const [niveauIndice, setNiveauIndice] = useState(0)
   const [réponseSaisie, setRéponseSaisie] = useState('')
   const [écoute, setÉcoute] = useState(false)
+  const [préférencesVoix, setPréférencesVoix] = useState(lirePréférencesVoix)
+  const [réglagesVoixOuverts, setRéglagesVoixOuverts] = useState(false)
+  const voixDisponibles = useVoixFrançaises()
+
+  const majPréférencesVoix = changement => {
+    const nouvelles = { ...préférencesVoix, ...changement }
+    setPréférencesVoix(nouvelles)
+    enregistrerPréférencesVoix(nouvelles)
+    return nouvelles
+  }
 
   const shaRef = useRef(null)
   const syncTimeoutRef = useRef(null)
@@ -1000,7 +1020,84 @@ export default function Memoriser() {
                       background: 'transparent', border: `1px solid ${T.border}`, borderRadius: '50%', cursor: 'pointer', fontSize: '12px',
                     }}
                   >🔊</button>
+                  <button
+                    onClick={() => setRéglagesVoixOuverts(o => !o)}
+                    title="Choisir la voix"
+                    style={{
+                      height: '26px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontFamily: grotesk,
+                      background: réglagesVoixOuverts ? T.accentSoft : 'transparent', color: réglagesVoixOuverts ? T.accent : T.textMuted,
+                      border: `1px solid ${réglagesVoixOuverts ? T.accent : T.border}`, borderRadius: '20px', padding: '0 10px', cursor: 'pointer',
+                    }}
+                  >🗣️ Voix</button>
                 </div>
+              </div>
+            )}
+
+            {réglagesVoixOuverts && indexRévision < fileRévision.length && (
+              <div style={{
+                background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px',
+                padding: '14px', marginBottom: '14px', display: 'flex', flexDirection: 'column', gap: '12px',
+              }}>
+                <div>
+                  <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 6px', fontFamily: grotesk }}>
+                    Voix ({voixDisponibles.length} disponible{voixDisponibles.length > 1 ? 's' : ''} sur cet appareil)
+                  </p>
+                  {voixDisponibles.length === 0 ? (
+                    <p style={{ fontSize: '12px', color: T.textMuted, margin: 0, lineHeight: '1.5' }}>
+                      Aucune voix française détectée : la voix par défaut du navigateur est utilisée.
+                    </p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '220px', overflowY: 'auto' }}>
+                      {[{ voiceURI: '', name: 'Par défaut', lang: 'fr' }, ...voixDisponibles].map(v => {
+                        const choisie = préférencesVoix.voix === v.voiceURI
+                        return (
+                          <div key={v.voiceURI || 'défaut'} style={{
+                            display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 6px 6px 10px', borderRadius: '8px',
+                            background: choisie ? T.accentSoft : T.surface2, border: `1px solid ${choisie ? T.accent : T.border}`,
+                          }}>
+                            <button
+                              onClick={() => majPréférencesVoix({ voix: v.voiceURI })}
+                              style={{
+                                flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', padding: '2px 0',
+                                cursor: 'pointer', fontSize: '12.5px', color: choisie ? T.accent : T.text,
+                                fontWeight: choisie ? 700 : 400, fontFamily: 'inherit',
+                              }}
+                            >{choisie ? '● ' : ''}{v.voiceURI ? libelléVoix(v) : 'Par défaut'}</button>
+                            <button
+                              onClick={() => lireTexte('Liberté, égalité, fraternité.', { ...préférencesVoix, voix: v.voiceURI })}
+                              title="Écouter un extrait"
+                              style={{
+                                width: '28px', height: '28px', flexShrink: 0, background: 'transparent',
+                                border: `1px solid ${T.border}`, borderRadius: '50%', cursor: 'pointer', fontSize: '12px',
+                              }}
+                            >▶︎</button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+                {[
+                  { clé: 'vitesse', libellé: 'Vitesse', valeurs: ['Lente', 'Rapide'] },
+                  { clé: 'hauteur', libellé: 'Hauteur', valeurs: ['Grave', 'Aiguë'] },
+                ].map(({ clé, libellé, valeurs }) => (
+                  <div key={clé}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>{libellé}</span>
+                      <span style={{ fontSize: '11px', color: T.text, fontFamily: grotesk }}>× {préférencesVoix[clé].toFixed(1)}</span>
+                    </div>
+                    <input
+                      type="range" min="0.5" max="1.5" step="0.1"
+                      value={préférencesVoix[clé]}
+                      onChange={e => majPréférencesVoix({ [clé]: parseFloat(e.target.value) })}
+                      onPointerUp={() => lireTexte('Liberté, égalité, fraternité.')}
+                      style={{ width: '100%', accentColor: T.accent }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: T.textMuted }}>
+                      <span>{valeurs[0]}</span><span>{valeurs[1]}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
