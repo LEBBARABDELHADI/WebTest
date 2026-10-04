@@ -13,6 +13,7 @@ import {
   lirePréférencesVoix, enregistrerPréférencesVoix, useVoix, STYLES_VOIX, nomDeLangue, qualitéVoix,
 } from '../lib/texteFormate'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
+import CarteBulles from '../components/CarteBulles'
 
 const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
 
@@ -263,6 +264,7 @@ export default function Memoriser() {
   const [écoute, setÉcoute] = useState(false)
   const [préférencesVoix, setPréférencesVoix] = useState(lirePréférencesVoix)
   const [réglagesVoixOuverts, setRéglagesVoixOuverts] = useState(false)
+  const [carteBullesId, setCarteBullesId] = useState(null)
   const { françaises: voixFrançaises, autres: voixAutres } = useVoix()
   const voixDisponibles = préférencesVoix.autresLangues ? [...voixFrançaises, ...voixAutres] : voixFrançaises
 
@@ -902,6 +904,7 @@ export default function Memoriser() {
                                     </p>
                                     <p style={{ margin: '2px 0 0', fontSize: '11.5px', wordBreak: 'break-word' }}><TexteFormaté texte={carte.verso} couleurDéfaut={T.textMuted} /></p>
                                   </div>
+                                  <BoutonIcone icon="bulles" title="Voir en bulles" taille={13} onClick={() => setCarteBullesId(carte.id)} />
                                   <BoutonIcone icon="crayon" title="Modifier" taille={13} onClick={() => démarrerÉditionCarte(carte)} />
                                   <BoutonIcone icon="dupliquer" title="Dupliquer" taille={13} onClick={() => dupliquerCarte(carte)} />
                                   <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} taille={13} onClick={() => supprimerCarte(carte.id)} />
@@ -1028,6 +1031,17 @@ export default function Memoriser() {
                       background: 'transparent', border: `1px solid ${T.border}`, borderRadius: '50%', cursor: 'pointer', fontSize: '12px',
                     }}
                   >🔊</button>
+                  {estRetournée && !estQCM && (
+                    <button
+                      onClick={() => setCarteBullesId(carteActuelle?.id)}
+                      title="Voir la réponse en bulles"
+                      style={{
+                        height: '26px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontFamily: grotesk,
+                        background: 'transparent', color: T.textMuted, border: `1px solid ${T.border}`,
+                        borderRadius: '20px', padding: '0 10px', cursor: 'pointer',
+                      }}
+                    ><Icon nom="bulles" taille={12} /> Bulles</button>
+                  )}
                   <button
                     onClick={() => setRéglagesVoixOuverts(o => !o)}
                     title="Choisir la voix"
@@ -1351,6 +1365,9 @@ export default function Memoriser() {
           </div>
         )}
       </div>
+      {carteBullesId && data.cartes.find(c => c.id === carteBullesId) && (
+        <CarteBulles carte={data.cartes.find(c => c.id === carteBullesId)} onFermer={() => setCarteBullesId(null)} />
+      )}
     </div>
   )
 }
