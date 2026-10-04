@@ -92,13 +92,26 @@ export function enregistrerPréférencesVoix(préférences) {
 
 const estFrançaise = v => v.lang.toLowerCase().startsWith('fr')
 
+// Sur iPhone/Mac, une voix téléchargée en meilleure qualité garde le même
+// nom que la version de base : seule l'adresse interne (voiceURI) l'indique.
+// 2 = Premium, 1 = Améliorée, 0 = standard.
+export function qualitéVoix(v) {
+  const id = `${v.voiceURI} ${v.name}`.toLowerCase()
+  if (id.includes('premium')) return 2
+  if (id.includes('enhanced') || id.includes('améliorée') || id.includes('natural') || id.includes('neural')) return 1
+  return 0
+}
+
 // Voix installées sur l'appareil : les françaises d'abord, puis (si
 // demandé) celles des autres langues, qui lisent le français avec leur
 // accent. La liste arrive parfois après le chargement de la page (Chrome),
 // d'où l'écoute de « voiceschanged ».
 export function useVoix() {
   const lire = () => [...(window.speechSynthesis?.getVoices() || [])]
-    .sort((a, b) => (estFrançaise(b) - estFrançaise(a)) || a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name))
+    .sort((a, b) => (estFrançaise(b) - estFrançaise(a))
+      || (qualitéVoix(b) - qualitéVoix(a))
+      || a.lang.localeCompare(b.lang)
+      || a.name.localeCompare(b.name))
   const [voix, setVoix] = useState(lire)
   useEffect(() => {
     const synthèse = window.speechSynthesis

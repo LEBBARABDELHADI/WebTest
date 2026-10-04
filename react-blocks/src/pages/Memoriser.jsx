@@ -10,17 +10,20 @@ import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import {
   analyserTexte, TexteFormaté, texteBrut, lireTexte,
-  lirePréférencesVoix, enregistrerPréférencesVoix, useVoix, STYLES_VOIX, nomDeLangue,
+  lirePréférencesVoix, enregistrerPréférencesVoix, useVoix, STYLES_VOIX, nomDeLangue, qualitéVoix,
 } from '../lib/texteFormate'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 
 const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
 
-// « Amélie · français (Canada) » ; les voix déjà nommées avec leur langue
-// (« Google français ») ne répètent pas l'information.
+// « Audrey ★ Premium · français (France) » ; les voix déjà nommées avec leur
+// langue (« Google français ») ne la répètent pas.
+const LIBELLÉS_QUALITÉ = ['', ' ✦ Améliorée', ' ★ Premium']
+
 function libelléVoix(v) {
   const langue = nomDeLangue(v.lang)
-  return v.name.toLowerCase().includes(langue.split(' ')[0]) ? v.name : `${v.name} · ${langue}`
+  const nom = v.name.replace(/\s*\((premium|enhanced|améliorée)\)\s*/i, '') + LIBELLÉS_QUALITÉ[qualitéVoix(v)]
+  return v.name.toLowerCase().includes(langue.split(' ')[0]) ? nom : `${nom} · ${langue}`
 }
 
 const DONNÉES = {
