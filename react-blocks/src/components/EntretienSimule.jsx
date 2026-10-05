@@ -4,6 +4,7 @@ import { TexteFormaté, texteBrut, direTexte, déverrouillerAudio, bip } from '.
 import { écouter, autoriserMicro, dictéeDisponible, useÉcranAllumé } from '../lib/ecoute'
 import { vérifierMotsClés, normaliser } from '../lib/motsCles'
 import Icon from './Icon'
+import { ImageCarte } from './ImageCarte'
 
 function mélanger(tableau) {
   const copie = [...tableau]
@@ -239,6 +240,7 @@ export default function EntretienSimule({ cartes, titre, onFermer, onRetravaille
               <p style={{ fontFamily: serif, fontSize: '19px', lineHeight: 1.45, margin: 0, wordBreak: 'break-word' }}>
                 {questionÉcrite ? <TexteFormaté texte={carte.recto} couleurDéfaut={T.text} /> : <span style={{ color: T.textMuted }}>Écoute la question…</span>}
               </p>
+              {questionÉcrite && carte.imageRecto && <ImageCarte image={carte.imageRecto} hauteurMax={180} />}
 
               {état === 'question' && <p style={{ margin: 0, fontSize: '13px', color: T.textMuted }}>🗣️ L'examinateur parle…</p>}
 

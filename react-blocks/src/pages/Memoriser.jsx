@@ -13,7 +13,10 @@ import {
   lirePréférencesVoix, enregistrerPréférencesVoix, useVoix, STYLES_VOIX, nomDeLangue, qualitéVoix,
 } from '../lib/texteFormate'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
-import CarteBulles from '../components/CarteBulles'
+import CarteBulles, { aDesPuces } from '../components/CarteBulles'
+import DecoupeCarte from '../components/DecoupeCarte'
+import CopiePaquet from '../components/CopiePaquet'
+import { ImageCarte, ChampImage } from '../components/ImageCarte'
 import ModePodcast from '../components/ModePodcast'
 import ModeLecture from '../components/ModeLecture'
 import EntretienSimule from '../components/EntretienSimule'
@@ -202,6 +205,10 @@ export default function Memoriser() {
   const [éditionCarteId, setÉditionCarteId] = useState(null)
   const [éditionRecto, setÉditionRecto] = useState('')
   const [éditionVerso, setÉditionVerso] = useState('')
+  const [éditionImageRecto, setÉditionImageRecto] = useState(null)
+  const [éditionImageVerso, setÉditionImageVerso] = useState(null)
+  const [découpeCarteId, setDécoupeCarteId] = useState(null)
+  const [copiePaquetId, setCopiePaquetId] = useState(null)
 
   const [vue, setVue] = useState('liste') // 'liste' | 'revision'
   const [paquetRévisionId, setPaquetRévisionId] = useState(null) // null = tous les paquets
@@ -402,6 +409,8 @@ export default function Memoriser() {
     setÉditionCarteId(carte.id)
     setÉditionRecto(carte.recto)
     setÉditionVerso(carte.verso)
+    setÉditionImageRecto(carte.imageRecto || null)
+    setÉditionImageVerso(carte.imageVerso || null)
   }
 
   const validerÉditionCarte = id => {
@@ -409,7 +418,52 @@ export default function Memoriser() {
     const verso = éditionVerso.trim()
     setÉditionCarteId(null)
     if (!recto || !verso) return
-    setData(d => ({ ...d, cartes: d.cartes.map(c => c.id === id ? { ...c, recto, verso } : c) }))
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => {
+        if (c.id !== id) return c
+        const maj = { ...c, recto, verso, imageRecto: éditionImageRecto, imageVerso: éditionImageVerso }
+        if (!maj.imageRecto) delete maj.imageRecto
+        if (!maj.imageVerso) delete maj.imageVerso
+        return maj
+      }),
+    }))
+  }
+
+  // Remplace une longue carte par plusieurs petites (placées juste après elle),
+  // chacune repartant de zéro dans la répétition espacée.
+  const découperCarte = (origine, morceaux, supprimerOrigine) => {
+    const aujourd = aujourdhuiISO()
+    const nouvelles = morceaux.map(m => ({
+      id: uid(), paquetId: origine.paquetId, recto: m.recto.trim(), verso: m.verso.trim(),
+      niveau: 0, prochaineRevision: aujourd,
+      ...(origine.imageRecto ? { imageRecto: origine.imageRecto } : {}),
+    }))
+    setData(d => {
+      const cartes = [...d.cartes]
+      cartes.splice(cartes.findIndex(c => c.id === origine.id) + 1, 0, ...nouvelles)
+      return { ...d, cartes: supprimerOrigine ? cartes.filter(c => c.id !== origine.id) : cartes }
+    })
+    setDécoupeCarteId(null)
+  }
+
+  // Copie un paquet dans le fichier d'un autre espace (autre foyer, ou
+  // perso ↔ pro) : lecture de sa version GitHub, ajout, écriture.
+  const copierPaquetVers = async (paquet, espaceId) => {
+    const destination = ESPACES[espaceId]
+    const { data: distant, sha } = await lireDepuisGitHub(token, destination.chemin)
+    const base = complète(distant)
+    const nomsPris = new Set(base.paquets.map(p => p.nom))
+    let nom = paquet.nom
+    for (let n = 2; nomsPris.has(nom); n++) nom = `${paquet.nom} (${n})`
+    const nouveauId = uid()
+    const cartes = data.cartes
+      .filter(c => c.paquetId === paquet.id)
+      .map(c => ({ ...c, id: uid(), paquetId: nouveauId, niveau: 0, prochaineRevision: aujourdhuiISO(), fautesConsécutives: 0 }))
+    const fusion = { ...base, paquets: [...base.paquets, { id: nouveauId, nom, couleur: paquet.couleur }], cartes: [...base.cartes, ...cartes] }
+    await écrireVersGitHub(fusion, token, sha, destination.chemin)
+    try { localStorage.setItem(destination.stockage, JSON.stringify(fusion)) } catch { /* ignore */ }
+    return { nom }
   }
 
   const cartesDues = paquetId => {
@@ -758,7 +812,7 @@ export default function Memoriser() {
                         )}
                         <BoutonIcone icon="crayon" title="Renommer ce paquet" taille={13} onClick={() => démarrerÉditionPaquet(paquet)} />
                         <BoutonIcone icon="telecharger" title="Exporter en .txt pour se faire interroger" taille={13} onClick={() => exporterPourInterroger(paquet)} />
-                        <BoutonIcone icon="dupliquer" title="Dupliquer ce paquet" taille={13} onClick={() => dupliquerPaquet(paquet)} />
+                        <BoutonIcone icon="dupliquer" title="Dupliquer ou copier vers un autre espace" taille={13} onClick={() => setCopiePaquetId(paquet.id)} />
                         <BoutonIcone icon="corbeille" title="Supprimer ce paquet" couleur={T.danger} taille={13} onClick={() => supprimerPaquet(paquet.id, paquet.nom)} />
                         <BoutonIcone icon={ouvert ? 'chevronHaut' : 'chevronBas'} title={ouvert ? 'Replier' : 'Voir les cartes'} taille={13} onClick={() => basculerPaquetOuvert(paquet.id)} />
                       </div>
@@ -847,6 +901,7 @@ export default function Memoriser() {
                                       }}
                                     />
                                     <OutilsTexte T={T} obtenirInput={() => refÉditionRecto.current} valeur={éditionRecto} setValeur={setÉditionRecto} />
+                                    <ChampImage image={éditionImageRecto} onChange={setÉditionImageRecto} token={token} libellé="Image côté question" />
                                   </div>
                                   <div>
                                     <input
@@ -861,6 +916,7 @@ export default function Memoriser() {
                                       }}
                                     />
                                     <OutilsTexte T={T} obtenirInput={() => refÉditionVerso.current} valeur={éditionVerso} setValeur={setÉditionVerso} />
+                                    <ChampImage image={éditionImageVerso} onChange={setÉditionImageVerso} token={token} libellé="Image côté réponse" />
                                   </div>
                                   <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                                     <button onClick={() => setÉditionCarteId(null)} style={{ fontSize: '12px', color: T.textMuted, background: 'none', border: 'none', cursor: 'pointer' }}>Annuler</button>
@@ -870,6 +926,9 @@ export default function Memoriser() {
                               ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <div style={{ flex: 1, minWidth: 0 }}>
+                                    {(carte.imageRecto || carte.imageVerso) && (
+                                      <ImageCarte image={carte.imageRecto || carte.imageVerso} hauteurMax={56} style={{ margin: '0 0 6px', maxWidth: '96px' }} />
+                                    )}
                                     <p style={{ margin: 0, fontSize: '12.5px', wordBreak: 'break-word' }}>
                                       {(carte.fautesConsécutives || 0) >= SEUIL_POINT_FAIBLE && <span title="Point faible" style={{ marginRight: '4px' }}>⚠️</span>}
                                       <TexteFormaté texte={carte.recto} couleurDéfaut={T.text} />
@@ -877,6 +936,9 @@ export default function Memoriser() {
                                     <p style={{ margin: '2px 0 0', fontSize: '11.5px', wordBreak: 'break-word' }}><TexteFormaté texte={carte.verso} couleurDéfaut={T.textMuted} /></p>
                                   </div>
                                   <BoutonIcone icon="bulles" title="Voir en bulles" taille={13} onClick={() => setCarteBullesId(carte.id)} />
+                                  {aDesPuces(carte.verso) && (
+                                    <BoutonIcone icon="ciseaux" title="Découper en petites cartes" taille={13} onClick={() => setDécoupeCarteId(carte.id)} />
+                                  )}
                                   <BoutonIcone icon="crayon" title="Modifier" taille={13} onClick={() => démarrerÉditionCarte(carte)} />
                                   <BoutonIcone icon="dupliquer" title="Dupliquer" taille={13} onClick={() => dupliquerCarte(carte)} />
                                   <BoutonIcone icon="corbeille" title="Supprimer" couleur={T.danger} taille={13} onClick={() => supprimerCarte(carte.id)} />
@@ -1197,6 +1259,7 @@ export default function Memoriser() {
                   </p>
                   <p style={{ fontSize: '17px', lineHeight: '1.5', margin: 0, fontFamily: serif, wordBreak: 'break-word' }}>
                     <TexteFormaté texte={carteActuelle?.recto} couleurDéfaut={T.text} />
+                    {carteActuelle?.imageRecto && <ImageCarte image={carteActuelle.imageRecto} hauteurMax={180} style={{ marginTop: '12px' }} />}
                   </p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1237,6 +1300,9 @@ export default function Memoriser() {
                     <p style={{ fontSize: '19px', lineHeight: '1.5', margin: 0, fontFamily: serif, wordBreak: 'break-word' }}>
                       <TexteFormaté texte={estRetournée ? carteActuelle?.verso : carteActuelle?.recto} couleurDéfaut={T.text} />
                     </p>
+                    {(estRetournée ? carteActuelle?.imageVerso : carteActuelle?.imageRecto) && (
+                      <ImageCarte image={estRetournée ? carteActuelle.imageVerso : carteActuelle.imageRecto} hauteurMax={220} style={{ marginTop: '14px' }} />
+                    )}
                     {!estRetournée && (
                       <p style={{ fontSize: '11px', color: T.textMuted, margin: '18px 0 0' }}>Touche la carte pour voir la réponse</p>
                     )}
@@ -1347,6 +1413,26 @@ export default function Memoriser() {
           </div>
         )}
       </div>
+      {découpeCarteId && data.cartes.find(c => c.id === découpeCarteId) && (
+        <DecoupeCarte
+          carte={data.cartes.find(c => c.id === découpeCarteId)}
+          onValider={(morceaux, supprimer) => découperCarte(data.cartes.find(c => c.id === découpeCarteId), morceaux, supprimer)}
+          onFermer={() => setDécoupeCarteId(null)}
+        />
+      )}
+      {copiePaquetId && data.paquets.find(p => p.id === copiePaquetId) && (
+        <CopiePaquet
+          paquet={data.paquets.find(p => p.id === copiePaquetId)}
+          nbCartes={data.cartes.filter(c => c.paquetId === copiePaquetId).length}
+          destinations={Object.values(ESPACES).filter(e => e.id !== config.id).map(e => ({
+            id: e.id, libellé: `${FOYERS[e.foyer].nom} · ${e.type === 'perso' ? 'Perso' : 'Pro'}`,
+          }))}
+          peutCopier={!!token}
+          onDupliquerIci={() => dupliquerPaquet(data.paquets.find(p => p.id === copiePaquetId))}
+          onCopier={espaceId => copierPaquetVers(data.paquets.find(p => p.id === copiePaquetId), espaceId)}
+          onFermer={() => setCopiePaquetId(null)}
+        />
+      )}
       {modeVocal?.type === 'lecture' && (
         <ModeLecture
           cartes={data.cartes.filter(c => c.paquetId === modeVocal.paquetId)}

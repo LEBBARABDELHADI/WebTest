@@ -73,3 +73,33 @@ export async function écrireVersGitHub(data, token, shaConnu, chemin) {
   const json = await res.json()
   return { sha: json.content.sha }
 }
+
+// Envoie un fichier binaire déjà encodé en base64 (image de carte) comme
+// nouveau fichier du dépôt. Nécessite le token en écriture.
+export async function envoyerFichier(chemin, base64, token, message) {
+  if (!token) throw new Error('Token manquant')
+  let res
+  try {
+    res = await fetch(`${API_BASE}/${chemin}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message, content: base64, branch: BRANCHE }),
+    })
+  } catch {
+    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
+  }
+  if (!res.ok) {
+    if (res.status === 401) throw new Error('Token invalide ou expiré')
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.message || `Envoi impossible (${res.status})`)
+  }
+}
+
+// Adresse publique d'un fichier du dépôt (les images des cartes).
+export function adresseBrute(chemin) {
+  return `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${BRANCHE}/${chemin}`
+}

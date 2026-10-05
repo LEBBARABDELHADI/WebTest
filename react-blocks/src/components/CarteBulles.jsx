@@ -31,6 +31,12 @@ export function découperRéponse(verso) {
   return [brut.trim()]
 }
 
+// Réponse écrite en « - élément - élément » ou sur plusieurs lignes : se
+// lit en liste à puces (mode lecture) et peut être découpée en cartes.
+export function aDesPuces(verso) {
+  return /\n|(?:^|\s)[-•–](?!>)/.test(verso || '') && découperRéponse(verso).length >= 2
+}
+
 const ANIMATIONS = `
 @keyframes bulleApparait { from { opacity: 0; transform: scale(.3) } 70% { transform: scale(1.08) } to { opacity: 1; transform: scale(1) } }
 @keyframes bulleFlotte { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }

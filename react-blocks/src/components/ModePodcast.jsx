@@ -3,6 +3,7 @@ import { useTheme, grotesk, serif } from '../lib/theme'
 import { TexteFormaté, direTexte, déverrouillerAudio } from '../lib/texteFormate'
 import { useÉcranAllumé } from '../lib/ecoute'
 import Icon from './Icon'
+import { ImageCarte } from './ImageCarte'
 
 function mélanger(tableau) {
   const copie = [...tableau]
@@ -164,6 +165,7 @@ export default function ModePodcast({ cartes, titre, onFermer }) {
                 <p style={{ fontFamily: serif, fontSize: '20px', lineHeight: 1.45, margin: 0, wordBreak: 'break-word' }}>
                   <TexteFormaté texte={carte?.recto} couleurDéfaut={T.text} />
                 </p>
+                {carte?.imageRecto && <ImageCarte image={carte.imageRecto} hauteurMax={180} style={{ marginTop: '12px' }} />}
               </div>
               {étape === 'réflexion' && (
                 <div aria-live="polite" style={{ fontFamily: grotesk, color: T.accent }}>
@@ -179,6 +181,7 @@ export default function ModePodcast({ cartes, titre, onFermer }) {
                   <p style={{ fontSize: '15px', lineHeight: 1.5, margin: 0, wordBreak: 'break-word' }}>
                     <TexteFormaté texte={carte?.verso} couleurDéfaut={T.text} />
                   </p>
+                  {carte?.imageVerso && <ImageCarte image={carte.imageVerso} hauteurMax={180} style={{ marginTop: '12px' }} />}
                 </div>
               )}
             </div>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTheme, grotesk, serif } from '../lib/theme'
 import { TexteFormaté, lireTexte } from '../lib/texteFormate'
-import { découperRéponse } from './CarteBulles'
+import { découperRéponse, aDesPuces } from './CarteBulles'
+import { ImageCarte } from './ImageCarte'
 import Icon from './Icon'
 
 const CLÉ_TAILLE = 'react-blocs-lecture-taille'
@@ -10,12 +11,6 @@ const TAILLE_MAX = 23
 
 function tailleMémorisée() {
   try { return Number(localStorage.getItem(CLÉ_TAILLE)) || 16 } catch { return 16 }
-}
-
-// Une réponse écrite en « - élément - élément » (ou sur plusieurs lignes)
-// se lit mieux en liste à puces ; sinon on garde le paragraphe tel quel.
-function aDesPuces(verso) {
-  return /\n|(?:^|\s)[-•–](?!>)/.test(verso || '') && découperRéponse(verso).length >= 2
 }
 
 // Toutes les cartes d'un paquet à lire comme une fiche de cours.
@@ -102,6 +97,7 @@ export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles
                   <TexteFormaté texte={carte.recto} couleurDéfaut={T.text} />
                 </h3>
               </div>
+              {carte.imageRecto && <ImageCarte image={carte.imageRecto} hauteurMax={240} style={{ marginTop: '10px' }} />}
 
               {cachée ? (
                 <button onClick={() => révéler(carte.id)} style={{
@@ -111,6 +107,7 @@ export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles
                 }}>Touche pour voir la réponse</button>
               ) : (
                 <div style={{ marginTop: '10px', paddingLeft: '34px', fontSize: `${taille}px`, lineHeight: 1.6, wordBreak: 'break-word' }}>
+                  {carte.imageVerso && <ImageCarte image={carte.imageVerso} hauteurMax={240} style={{ margin: '0 0 10px' }} />}
                   {puces ? (
                     <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {découperRéponse(carte.verso).map((morceau, j) => (
