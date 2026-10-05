@@ -15,6 +15,7 @@ import {
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import CarteBulles from '../components/CarteBulles'
 import ModePodcast from '../components/ModePodcast'
+import ModeLecture from '../components/ModeLecture'
 import EntretienSimule from '../components/EntretienSimule'
 import { vérifierMotsClés } from '../lib/motsCles'
 
@@ -764,6 +765,11 @@ export default function Memoriser() {
 
                       {cartesPaquet.length > 0 && (
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+                          <button onClick={() => setModeVocal({ type: 'lecture', paquetId: paquet.id })} style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                            border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}>📖 Lecture</button>
                           {dues > 0 && (
                             <button onClick={() => démarrerRévision(paquet.id)} style={{
                               display: 'flex', alignItems: 'center', gap: '5px', background: T.accentSoft, color: T.accent,
@@ -1341,6 +1347,15 @@ export default function Memoriser() {
           </div>
         )}
       </div>
+      {modeVocal?.type === 'lecture' && (
+        <ModeLecture
+          cartes={data.cartes.filter(c => c.paquetId === modeVocal.paquetId)}
+          titre={data.paquets.find(p => p.id === modeVocal.paquetId)?.nom || ''}
+          couleur={data.paquets.find(p => p.id === modeVocal.paquetId)?.couleur || T.accent}
+          onFermer={() => setModeVocal(null)}
+          onBulles={setCarteBullesId}
+        />
+      )}
       {modeVocal?.type === 'podcast' && (
         <ModePodcast
           cartes={data.cartes.filter(c => c.paquetId === modeVocal.paquetId)}
