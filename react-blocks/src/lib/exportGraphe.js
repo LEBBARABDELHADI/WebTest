@@ -2,7 +2,36 @@
 // positions et des tailles réelles des bulles (mesurées à l'écran), sans
 // dépendance externe.
 
+import { CHEMIN_NUAGE } from './graphe'
+
 const MARGE = 40
+
+// Marges intérieures (horizontale, verticale) selon la forme, comme à l'écran.
+const MARGES = {
+  arrondi: [[16, 11], [18, 14]],
+  rectangle: [[16, 11], [18, 14]],
+  rond: [[24, 16], [28, 20]],
+  nuage: [[28, 20], [34, 24]],
+}
+
+// Contour de la bulle selon sa forme, en Path2D (rempli puis tracé).
+function contourBulle(b, gauche, haut) {
+  const chemin = new Path2D()
+  if (b.forme === 'rond') {
+    chemin.ellipse(b.x, b.y, b.l / 2, b.h / 2, 0, 0, 2 * Math.PI)
+  } else if (b.forme === 'nuage') {
+    chemin.addPath(new Path2D(CHEMIN_NUAGE), new DOMMatrix().translate(gauche, haut).scale(b.l / 100, b.h / 60))
+  } else {
+    const r = Math.min(b.forme === 'rectangle' ? 4 : 18, b.l / 2, b.h / 2)
+    chemin.moveTo(gauche + r, haut)
+    chemin.arcTo(gauche + b.l, haut, gauche + b.l, haut + b.h, r)
+    chemin.arcTo(gauche + b.l, haut + b.h, gauche, haut + b.h, r)
+    chemin.arcTo(gauche, haut + b.h, gauche, haut, r)
+    chemin.arcTo(gauche, haut, gauche + b.l, haut, r)
+    chemin.closePath()
+  }
+  return chemin
+}
 
 function rectangleArrondi(ctx, x, y, l, h, r) {
   const rr = Math.min(r, l / 2, h / 2)
@@ -110,23 +139,23 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
   bulles.forEach((b, i) => {
     const gauche = b.x - b.l / 2
     const haut = b.y - b.h / 2
-    rectangleArrondi(ctx, gauche, haut, b.l, b.h, 18)
+    const contour = contourBulle(b, gauche, haut)
     if (b.racine) {
       ctx.fillStyle = b.couleur
-      ctx.fill()
+      ctx.fill(contour)
     } else {
       ctx.fillStyle = couleurs.surface
-      ctx.fill()
+      ctx.fill(contour)
       ctx.globalAlpha = 0.13
       ctx.fillStyle = b.couleur
-      ctx.fill()
+      ctx.fill(contour)
       ctx.globalAlpha = 1
     }
     ctx.lineWidth = 2
     ctx.strokeStyle = b.couleur
-    ctx.stroke()
+    ctx.stroke(contour)
 
-    const marge = b.racine ? 18 : 16
+    const [marge, margeV] = (MARGES[b.forme] || MARGES.arrondi)[b.racine ? 1 : 0]
     const img = images[i]
     let hauteurImage = 0
     if (img) {
@@ -134,9 +163,9 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
       const li = img.width * r
       hauteurImage = img.height * r
       ctx.save()
-      rectangleArrondi(ctx, b.x - li / 2, haut + marge - 4, li, hauteurImage, 8)
+      rectangleArrondi(ctx, b.x - li / 2, haut + margeV, li, hauteurImage, 8)
       ctx.clip()
-      ctx.drawImage(img, b.x - li / 2, haut + marge - 4, li, hauteurImage)
+      ctx.drawImage(img, b.x - li / 2, haut + margeV, li, hauteurImage)
       ctx.restore()
       hauteurImage += 6
     }
@@ -146,10 +175,11 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
     ctx.fillStyle = b.racine ? '#1b1b1b' : couleurs.texte
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    const lignes = couperLignes(ctx, b.texte, b.l - 2 * marge)
+    // Petite tolérance : les polices du canvas mesurent un peu plus large.
+    const lignes = couperLignes(ctx, b.texte, b.l - 2 * marge + 8)
     const hauteurLigne = taillePolice * 1.35
-    const disponible = b.h - 2 * (marge - 4) - hauteurImage
-    let y = haut + (marge - 4) + hauteurImage + (disponible - lignes.length * hauteurLigne) / 2 + hauteurLigne / 2
+    const disponible = b.h - 2 * margeV - hauteurImage
+    let y = haut + margeV + hauteurImage + (disponible - lignes.length * hauteurLigne) / 2 + hauteurLigne / 2
     lignes.forEach(ligne => { ctx.fillText(ligne, b.x, y); y += hauteurLigne })
 
     if (b.badge) {

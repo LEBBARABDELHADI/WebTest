@@ -15,7 +15,7 @@ import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import { useDonnéesSynchronisées } from '../lib/synchro'
 import {
   ÉCART_X, ÉCART_Y, compléterGraphes, uid, descendants, bullesCachées, ancêtres, ranger,
-  géométrieLien, MODÈLES, ÉTIQUETTES_LIENS,
+  géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation,
 } from '../lib/graphe'
 import { exporterGraphePNG } from '../lib/exportGraphe'
 
@@ -43,7 +43,11 @@ const SENS = [['aucun', '—', 'Sans flèche'], ['vers', '→', 'Flèche vers la
 
 const ANIMATIONS = `
 @keyframes trouvée { 0%, 100% { box-shadow: 0 0 0 4px #ffd60a99, 0 0 22px #ffd60a } 50% { box-shadow: 0 0 0 9px #ffd60a33, 0 0 4px #ffd60a } }
-@media (prefers-reduced-motion: reduce) { .bulle-trouvee { animation: none !important } }
+@keyframes trouvéeNuage { 0%, 100% { filter: drop-shadow(0 0 10px #ffd60a) } 50% { filter: drop-shadow(0 0 2px #ffd60a) } }
+@keyframes apparition { from { opacity: 0; transform: translate(-50%, -50%) scale(.3) } to { opacity: 1; transform: translate(-50%, -50%) scale(1) } }
+@keyframes tracer { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+@keyframes fondu { from { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .bulle-trouvee, .anime { animation: none !important } }
 `
 
 export default function Graph() {
@@ -72,6 +76,8 @@ export default function Graph() {
   const [recherche, setRecherche] = useState(null) // { q, index } (null = fermée)
   const [exportÉtat, setExportÉtat] = useState(null) // { enCours } | { url, blob, nom }
   const [tailles, setTailles] = useState({})
+  const [présentation, setPrésentation] = useState(null) // { étape } (null = mode édition)
+  const [transitionVue, setTransitionVue] = useState(false)
   const [, setVersionHistorique] = useState(0)
 
   const zoneRef = useRef(null)
@@ -126,6 +132,12 @@ export default function Graph() {
   const liensVisibles = liens
     .filter(l => idsVisibles.has(l.de) && idsVisibles.has(l.vers))
     .map(l => ({ l, géo: géométrieLien(parId.get(l.de), parId.get(l.vers), tailleDe) }))
+
+  // En présentation, seules les bulles déjà dévoilées sont affichées.
+  const ordre = présentation ? ordrePrésentation(visibles) : []
+  const idsAffichés = présentation ? new Set(ordre.slice(0, présentation.étape + 1)) : idsVisibles
+  const affichées = visibles.filter(n => idsAffichés.has(n.id))
+  const liensAffichés = liensVisibles.filter(({ l }) => idsAffichés.has(l.de) && idsAffichés.has(l.vers))
 
   useEffect(() => {
     if (sélection && cachées.has(sélection)) setSélection(null)
@@ -188,6 +200,54 @@ export default function Graph() {
   }
   const zoomerCentre = facteur => { const { l, h } = dimensions(); zoomerAutour(facteur, l / 2, h / 2) }
 
+  // ---------- Mode présentation ----------
+  // Cadre la bulle dévoilée avec son parent et ses sœurs déjà montrées,
+  // pour voir la branche se construire ; la dernière étape montre tout.
+  const cadrerÉtape = étape => {
+    if (étape >= ordre.length) { centrer(visibles); return }
+    const n = parId.get(ordre[étape])
+    const montrées = new Set(ordre.slice(0, étape + 1))
+    const parent = n.parentId && montrées.has(n.parentId) ? parId.get(n.parentId) : null
+    const sœurs = parent ? visibles.filter(x => x.parentId === parent.id && montrées.has(x.id)) : []
+    const points = [n, ...(parent ? [parent] : []), ...sœurs]
+    const { l, h } = dimensions()
+    const xs = points.map(q => q.x)
+    const ys = points.map(q => q.y)
+    const larg = Math.max(...xs) - Math.min(...xs) + 280
+    const haut = Math.max(...ys) - Math.min(...ys) + 180
+    const zoom = Math.min(1.6, Math.max(ZOOM_MIN, Math.min(l / larg, (h - 90) / haut)))
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2
+    const cy = (Math.max(...ys) + Math.min(...ys)) / 2
+    setVue({ zoom, x: l / 2 - cx * zoom, y: (h - 70) / 2 - cy * zoom })
+  }
+  const allerÀÉtape = étape => {
+    const e = Math.max(0, Math.min(ordre.length, étape))
+    setPrésentation({ étape: e })
+    setTransitionVue(true)
+    requestAnimationFrame(() => cadrerÉtape(e))
+  }
+  const démarrerPrésentation = () => {
+    oublierSélection()
+    setRecherche(null)
+    setÉdition(null)
+    setTransitionVue(false)
+    setPrésentation({ étape: 0 })
+    document.documentElement.requestFullscreen?.().catch(() => {})
+    // Attendre que la zone passe en plein écran avant de cadrer.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const racine = parId.get(ordrePrésentation(visibles)[0])
+      if (!racine) return
+      const { l, h } = dimensions()
+      setVue({ zoom: 1.4, x: l / 2 - racine.x * 1.4, y: (h - 70) / 2 - racine.y * 1.4 })
+    }))
+  }
+  const quitterPrésentation = () => {
+    setPrésentation(null)
+    setTransitionVue(false)
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {})
+    requestAnimationFrame(() => centrer())
+  }
+
   // ---------- Annuler / rétablir (en mémoire, pour la session) ----------
   const mémoriser = () => {
     const h = historiqueRef.current
@@ -216,6 +276,15 @@ export default function Graph() {
 
   useEffect(() => {
     const surTouche = e => {
+      if (présentation) {
+        const é = présentation.étape
+        if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); allerÀÉtape(é + 1) }
+        else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); allerÀÉtape(é - 1) }
+        else if (e.key === 'Home') allerÀÉtape(0)
+        else if (e.key === 'End') allerÀÉtape(ordre.length)
+        else if (e.key === 'Escape') quitterPrésentation()
+        return
+      }
       if (e.target.closest?.('input, textarea, select') || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' && e.key.toLowerCase() !== 'y') return
       e.preventDefault()
       if (e.key.toLowerCase() === 'y' || e.shiftKey) rétablir()
@@ -296,6 +365,13 @@ export default function Graph() {
   }
   const détacher = id => majNoeuds(liste => liste.map(n => (n.id === id ? { ...n, parentId: null } : n)))
   const changerCouleur = (id, couleur) => majNoeuds(liste => liste.map(n => (n.id === id ? { ...n, couleur } : n)))
+  // Valeur par défaut = champ retiré, pour garder le JSON léger.
+  const changerChamp = (id, champ, valeur) => majNoeuds(liste => liste.map(n => {
+    if (n.id !== id) return n
+    const maj = { ...n, [champ]: valeur }
+    if (!valeur) delete maj[champ]
+    return maj
+  }))
   // Déplie des branches ; si les bulles qui réapparaissent chevauchent
   // les autres (l'arbre a été rangé pendant le repli), on range tout.
   const déplier = (liste, idsÀDéplier) => {
@@ -400,7 +476,7 @@ export default function Graph() {
         const t = tailleDe(n.id)
         const racine = estRacine(n)
         return {
-          x: n.x, y: n.y, l: t.l, h: t.h, texte: texteBrut(n.texte), racine,
+          x: n.x, y: n.y, l: t.l, h: t.h, texte: `${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}`, racine, forme: n.forme || 'arrondi',
           couleur: n.couleur || (racine ? T.accent : T.border),
           image: n.image ? adresseImage(n.image) : null,
           badge: n.replié ? `+${descendants(noeuds, n.id).size}` : null,
@@ -456,6 +532,11 @@ export default function Graph() {
     if (p.length === 2) {
       const milieu = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 }
       gesteRef.current = { type: 'pincer', dist0: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), milieu0: milieu, vue0: vueRef.current }
+      return
+    }
+    if (présentation) {
+      setTransitionVue(false)
+      gesteRef.current = { type: 'fond', départ: { x: e.clientX, y: e.clientY }, vue0: vueRef.current, déplacé: false, trait: null }
       return
     }
     const bulle = e.target.closest('[data-noeud]')
@@ -521,6 +602,12 @@ export default function Graph() {
     }
     if (pointeursRef.current.size === 0) gesteRef.current = null
     if (g.déplacé) return
+    if (présentation) {
+      // Toucher le quart gauche revient en arrière, le reste avance.
+      const { l, gauche } = dimensions()
+      allerÀÉtape(présentation.étape + (e.clientX - gauche < l / 4 ? -1 : 1))
+      return
+    }
     if (g.type === 'bulle') touche(g.id)
     else if (g.trait && !liaison && !rattachement) { setTraitChoisi(g.trait); setSélection(null); setPaletteOuverte(false) }
     else oublierSélection()
@@ -551,11 +638,12 @@ export default function Graph() {
   const boutonBandeau = { background: 'rgba(0,0,0,.15)', color: 'inherit', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', fontWeight: 700 }
   const court = n => texteBrut(n.texte).split('\n')[0].slice(0, 22)
 
+  const plein = agrandi || !!présentation
   const canevas = (
     <div style={{
-      position: agrandi ? 'fixed' : 'relative', inset: agrandi ? 0 : undefined, zIndex: agrandi ? 1000 : undefined,
-      flex: agrandi ? undefined : 1, minHeight: agrandi ? undefined : '440px',
-      borderRadius: agrandi ? 0 : '14px', border: agrandi ? 'none' : `1px solid ${T.border}`, overflow: 'hidden', background: T.bg,
+      position: plein ? 'fixed' : 'relative', inset: plein ? 0 : undefined, zIndex: plein ? 1000 : undefined,
+      flex: plein ? undefined : 1, minHeight: plein ? undefined : '440px',
+      borderRadius: plein ? 0 : '14px', border: plein ? 'none' : `1px solid ${T.border}`, overflow: 'hidden', background: T.bg,
     }}>
       <style>{ANIMATIONS}</style>
       <div
@@ -566,21 +654,24 @@ export default function Graph() {
         onPointerCancel={surRelâche}
         onWheel={surMolette}
         style={{
-          position: 'absolute', inset: 0, touchAction: 'none', cursor: 'grab',
-          backgroundImage: `radial-gradient(${T.border} 1.2px, transparent 1.2px)`,
+          position: 'absolute', inset: 0, touchAction: 'none', cursor: présentation ? 'pointer' : 'grab',
+          backgroundImage: présentation ? 'none' : `radial-gradient(${T.border} 1.2px, transparent 1.2px)`,
           backgroundSize: `${24 * vue.zoom}px ${24 * vue.zoom}px`,
           backgroundPosition: `${vue.x}px ${vue.y}px`,
           userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none',
         }}
       >
-        <div style={{ position: 'absolute', left: 0, top: 0, transform: `translate(${vue.x}px, ${vue.y}px) scale(${vue.zoom})`, transformOrigin: '0 0' }}>
+        <div style={{
+          position: 'absolute', left: 0, top: 0, transform: `translate(${vue.x}px, ${vue.y}px) scale(${vue.zoom})`, transformOrigin: '0 0',
+          transition: présentation && transitionVue ? 'transform .8s cubic-bezier(.45, 0, .2, 1)' : 'none',
+        }}>
           <svg width="1" height="1" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
             <defs>
               <marker id="pointe" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill={T.accent} />
               </marker>
             </defs>
-            {visibles.filter(n => n.parentId && idsVisibles.has(n.parentId)).map(n => {
+            {affichées.filter(n => n.parentId && idsAffichés.has(n.parentId)).map(n => {
               const p = parId.get(n.parentId)
               const mx = (p.x + n.x) / 2
               const d = `M ${p.x} ${p.y} C ${mx} ${p.y}, ${mx} ${n.y}, ${n.x} ${n.y}`
@@ -588,55 +679,74 @@ export default function Graph() {
               return (
                 <g key={n.id}>
                   <path d={d} fill="none" stroke={choisi ? T.accent : (n.couleur || p.couleur || T.textMuted)}
-                    strokeWidth={choisi ? 5 : 2.5} strokeLinecap="round" opacity={choisi ? 1 : 0.7} />
-                  <path d={d} data-trait="branche" data-id={n.id} fill="none" stroke="transparent" strokeWidth="22" style={{ pointerEvents: 'stroke', cursor: 'pointer' }} />
+                    strokeWidth={choisi ? 5 : 2.5} strokeLinecap="round" opacity={choisi ? 1 : 0.7}
+                    {...(présentation ? { pathLength: 1, strokeDasharray: 1, className: 'anime', style: { animation: 'tracer .6s ease-out both' } } : {})} />
+                  {!présentation && <path d={d} data-trait="branche" data-id={n.id} fill="none" stroke="transparent" strokeWidth="22" style={{ pointerEvents: 'stroke', cursor: 'pointer' }} />}
                 </g>
               )
             })}
-            {liensVisibles.map(({ l, géo }) => {
+            {liensAffichés.map(({ l, géo }) => {
               const choisi = traitChoisi?.type === 'lien' && traitChoisi.id === l.id
               const sens = l.sens || 'aucun'
               return (
-                <g key={l.id}>
+                <g key={l.id} className={présentation ? 'anime' : undefined} style={présentation ? { animation: 'fondu .7s ease-out both' } : undefined}>
                   <path d={géo.d} fill="none" stroke={T.accent} strokeWidth={choisi ? 4.5 : 2.5} strokeDasharray="7 6" strokeLinecap="round" opacity={choisi ? 1 : 0.85}
                     markerEnd={sens === 'vers' || sens === 'deux' ? 'url(#pointe)' : undefined}
                     markerStart={sens === 'deux' ? 'url(#pointe)' : undefined} />
-                  <path d={géo.d} data-trait="lien" data-id={l.id} fill="none" stroke="transparent" strokeWidth="22" style={{ pointerEvents: 'stroke', cursor: 'pointer' }} />
+                  {!présentation && <path d={géo.d} data-trait="lien" data-id={l.id} fill="none" stroke="transparent" strokeWidth="22" style={{ pointerEvents: 'stroke', cursor: 'pointer' }} />}
                 </g>
               )
             })}
           </svg>
 
-          {visibles.map(n => {
+          {affichées.map(n => {
             const racine = estRacine(n)
             const couleur = n.couleur || (racine ? T.accent : T.border)
             const choisi = sélection === n.id
             const cible = (rattachement && !interditsRattachement.has(n.id)) || (liaison && n.id !== sélection)
             const trouvée = idsTrouvés.has(n.id)
             const nbCachées = n.replié ? descendants(noeuds, n.id).size : 0
+            const forme = n.forme || 'arrondi'
+            const nuage = forme === 'nuage'
+            const couleurBord = choisi ? T.text : trouvée ? '#ffd60a' : couleur
+            const fond = racine ? couleur : `linear-gradient(${couleur}22, ${couleur}22), ${T.surface}`
+            const enCours = présentation && ordre[Math.min(présentation.étape, ordre.length - 1)] === n.id && présentation.étape < ordre.length
             return (
               <div
                 key={n.id}
                 ref={refBulle(n.id)}
                 data-noeud={n.id}
                 role="button"
-                aria-label={`Bulle : ${texteBrut(n.texte)}${nbCachées ? ` (${nbCachées} bulles repliées)` : ''}`}
+                aria-label={`Bulle : ${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}${nbCachées ? ` (${nbCachées} bulles repliées)` : ''}`}
                 aria-pressed={choisi}
-                className={actuelle?.id === n.id ? 'bulle-trouvee' : undefined}
+                className={présentation ? 'anime' : actuelle?.id === n.id ? 'bulle-trouvee' : undefined}
                 style={{
                   position: 'absolute', left: n.x, top: n.y, transform: 'translate(-50%, -50%)',
-                  minWidth: '64px', maxWidth: '210px', width: 'max-content', padding: racine ? '12px 16px' : '9px 14px',
-                  borderRadius: '18px', textAlign: 'center', cursor: 'pointer', lineHeight: 1.35,
+                  minWidth: '64px', maxWidth: '210px', width: 'max-content',
+                  padding: nuage ? (racine ? '24px 34px' : '20px 28px') : forme === 'rond' ? (racine ? '18px 26px' : '14px 22px') : (racine ? '12px 16px' : '9px 14px'),
+                  borderRadius: { arrondi: '18px', rond: '50%', rectangle: '4px', nuage: 0 }[forme],
+                  textAlign: 'center', cursor: 'pointer', lineHeight: 1.35,
                   fontSize: racine ? '15px' : '13.5px', fontWeight: racine ? 700 : 500,
                   fontFamily: racine ? serif : 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                  background: racine ? couleur : `linear-gradient(${couleur}22, ${couleur}22), ${T.surface}`,
+                  background: nuage ? 'transparent' : fond,
                   color: racine ? '#1b1b1b' : T.text,
-                  border: `2px ${cible ? 'dashed' : 'solid'} ${choisi ? T.text : trouvée ? '#ffd60a' : couleur}`,
-                  boxShadow: choisi ? `0 0 0 4px ${T.accent}55, 0 6px 18px rgba(0,0,0,.3)` : '0 3px 10px rgba(0,0,0,.18)',
-                  animation: actuelle?.id === n.id ? 'trouvée 1s ease-in-out infinite' : undefined,
+                  border: nuage ? 'none' : `2px ${cible ? 'dashed' : 'solid'} ${couleurBord}`,
+                  boxShadow: nuage ? 'none'
+                    : choisi || enCours ? `0 0 0 4px ${T.accent}55, 0 6px 18px rgba(0,0,0,.3)` : '0 3px 10px rgba(0,0,0,.18)',
+                  filter: nuage ? (choisi || enCours ? `drop-shadow(0 0 6px ${T.accent})` : 'drop-shadow(0 3px 5px rgba(0,0,0,.25))') : undefined,
+                  animation: présentation ? 'apparition .55s cubic-bezier(.2, .9, .3, 1.25) both'
+                    : actuelle?.id === n.id ? `${nuage ? 'trouvéeNuage' : 'trouvée'} 1s ease-in-out infinite` : undefined,
                 }}
               >
+                {nuage && (
+                  <svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: -1, overflow: 'visible' }}>
+                    {!racine && <path d={CHEMIN_NUAGE} fill={T.surface} />}
+                    <path d={CHEMIN_NUAGE} fill={racine ? couleur : `${couleur}22`} stroke={couleurBord} strokeWidth={choisi ? 3 : 2}
+                      strokeDasharray={cible ? '6 4' : undefined} vectorEffect="non-scaling-stroke" />
+                  </svg>
+                )}
                 {n.image && <ImageCarte image={n.image} hauteurMax={110} style={{ maxWidth: '180px', margin: '0 auto 6px', borderRadius: '8px', pointerEvents: 'none' }} />}
+                {n.icone && <span style={{ marginRight: '5px' }}>{n.icone}</span>}
                 <TexteFormaté texte={n.texte} couleurDéfaut={racine ? '#1b1b1b' : T.text} />
                 {nbCachées > 0 && (
                   <span style={{
@@ -649,22 +759,25 @@ export default function Graph() {
             )
           })}
 
-          {liensVisibles.filter(({ l }) => l.texte).map(({ l, géo }) => (
+          {liensAffichés.filter(({ l }) => l.texte).map(({ l, géo }) => (
             <div
               key={`texte-${l.id}`}
               data-trait="lien"
               data-id={l.id}
+              className={présentation ? 'anime' : undefined}
               style={{
                 position: 'absolute', left: géo.milieu.x, top: géo.milieu.y, transform: 'translate(-50%, -50%)',
                 background: T.surface, border: `1.5px solid ${T.accent}`, borderRadius: '11px', padding: '2px 8px',
                 fontSize: '11.5px', fontWeight: 600, color: T.text, whiteSpace: 'nowrap', cursor: 'pointer', fontFamily: grotesk,
                 boxShadow: traitChoisi?.id === l.id ? `0 0 0 3px ${T.accent}66` : 'none',
+                animation: présentation ? 'fondu .7s ease-out both' : undefined,
               }}
             >{l.texte}</div>
           ))}
         </div>
       </div>
 
+      {!présentation && (<>
       {/* Commandes de vue */}
       <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <button onClick={() => zoomerCentre(1.25)} aria-label="Zoomer" style={boutonFlottant()}>+</button>
@@ -730,19 +843,45 @@ export default function Graph() {
       {noeudSélectionné && !rattachement && !liaison && (
         <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))' }}>
           {paletteOuverte && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '10px', marginBottom: '6px' }}>
-              {[null, ...PALETTE].map(c => (
-                <button key={c || 'défaut'} onClick={() => changerCouleur(noeudSélectionné.id, c)} aria-label={c ? `Couleur ${c}` : 'Couleur par défaut'} style={{
-                  width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', background: c || 'transparent',
-                  border: c ? `3px solid ${noeudSélectionné.couleur === c ? T.text : 'transparent'}` : `2px dashed ${T.textMuted}`,
-                }} />
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '10px 12px', marginBottom: '6px', boxShadow: '0 6px 20px rgba(0,0,0,.3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                {[null, ...PALETTE].map(c => (
+                  <button key={c || 'défaut'} onClick={() => changerCouleur(noeudSélectionné.id, c)} aria-label={c ? `Couleur ${c}` : 'Couleur par défaut'} style={{
+                    width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', background: c || 'transparent',
+                    border: c ? `3px solid ${noeudSélectionné.couleur === c ? T.text : 'transparent'}` : `2px dashed ${T.textMuted}`,
+                  }} />
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {FORMES.map(f => {
+                  const actif = (noeudSélectionné.forme || 'arrondi') === f.id
+                  return (
+                    <button key={f.id} onClick={() => changerChamp(noeudSélectionné.id, 'forme', f.id === 'arrondi' ? null : f.id)} aria-pressed={actif} aria-label={`Forme ${f.nom}`} style={{
+                      flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '6px 2px', borderRadius: '10px', cursor: 'pointer',
+                      background: actif ? T.accent : T.surface2, color: actif ? T.accentText : T.text, border: `1px solid ${actif ? T.accent : T.border}`,
+                      fontFamily: grotesk, fontSize: '10.5px', fontWeight: 600,
+                    }}><span style={{ fontSize: '17px', lineHeight: 1 }}>{f.symbole}</span>{f.nom}</button>
+                  )
+                })}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '4px' }}>
+                {[{ emoji: null, nom: 'Sans icône' }, ...ICÔNES].map(i => {
+                  const actif = (noeudSélectionné.icone || null) === i.emoji
+                  return (
+                    <button key={i.emoji || 'aucune'} onClick={() => changerChamp(noeudSélectionné.id, 'icone', i.emoji)} aria-pressed={actif} aria-label={`Icône ${i.nom}`} title={i.nom} style={{
+                      width: '32px', height: '32px', borderRadius: '9px', cursor: 'pointer', fontSize: '16px', padding: 0, flexShrink: 0,
+                      background: actif ? `${T.accent}33` : 'transparent', border: `1.5px ${i.emoji ? 'solid' : 'dashed'} ${actif ? T.accent : i.emoji ? 'transparent' : T.textMuted}`,
+                      color: T.textMuted,
+                    }}>{i.emoji || '∅'}</button>
+                  )
+                })}
+              </div>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-around', overflowX: 'auto', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '6px 4px', boxShadow: '0 6px 20px rgba(0,0,0,.3)' }}>
             <button onClick={() => ajouterEnfant(noeudSélectionné.id)} style={action()}><span style={{ fontSize: '18px' }}>➕</span>Enfant</button>
             <button onClick={() => setÉdition({ type: 'bulle', id: noeudSélectionné.id, texte: noeudSélectionné.texte, image: noeudSélectionné.image || null })} style={action()}><span style={{ fontSize: '18px' }}>✏️</span>Texte</button>
-            <button onClick={() => setPaletteOuverte(o => !o)} style={action()}><span style={{ fontSize: '18px' }}>🎨</span>Couleur</button>
+            <button onClick={() => setPaletteOuverte(o => !o)} style={action()}><span style={{ fontSize: '18px' }}>🎨</span>Style</button>
             <button onClick={() => { setLiaison(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🔗</span>Lier</button>
             <button onClick={() => { setRattachement(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🌳</span>Parent</button>
             {noeuds.some(n => n.parentId === noeudSélectionné.id) && (
@@ -796,6 +935,31 @@ export default function Graph() {
           <p style={{ color: T.textMuted, fontSize: '13px' }}>Graphe vide — « ＋ Bulle » pour commencer.</p>
         </div>
       )}
+      </>)}
+
+      {présentation && (
+        <>
+          <div style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', left: '14px', right: '60px', color: T.textMuted, fontFamily: serif, fontStyle: 'italic', fontSize: '17px', pointerEvents: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {graphe?.nom}
+          </div>
+          <button onClick={quitterPrésentation} aria-label="Quitter la présentation" title="Quitter (Échap)" style={{ ...boutonFlottant(), position: 'absolute', top: 'max(10px, env(safe-area-inset-top))', right: '10px' }}>✕</button>
+          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'max(14px, env(safe-area-inset-bottom))', display: 'flex', alignItems: 'center', gap: '8px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '6px', boxShadow: '0 6px 20px rgba(0,0,0,.35)' }}>
+            <button onClick={() => allerÀÉtape(présentation.étape - 1)} disabled={présentation.étape === 0} aria-label="Bulle précédente" style={boutonFlottant(présentation.étape === 0)}>◀</button>
+            <span aria-live="polite" style={{ minWidth: '64px', textAlign: 'center', whiteSpace: 'nowrap', padding: '0 4px', fontFamily: grotesk, fontWeight: 700, fontSize: '13px', color: T.text }}>
+              {présentation.étape >= ordre.length ? 'Vue d\'ensemble' : `${présentation.étape + 1} / ${ordre.length}`}
+            </span>
+            <button onClick={() => allerÀÉtape(présentation.étape + 1)} disabled={présentation.étape >= ordre.length} aria-label="Bulle suivante" style={{ ...boutonFlottant(présentation.étape >= ordre.length), background: T.accent, color: T.accentText, border: 'none' }}>▶</button>
+            <button onClick={() => allerÀÉtape(présentation.étape >= ordre.length ? 0 : ordre.length)} title={présentation.étape >= ordre.length ? 'Recommencer' : 'Tout montrer'} aria-label={présentation.étape >= ordre.length ? 'Recommencer' : 'Tout montrer'} style={{ ...boutonFlottant(), fontSize: '15px' }}>
+              {présentation.étape >= ordre.length ? '↺' : '⤢'}
+            </button>
+          </div>
+          {présentation.étape === 0 && (
+            <p style={{ position: 'absolute', left: 0, right: 0, bottom: 'calc(max(14px, env(safe-area-inset-bottom)) + 62px)', textAlign: 'center', color: T.textMuted, fontSize: '12px', margin: 0, pointerEvents: 'none' }}>
+              Touche l'écran ou → pour dévoiler la suite · bord gauche ou ← pour revenir
+            </p>
+          )}
+        </>
+      )}
     </div>
   )
 
@@ -839,17 +1003,19 @@ export default function Graph() {
         ) : (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-              <select
-                value={graphe?.id || ''}
-                onChange={e => { setGrapheId(e.target.value); oublierSélection(); setRecherche(null) }}
-                aria-label="Graphe affiché"
-                style={{ flex: 1, minWidth: 0, fontSize: '14px', fontWeight: 600, color: T.text, background: T.surface, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '9px 10px', fontFamily: grotesk }}
-              >
-                {data.graphes.map(g => <option key={g.id} value={g.id}>{g.nom} ({g.noeuds.length})</option>)}
-              </select>
+              <SélecteurGraphes
+                T={T}
+                graphes={data.graphes}
+                actuelId={graphe?.id}
+                onChoisir={id => { setGrapheId(id); oublierSélection(); setRecherche(null) }}
+                onCréer={créerGraphe}
+              />
               <BoutonIcone icon="crayon" title="Renommer le graphe" onClick={renommerGraphe} />
               <BoutonIcone icon="corbeille" title="Supprimer le graphe" couleur={T.danger} onClick={supprimerGraphe} />
-              <BoutonIcone icon="plus" title="Nouveau graphe" onClick={() => setCréation(true)} />
+              <button onClick={démarrerPrésentation} disabled={noeuds.length === 0} title="Présenter le graphe bulle par bulle" style={{
+                flexShrink: 0, background: T.accent, color: T.accentText, border: 'none', borderRadius: '10px', padding: '9px 11px',
+                fontSize: '12.5px', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer', opacity: noeuds.length === 0 ? 0.4 : 1,
+              }}>▶ Présenter</button>
             </div>
             {canevas}
             <p style={{ margin: '8px 0 0', fontSize: '11px', color: T.textMuted, textAlign: 'center', lineHeight: 1.5 }}>
@@ -967,6 +1133,94 @@ function DialogueCréation({ T, onCréer, onFermer }) {
           <button onClick={valider} style={{ flex: 2, padding: '11px', borderRadius: '10px', background: T.accent, color: T.accentText, border: 'none', cursor: 'pointer', fontFamily: grotesk, fontWeight: 700 }}>Créer</button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Liste déroulante des graphes : passer de l'un à l'autre, ou en créer un
+// nouveau avec son libellé (et un modèle de départ).
+function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer }) {
+  const [ouvert, setOuvert] = useState(false)
+  const [nom, setNom] = useState('')
+  const [modèleId, setModèleId] = useState('vide')
+  const actuel = graphes.find(g => g.id === actuelId)
+  const fermer = () => { setOuvert(false); setNom(''); setModèleId('vide') }
+  const créer = () => {
+    const libellé = nom.trim()
+    if (!libellé) return
+    onCréer(libellé, modèleId)
+    fermer()
+  }
+  const titre = { margin: '6px 8px', fontSize: '10.5px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk, fontWeight: 600 }
+  return (
+    <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+      <button
+        onClick={() => (ouvert ? fermer() : setOuvert(true))}
+        aria-haspopup="listbox"
+        aria-expanded={ouvert}
+        aria-label="Choisir ou créer un graphe"
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 600, color: T.text,
+          background: T.surface, border: `1px solid ${ouvert ? T.accent : T.border}`, borderRadius: '10px', padding: '9px 10px', fontFamily: grotesk, cursor: 'pointer',
+        }}
+      >
+        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>{actuel?.nom || 'Graphe'}</span>
+        <Icon nom="chevronBas" taille={14} style={{ flexShrink: 0, color: T.textMuted, transform: ouvert ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+      </button>
+      {ouvert && (
+        <>
+          <div onClick={fermer} style={{ position: 'fixed', inset: 0, zIndex: 900 }} />
+          <div style={{
+            position: 'absolute', top: 'calc(100% + 6px)', left: 0, width: 'min(360px, calc(100vw - 32px))', zIndex: 901,
+            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '6px', boxShadow: '0 12px 32px rgba(0,0,0,.4)',
+            maxHeight: '70dvh', overflowY: 'auto',
+          }}>
+            <p style={titre}>Mes graphes ({graphes.length})</p>
+            <div role="listbox" aria-label="Mes graphes">
+              {graphes.map(g => {
+                const actif = g.id === actuelId
+                return (
+                  <button key={g.id} role="option" aria-selected={actif} onClick={() => { onChoisir(g.id); fermer() }} style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', borderRadius: '10px', cursor: 'pointer',
+                    background: actif ? `${T.accent}22` : 'transparent', border: 'none', color: T.text, fontFamily: grotesk, fontSize: '14px', textAlign: 'left',
+                  }}>
+                    <span style={{ width: '16px', color: T.accent, fontWeight: 800 }}>{actif ? '✓' : ''}</span>
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: actif ? 700 : 500 }}>{g.nom}</span>
+                    <span style={{ fontSize: '11.5px', color: T.textMuted, flexShrink: 0 }}>{g.noeuds.length} bulle{g.noeuds.length > 1 ? 's' : ''}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <div style={{ height: '1px', background: T.border, margin: '6px 4px' }} />
+            <p style={titre}>＋ Nouveau graphe</p>
+            <div style={{ display: 'flex', gap: '6px', padding: '0 4px' }}>
+              <input
+                value={nom}
+                onChange={e => setNom(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') créer(); if (e.key === 'Escape') fermer() }}
+                placeholder="Libellé du graphe"
+                aria-label="Libellé du nouveau graphe"
+                style={{ flex: 1, minWidth: 0, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '9px 10px', fontSize: '15px', fontFamily: 'inherit' }}
+              />
+              <button onClick={créer} disabled={!nom.trim()} style={{
+                flexShrink: 0, background: T.accent, color: T.accentText, border: 'none', borderRadius: '10px', padding: '0 14px',
+                fontWeight: 700, fontFamily: grotesk, cursor: nom.trim() ? 'pointer' : 'default', opacity: nom.trim() ? 1 : 0.45,
+              }}>Créer</button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '8px 4px 4px' }}>
+              {MODÈLES.map(m => {
+                const actif = m.id === modèleId
+                return (
+                  <button key={m.id} onClick={() => setModèleId(m.id)} aria-pressed={actif} title={m.description} style={{
+                    padding: '5px 9px', borderRadius: '20px', cursor: 'pointer', fontSize: '11.5px', fontFamily: grotesk, fontWeight: 600,
+                    background: actif ? T.accent : T.surface2, color: actif ? T.accentText : T.text, border: `1px solid ${actif ? T.accent : T.border}`,
+                  }}>{m.emoji} {m.nom}</button>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

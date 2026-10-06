@@ -228,3 +228,53 @@ export const MODÈLES = [
 ]
 
 export const ÉTIQUETTES_LIENS = ['cause', 'entraîne', 'exemple', "s'oppose à", 'implique', 'fait partie de', 'voir aussi']
+
+// ---------- Formes et icônes des bulles ----------
+// noeud.forme : 'arrondi' (défaut) | 'rond' | 'rectangle' | 'nuage'
+// noeud.icone : emoji affiché en tête du texte
+export const FORMES = [
+  { id: 'arrondi', nom: 'Arrondie', symbole: '▢' },
+  { id: 'rond', nom: 'Ronde', symbole: '◯' },
+  { id: 'rectangle', nom: 'Rectangle', symbole: '□' },
+  { id: 'nuage', nom: 'Nuage', symbole: '☁︎' },
+]
+export const ICÔNES = [
+  { emoji: '⭐', nom: 'Important' },
+  { emoji: '❓', nom: 'À vérifier' },
+  { emoji: '⚠️', nom: 'Attention' },
+  { emoji: '✅', nom: 'Fait' },
+  { emoji: '💡', nom: 'Idée' },
+  { emoji: '📌', nom: 'À retenir' },
+  { emoji: '🔥', nom: 'Urgent' },
+  { emoji: '❤️', nom: 'Coup de cœur' },
+]
+
+// Contour d'un nuage dans une boîte 100 × 60, étiré à la taille de la bulle.
+export const CHEMIN_NUAGE = 'M24 54 C9 55 2 44 8 35 C1 27 9 14 22 17 C24 6 39 1 48 9 C55 1 72 3 74 14 C87 10 99 21 92 32 C100 41 92 56 78 53 C72 60 57 60 51 54 C44 60 30 60 24 54 Z'
+
+// Ordre du mode présentation : chaque arbre en profondeur (les enfants de
+// haut en bas), en commençant par les plus grands arbres, puis les bulles
+// libres de haut en bas.
+export function ordrePrésentation(noeuds) {
+  const ids = new Set(noeuds.map(n => n.id))
+  const enfants = new Map()
+  noeuds.forEach(n => {
+    if (n.parentId && ids.has(n.parentId)) {
+      if (!enfants.has(n.parentId)) enfants.set(n.parentId, [])
+      enfants.get(n.parentId).push(n)
+    }
+  })
+  const racines = noeuds
+    .filter(n => !n.parentId || !ids.has(n.parentId))
+    .sort((a, b) => descendants(noeuds, b.id).size - descendants(noeuds, a.id).size || a.y - b.y || a.x - b.x)
+  const ordre = []
+  const vus = new Set()
+  const parcourir = n => {
+    if (vus.has(n.id)) return
+    vus.add(n.id)
+    ordre.push(n.id)
+    ;(enfants.get(n.id) || []).slice().sort((a, b) => a.y - b.y || a.x - b.x).forEach(parcourir)
+  }
+  racines.forEach(parcourir)
+  return ordre
+}
