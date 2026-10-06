@@ -1,0 +1,230 @@
+// Logique des graphes (page Graph), indépendante de l'affichage.
+//
+// Fichier : { graphes: [{ id, nom, noeuds, liens }] }
+// - noeud : { id, texte, x, y, parentId, couleur?, replié?, image? }
+//   x, y = centre de la bulle ; parentId = bulle parente dans l'arbre
+//   (null pour une racine ou une bulle libre) ; replié = ses descendants
+//   sont cachés.
+// - lien  : { id, de, vers, texte?, sens? } relie librement deux bulles,
+//   en plus de l'arbre. sens : 'aucun' (défaut) | 'vers' (de → vers) |
+//   'deux' (↔).
+
+export const ÉCART_X = 240
+export const ÉCART_Y = 92
+
+export function compléterGraphes(objet) {
+  const graphes = Array.isArray(objet?.graphes) ? objet.graphes : []
+  return {
+    graphes: graphes.map(g => ({
+      ...g,
+      noeuds: Array.isArray(g.noeuds) ? g.noeuds : [],
+      liens: Array.isArray(g.liens) ? g.liens : [],
+    })),
+  }
+}
+
+export function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
+}
+
+export function descendants(noeuds, id) {
+  const résultat = new Set()
+  const pile = [id]
+  while (pile.length) {
+    const courant = pile.pop()
+    noeuds.forEach(n => {
+      if (n.parentId === courant && !résultat.has(n.id)) { résultat.add(n.id); pile.push(n.id) }
+    })
+  }
+  return résultat
+}
+
+// Bulles cachées parce qu'un de leurs ancêtres est replié.
+export function bullesCachées(noeuds) {
+  const cachées = new Set()
+  noeuds.filter(n => n.replié).forEach(n => descendants(noeuds, n.id).forEach(id => cachées.add(id)))
+  return cachées
+}
+
+export function ancêtres(noeuds, id) {
+  const parId = new Map(noeuds.map(n => [n.id, n]))
+  const résultat = []
+  let courant = parId.get(id)
+  const vus = new Set()
+  while (courant?.parentId && parId.has(courant.parentId) && !vus.has(courant.parentId)) {
+    vus.add(courant.parentId)
+    courant = parId.get(courant.parentId)
+    résultat.push(courant.id)
+  }
+  return résultat
+}
+
+// Range l'arbre de gauche à droite : profondeur → colonne, feuilles
+// empilées, chaque parent centré sur ses enfants. Une branche repliée
+// compte comme une feuille ; ses bulles cachées suivent sa bulle.
+export function ranger(noeuds) {
+  const ids = new Set(noeuds.map(n => n.id))
+  const enfants = new Map()
+  noeuds.forEach(n => {
+    if (n.parentId && ids.has(n.parentId)) {
+      if (!enfants.has(n.parentId)) enfants.set(n.parentId, [])
+      enfants.get(n.parentId).push(n)
+    }
+  })
+  const positions = {}
+  const vus = new Set()
+  let ligne = 0
+  const placer = (n, profondeur) => {
+    if (vus.has(n.id)) return
+    vus.add(n.id)
+    const fils = n.replié ? [] : (enfants.get(n.id) || []).filter(f => !vus.has(f.id))
+    if (fils.length === 0) {
+      positions[n.id] = { x: profondeur * ÉCART_X, y: ligne * ÉCART_Y }
+      ligne += 1
+      return
+    }
+    fils.forEach(f => placer(f, profondeur + 1))
+    const ys = fils.map(f => positions[f.id].y)
+    positions[n.id] = { x: profondeur * ÉCART_X, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+  }
+  noeuds.filter(n => !n.parentId || !ids.has(n.parentId)).forEach(r => { placer(r, 0); ligne += 0.5 })
+
+  // Les bulles cachées gardent leur position relative à la bulle repliée.
+  const décalages = {}
+  noeuds.filter(n => n.replié && positions[n.id]).forEach(n => {
+    const dx = positions[n.id].x - n.x
+    const dy = positions[n.id].y - n.y
+    descendants(noeuds, n.id).forEach(id => { if (!positions[id]) décalages[id] = { dx, dy } })
+  })
+  return noeuds.map(n => {
+    if (positions[n.id]) return { ...n, ...positions[n.id] }
+    if (décalages[n.id]) return { ...n, x: n.x + décalages[n.id].dx, y: n.y + décalages[n.id].dy }
+    return n
+  })
+}
+
+// ---------- Géométrie des liens libres ----------
+
+// Point d'une courbe de Bézier quadratique.
+function point(a, c, b, t) {
+  const u = 1 - t
+  return { x: u * u * a.x + 2 * u * t * c.x + t * t * b.x, y: u * u * a.y + 2 * u * t * c.y + t * t * b.y }
+}
+
+// Courbe d'autant plus marquée que le lien est long, pour contourner les
+// bulles placées entre les deux et ne pas confondre avec une branche.
+// Les extrémités sont coupées au bord des bulles (pour que les flèches se
+// voient) : `taille(id)` donne la largeur et la hauteur affichées.
+export function géométrieLien(a, b, taille) {
+  const long = Math.hypot(b.x - a.x, b.y - a.y) || 1
+  const écart = Math.min(170, Math.max(50, long * 0.6))
+  const c = {
+    x: (a.x + b.x) / 2 - ((b.y - a.y) / long) * écart,
+    y: (a.y + b.y) / 2 + ((b.x - a.x) / long) * écart,
+  }
+  const dedans = (p, n) => {
+    const { l, h } = taille(n.id)
+    return Math.abs(p.x - n.x) < l / 2 + 4 && Math.abs(p.y - n.y) < h / 2 + 4
+  }
+  let t0 = 0
+  while (t0 < 0.45 && dedans(point(a, c, b, t0), a)) t0 += 0.01
+  let t1 = 1
+  while (t1 > 0.55 && dedans(point(a, c, b, t1), b)) t1 -= 0.01
+  // Sous-courbe [t0, t1] : extrémités et point de contrôle « floraison ».
+  const p0 = point(a, c, b, t0)
+  const p1 = point(a, c, b, t1)
+  const k = {
+    x: (1 - t0) * (1 - t1) * a.x + ((1 - t0) * t1 + t0 * (1 - t1)) * c.x + t0 * t1 * b.x,
+    y: (1 - t0) * (1 - t1) * a.y + ((1 - t0) * t1 + t0 * (1 - t1)) * c.y + t0 * t1 * b.y,
+  }
+  return { p0, k, p1, milieu: point(a, c, b, 0.5), d: `M ${p0.x} ${p0.y} Q ${k.x} ${k.y} ${p1.x} ${p1.y}` }
+}
+
+// ---------- Modèles de graphes ----------
+
+const [ORANGE, ROUGE, VERT, BLEU, VIOLET] = ['#f0a839', '#e2574c', '#4a9d94', '#5b8dc9', '#8b7ab8']
+
+// Arbre décrit par { texte, couleur?, enfants: [...] } → bulles avec parentId.
+function depuisArbre(arbre) {
+  const noeuds = []
+  const ajouter = (n, parentId) => {
+    const id = uid()
+    noeuds.push({ id, texte: n.texte, x: 0, y: 0, parentId, ...(n.couleur ? { couleur: n.couleur } : {}) })
+    ;(n.enfants || []).forEach(e => ajouter(e, id))
+    return id
+  }
+  ajouter(arbre, null)
+  return { noeuds: ranger(noeuds), liens: [] }
+}
+
+const pourEtContre = [{ texte: '✅ Avantages', couleur: VERT }, { texte: '⚠️ Inconvénients', couleur: ROUGE }]
+
+export const MODÈLES = [
+  {
+    id: 'vide', emoji: '⚪', nom: 'Vide', description: 'Juste une bulle centrale',
+    créer: nom => depuisArbre({ texte: nom }),
+  },
+  {
+    id: 'expose', emoji: '🎤', nom: "Plan d'exposé", description: 'Introduction, deux parties, conclusion',
+    créer: nom => depuisArbre({
+      texte: nom,
+      enfants: [
+        { texte: 'Introduction', couleur: BLEU, enfants: [{ texte: 'Accroche' }, { texte: 'Problématique' }, { texte: 'Annonce du plan' }] },
+        { texte: 'Partie 1', couleur: VERT, enfants: [{ texte: 'Argument' }, { texte: 'Exemple' }] },
+        { texte: 'Partie 2', couleur: VIOLET, enfants: [{ texte: 'Argument' }, { texte: 'Exemple' }] },
+        { texte: 'Conclusion', couleur: ORANGE, enfants: [{ texte: 'Bilan' }, { texte: 'Ouverture' }] },
+      ],
+    }),
+  },
+  {
+    id: 'swot', emoji: '🧭', nom: 'SWOT', description: 'Forces, faiblesses, opportunités, menaces',
+    créer: nom => {
+      const racine = { id: uid(), texte: nom, x: 0, y: 0, parentId: null }
+      const coins = [
+        ['💪 Forces', VERT, -270, -150], ['🩹 Faiblesses', ROUGE, 270, -150],
+        ['🌱 Opportunités', BLEU, -270, 150], ['⛈️ Menaces', ORANGE, 270, 150],
+      ]
+      return {
+        noeuds: [racine, ...coins.map(([texte, couleur, x, y]) => ({ id: uid(), texte, couleur, x, y, parentId: racine.id }))],
+        liens: [],
+      }
+    },
+  },
+  {
+    id: 'decision', emoji: '🔀', nom: 'Arbre de décision', description: 'Options avec avantages et inconvénients',
+    créer: nom => depuisArbre({
+      texte: nom,
+      enfants: [
+        { texte: 'Option A', couleur: BLEU, enfants: pourEtContre },
+        { texte: 'Option B', couleur: VIOLET, enfants: pourEtContre },
+      ],
+    }),
+  },
+  {
+    id: 'famille', emoji: '👪', nom: 'Arbre généalogique', description: 'Moi, mes parents, mes grands-parents',
+    créer: nom => depuisArbre({
+      texte: nom,
+      enfants: [
+        { texte: 'Parent 1', couleur: BLEU, enfants: [{ texte: 'Grand-parent 1' }, { texte: 'Grand-parent 2' }] },
+        { texte: 'Parent 2', couleur: ROUGE, enfants: [{ texte: 'Grand-parent 3' }, { texte: 'Grand-parent 4' }] },
+      ],
+    }),
+  },
+  {
+    id: 'causes', emoji: '⚡', nom: 'Causes et conséquences', description: 'Un problème, ce qui le cause, ce qu\'il entraîne',
+    créer: nom => {
+      const centre = { id: uid(), texte: nom, x: 0, y: 0, parentId: null }
+      const causes = [-120, 0, 120].map((y, i) => ({ id: uid(), texte: `Cause ${i + 1}`, couleur: ORANGE, x: -300, y, parentId: null }))
+      const effets = [-70, 70].map((y, i) => ({ id: uid(), texte: `Conséquence ${i + 1}`, couleur: VIOLET, x: 300, y, parentId: null }))
+      return {
+        noeuds: [centre, ...causes, ...effets],
+        liens: [
+          ...causes.map(c => ({ id: uid(), de: c.id, vers: centre.id, texte: 'cause', sens: 'vers' })),
+          ...effets.map(e => ({ id: uid(), de: centre.id, vers: e.id, texte: 'entraîne', sens: 'vers' })),
+        ],
+      }
+    },
+  },
+]
+
+export const ÉTIQUETTES_LIENS = ['cause', 'entraîne', 'exemple', "s'oppose à", 'implique', 'fait partie de', 'voir aussi']

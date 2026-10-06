@@ -10,7 +10,7 @@ const QUALITÉ = 0.78
 // le téléphone, sans attendre que GitHub les serve.
 const aperçus = new Map()
 
-function adresseImage(image) {
+export function adresseImage(image) {
   return aperçus.get(image.chemin) || adresseBrute(image.chemin)
 }
 
@@ -52,6 +52,7 @@ export function ImageCarte({ image, hauteurMax = 220, style }) {
       src={adresseImage(image)}
       alt="Illustration de la carte"
       loading="lazy"
+      draggable={false}
       onError={() => setErreur(true)}
       style={{ display: 'block', maxWidth: '100%', maxHeight: `${hauteurMax}px`, margin: '0 auto', borderRadius: '10px', objectFit: 'contain', ...style }}
     />
