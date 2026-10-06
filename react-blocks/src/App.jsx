@@ -5,6 +5,7 @@ import Taches from './pages/Taches'
 import Notes from './pages/Notes'
 import Memoriser from './pages/Memoriser'
 import Timer from './pages/Timer'
+import Graph from './pages/Graph'
 import Verrou from './components/Verrou'
 import { foyerDeLEspace } from './lib/foyers'
 import './App.css'
@@ -39,6 +40,8 @@ function App() {
       <Route path="/notes/:espace" element={<EspaceRoute Page={Notes} />} />
       <Route path="/memoriser" element={<Navigate to="/memoriser/perso" replace />} />
       <Route path="/memoriser/:espace" element={<EspaceRoute Page={Memoriser} />} />
+      <Route path="/graph" element={<Navigate to="/graph/perso" replace />} />
+      <Route path="/graph/:espace" element={<EspaceRoute Page={Graph} />} />
     </Routes>
   )
 }

@@ -110,6 +110,7 @@ export default function Home({ foyerId = 'lebbar' }) {
           { to: `/notes/${préfixe}pro`, emoji: '🗒️', titre: 'Notes pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
           { to: `/memoriser/${préfixe}perso`, emoji: '🧠', titre: 'Mémoriser perso', desc: 'Flashcards en répétition espacée — propre fichier, indépendant du pro' },
           { to: `/memoriser/${préfixe}pro`, emoji: '📚', titre: 'Mémoriser pro', desc: 'Même système, dédié au travail — propre fichier, indépendant du perso' },
+          { to: `/graph/${préfixe}perso`, emoji: '🕸️', titre: 'Graph', desc: 'Cartes mentales et arbres à bulles, créés à la main — propre fichier' },
           { to: '/timer', emoji: '⏱️', titre: 'Timer', desc: 'Compte à rebours et chronomètre, grands chiffres blancs sur fond noir' },
         ].map(p => (
           <Link key={p.to} to={p.to}>
