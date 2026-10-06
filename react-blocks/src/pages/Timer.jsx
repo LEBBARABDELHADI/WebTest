@@ -1,0 +1,301 @@
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { grotesk } from '../lib/theme'
+import { déverrouillerAudio, bip } from '../lib/texteFormate'
+import { useÉcranAllumé } from '../lib/ecoute'
+
+// Page minuteur, toujours en noir avec des chiffres blancs « à palettes ».
+// Les temps sont calculés à partir d'horodatages (heure de fin, heure de
+// départ) et non d'un décompte seconde par seconde : le minuteur reste
+// juste même si le téléphone ralentit la page ou si on change de page.
+
+const CLÉ = 'react-blocs-timer'
+const NOIR = '#000000'
+const CARTE = '#1c1c1e'
+const BLANC = '#ffffff'
+const GRIS = '#8e8e93'
+const ROUGE = '#ff453a'
+
+const PRÉRÉGLAGES = [
+  { libellé: '1 min', ms: 60e3 },
+  { libellé: '5 min', ms: 5 * 60e3 },
+  { libellé: '10 min', ms: 10 * 60e3 },
+  { libellé: '15 min', ms: 15 * 60e3 },
+  { libellé: '25 min', ms: 25 * 60e3 },
+  { libellé: '30 min', ms: 30 * 60e3 },
+  { libellé: '1 h', ms: 3600e3 },
+  { libellé: '24 h', ms: 24 * 3600e3 },
+]
+const DURÉE_MAX = 99 * 3600e3 + 59 * 60e3 + 59e3
+
+const ÉTAT_INITIAL = {
+  mode: 'rebours', // rebours | chrono
+  durée: 5 * 60e3,
+  état: 'arrêté', // arrêté | en cours | pause | fini
+  fin: null, // rebours en cours : heure de fin
+  restant: null, // rebours en pause
+  début: null, // chrono en cours : heure de (re)départ
+  accumulé: 0, // chrono : temps déjà écoulé avant la pause
+  tours: [],
+}
+
+function charger() {
+  try {
+    const s = { ...ÉTAT_INITIAL, ...JSON.parse(localStorage.getItem(CLÉ) || '{}') }
+    // Compte à rebours arrivé à zéro pendant qu'on était ailleurs.
+    if (s.mode === 'rebours' && s.état === 'en cours' && s.fin <= Date.now()) return { ...s, état: 'fini' }
+    return s
+  } catch {
+    return { ...ÉTAT_INITIAL }
+  }
+}
+
+function découper(ms, arrondiHaut) {
+  const total = Math.max(0, arrondiHaut ? Math.ceil(ms / 1000) : Math.floor(ms / 1000))
+  return { h: Math.floor(total / 3600), m: Math.floor((total % 3600) / 60), s: total % 60 }
+}
+
+const deux = n => String(n).padStart(2, '0')
+
+const ANIMATIONS = `
+@keyframes flipChiffre { from { transform: rotateX(-90deg); opacity: .2 } to { transform: rotateX(0); opacity: 1 } }
+@keyframes clignote { 0%, 100% { opacity: 1 } 50% { opacity: .25 } }
+@media (prefers-reduced-motion: reduce) { .flip-anim, .clignote-anim { animation: none !important } }
+`
+
+// Un chiffre dans sa carte, façon horloge à palettes.
+function Chiffre({ valeur, taille, couleur }) {
+  return (
+    <div style={{
+      position: 'relative', width: `calc(${taille} * 0.74)`, height: `calc(${taille} * 1.22)`,
+      borderRadius: `calc(${taille} * 0.12)`, background: `linear-gradient(${CARTE} 50%, #161618 50%)`,
+      boxShadow: '0 6px 18px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: '400px', overflow: 'hidden',
+    }}>
+      <span key={valeur} className="flip-anim" style={{
+        fontFamily: grotesk, fontWeight: 700, fontSize: taille, lineHeight: 1, color: couleur,
+        fontVariantNumeric: 'tabular-nums', animation: 'flipChiffre .32s ease-out', transformOrigin: '50% 50%',
+      }}>{valeur}</span>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '2px', marginTop: '-1px', background: NOIR }} />
+    </div>
+  )
+}
+
+function Groupe({ valeur, libellé, taille, couleur, onPlus, onMoins }) {
+  const flèche = {
+    width: '100%', height: '34px', background: 'transparent', border: 'none', color: GRIS,
+    fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+      {onPlus && <button onClick={onPlus} aria-label={`Ajouter ${libellé}`} style={flèche}>▲</button>}
+      <div style={{ display: 'flex', gap: `calc(${taille} * 0.08)` }}>
+        {deux(valeur).split('').map((c, i) => <Chiffre key={i} valeur={c} taille={taille} couleur={couleur} />)}
+      </div>
+      {onMoins && <button onClick={onMoins} aria-label={`Retirer ${libellé}`} style={flèche}>▼</button>}
+      <span style={{ fontFamily: grotesk, fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: GRIS, textTransform: 'uppercase', marginTop: '6px' }}>
+        {libellé}
+      </span>
+    </div>
+  )
+}
+
+// `décalé` : les flèches ▲ (mode réglage) poussent les cartes vers le bas.
+function Séparateur({ taille, couleur, décalé }) {
+  return (
+    <span style={{
+      fontFamily: grotesk, fontWeight: 700, fontSize: `calc(${taille} * 0.8)`, color: couleur,
+      lineHeight: `calc(${taille} * 1.22)`, alignSelf: 'flex-start', padding: '0 2px',
+      marginTop: décalé ? '38px' : 0,
+    }}>:</span>
+  )
+}
+
+export default function Timer() {
+  const navigate = useNavigate()
+  const [t, setT] = useState(charger)
+  const [maintenant, setMaintenant] = useState(Date.now())
+  const alarmeRef = useRef(null)
+
+  const enCours = t.état === 'en cours'
+  useÉcranAllumé(enCours)
+
+  useEffect(() => {
+    try { localStorage.setItem(CLÉ, JSON.stringify(t)) } catch { /* ignore */ }
+  }, [t])
+
+  useEffect(() => {
+    if (!enCours) return
+    const id = setInterval(() => setMaintenant(Date.now()), 200)
+    return () => clearInterval(id)
+  }, [enCours])
+
+  // Fin du compte à rebours : alarme (bips + vibration) pendant une minute.
+  const arrêterAlarme = () => {
+    clearInterval(alarmeRef.current)
+    alarmeRef.current = null
+    navigator.vibrate?.(0)
+  }
+  useEffect(() => {
+    if (t.mode === 'rebours' && enCours && t.fin <= maintenant) {
+      setT(s => ({ ...s, état: 'fini' }))
+      let n = 0
+      const sonner = () => {
+        bip(988, 0.18)
+        setTimeout(() => bip(988, 0.18), 260)
+        navigator.vibrate?.([300, 150, 300])
+        if (++n >= 60) arrêterAlarme()
+      }
+      sonner()
+      alarmeRef.current = setInterval(sonner, 1000)
+    }
+  }, [maintenant, enCours, t.mode, t.fin])
+  useEffect(() => () => arrêterAlarme(), [])
+
+  const temps = t.mode === 'rebours'
+    ? (t.état === 'arrêté' ? t.durée : t.état === 'pause' ? t.restant : t.état === 'fini' ? 0 : t.fin - maintenant)
+    : t.accumulé + (enCours ? maintenant - t.début : 0)
+  const { h, m, s } = découper(temps, t.mode === 'rebours')
+  const avecHeures = t.mode === 'rebours' ? (t.état === 'arrêté' || t.durée >= 3600e3 || h > 0) : h > 0
+  const taille = avecHeures ? 'min(11.5vw, 92px)' : 'min(17vw, 128px)'
+  const couleur = t.état === 'fini' ? ROUGE : BLANC
+  const réglable = t.mode === 'rebours' && t.état === 'arrêté'
+
+  const changerDurée = delta => setT(s => ({ ...s, durée: Math.min(DURÉE_MAX, Math.max(0, s.durée + delta)) }))
+
+  const démarrer = () => {
+    déverrouillerAudio()
+    const now = Date.now()
+    setMaintenant(now)
+    setT(s => {
+      if (s.mode === 'chrono') return { ...s, état: 'en cours', début: now }
+      const reste = s.état === 'pause' ? s.restant : s.durée
+      return reste > 0 ? { ...s, état: 'en cours', fin: now + reste, restant: null } : s
+    })
+  }
+  const pause = () => {
+    const now = Date.now()
+    setT(s => (s.mode === 'chrono'
+      ? { ...s, état: 'pause', accumulé: s.accumulé + now - s.début, début: null }
+      : { ...s, état: 'pause', restant: Math.max(0, s.fin - now), fin: null }))
+  }
+  const réinitialiser = () => {
+    arrêterAlarme()
+    setT(s => ({ ...ÉTAT_INITIAL, mode: s.mode, durée: s.durée }))
+  }
+  const changerMode = mode => {
+    arrêterAlarme()
+    setT(s => ({ ...ÉTAT_INITIAL, mode, durée: s.durée }))
+  }
+  const tour = () => setT(s => ({ ...s, tours: [temps, ...s.tours].slice(0, 50) }))
+
+  const pleinÉcranPossible = typeof document !== 'undefined' && document.fullscreenEnabled
+  const basculerPleinÉcran = () => {
+    if (document.fullscreenElement) document.exitFullscreen?.()
+    else document.documentElement.requestFullscreen?.().catch(() => {})
+  }
+
+  const bouton = (principal = false, couleurFond) => ({
+    minWidth: '84px', height: '84px', borderRadius: '50%', border: 'none', cursor: 'pointer',
+    fontFamily: grotesk, fontSize: '15px', fontWeight: 700,
+    background: couleurFond || (principal ? BLANC : CARTE), color: couleurFond ? BLANC : principal ? NOIR : BLANC,
+  })
+  const pastille = actif => ({
+    padding: '8px 14px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk, fontSize: '13px', fontWeight: 600,
+    background: actif ? BLANC : CARTE, color: actif ? NOIR : BLANC, border: 'none',
+  })
+
+  return (
+    <div style={{ minHeight: '100dvh', background: NOIR, color: BLANC, padding: '18px 16px 40px', display: 'flex', flexDirection: 'column' }}>
+      <style>{ANIMATIONS}</style>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <button
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+          aria-label="Retour"
+          style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '20px', cursor: 'pointer' }}
+        >‹</button>
+        <div style={{ display: 'flex', background: CARTE, borderRadius: '22px', padding: '3px' }}>
+          {[['rebours', 'Compte à rebours'], ['chrono', 'Chronomètre']].map(([id, libellé]) => (
+            <button key={id} onClick={() => changerMode(id)} style={{ ...pastille(t.mode === id), padding: '8px 12px' }}>{libellé}</button>
+          ))}
+        </div>
+        {pleinÉcranPossible ? (
+          <button onClick={basculerPleinÉcran} aria-label="Plein écran" style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '16px', cursor: 'pointer' }}>⛶</button>
+        ) : <span style={{ width: '42px' }} />}
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
+        <div
+          className={t.état === 'fini' ? 'clignote-anim' : undefined}
+          aria-live="off"
+          aria-label={`${h} heures ${m} minutes ${s} secondes`}
+          style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '4px', animation: t.état === 'fini' ? 'clignote 1s ease-in-out infinite' : 'none' }}
+        >
+          {avecHeures && (
+            <>
+              <Groupe valeur={h} libellé="Heures" taille={taille} couleur={couleur}
+                onPlus={réglable ? () => changerDurée(3600e3) : null} onMoins={réglable ? () => changerDurée(-3600e3) : null} />
+              <Séparateur taille={taille} couleur={couleur} décalé={réglable} />
+            </>
+          )}
+          <Groupe valeur={m} libellé="Minutes" taille={taille} couleur={couleur}
+            onPlus={réglable ? () => changerDurée(60e3) : null} onMoins={réglable ? () => changerDurée(-60e3) : null} />
+          <Séparateur taille={taille} couleur={couleur} décalé={réglable} />
+          <Groupe valeur={s} libellé="Secondes" taille={taille} couleur={couleur}
+            onPlus={réglable ? () => changerDurée(1e3) : null} onMoins={réglable ? () => changerDurée(-1e3) : null} />
+        </div>
+
+        {t.état === 'fini' && (
+          <p style={{ margin: 0, fontFamily: grotesk, fontSize: '18px', fontWeight: 700, color: ROUGE }}>⏰ Temps écoulé</p>
+        )}
+
+        {réglable && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', maxWidth: '460px' }}>
+            {PRÉRÉGLAGES.map(p => (
+              <button key={p.libellé} onClick={() => setT(s => ({ ...s, durée: p.ms }))} style={pastille(t.durée === p.ms)}>{p.libellé}</button>
+            ))}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
+          {t.état === 'fini' ? (
+            <button onClick={réinitialiser} style={{ ...bouton(false, ROUGE), minWidth: '120px', borderRadius: '42px' }}>Arrêter</button>
+          ) : (
+            <>
+              <button
+                onClick={t.mode === 'chrono' && enCours ? tour : réinitialiser}
+                disabled={t.état === 'arrêté'}
+                style={{ ...bouton(), opacity: t.état === 'arrêté' ? 0.4 : 1 }}
+              >{t.mode === 'chrono' && enCours ? 'Tour' : 'Remise à 0'}</button>
+              {enCours
+                ? <button onClick={pause} style={bouton(false, '#ff9f0a')}>Pause</button>
+                : <button onClick={démarrer} disabled={t.mode === 'rebours' && t.état === 'arrêté' && t.durée === 0} style={bouton(false, '#30d158')}>
+                    {t.état === 'pause' ? 'Reprendre' : 'Démarrer'}
+                  </button>}
+            </>
+          )}
+        </div>
+
+        {t.mode === 'chrono' && t.tours.length > 0 && (
+          <ol style={{ listStyle: 'none', margin: 0, padding: 0, width: '100%', maxWidth: '360px', fontFamily: grotesk, fontVariantNumeric: 'tabular-nums' }}>
+            {t.tours.map((ms, i) => {
+              const d = découper(ms, false)
+              return (
+                <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 4px', borderBottom: `1px solid ${CARTE}`, fontSize: '15px' }}>
+                  <span style={{ color: GRIS }}>Tour {t.tours.length - i}</span>
+                  <span>{d.h > 0 ? `${deux(d.h)}:` : ''}{deux(d.m)}:{deux(d.s)}</span>
+                </li>
+              )
+            })}
+          </ol>
+        )}
+
+        {enCours && (
+          <p style={{ margin: 0, fontSize: '12px', color: GRIS, textAlign: 'center' }}>
+            L'écran reste allumé. {t.mode === 'rebours' ? 'Le temps continue même si tu quittes la page ; l\'alarme sonne si elle est ouverte.' : ''}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}

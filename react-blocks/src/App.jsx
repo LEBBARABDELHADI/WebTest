@@ -4,6 +4,7 @@ import NotionPage from './pages/NotionPage'
 import Taches from './pages/Taches'
 import Notes from './pages/Notes'
 import Memoriser from './pages/Memoriser'
+import Timer from './pages/Timer'
 import Verrou from './components/Verrou'
 import { foyerDeLEspace } from './lib/foyers'
 import './App.css'
@@ -31,6 +32,7 @@ function App() {
       <Route path="/" element={<Protégé foyers={['lebbar']}><Home key="lebbar" foyerId="lebbar" /></Protégé>} />
       <Route path="/idrissi" element={<Protégé foyers={['idrissi']}><Home key="idrissi" foyerId="idrissi" /></Protégé>} />
       <Route path="/notion/:id" element={<Protégé foyers={['lebbar', 'idrissi']}><NotionPage /></Protégé>} />
+      <Route path="/timer" element={<Protégé foyers={['lebbar', 'idrissi']}><Timer /></Protégé>} />
       <Route path="/taches" element={<Navigate to="/taches/perso" replace />} />
       <Route path="/taches/:espace" element={<EspaceRoute Page={Taches} />} />
       <Route path="/notes" element={<Navigate to="/notes/perso" replace />} />
