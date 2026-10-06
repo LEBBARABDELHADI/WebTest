@@ -24,6 +24,8 @@ const PRÉRÉGLAGES = [
   { libellé: '25 min', ms: 25 * 60e3 },
   { libellé: '30 min', ms: 30 * 60e3 },
   { libellé: '1 h', ms: 3600e3 },
+  { libellé: '1 h 30', ms: 5400e3 },
+  { libellé: '2 h', ms: 7200e3 },
   { libellé: '24 h', ms: 24 * 3600e3 },
 ]
 const DURÉE_MAX = 99 * 3600e3 + 59 * 60e3 + 59e3
@@ -81,7 +83,7 @@ function Chiffre({ valeur, taille, couleur }) {
   )
 }
 
-function Groupe({ valeur, libellé, taille, couleur, onPlus, onMoins }) {
+function Groupe({ valeur, libellé, taille, couleur, onPlus, onMoins, sansLibellé = false }) {
   const flèche = {
     width: '100%', height: '34px', background: 'transparent', border: 'none', color: GRIS,
     fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -93,9 +95,11 @@ function Groupe({ valeur, libellé, taille, couleur, onPlus, onMoins }) {
         {deux(valeur).split('').map((c, i) => <Chiffre key={i} valeur={c} taille={taille} couleur={couleur} />)}
       </div>
       {onMoins && <button onClick={onMoins} aria-label={`Retirer ${libellé}`} style={flèche}>▼</button>}
-      <span style={{ fontFamily: grotesk, fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: GRIS, textTransform: 'uppercase', marginTop: '6px' }}>
-        {libellé}
-      </span>
+      {!sansLibellé && (
+        <span style={{ fontFamily: grotesk, fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: GRIS, textTransform: 'uppercase', marginTop: '6px' }}>
+          {libellé}
+        </span>
+      )}
     </div>
   )
 }
@@ -116,6 +120,9 @@ export default function Timer() {
   const [t, setT] = useState(charger)
   const [maintenant, setMaintenant] = useState(Date.now())
   const alarmeRef = useRef(null)
+  const [pleinÉcran, setPleinÉcran] = useState(false)
+  const [contrôlesVisibles, setContrôlesVisibles] = useState(true)
+  const masquageRef = useRef(null)
 
   const enCours = t.état === 'en cours'
   useÉcranAllumé(enCours)
@@ -189,11 +196,32 @@ export default function Timer() {
   }
   const tour = () => setT(s => ({ ...s, tours: [temps, ...s.tours].slice(0, 50) }))
 
-  const pleinÉcranPossible = typeof document !== 'undefined' && document.fullscreenEnabled
-  const basculerPleinÉcran = () => {
-    if (document.fullscreenElement) document.exitFullscreen?.()
-    else document.documentElement.requestFullscreen?.().catch(() => {})
+  // Plein écran intégré à la page (seule possibilité sur iPhone), doublé du
+  // plein écran du navigateur là où il existe (Android, ordinateur).
+  // Les commandes s'effacent après 3 s ; toucher l'écran les fait revenir.
+  const montrerContrôles = () => {
+    setContrôlesVisibles(true)
+    clearTimeout(masquageRef.current)
+    masquageRef.current = setTimeout(() => setContrôlesVisibles(false), 3000)
   }
+  const entrerPleinÉcran = () => {
+    setPleinÉcran(true)
+    montrerContrôles()
+    document.documentElement.requestFullscreen?.().catch(() => {})
+  }
+  const sortirPleinÉcran = () => {
+    setPleinÉcran(false)
+    clearTimeout(masquageRef.current)
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {})
+  }
+  useEffect(() => {
+    const surChangement = () => { if (!document.fullscreenElement) setPleinÉcran(false) }
+    document.addEventListener('fullscreenchange', surChangement)
+    return () => {
+      document.removeEventListener('fullscreenchange', surChangement)
+      clearTimeout(masquageRef.current)
+    }
+  }, [])
 
   const bouton = (principal = false, couleurFond) => ({
     minWidth: '84px', height: '84px', borderRadius: '50%', border: 'none', cursor: 'pointer',
@@ -204,6 +232,78 @@ export default function Timer() {
     padding: '8px 14px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk, fontSize: '13px', fontWeight: 600,
     background: actif ? BLANC : CARTE, color: actif ? NOIR : BLANC, border: 'none',
   })
+
+  if (pleinÉcran) {
+    const géante = avecHeures ? 'min(14.5vw, 52vh)' : 'min(22vw, 52vh)'
+    const visibles = contrôlesVisibles || t.état === 'fini'
+    const rond = {
+      width: '64px', height: '64px', borderRadius: '50%', border: 'none', cursor: 'pointer',
+      fontFamily: grotesk, fontSize: '13px', fontWeight: 700, color: BLANC,
+    }
+    return (
+      <div
+        onClick={montrerContrôles}
+        role="dialog"
+        aria-label="Timer en plein écran"
+        style={{
+          position: 'fixed', inset: 0, zIndex: 2000, background: NOIR, color: BLANC, overflow: 'hidden',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3vh',
+          cursor: visibles ? 'default' : 'none',
+        }}
+      >
+        <style>{ANIMATIONS}</style>
+        <div
+          className={t.état === 'fini' ? 'clignote-anim' : undefined}
+          aria-label={`${h} heures ${m} minutes ${s} secondes`}
+          style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '1vw', animation: t.état === 'fini' ? 'clignote 1s ease-in-out infinite' : 'none' }}
+        >
+          {avecHeures && (
+            <>
+              <Groupe valeur={h} libellé="Heures" taille={géante} couleur={couleur} sansLibellé />
+              <Séparateur taille={géante} couleur={couleur} />
+            </>
+          )}
+          <Groupe valeur={m} libellé="Minutes" taille={géante} couleur={couleur} sansLibellé />
+          <Séparateur taille={géante} couleur={couleur} />
+          <Groupe valeur={s} libellé="Secondes" taille={géante} couleur={couleur} sansLibellé />
+        </div>
+        {t.état === 'fini' && (
+          <p style={{ margin: 0, fontFamily: grotesk, fontSize: 'min(5vw, 28px)', fontWeight: 700, color: ROUGE }}>⏰ Temps écoulé</p>
+        )}
+
+        <button
+          onClick={e => { e.stopPropagation(); sortirPleinÉcran() }}
+          aria-label="Quitter le plein écran"
+          style={{
+            position: 'absolute', top: 'max(16px, env(safe-area-inset-top))', right: 'max(16px, env(safe-area-inset-right))',
+            width: '44px', height: '44px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC,
+            fontSize: '18px', cursor: 'pointer', opacity: visibles ? 1 : 0, transition: 'opacity .4s',
+            pointerEvents: visibles ? 'auto' : 'none',
+          }}
+        >✕</button>
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{
+            position: 'absolute', bottom: 'max(20px, env(safe-area-inset-bottom))', left: 0, right: 0,
+            display: 'flex', justifyContent: 'center', gap: '22px',
+            opacity: visibles ? 1 : 0, transition: 'opacity .4s', pointerEvents: visibles ? 'auto' : 'none',
+          }}
+        >
+          {t.état === 'fini' ? (
+            <button onClick={réinitialiser} style={{ ...rond, width: '120px', borderRadius: '32px', background: ROUGE }}>Arrêter</button>
+          ) : (
+            <>
+              <button onClick={() => { réinitialiser(); montrerContrôles() }} disabled={t.état === 'arrêté'}
+                style={{ ...rond, background: CARTE, opacity: t.état === 'arrêté' ? 0.4 : 1 }}>Remise à 0</button>
+              {enCours
+                ? <button onClick={() => { pause(); montrerContrôles() }} style={{ ...rond, background: '#ff9f0a' }}>Pause</button>
+                : <button onClick={() => { démarrer(); montrerContrôles() }} style={{ ...rond, background: '#30d158' }}>{t.état === 'pause' ? 'Reprendre' : 'Démarrer'}</button>}
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100dvh', background: NOIR, color: BLANC, padding: '18px 16px 40px', display: 'flex', flexDirection: 'column' }}>
@@ -219,9 +319,7 @@ export default function Timer() {
             <button key={id} onClick={() => changerMode(id)} style={{ ...pastille(t.mode === id), padding: '8px 12px' }}>{libellé}</button>
           ))}
         </div>
-        {pleinÉcranPossible ? (
-          <button onClick={basculerPleinÉcran} aria-label="Plein écran" style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '16px', cursor: 'pointer' }}>⛶</button>
-        ) : <span style={{ width: '42px' }} />}
+        <button onClick={entrerPleinÉcran} aria-label="Plein écran" title="Plein écran" style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '16px', cursor: 'pointer' }}>⛶</button>
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
