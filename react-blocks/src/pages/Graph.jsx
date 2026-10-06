@@ -27,9 +27,10 @@ const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
   données: DONNÉES[id],
 }))
 
-// Fichier : { graphes: [{ id, nom, noeuds: [{ id, texte, x, y, parentId, couleur? }] }] }
+// Fichier : { graphes: [{ id, nom, noeuds: [{ id, texte, x, y, parentId, couleur? }], liens: [{ id, de, vers }] }] }
 // x, y = centre de la bulle ; parentId relie la bulle à sa bulle parente
-// (null pour une racine ou une bulle libre).
+// (null pour une racine ou une bulle libre). `liens` relie librement deux
+// bulles quelconques, en plus de l'arbre (traits en pointillés).
 const ÉCART_X = 240
 const ÉCART_Y = 92
 const ZOOM_MIN = 0.25
@@ -38,7 +39,13 @@ const SEUIL_GLISSER = 6
 
 function compléter(objet) {
   const graphes = Array.isArray(objet?.graphes) ? objet.graphes : []
-  return { graphes: graphes.map(g => ({ ...g, noeuds: Array.isArray(g.noeuds) ? g.noeuds : [] })) }
+  return {
+    graphes: graphes.map(g => ({
+      ...g,
+      noeuds: Array.isArray(g.noeuds) ? g.noeuds : [],
+      liens: Array.isArray(g.liens) ? g.liens : [],
+    })),
+  }
 }
 
 function uid() {
@@ -99,14 +106,17 @@ export default function Graph() {
   const [grapheId, setGrapheId] = useState(() => localStorage.getItem(cléActif))
   const graphe = data.graphes.find(g => g.id === grapheId) || data.graphes[0] || null
   const noeuds = graphe?.noeuds || []
+  const liens = graphe?.liens || []
 
   const [vue, setVue] = useState({ x: 0, y: 0, zoom: 1 })
   const [sélection, setSélection] = useState(null)
   const [édition, setÉdition] = useState(null) // { id, texte }
   const [rattachement, setRattachement] = useState(false)
+  const [liaison, setLiaison] = useState(false)
+  const [traitChoisi, setTraitChoisi] = useState(null) // { type: 'lien' | 'branche', id }
   const [paletteOuverte, setPaletteOuverte] = useState(false)
   const [agrandi, setAgrandi] = useState(false)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(null) // { texte, erreur }
 
   const zoneRef = useRef(null)
   const pointeursRef = useRef(new Map())
@@ -218,14 +228,39 @@ export default function Graph() {
   const supprimerNoeud = id => {
     const sous = descendants(noeuds, id)
     if (sous.size > 0 && !window.confirm(`Supprimer cette bulle et les ${sous.size} bulle(s) qui en dépendent ?`)) return
-    majNoeuds(liste => liste.filter(n => n.id !== id && !sous.has(n.id)))
+    const retirées = new Set([id, ...sous])
+    majGraphe(g => ({
+      ...g,
+      noeuds: g.noeuds.filter(n => !retirées.has(n.id)),
+      liens: g.liens.filter(l => !retirées.has(l.de) && !retirées.has(l.vers)),
+    }))
     setSélection(null)
   }
+  const afficher = (texte, erreur = false) => {
+    setMessage({ texte, erreur })
+    setTimeout(() => setMessage(m => (m?.texte === texte ? null : m)), 2500)
+  }
+  // Relie deux bulles ; si elles le sont déjà par un lien libre, le retire.
+  const basculerLien = (a, b) => {
+    if (a === b) return
+    const na = noeuds.find(n => n.id === a)
+    const nb = noeuds.find(n => n.id === b)
+    if (na?.parentId === b || nb?.parentId === a) {
+      afficher('Ces deux bulles sont déjà reliées par une branche de l\'arbre.', true)
+      return
+    }
+    const existant = liens.find(l => (l.de === a && l.vers === b) || (l.de === b && l.vers === a))
+    majGraphe(g => ({
+      ...g,
+      liens: existant ? g.liens.filter(l => l.id !== existant.id) : [...g.liens, { id: uid(), de: a, vers: b }],
+    }))
+    afficher(existant ? 'Lien retiré' : 'Lien ajouté')
+  }
+  const supprimerLien = id => majGraphe(g => ({ ...g, liens: g.liens.filter(l => l.id !== id) }))
   const rattacher = (enfantId, parentId) => {
     if (enfantId === parentId) return
     if (descendants(noeuds, enfantId).has(parentId)) {
-      setMessage('Impossible : cette bulle dépend déjà de celle que tu déplaces.')
-      setTimeout(() => setMessage(''), 3000)
+      afficher('Impossible : cette bulle dépend déjà de celle que tu déplaces.', true)
       return
     }
     majNoeuds(liste => liste.map(n => (n.id === enfantId ? { ...n, parentId } : n)))
@@ -245,6 +280,10 @@ export default function Graph() {
 
   // ---------- Gestes : une seule logique pour la souris et le doigt ----------
   const touche = id => {
+    if (liaison && sélection) {
+      basculerLien(sélection, id)
+      return
+    }
     if (rattachement && sélection) {
       rattacher(sélection, id)
       setRattachement(false)
@@ -255,6 +294,7 @@ export default function Graph() {
       setÉdition({ id, texte: n.texte })
     } else {
       setSélection(id)
+      setTraitChoisi(null)
       setPaletteOuverte(false)
     }
   }
@@ -274,7 +314,11 @@ export default function Graph() {
       const n = noeuds.find(x => x.id === bulle.dataset.noeud)
       gesteRef.current = { type: 'bulle', id: n.id, départ: { x: e.clientX, y: e.clientY }, pos0: { x: n.x, y: n.y }, déplacé: false }
     } else {
-      gesteRef.current = { type: 'fond', départ: { x: e.clientX, y: e.clientY }, vue0: vueRef.current, déplacé: false }
+      const trait = e.target.closest('[data-trait]')
+      gesteRef.current = {
+        type: 'fond', départ: { x: e.clientX, y: e.clientY }, vue0: vueRef.current, déplacé: false,
+        trait: trait ? { type: trait.dataset.trait, id: trait.dataset.id } : null,
+      }
     }
   }
 
@@ -321,7 +365,8 @@ export default function Graph() {
     if (pointeursRef.current.size === 0) gesteRef.current = null
     if (g.déplacé) return
     if (g.type === 'bulle') touche(g.id)
-    else { setSélection(null); setRattachement(false); setPaletteOuverte(false) }
+    else if (g.trait && !liaison && !rattachement) { setTraitChoisi(g.trait); setSélection(null); setPaletteOuverte(false) }
+    else { setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false) }
   }
 
   const surMolette = e => {
@@ -371,9 +416,34 @@ export default function Graph() {
             {noeuds.filter(n => n.parentId && ids.has(n.parentId)).map(n => {
               const p = noeuds.find(x => x.id === n.parentId)
               const mx = (p.x + n.x) / 2
+              const d = `M ${p.x} ${p.y} C ${mx} ${p.y}, ${mx} ${n.y}, ${n.x} ${n.y}`
+              const choisi = traitChoisi?.type === 'branche' && traitChoisi.id === n.id
               return (
-                <path key={n.id} d={`M ${p.x} ${p.y} C ${mx} ${p.y}, ${mx} ${n.y}, ${n.x} ${n.y}`}
-                  fill="none" stroke={n.couleur || p.couleur || T.textMuted} strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
+                <g key={n.id}>
+                  <path d={d} fill="none" stroke={choisi ? T.accent : (n.couleur || p.couleur || T.textMuted)}
+                    strokeWidth={choisi ? 5 : 2.5} strokeLinecap="round" opacity={choisi ? 1 : 0.7} />
+                  <path d={d} data-trait="branche" data-id={n.id} fill="none" stroke="transparent" strokeWidth="22" style={{ pointerEvents: 'stroke', cursor: 'pointer' }} />
+                </g>
+              )
+            })}
+            {liens.filter(l => ids.has(l.de) && ids.has(l.vers)).map(l => {
+              const a = noeuds.find(n => n.id === l.de)
+              const b = noeuds.find(n => n.id === l.vers)
+              // Courbe d'autant plus marquée que le lien est long : on
+              // contourne ainsi les bulles placées entre les deux (ex. deux
+              // bulles sœurs d'une même colonne) et on ne confond pas avec
+              // une branche de l'arbre.
+              const long = Math.hypot(b.x - a.x, b.y - a.y) || 1
+              const écart = Math.min(170, Math.max(50, long * 0.6))
+              const cx = (a.x + b.x) / 2 - ((b.y - a.y) / long) * écart
+              const cy = (a.y + b.y) / 2 + ((b.x - a.x) / long) * écart
+              const d = `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`
+              const choisi = traitChoisi?.type === 'lien' && traitChoisi.id === l.id
+              return (
+                <g key={l.id}>
+                  <path d={d} fill="none" stroke={T.accent} strokeWidth={choisi ? 4.5 : 2.5} strokeDasharray="7 6" strokeLinecap="round" opacity={choisi ? 1 : 0.85} />
+                  <path d={d} data-trait="lien" data-id={l.id} fill="none" stroke="transparent" strokeWidth="22" style={{ pointerEvents: 'stroke', cursor: 'pointer' }} />
+                </g>
               )
             })}
           </svg>
@@ -381,7 +451,7 @@ export default function Graph() {
             const racine = !n.parentId || !ids.has(n.parentId)
             const couleur = n.couleur || (racine ? T.accent : T.border)
             const choisi = sélection === n.id
-            const cible = rattachement && !interditsRattachement.has(n.id)
+            const cible = (rattachement && !interditsRattachement.has(n.id)) || (liaison && n.id !== sélection)
             return (
               <div
                 key={n.id}
@@ -430,12 +500,18 @@ export default function Graph() {
           <button onClick={() => setRattachement(false)} style={{ background: 'rgba(0,0,0,.15)', color: 'inherit', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', fontWeight: 700 }}>Annuler</button>
         </div>
       )}
+      {liaison && (
+        <div style={{ position: 'absolute', left: '10px', right: '10px', top: '60px', background: T.accent, color: T.accentText, borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600 }}>
+          <span style={{ flex: 1 }}>Touche les bulles à relier à « {noeudSélectionné?.texte.split('\n')[0].slice(0, 24)} » (retoucher retire le lien)</span>
+          <button onClick={() => setLiaison(false)} style={{ background: 'rgba(0,0,0,.15)', color: 'inherit', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', fontWeight: 700 }}>Terminé</button>
+        </div>
+      )}
       {message && (
-        <div role="status" style={{ position: 'absolute', left: '10px', right: '10px', top: '60px', background: T.danger, color: '#fff', borderRadius: '12px', padding: '10px 12px', fontSize: '13px' }}>{message}</div>
+        <div role="status" style={{ position: 'absolute', left: '10px', right: '10px', top: liaison ? '118px' : '60px', background: message.erreur ? T.danger : '#2f7d4f', color: '#fff', borderRadius: '12px', padding: '10px 12px', fontSize: '13px' }}>{message.texte}</div>
       )}
 
       {/* Barre d'actions de la bulle sélectionnée */}
-      {noeudSélectionné && !rattachement && (
+      {noeudSélectionné && !rattachement && !liaison && (
         <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))' }}>
           {paletteOuverte && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '10px', marginBottom: '6px' }}>
@@ -451,14 +527,33 @@ export default function Graph() {
             <button onClick={() => ajouterEnfant(noeudSélectionné.id)} style={action()}><span style={{ fontSize: '18px' }}>➕</span>Enfant</button>
             <button onClick={() => setÉdition({ id: noeudSélectionné.id, texte: noeudSélectionné.texte })} style={action()}><span style={{ fontSize: '18px' }}>✏️</span>Texte</button>
             <button onClick={() => setPaletteOuverte(o => !o)} style={action()}><span style={{ fontSize: '18px' }}>🎨</span>Couleur</button>
-            {noeudSélectionné.parentId && ids.has(noeudSélectionné.parentId)
-              ? <button onClick={() => détacher(noeudSélectionné.id)} style={action()}><span style={{ fontSize: '18px' }}>✂️</span>Détacher</button>
-              : null}
-            <button onClick={() => { setRattachement(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🔗</span>Rattacher</button>
+            <button onClick={() => { setLiaison(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🔗</span>Lier</button>
+            <button onClick={() => { setRattachement(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🌳</span>Parent</button>
             <button onClick={() => supprimerNoeud(noeudSélectionné.id)} style={action(true)}><span style={{ fontSize: '18px' }}>🗑️</span>Suppr.</button>
           </div>
         </div>
       )}
+
+      {traitChoisi && (() => {
+        const lien = traitChoisi.type === 'lien' ? liens.find(l => l.id === traitChoisi.id) : null
+        const enfant = traitChoisi.type === 'branche' ? noeuds.find(n => n.id === traitChoisi.id) : null
+        const [a, b] = lien
+          ? [noeuds.find(n => n.id === lien.de), noeuds.find(n => n.id === lien.vers)]
+          : enfant ? [noeuds.find(n => n.id === enfant.parentId), enfant] : []
+        if (!a || !b) return null
+        const court = n => n.texte.split('\n')[0].replace(/\*\*/g, '').slice(0, 22)
+        return (
+          <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '10px 12px', boxShadow: '0 6px 20px rgba(0,0,0,.3)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ flex: 1, fontSize: '12.5px', color: T.text, lineHeight: 1.4 }}>
+              {lien ? 'Lien' : 'Branche'} : <strong>{court(a)}</strong> {lien ? '↔' : '→'} <strong>{court(b)}</strong>
+            </span>
+            <button
+              onClick={() => { if (lien) supprimerLien(lien.id); else détacher(enfant.id); setTraitChoisi(null) }}
+              style={{ background: T.danger, color: '#fff', border: 'none', borderRadius: '10px', padding: '9px 12px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk, flexShrink: 0 }}
+            >{lien ? 'Supprimer le lien' : 'Détacher'}</button>
+          </div>
+        )
+      })()}
 
       {graphe && noeuds.length === 0 && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
@@ -522,7 +617,7 @@ export default function Graph() {
             </div>
             {canevas}
             <p style={{ margin: '8px 0 0', fontSize: '11px', color: T.textMuted, textAlign: 'center', lineHeight: 1.5 }}>
-              Touche une bulle pour la choisir, retouche-la pour écrire. Glisse les bulles ou le fond ; pince pour zoomer.
+              Touche une bulle pour la choisir, retouche-la pour écrire. « Lier » relie deux bulles ; touche un trait pour le retirer. Glisse les bulles ou le fond ; pince pour zoomer.
             </p>
           </>
         )}
