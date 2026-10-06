@@ -115,6 +115,29 @@ function Séparateur({ taille, couleur, décalé }) {
   )
 }
 
+// Heure actuelle (HH:MM) avec les mêmes cartes à palettes, en petit.
+function heureDuMoment() {
+  const d = new Date()
+  return `${deux(d.getHours())}${deux(d.getMinutes())}`
+}
+
+function HeureActuelle({ taille }) {
+  const [heure, setHeure] = useState(heureDuMoment)
+  useEffect(() => {
+    const id = setInterval(() => setHeure(heureDuMoment()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return (
+    <div role="timer" aria-label={`Il est ${heure.slice(0, 2)} heures ${heure.slice(2)}`} style={{ display: 'flex', alignItems: 'flex-start', gap: `calc(${taille} * 0.08)` }}>
+      <Chiffre valeur={heure[0]} taille={taille} couleur={BLANC} />
+      <Chiffre valeur={heure[1]} taille={taille} couleur={BLANC} />
+      <Séparateur taille={taille} couleur={BLANC} />
+      <Chiffre valeur={heure[2]} taille={taille} couleur={BLANC} />
+      <Chiffre valeur={heure[3]} taille={taille} couleur={BLANC} />
+    </div>
+  )
+}
+
 export default function Timer() {
   const navigate = useNavigate()
   const [t, setT] = useState(charger)
@@ -275,12 +298,15 @@ export default function Timer() {
           onClick={e => { e.stopPropagation(); sortirPleinÉcran() }}
           aria-label="Quitter le plein écran"
           style={{
-            position: 'absolute', top: 'max(16px, env(safe-area-inset-top))', right: 'max(16px, env(safe-area-inset-right))',
+            position: 'absolute', top: 'max(16px, env(safe-area-inset-top))', left: 'max(16px, env(safe-area-inset-left))',
             width: '44px', height: '44px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC,
             fontSize: '18px', cursor: 'pointer', opacity: visibles ? 1 : 0, transition: 'opacity .4s',
             pointerEvents: visibles ? 'auto' : 'none',
           }}
         >✕</button>
+        <div style={{ position: 'absolute', top: 'max(16px, env(safe-area-inset-top))', right: 'max(16px, env(safe-area-inset-right))' }}>
+          <HeureActuelle taille="min(4.5vw, 30px)" />
+        </div>
         <div
           onClick={e => e.stopPropagation()}
           style={{
@@ -320,6 +346,9 @@ export default function Timer() {
           ))}
         </div>
         <button onClick={entrerPleinÉcran} aria-label="Plein écran" title="Plein écran" style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '16px', cursor: 'pointer' }}>⛶</button>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '-6px 0 10px' }}>
+        <HeureActuelle taille="20px" />
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
