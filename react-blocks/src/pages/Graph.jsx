@@ -80,6 +80,9 @@ export default function Graph() {
   const [tailles, setTailles] = useState({})
   const [présentation, setPrésentation] = useState(null) // { étape } (null = mode édition)
   const [transitionVue, setTransitionVue] = useState(false)
+  const [multi, setMulti] = useState([]) // sélection de plusieurs bulles (ids)
+  const [cadre, setCadre] = useState(null) // rectangle de sélection en cours { x0, y0, x1, y1 } (écran)
+  const [modeCadre, setModeCadre] = useState(false) // au doigt : glisser trace un cadre
   const [agrandie, setAgrandie] = useState(null) // id de la bulle dont on regarde l'image / le code en grand
   const [, setVersionHistorique] = useState(0)
 
@@ -285,7 +288,7 @@ export default function Graph() {
     setVersionHistorique(v => v + 1)
   }
   const oublierSélection = () => {
-    setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false)
+    setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false); setMulti([])
   }
   const voyager = (depuis, vers, libellé) => {
     const h = historiqueRef.current
@@ -312,6 +315,15 @@ export default function Graph() {
         else if (e.key === 'End') allerÀÉtape(ordre.length)
         else if (e.key === 'Escape') quitterPrésentation()
         return
+      }
+      if (!e.target.closest?.('input, textarea, select, [role=dialog]')) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && graphe) {
+          e.preventDefault()
+          setSélection(null); setTraitChoisi(null)
+          setMulti(visibles.map(n => n.id))
+          return
+        }
+        if (e.key === 'Escape' && (multi.length || modeCadre)) { setMulti([]); setModeCadre(false); return }
       }
       if (e.target.closest?.('input, textarea, select') || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' && e.key.toLowerCase() !== 'y') return
       e.preventDefault()
@@ -590,6 +602,25 @@ export default function Graph() {
       return
     }
     const bulle = e.target.closest('[data-noeud]')
+    const ajout = e.shiftKey || e.ctrlKey || e.metaKey
+    if (bulle && ajout && !liaison && !rattachement) {
+      // Maj/Ctrl + clic : ajoute ou retire la bulle de la sélection multiple.
+      const id = bulle.dataset.noeud
+      setMulti(m => {
+        const départ = m.length ? m : (sélection && sélection !== id ? [sélection] : [])
+        return départ.includes(id) ? départ.filter(x => x !== id) : [...départ, id]
+      })
+      setSélection(null); setTraitChoisi(null); setPaletteOuverte(false)
+      gesteRef.current = null
+      return
+    }
+    if (!bulle && (ajout || modeCadre) && !liaison && !rattachement) {
+      const { gauche, haut } = dimensions()
+      const x = e.clientX - gauche
+      const y = e.clientY - haut
+      gesteRef.current = { type: 'cadre', départ: { x: e.clientX, y: e.clientY }, déplacé: false, ajouter: e.ctrlKey || e.metaKey, origine: { x, y } }
+      return
+    }
     if (bulle) {
       const n = parId.get(bulle.dataset.noeud)
       gesteRef.current = { type: 'bulle', id: n.id, verrouillé: !!n.verrouillé, vue0: vueRef.current, départ: { x: e.clientX, y: e.clientY }, pos0: { x: n.x, y: n.y }, déplacé: false }
@@ -623,6 +654,11 @@ export default function Graph() {
     const dx = e.clientX - g.départ.x
     const dy = e.clientY - g.départ.y
     if (!g.déplacé && Math.hypot(dx, dy) < SEUIL_GLISSER) return
+    if (g.type === 'cadre') {
+      g.déplacé = true
+      setCadre({ x0: g.origine.x, y0: g.origine.y, x1: g.origine.x + dx, y1: g.origine.y + dy })
+      return
+    }
     if (g.type === 'bulle' && g.verrouillé) {
       // Bulle verrouillée : glisser déplace la vue, pas la bulle.
       if (!g.déplacé) afficher('🔒 Bulle verrouillée : touche « Verrou » pour la déplacer.')
@@ -635,7 +671,14 @@ export default function Graph() {
       const z = vueRef.current.zoom
       // Une branche repliée se déplace avec ses bulles cachées.
       const n = parId.get(g.id)
-      const àDéplacer = n?.replié ? new Set([g.id, ...descendants(noeuds, g.id)]) : new Set([g.id])
+      // Si la bulle fait partie d'une sélection multiple, tout le groupe suit
+      // (sauf les bulles verrouillées).
+      const groupe = multi.includes(g.id) ? multi.filter(id => !parId.get(id)?.verrouillé) : [g.id]
+      const àDéplacer = new Set()
+      groupe.forEach(id => {
+        àDéplacer.add(id)
+        if (parId.get(id)?.replié) descendants(noeuds, id).forEach(d => àDéplacer.add(d))
+      })
       const ddx = g.pos0.x + dx / z - n.x
       const ddy = g.pos0.y + dy / z - n.y
       majNoeuds(liste => liste.map(x => (àDéplacer.has(x.id) ? { ...x, x: x.x + ddx, y: x.y + ddy } : x)), false)
@@ -656,6 +699,23 @@ export default function Graph() {
       return
     }
     if (pointeursRef.current.size === 0) gesteRef.current = null
+    if (g.type === 'cadre') {
+      setCadre(null)
+      if (!g.déplacé) { oublierSélection(); return }
+      const { gauche, haut } = dimensions()
+      const v = vueRef.current
+      const ax = (Math.min(g.origine.x, e.clientX - gauche) - v.x) / v.zoom
+      const bx = (Math.max(g.origine.x, e.clientX - gauche) - v.x) / v.zoom
+      const ay = (Math.min(g.origine.y, e.clientY - haut) - v.y) / v.zoom
+      const by = (Math.max(g.origine.y, e.clientY - haut) - v.y) / v.zoom
+      const dedans = visibles.filter(n => n.x >= ax && n.x <= bx && n.y >= ay && n.y <= by).map(n => n.id)
+      const tous = g.ajouter ? [...new Set([...multi, ...dedans])] : dedans
+      setSélection(null); setTraitChoisi(null); setPaletteOuverte(false)
+      setMulti(tous)
+      setModeCadre(false)
+      if (tous.length === 0) afficher('Aucune bulle dans le cadre.')
+      return
+    }
     if (g.déplacé) return
     if (présentation) {
       // Toucher le quart gauche revient en arrière, le reste avance.
@@ -663,7 +723,7 @@ export default function Graph() {
       allerÀÉtape(présentation.étape + (e.clientX - gauche < l / 4 ? -1 : 1))
       return
     }
-    if (g.type === 'bulle') touche(g.id)
+    if (g.type === 'bulle') { setMulti([]); touche(g.id) }
     else if (g.trait && !liaison && !rattachement) { setTraitChoisi(g.trait); setSélection(null); setPaletteOuverte(false) }
     else oublierSélection()
   }
@@ -675,6 +735,28 @@ export default function Graph() {
 
   // ---------- Rendu ----------
   const noeudSélectionné = parId.get(sélection)
+  const multiSet = new Set(multi.filter(id => idsVisibles.has(id)))
+  const multiNoeuds = [...multiSet].map(id => parId.get(id))
+  const verrouillerMulti = valeur => {
+    majNoeuds(liste => liste.map(n => {
+      if (!multiSet.has(n.id)) return n
+      const maj = { ...n, verrouillé: true }
+      if (!valeur) delete maj.verrouillé
+      return maj
+    }))
+    afficher(valeur ? `🔒 ${multiSet.size} bulles verrouillées` : `🔓 ${multiSet.size} bulles déverrouillées`)
+  }
+  const supprimerMulti = () => {
+    const retirées = new Set()
+    multiSet.forEach(id => { retirées.add(id); descendants(noeuds, id).forEach(d => retirées.add(d)) })
+    if (!window.confirm(`Supprimer ${retirées.size} bulle(s) (avec celles qui en dépendent) ?`)) return
+    majGraphe(g => ({
+      ...g,
+      noeuds: g.noeuds.filter(n => !retirées.has(n.id)),
+      liens: g.liens.filter(l => !retirées.has(l.de) && !retirées.has(l.vers)),
+    }))
+    setMulti([])
+  }
   const interditsRattachement = rattachement && sélection ? new Set([sélection, ...descendants(noeuds, sélection)]) : new Set()
 
   const boutonFlottant = (désactivé = false) => ({
@@ -757,7 +839,7 @@ export default function Graph() {
           {affichées.map(n => {
             const racine = estRacine(n)
             const couleur = n.couleur || (racine ? T.accent : T.border)
-            const choisi = sélection === n.id
+            const choisi = sélection === n.id || multiSet.has(n.id)
             const cible = (rattachement && !interditsRattachement.has(n.id)) || (liaison && n.id !== sélection)
             const trouvée = idsTrouvés.has(n.id)
             const nbCachées = n.replié ? descendants(noeuds, n.id).size : 0
@@ -870,6 +952,9 @@ export default function Graph() {
           {noeuds.length > 1 && <button onClick={rangerTout} style={boutonTexte}>Ranger</button>}
           <button onClick={annuler} disabled={!peutAnnuler} aria-label="Annuler" title="Annuler (Ctrl+Z)" style={boutonFlottant(!peutAnnuler)}>↩︎</button>
           <button onClick={rétablir} disabled={!peutRétablir} aria-label="Rétablir" title="Rétablir (Ctrl+Maj+Z)" style={boutonFlottant(!peutRétablir)}>↪︎</button>
+          <button onClick={() => { setModeCadre(m => !m); setSélection(null); setTraitChoisi(null) }} aria-pressed={modeCadre} aria-label="Sélectionner plusieurs bulles"
+            title="Sélectionner plusieurs bulles (ou Maj + glisser avec la souris)"
+            style={{ ...boutonFlottant(), ...(modeCadre ? { background: T.accent, color: T.accentText, border: 'none' } : {}), fontSize: '16px' }}>⬚</button>
         </div>
       )}
 
@@ -917,6 +1002,43 @@ export default function Graph() {
       )}
 
       {/* Barre d'actions de la bulle sélectionnée */}
+      {cadre && (
+        <div style={{
+          position: 'absolute', pointerEvents: 'none', left: Math.min(cadre.x0, cadre.x1), top: Math.min(cadre.y0, cadre.y1),
+          width: Math.abs(cadre.x1 - cadre.x0), height: Math.abs(cadre.y1 - cadre.y0),
+          border: `1.5px dashed ${T.accent}`, background: `${T.accent}1f`, borderRadius: '4px',
+        }} />
+      )}
+      {modeCadre && !cadre && (
+        <div style={{ ...bandeau, background: T.accent, color: T.accentText }}>
+          <span style={{ flex: 1 }}>Glisse pour tracer un cadre autour des bulles à sélectionner</span>
+          <button onClick={() => setModeCadre(false)} style={boutonBandeau}>Annuler</button>
+        </div>
+      )}
+
+      {/* Barre d'actions de plusieurs bulles sélectionnées */}
+      {multiSet.size > 0 && !noeudSélectionné && (
+        <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '10px 12px', boxShadow: '0 6px 20px rgba(0,0,0,.3)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '12.5px', color: T.text }}>
+            <strong>{multiSet.size} bulle{multiSet.size > 1 ? 's' : ''} sélectionnée{multiSet.size > 1 ? 's' : ''}</strong>
+            <span style={{ color: T.textMuted }}> · {multiNoeuds.filter(n => n.verrouillé).length} verrouillée(s) · Maj/Ctrl + clic pour ajouter ou retirer</span>
+          </span>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {[
+              ['🔒 Verrouiller', () => verrouillerMulti(true), multiNoeuds.every(n => n.verrouillé)],
+              ['🔓 Déverrouiller', () => verrouillerMulti(false), !multiNoeuds.some(n => n.verrouillé)],
+            ].map(([libellé, fn, inutile]) => (
+              <button key={libellé} onClick={fn} disabled={inutile} style={{
+                background: T.surface2, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '8px 10px',
+                fontSize: '12.5px', fontWeight: 600, cursor: inutile ? 'default' : 'pointer', fontFamily: grotesk, opacity: inutile ? 0.4 : 1,
+              }}>{libellé}</button>
+            ))}
+            <button onClick={supprimerMulti} style={{ background: T.danger, color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 10px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk }}>🗑️ Supprimer</button>
+            <button onClick={() => setMulti([])} aria-label="Tout désélectionner" style={{ marginLeft: 'auto', background: 'transparent', color: T.textMuted, border: 'none', fontSize: '16px', cursor: 'pointer', padding: '0 6px' }}>✕</button>
+          </div>
+        </div>
+      )}
+
       {noeudSélectionné && !rattachement && !liaison && (
         <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))' }}>
           {paletteOuverte && (
@@ -1114,7 +1236,7 @@ export default function Graph() {
             </div>
             {canevas}
             <p style={{ margin: '8px 0 0', fontSize: '11px', color: T.textMuted, textAlign: 'center', lineHeight: 1.5 }}>
-              Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule.
+              Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule. Plusieurs bulles : ⬚, ou Maj + glisser / Maj + clic à la souris (Ctrl+A : toutes).
             </p>
           </>
         )}
