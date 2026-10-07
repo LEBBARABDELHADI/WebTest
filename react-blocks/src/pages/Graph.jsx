@@ -8,6 +8,7 @@ import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage } from '../components/ImageCarte'
+import CodeBlock from '../components/CodeBlock'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { normaliser } from '../lib/motsCles'
@@ -79,6 +80,7 @@ export default function Graph() {
   const [tailles, setTailles] = useState({})
   const [présentation, setPrésentation] = useState(null) // { étape } (null = mode édition)
   const [transitionVue, setTransitionVue] = useState(false)
+  const [agrandie, setAgrandie] = useState(null) // id de la bulle dont on regarde l'image / le code en grand
   const [, setVersionHistorique] = useState(0)
 
   const zoneRef = useRef(null)
@@ -122,6 +124,31 @@ export default function Graph() {
     }
   }
   const tailleDe = id => tailles[id] || TAILLE_PAR_DÉFAUT
+
+  // Une bulle qui grandit (code, image, taille) peut recouvrir ses voisines :
+  // on le signale pendant quelques secondes après la modification, avec un
+  // bouton pour ranger l'arbre (sans rien déplacer d'office).
+  const surveilléeRef = useRef(null)
+  const surveillerTaille = id => {
+    surveilléeRef.current = id
+    setTimeout(() => { if (surveilléeRef.current === id) surveilléeRef.current = null }, 4000)
+  }
+  useEffect(() => {
+    const id = surveilléeRef.current
+    const n = id && parId.get(id)
+    if (!n || cachées.has(id)) return
+    const ta = tailleDe(id)
+    const recouvre = visibles.some(o => {
+      if (o.id === id) return false
+      const tb = tailleDe(o.id)
+      return Math.abs(n.x - o.x) < (ta.l + tb.l) / 2 + 4 && Math.abs(n.y - o.y) < (ta.h + tb.h) / 2 + 4
+    })
+    if (recouvre) {
+      surveilléeRef.current = null
+      afficher('Cette bulle recouvre ses voisines.', false, { libellé: 'Ranger', fn: rangerTout })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tailles])
 
   // ---------- Bulles visibles (branches repliées) ----------
   const cachées = bullesCachées(noeuds)
@@ -296,9 +323,9 @@ export default function Graph() {
   })
 
   // ---------- Modifications ----------
-  const afficher = (texte, estErreur = false) => {
-    setMessage({ texte, erreur: estErreur })
-    setTimeout(() => setMessage(m => (m?.texte === texte ? null : m)), 2500)
+  const afficher = (texte, estErreur = false, action = null) => {
+    setMessage({ texte, erreur: estErreur, action })
+    setTimeout(() => setMessage(m => (m?.texte === texte ? null : m)), action ? 6000 : 2500)
   }
   const majGraphe = (fn, garderTrace = true) => {
     if (garderTrace) mémoriser()
@@ -336,14 +363,14 @@ export default function Graph() {
     majNoeuds(liste => [...liste.map(n => (n.id === parentId ? { ...n, replié: false } : n)), nouveau])
     setSélection(nouveau.id)
     révéler(nouveau, parent)
-    setÉdition({ type: 'bulle', id: nouveau.id, texte: '', image: null })
+    setÉdition(éditionBulle(nouveau))
   }
   const ajouterBulleLibre = () => {
     const { l, h } = dimensions()
     const nouveau = { id: uid(), texte: 'Nouvelle idée', x: (l / 2 - vue.x) / vue.zoom, y: (h / 2 - vue.y) / vue.zoom, parentId: null }
     majNoeuds(liste => [...liste, nouveau])
     setSélection(nouveau.id)
-    setÉdition({ type: 'bulle', id: nouveau.id, texte: '', image: null })
+    setÉdition(éditionBulle(nouveau))
   }
   const supprimerNoeud = id => {
     const sous = descendants(noeuds, id)
@@ -367,12 +394,12 @@ export default function Graph() {
   const détacher = id => majNoeuds(liste => liste.map(n => (n.id === id ? { ...n, parentId: null } : n)))
   const changerCouleur = (id, couleur) => majNoeuds(liste => liste.map(n => (n.id === id ? { ...n, couleur } : n)))
   // Valeur par défaut = champ retiré, pour garder le JSON léger.
-  const changerChamp = (id, champ, valeur) => majNoeuds(liste => liste.map(n => {
+  const changerChamp = (id, champ, valeur) => { surveillerTaille(id); majNoeuds(liste => liste.map(n => {
     if (n.id !== id) return n
     const maj = { ...n, [champ]: valeur }
     if (!valeur) delete maj[champ]
     return maj
-  }))
+  })) }
   // Déplie des branches ; si les bulles qui réapparaissent chevauchent
   // les autres (l'arbre a été rangé pendant le repli), on range tout.
   const déplier = (liste, idsÀDéplier) => {
@@ -386,7 +413,7 @@ export default function Graph() {
       const tb = tailleDe(b.id)
       return Math.abs(a.x - b.x) < (ta.l + tb.l) / 2 && Math.abs(a.y - b.y) < (ta.h + tb.h) / 2
     }
-    return montrées.some(m => autres.some(o => chevauche(m, o))) ? ranger(après) : après
+    return montrées.some(m => autres.some(o => chevauche(m, o))) ? ranger(après, tailleDe) : après
   }
   const basculerRepli = id => majNoeuds(liste => {
     const n = liste.find(x => x.id === id)
@@ -416,7 +443,13 @@ export default function Graph() {
     else majLien(lien.id, l => ({ ...l, sens }))
   }
 
+  // Fenêtre de saisie d'une bulle ; avecCode ouvre directement la section code.
+  const éditionBulle = (n, avecCode = false) => ({
+    type: 'bulle', id: n.id, texte: n.texte === 'Nouvelle idée' && !n.code ? '' : n.texte, image: n.image || null,
+    code: n.code ?? (avecCode ? '' : null), langage: n.langage || '', focusCode: avecCode,
+  })
   const validerÉdition = () => {
+    if (édition.type === 'bulle') surveillerTaille(édition.id)
     const texte = édition.texte.trim()
     if (édition.type === 'lien') {
       majLien(édition.id, l => {
@@ -427,15 +460,18 @@ export default function Graph() {
     } else {
       majNoeuds(liste => liste.map(n => {
         if (n.id !== édition.id) return n
-        const maj = { ...n, texte: texte || 'Nouvelle idée', image: édition.image }
+        const code = (édition.code || '').replace(/\s+$/, '')
+        const maj = { ...n, texte: texte || 'Nouvelle idée', image: édition.image, code, langage: édition.langage }
         if (!maj.image) delete maj.image
+        if (!code) { delete maj.code; delete maj.langage }
+        if (!maj.langage) delete maj.langage
         return maj
       }))
     }
     setÉdition(null)
   }
   const rangerTout = () => {
-    const rangés = ranger(noeuds)
+    const rangés = ranger(noeuds, tailleDe)
     majNoeuds(() => rangés)
     const cachéesRangées = bullesCachées(rangés)
     requestAnimationFrame(() => centrer(rangés.filter(n => !cachéesRangées.has(n.id))))
@@ -470,6 +506,16 @@ export default function Graph() {
   }, [recherche?.q])
 
   // ---------- Export PNG ----------
+  // Position du bloc de code dans la bulle, mesurée à l'écran.
+  const blocCode = n => {
+    const pre = n.code && élémentsRef.current.get(n.id)?.querySelector('pre')
+    if (!pre) return null
+    const bord = (n.forme || 'arrondi') === 'nuage' ? 0 : 2
+    return {
+      x: pre.offsetLeft + bord, y: pre.offsetTop + bord, l: pre.offsetWidth, h: pre.offsetHeight,
+      lignes: lignesVisibles(n.code).lignes, reste: lignesVisibles(n.code).reste, langage: n.langage || '', f: facteurTaille(n),
+    }
+  }
   const exporter = async () => {
     setExportÉtat({ enCours: true })
     try {
@@ -481,6 +527,7 @@ export default function Graph() {
           couleur: n.couleur || (racine ? T.accent : T.border),
           image: n.image ? adresseImage(n.image) : null,
           badge: n.replié ? `+${descendants(noeuds, n.id).size}` : null,
+          code: blocCode(n),
         }
       })
       const branches = visibles.filter(n => n.parentId && idsVisibles.has(n.parentId)).map(n => {
@@ -492,7 +539,7 @@ export default function Graph() {
         branches,
         liens: liensVisibles.map(({ l, géo }) => ({ ...géo, sens: l.sens || 'aucun', texte: l.texte || '' })),
         couleurs: { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent },
-        polices: { serif, sans: getComputedStyle(document.body).fontFamily },
+        polices: { serif, sans: getComputedStyle(document.body).fontFamily, mono: POLICE_CODE },
       })
       setExportÉtat({ url: URL.createObjectURL(blob), blob, nom: graphe.nom })
     } catch (err) {
@@ -517,7 +564,7 @@ export default function Graph() {
     }
     if (sélection === id) {
       const n = parId.get(id)
-      setÉdition({ type: 'bulle', id, texte: n.texte, image: n.image || null })
+      setÉdition(éditionBulle(n))
     } else {
       setSélection(id)
       setTraitChoisi(null)
@@ -526,6 +573,8 @@ export default function Graph() {
   }
 
   const surAppui = e => {
+    const loupe = e.target.closest('[data-agrandir]')
+    if (loupe) { setAgrandie(loupe.dataset.agrandir); return }
     const zone = zoneRef.current
     zone.setPointerCapture?.(e.pointerId)
     pointeursRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
@@ -725,7 +774,7 @@ export default function Graph() {
                 className={présentation ? 'anime' : actuelle?.id === n.id ? 'bulle-trouvee' : undefined}
                 style={{
                   position: 'absolute', left: n.x, top: n.y, transform: 'translate(-50%, -50%)',
-                  minWidth: `${64 * f}px`, maxWidth: `${210 * f}px`, width: 'max-content',
+                  minWidth: `${64 * f}px`, maxWidth: `${(n.code ? 340 : 210) * f}px`, width: 'max-content',
                   padding: nuage ? (racine ? marges(24, 34) : marges(20, 28)) : forme === 'rond' ? (racine ? marges(18, 26) : marges(14, 22)) : (racine ? marges(12, 16) : marges(9, 14)),
                   borderRadius: { arrondi: '18px', rond: '50%', rectangle: '4px', nuage: 0 }[forme],
                   textAlign: 'center', cursor: 'pointer', lineHeight: 1.35,
@@ -751,6 +800,14 @@ export default function Graph() {
                 {n.image && <ImageCarte image={n.image} hauteurMax={110 * f} style={{ maxWidth: `${180 * f}px`, margin: '0 auto 6px', borderRadius: '8px', pointerEvents: 'none' }} />}
                 {n.icone && <span style={{ marginRight: '5px' }}>{n.icone}</span>}
                 <TexteFormaté texte={n.texte} couleurDéfaut={racine ? '#1b1b1b' : T.text} />
+                {n.code && <CodeDansBulle code={n.code} langage={n.langage} f={f} />}
+                {(n.image || n.code) && (
+                  <span data-agrandir={n.id} role="button" aria-label={`Agrandir ${n.image ? 'l\'image' : 'le code'}`} title="Agrandir" style={{
+                    position: 'absolute', bottom: '-12px', right: '-12px', width: '28px', height: '28px', borderRadius: '50%',
+                    background: T.surface, color: T.text, border: `1.5px solid ${T.accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '14px', fontWeight: 700, cursor: 'zoom-in', boxShadow: '0 2px 6px rgba(0,0,0,.35)', fontFamily: grotesk,
+                  }}>⤢</span>
+                )}
                 {nbCachées > 0 && (
                   <span style={{
                     position: 'absolute', top: '-10px', right: '-10px', minWidth: '24px', height: '22px', padding: '0 6px',
@@ -839,7 +896,12 @@ export default function Graph() {
         </div>
       )}
       {message && (
-        <div role="status" style={{ ...bandeau, top: liaison || rattachement ? '118px' : '60px', background: message.erreur ? T.danger : '#2f7d4f', color: '#fff', fontWeight: 500 }}>{message.texte}</div>
+        <div role="status" style={{ ...bandeau, top: liaison || rattachement ? '118px' : '60px', background: message.erreur ? T.danger : message.action ? T.surface : '#2f7d4f', color: message.action ? T.text : '#fff', border: message.action ? `1px solid ${T.accent}` : 'none', fontWeight: 500 }}>
+          <span style={{ flex: 1 }}>{message.texte}</span>
+          {message.action && (
+            <button onClick={() => { message.action.fn(); setMessage(null) }} style={{ ...boutonBandeau, background: T.accent, color: T.accentText }}>{message.action.libellé}</button>
+          )}
+        </div>
       )}
 
       {/* Barre d'actions de la bulle sélectionnée */}
@@ -895,7 +957,8 @@ export default function Graph() {
           )}
           <div style={{ display: 'flex', justifyContent: 'space-around', overflowX: 'auto', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '6px 4px', boxShadow: '0 6px 20px rgba(0,0,0,.3)' }}>
             <button onClick={() => ajouterEnfant(noeudSélectionné.id)} style={action()}><span style={{ fontSize: '18px' }}>➕</span>Enfant</button>
-            <button onClick={() => setÉdition({ type: 'bulle', id: noeudSélectionné.id, texte: noeudSélectionné.texte, image: noeudSélectionné.image || null })} style={action()}><span style={{ fontSize: '18px' }}>✏️</span>Texte</button>
+            <button onClick={() => setÉdition(éditionBulle(noeudSélectionné))} style={action()}><span style={{ fontSize: '18px' }}>✏️</span>Texte</button>
+            <button onClick={() => setÉdition(éditionBulle(noeudSélectionné, true))} style={action()}><span style={{ fontSize: '15px', fontWeight: 800, fontFamily: 'ui-monospace, Menlo, monospace', lineHeight: '22px' }}>&lt;/&gt;</span>Code</button>
             <button onClick={() => setPaletteOuverte(o => !o)} style={action()}><span style={{ fontSize: '18px' }}>🎨</span>Style</button>
             <button onClick={() => { setLiaison(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🔗</span>Lier</button>
             <button onClick={() => { setRattachement(true); setPaletteOuverte(false) }} style={action()}><span style={{ fontSize: '18px' }}>🌳</span>Parent</button>
@@ -1072,7 +1135,7 @@ export default function Graph() {
             ) : (
               <>
                 <textarea
-                  autoFocus
+                  autoFocus={!édition.focusCode}
                   value={édition.texte}
                   onChange={e => setÉdition(é => ({ ...é, texte: e.target.value }))}
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) validerÉdition() }}
@@ -1081,6 +1144,7 @@ export default function Graph() {
                   style={{ width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '10px', fontSize: '15px', fontFamily: 'inherit', resize: 'vertical' }}
                 />
                 <ChampImage image={édition.image} onChange={image => setÉdition(é => ({ ...é, image }))} token={token} libellé="Ajouter une image" />
+                <ChampCode T={T} édition={édition} setÉdition={setÉdition} />
               </>
             )}
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
@@ -1090,6 +1154,8 @@ export default function Graph() {
           </div>
         </div>
       )}
+
+      {agrandie && parId.get(agrandie) && <VueAgrandie T={T} noeud={parId.get(agrandie)} onFermer={() => setAgrandie(null)} />}
 
       {exportÉtat?.url && (
         <div role="dialog" aria-label="Image du graphe" style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(0,0,0,.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px', padding: '20px 16px' }}>
@@ -1238,6 +1304,137 @@ function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer }) {
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+const POLICE_CODE = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+const LIGNES_CODE_MAX = 14
+function lignesVisibles(code) {
+  const lignes = code.replace(/\t/g, '  ').split('\n')
+  return { lignes: lignes.slice(0, LIGNES_CODE_MAX), reste: Math.max(0, lignes.length - LIGNES_CODE_MAX) }
+}
+
+// Bloc de code affiché dans une bulle (les lignes trop longues sont coupées,
+// le code complet se lit avec ⤢).
+function CodeDansBulle({ code, langage, f }) {
+  const { lignes, reste } = lignesVisibles(code)
+  return (
+    <pre style={{
+      margin: `${6 * f}px 0 0`, padding: `${8 * f}px ${10 * f}px`, borderRadius: `${8 * f}px`, background: '#0d0f14', color: '#e2e8f0',
+      fontFamily: POLICE_CODE, fontSize: `${11.5 * f}px`, lineHeight: 1.5, fontWeight: 400, textAlign: 'left',
+      whiteSpace: 'pre', overflow: 'hidden', maxWidth: '100%', pointerEvents: 'none',
+    }}>
+      {langage && <span style={{ display: 'block', color: '#94a3b8', fontSize: `${9.5 * f}px`, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: `${3 * f}px` }}>{langage}</span>}
+      {lignes.join('\n')}
+      {reste > 0 && <span style={{ display: 'block', color: '#94a3b8', marginTop: `${3 * f}px` }}>… +{reste} ligne{reste > 1 ? 's' : ''}</span>}
+    </pre>
+  )
+}
+
+const LANGAGES = ['JavaScript', 'Python', 'HTML', 'CSS', 'SQL', 'Java', 'C#', 'PHP', 'Bash', 'JSON']
+
+// Section « Code » de la fenêtre de saisie d'une bulle.
+function ChampCode({ T, édition, setÉdition }) {
+  const zone = useRef(null)
+  useEffect(() => {
+    if (édition.focusCode) zone.current?.focus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const petit = {
+    fontSize: '11.5px', fontFamily: grotesk, fontWeight: 600, padding: '5px 10px', borderRadius: '20px',
+    background: T.surface2, color: T.text, border: `1px solid ${T.border}`, cursor: 'pointer',
+  }
+  if (édition.code === null) {
+    return (
+      <div style={{ marginTop: '6px' }}>
+        <button type="button" onClick={() => setÉdition(é => ({ ...é, code: '', focusCode: true }))} style={petit}>&lt;/&gt; Ajouter du code</button>
+      </div>
+    )
+  }
+  // Tab insère deux espaces au lieu de quitter le champ.
+  const surTouche = e => {
+    if (e.key !== 'Tab' || e.shiftKey) return
+    e.preventDefault()
+    // insertText garde le curseur au bon endroit (et l'annulation du clavier).
+    if (document.execCommand?.('insertText', false, '  ')) return
+    const el = e.currentTarget
+    const { selectionStart: début, selectionEnd: fin, value } = el
+    el.value = `${value.slice(0, début)}  ${value.slice(fin)}`
+    el.selectionStart = el.selectionEnd = début + 2
+    setÉdition(é => ({ ...é, code: el.value }))
+  }
+  return (
+    <div style={{ marginTop: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+        <span style={{ fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk, flex: 1 }}>&lt;/&gt; Code</span>
+        <select value={édition.langage} onChange={e => setÉdition(é => ({ ...é, langage: e.target.value }))} aria-label="Langage du code" style={{
+          fontSize: '12px', fontFamily: grotesk, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '4px 6px',
+        }}>
+          <option value="">Langage…</option>
+          {LANGAGES.map(l => <option key={l} value={l}>{l}</option>)}
+        </select>
+        <button type="button" onClick={() => setÉdition(é => ({ ...é, code: null, langage: '' }))} style={{ ...petit, color: T.danger }}>Retirer</button>
+      </div>
+      <textarea
+        ref={zone}
+        value={édition.code}
+        onChange={e => setÉdition(é => ({ ...é, code: e.target.value }))}
+        onKeyDown={surTouche}
+        placeholder="Colle ou écris ton code ici…"
+        aria-label="Code de la bulle"
+        rows={7}
+        spellCheck={false}
+        autoCapitalize="off"
+        autoCorrect="off"
+        style={{
+          width: '100%', boxSizing: 'border-box', background: '#0d0f14', color: '#e2e8f0', border: `1px solid ${T.border}`, borderRadius: '10px',
+          padding: '10px', fontSize: '13px', fontFamily: POLICE_CODE, lineHeight: 1.5, resize: 'vertical', whiteSpace: 'pre', overflowX: 'auto',
+        }}
+      />
+    </div>
+  )
+}
+
+// Image et code d'une bulle en grand, par-dessus tout.
+function VueAgrandie({ T, noeud, onFermer }) {
+  const [zoom, setZoom] = useState(false)
+  useEffect(() => {
+    const surTouche = e => { if (e.key === 'Escape') onFermer() }
+    window.addEventListener('keydown', surTouche)
+    return () => window.removeEventListener('keydown', surTouche)
+  }, [onFermer])
+  return (
+    <div role="dialog" aria-label="Bulle en grand" style={{ position: 'fixed', inset: 0, zIndex: 1300, background: '#0b0b0c', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(12px, env(safe-area-inset-top)) 14px 10px' }}>
+        <p style={{ flex: 1, margin: 0, color: '#f5f5f5', fontSize: '15px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {noeud.icone ? `${noeud.icone} ` : ''}{texteBrut(noeud.texte)}
+        </p>
+        {noeud.image && (
+          <button onClick={() => setZoom(z => !z)} aria-pressed={zoom} style={{ padding: '8px 12px', borderRadius: '10px', background: zoom ? T.accent : '#2c2c2e', color: zoom ? T.accentText : '#fff', border: 'none', cursor: 'pointer', fontFamily: grotesk, fontWeight: 700, fontSize: '12.5px' }}>
+            {zoom ? '🔍 Ajuster' : '🔍 Zoom ×2'}
+          </button>
+        )}
+        <button onClick={onFermer} aria-label="Fermer" style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#2c2c2e', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '17px' }}>✕</button>
+      </div>
+      <div style={{ flex: 1, overflow: 'auto', padding: '6px 14px max(16px, env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: zoom ? 'flex-start' : 'center' }}>
+        {noeud.image && (
+          <img
+            src={adresseImage(noeud.image)}
+            alt={texteBrut(noeud.texte)}
+            onClick={() => setZoom(z => !z)}
+            style={zoom
+              ? { width: '200%', maxWidth: 'none', borderRadius: '10px', cursor: 'zoom-out', flexShrink: 0 }
+              : { width: '100%', maxWidth: '900px', maxHeight: noeud.code ? '45dvh' : '78dvh', objectFit: 'contain', borderRadius: '10px', cursor: 'zoom-in', flexShrink: 0 }}
+          />
+        )}
+        {noeud.code && (
+          <div style={{ width: '100%', maxWidth: '900px', alignSelf: 'center' }}>
+            {noeud.langage && <p style={{ margin: '0 0 6px', color: '#94a3b8', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>{noeud.langage}</p>}
+            <CodeBlock code={noeud.code} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

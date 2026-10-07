@@ -73,6 +73,37 @@ function flèche(ctx, pointe, depuis, couleur) {
   ctx.restore()
 }
 
+// Bloc de code d'une bulle : fond sombre, police à chasse fixe, lignes
+// coupées au bord comme à l'écran.
+function dessinerCode(ctx, code, gauche, haut, polices) {
+  const { f } = code
+  const x = gauche + code.x
+  const y = haut + code.y
+  ctx.save()
+  rectangleArrondi(ctx, x, y, code.l, code.h, 8 * f)
+  ctx.fillStyle = '#0d0f14'
+  ctx.fill()
+  ctx.clip()
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'top'
+  let ligneY = y + 8 * f
+  if (code.langage) {
+    ctx.font = `400 ${9.5 * f}px ${polices.mono}`
+    ctx.fillStyle = '#94a3b8'
+    ctx.fillText(code.langage.toUpperCase(), x + 10 * f, ligneY + 2 * f)
+    ligneY += 9.5 * f * 1.5 + 3 * f
+  }
+  ctx.font = `400 ${11.5 * f}px ${polices.mono}`
+  ctx.fillStyle = '#e2e8f0'
+  const hauteur = 11.5 * f * 1.5
+  code.lignes.forEach(l => { ctx.fillText(l, x + 10 * f, ligneY + 2 * f); ligneY += hauteur })
+  if (code.reste) {
+    ctx.fillStyle = '#94a3b8'
+    ctx.fillText(`… +${code.reste} ligne${code.reste > 1 ? 's' : ''}`, x + 10 * f, ligneY + 5 * f)
+  }
+  ctx.restore()
+}
+
 function chargerImage(src) {
   return new Promise(resolve => {
     if (!src) { resolve(null); return }
@@ -179,9 +210,13 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
     // Petite tolérance : les polices du canvas mesurent un peu plus large.
     const lignes = couperLignes(ctx, b.texte, b.l - 2 * marge + 8)
     const hauteurLigne = taillePolice * 1.35
-    const disponible = b.h - 2 * margeV - hauteurImage
+    // Avec du code, le texte occupe l'espace au-dessus du bloc de code.
+    const bas = b.code ? b.code.y - 6 * f : b.h - margeV
+    const disponible = bas - margeV - hauteurImage
     let y = haut + margeV + hauteurImage + (disponible - lignes.length * hauteurLigne) / 2 + hauteurLigne / 2
     lignes.forEach(ligne => { ctx.fillText(ligne, b.x, y); y += hauteurLigne })
+
+    if (b.code) dessinerCode(ctx, b.code, gauche, haut, polices)
 
     if (b.badge) {
       ctx.font = `700 11px ${polices.sans}`

@@ -62,7 +62,10 @@ export function ancêtres(noeuds, id) {
 // Range l'arbre de gauche à droite : profondeur → colonne, feuilles
 // empilées, chaque parent centré sur ses enfants. Une branche repliée
 // compte comme une feuille ; ses bulles cachées suivent sa bulle.
-export function ranger(noeuds) {
+// `taille(id)` (facultatif) donne la taille affichée des bulles, pour que
+// les grandes bulles (code, image) gardent de la place autour d'elles.
+const TAILLE_DÉFAUT = { l: 120, h: 44 }
+export function ranger(noeuds, taille = () => TAILLE_DÉFAUT) {
   const ids = new Set(noeuds.map(n => n.id))
   const enfants = new Map()
   noeuds.forEach(n => {
@@ -72,22 +75,34 @@ export function ranger(noeuds) {
     }
   })
   const positions = {}
+  const profondeurs = {}
   const vus = new Set()
   let ligne = 0
   const placer = (n, profondeur) => {
     if (vus.has(n.id)) return
     vus.add(n.id)
+    profondeurs[n.id] = profondeur
     const fils = n.replié ? [] : (enfants.get(n.id) || []).filter(f => !vus.has(f.id))
     if (fils.length === 0) {
-      positions[n.id] = { x: profondeur * ÉCART_X, y: ligne * ÉCART_Y }
-      ligne += 1
+      const hauteur = Math.max(ÉCART_Y, (taille(n.id)?.h || TAILLE_DÉFAUT.h) + 36)
+      positions[n.id] = { y: ligne + hauteur / 2 }
+      ligne += hauteur
       return
     }
     fils.forEach(f => placer(f, profondeur + 1))
     const ys = fils.map(f => positions[f.id].y)
-    positions[n.id] = { x: profondeur * ÉCART_X, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+    positions[n.id] = { y: (Math.min(...ys) + Math.max(...ys)) / 2 }
   }
-  noeuds.filter(n => !n.parentId || !ids.has(n.parentId)).forEach(r => { placer(r, 0); ligne += 0.5 })
+  noeuds.filter(n => !n.parentId || !ids.has(n.parentId)).forEach(r => { placer(r, 0); ligne += ÉCART_Y / 2 })
+
+  // Colonnes : assez écartées pour les bulles les plus larges de chacune.
+  const largeurs = []
+  Object.entries(profondeurs).forEach(([id, p]) => { largeurs[p] = Math.max(largeurs[p] || 0, taille(id)?.l || TAILLE_DÉFAUT.l) })
+  const colonnes = [0]
+  for (let p = 1; p < largeurs.length; p += 1) {
+    colonnes[p] = colonnes[p - 1] + Math.max(ÉCART_X, (largeurs[p - 1] + largeurs[p]) / 2 + 70)
+  }
+  Object.keys(positions).forEach(id => { positions[id].x = colonnes[profondeurs[id]] })
 
   // Les bulles cachées gardent leur position relative à la bulle repliée.
   const décalages = {}
