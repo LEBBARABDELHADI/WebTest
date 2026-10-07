@@ -278,3 +278,14 @@ export function ordrePrésentation(noeuds) {
   racines.forEach(parcourir)
   return ordre
 }
+
+// noeud.taille : agrandit (ou réduit) le texte et la largeur de la bulle.
+export const TAILLES_BULLES = [
+  { id: 'petite', nom: 'Petite', facteur: 0.85 },
+  { id: 'normale', nom: 'Normale', facteur: 1 },
+  { id: 'grande', nom: 'Grande', facteur: 1.35 },
+  { id: 'enorme', nom: 'Très grande', facteur: 1.75 },
+]
+export function facteurTaille(noeud) {
+  return TAILLES_BULLES.find(t => t.id === noeud.taille)?.facteur || 1
+}

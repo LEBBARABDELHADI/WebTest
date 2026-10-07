@@ -16,6 +16,7 @@ import { useDonnéesSynchronisées } from '../lib/synchro'
 import {
   ÉCART_X, ÉCART_Y, compléterGraphes, uid, descendants, bullesCachées, ancêtres, ranger,
   géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation,
+  TAILLES_BULLES, facteurTaille,
 } from '../lib/graphe'
 import { exporterGraphePNG } from '../lib/exportGraphe'
 
@@ -476,7 +477,7 @@ export default function Graph() {
         const t = tailleDe(n.id)
         const racine = estRacine(n)
         return {
-          x: n.x, y: n.y, l: t.l, h: t.h, texte: `${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}`, racine, forme: n.forme || 'arrondi',
+          x: n.x, y: n.y, l: t.l, h: t.h, texte: `${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}`, racine, forme: n.forme || 'arrondi', facteur: facteurTaille(n),
           couleur: n.couleur || (racine ? T.accent : T.border),
           image: n.image ? adresseImage(n.image) : null,
           badge: n.replié ? `+${descendants(noeuds, n.id).size}` : null,
@@ -707,6 +708,8 @@ export default function Graph() {
             const trouvée = idsTrouvés.has(n.id)
             const nbCachées = n.replié ? descendants(noeuds, n.id).size : 0
             const forme = n.forme || 'arrondi'
+            const f = facteurTaille(n)
+            const marges = (v, h) => `${v * f}px ${h * f}px`
             const nuage = forme === 'nuage'
             const couleurBord = choisi ? T.text : trouvée ? '#ffd60a' : couleur
             const fond = racine ? couleur : `linear-gradient(${couleur}22, ${couleur}22), ${T.surface}`
@@ -722,11 +725,11 @@ export default function Graph() {
                 className={présentation ? 'anime' : actuelle?.id === n.id ? 'bulle-trouvee' : undefined}
                 style={{
                   position: 'absolute', left: n.x, top: n.y, transform: 'translate(-50%, -50%)',
-                  minWidth: '64px', maxWidth: '210px', width: 'max-content',
-                  padding: nuage ? (racine ? '24px 34px' : '20px 28px') : forme === 'rond' ? (racine ? '18px 26px' : '14px 22px') : (racine ? '12px 16px' : '9px 14px'),
+                  minWidth: `${64 * f}px`, maxWidth: `${210 * f}px`, width: 'max-content',
+                  padding: nuage ? (racine ? marges(24, 34) : marges(20, 28)) : forme === 'rond' ? (racine ? marges(18, 26) : marges(14, 22)) : (racine ? marges(12, 16) : marges(9, 14)),
                   borderRadius: { arrondi: '18px', rond: '50%', rectangle: '4px', nuage: 0 }[forme],
                   textAlign: 'center', cursor: 'pointer', lineHeight: 1.35,
-                  fontSize: racine ? '15px' : '13.5px', fontWeight: racine ? 700 : 500,
+                  fontSize: `${(racine ? 15 : 13.5) * f}px`, fontWeight: racine ? 700 : 500,
                   fontFamily: racine ? serif : 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                   background: nuage ? 'transparent' : fond,
                   color: racine ? '#1b1b1b' : T.text,
@@ -745,7 +748,7 @@ export default function Graph() {
                       strokeDasharray={cible ? '6 4' : undefined} vectorEffect="non-scaling-stroke" />
                   </svg>
                 )}
-                {n.image && <ImageCarte image={n.image} hauteurMax={110} style={{ maxWidth: '180px', margin: '0 auto 6px', borderRadius: '8px', pointerEvents: 'none' }} />}
+                {n.image && <ImageCarte image={n.image} hauteurMax={110 * f} style={{ maxWidth: `${180 * f}px`, margin: '0 auto 6px', borderRadius: '8px', pointerEvents: 'none' }} />}
                 {n.icone && <span style={{ marginRight: '5px' }}>{n.icone}</span>}
                 <TexteFormaté texte={n.texte} couleurDéfaut={racine ? '#1b1b1b' : T.text} />
                 {nbCachées > 0 && (
@@ -851,6 +854,18 @@ export default function Graph() {
                     border: c ? `3px solid ${noeudSélectionné.couleur === c ? T.text : 'transparent'}` : `2px dashed ${T.textMuted}`,
                   }} />
                 ))}
+              </div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {TAILLES_BULLES.map(t => {
+                  const actif = (noeudSélectionné.taille || 'normale') === t.id
+                  return (
+                    <button key={t.id} onClick={() => changerChamp(noeudSélectionné.id, 'taille', t.id === 'normale' ? null : t.id)} aria-pressed={actif} aria-label={`Taille ${t.nom}`} style={{
+                      flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: '2px', padding: '6px 2px', borderRadius: '10px', cursor: 'pointer',
+                      background: actif ? T.accent : T.surface2, color: actif ? T.accentText : T.text, border: `1px solid ${actif ? T.accent : T.border}`,
+                      fontFamily: grotesk, fontSize: '10.5px', fontWeight: 600,
+                    }}><span style={{ fontSize: `${12 * t.facteur}px`, fontFamily: serif, fontWeight: 700, lineHeight: 1 }}>A</span>{t.nom}</button>
+                  )
+                })}
               </div>
               <div style={{ display: 'flex', gap: '6px' }}>
                 {FORMES.map(f => {
@@ -1028,7 +1043,9 @@ export default function Graph() {
       {création && <DialogueCréation T={T} onCréer={créerGraphe} onFermer={() => setCréation(false)} />}
 
       {édition && (
-        <div role="dialog" aria-label={édition.type === 'lien' ? 'Texte du lien' : 'Texte de la bulle'} style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
+        <div role="dialog" aria-label={édition.type === 'lien' ? 'Texte du lien' : 'Texte de la bulle'}
+          onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setÉdition(null) } }}
+          style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
           <div style={{ width: '100%', maxWidth: '480px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '14px', marginTop: 'max(10px, env(safe-area-inset-top))' }}>
             <p style={{ margin: '0 0 8px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>
               {édition.type === 'lien' ? 'Texte du lien' : 'Texte de la bulle'}
@@ -1100,7 +1117,7 @@ function DialogueCréation({ T, onCréer, onFermer }) {
   const modèle = MODÈLES.find(m => m.id === modèleId)
   const valider = () => onCréer(nom.trim() || (modèleId === 'vide' ? 'Nouveau graphe' : modèle.nom), modèleId)
   return (
-    <div role="dialog" aria-label="Nouveau graphe" style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
+    <div role="dialog" aria-label="Nouveau graphe" onKeyDown={e => { if (e.key === 'Escape') onFermer() }} style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
       <div style={{ width: '100%', maxWidth: '480px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '16px', marginTop: 'max(10px, env(safe-area-inset-top))' }}>
         <p style={{ margin: '0 0 8px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>Nouveau graphe</p>
         <input

@@ -155,11 +155,12 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
     ctx.strokeStyle = b.couleur
     ctx.stroke(contour)
 
-    const [marge, margeV] = (MARGES[b.forme] || MARGES.arrondi)[b.racine ? 1 : 0]
+    const f = b.facteur || 1
+    const [marge, margeV] = (MARGES[b.forme] || MARGES.arrondi)[b.racine ? 1 : 0].map(m => m * f)
     const img = images[i]
     let hauteurImage = 0
     if (img) {
-      const r = Math.min(180 / img.width, 110 / img.height, (b.l - 2 * marge) / img.width)
+      const r = Math.min((180 * f) / img.width, (110 * f) / img.height, (b.l - 2 * marge) / img.width)
       const li = img.width * r
       hauteurImage = img.height * r
       ctx.save()
@@ -170,7 +171,7 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
       hauteurImage += 6
     }
 
-    const taillePolice = b.racine ? 15 : 13.5
+    const taillePolice = (b.racine ? 15 : 13.5) * f
     ctx.font = `${b.racine ? 700 : 500} ${taillePolice}px ${b.racine ? polices.serif : polices.sans}`
     ctx.fillStyle = b.racine ? '#1b1b1b' : couleurs.texte
     ctx.textAlign = 'center'
