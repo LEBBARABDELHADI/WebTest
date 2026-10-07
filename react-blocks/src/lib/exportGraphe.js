@@ -118,7 +118,7 @@ function chargerImage(src) {
 // bulles  : [{ x, y, l, h, texte, racine, couleur, image (adresse|null), badge }]
 // branches: [{ de: {x,y}, vers: {x,y}, couleur }]
 // liens   : [{ p0, k | points, p1, milieu, sens, texte }]
-export async function exporterGraphePNG({ bulles, branches, liens, couleurs, polices }) {
+export async function exporterGraphePNG({ bulles, branches, liens, séparateurs = [], couleurs, polices }) {
   const images = await Promise.all(bulles.map(b => chargerImage(b.image)))
 
   const xs = bulles.flatMap(b => [b.x - b.l / 2, b.x + b.l / 2]).concat(liens.map(l => l.milieu.x))
@@ -138,6 +138,20 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
   ctx.fillStyle = couleurs.fond
   ctx.fillRect(minX, minY, largeur, hauteur)
   ctx.lineCap = 'round'
+
+  // Séparateurs entre les arbres
+  séparateurs.forEach(l => {
+    ctx.save()
+    ctx.strokeStyle = couleurs.texte
+    ctx.globalAlpha = 0.3
+    ctx.lineWidth = 1.5
+    ctx.setLineDash([10, 8])
+    ctx.beginPath()
+    ctx.moveTo(l.x0, l.y)
+    ctx.lineTo(l.x1, l.y)
+    ctx.stroke()
+    ctx.restore()
+  })
 
   // Branches de l'arbre
   branches.forEach(({ de, vers, couleur }) => {

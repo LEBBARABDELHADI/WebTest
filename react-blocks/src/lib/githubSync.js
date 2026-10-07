@@ -103,3 +103,36 @@ export async function envoyerFichier(chemin, base64, token, message) {
 export function adresseBrute(chemin) {
   return `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${BRANCHE}/${chemin}`
 }
+
+// Historique d'un fichier : les derniers commits qui l'ont modifié.
+export async function listerVersions(token, chemin) {
+  const headers = { Accept: 'application/vnd.github+json' }
+  if (token) headers.Authorization = `Bearer ${token}`
+  let res
+  try {
+    res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${encodeURIComponent(chemin)}&sha=${encodeURIComponent(BRANCHE)}&per_page=60`, { headers, cache: 'no-store' })
+  } catch {
+    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
+  }
+  if (!res.ok) {
+    if (res.status === 403) throw new Error('Limite de requêtes GitHub atteinte, réessaie plus tard')
+    throw new Error(`Historique indisponible (${res.status})`)
+  }
+  const commits = await res.json()
+  return commits.map(c => ({ sha: c.sha, date: c.commit.committer?.date || c.commit.author?.date, message: c.commit.message }))
+}
+
+// Contenu d'un fichier JSON tel qu'il était à un commit donné.
+export async function lireVersion(token, chemin, sha) {
+  const headers = { Accept: 'application/vnd.github+json' }
+  if (token) headers.Authorization = `Bearer ${token}`
+  let res
+  try {
+    res = await fetch(`${API_BASE}/${chemin}?ref=${sha}`, { headers })
+  } catch {
+    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
+  }
+  if (!res.ok) throw new Error(`Version illisible (${res.status})`)
+  const json = await res.json()
+  return JSON.parse(décoderBase64Utf8(json.content.replace(/\n/g, '')))
+}

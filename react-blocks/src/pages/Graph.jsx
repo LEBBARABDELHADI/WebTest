@@ -14,10 +14,11 @@ import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { normaliser } from '../lib/motsCles'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import { useDonnéesSynchronisées } from '../lib/synchro'
+import { listerVersions, lireVersion } from '../lib/githubSync'
 import {
   ÉCART_X, ÉCART_Y, compléterGraphes, uid, descendants, bullesCachées, ancêtres, ranger,
   géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation, TRACÉS,
-  TAILLES_BULLES, facteurTaille,
+  TAILLES_BULLES, facteurTaille, planTexte, analyserPlan, copierBranches, dupliquerCopie, aligner, séparateursArbres,
 } from '../lib/graphe'
 import { exporterGraphePNG } from '../lib/exportGraphe'
 
@@ -41,6 +42,12 @@ const ZOOM_MAX = 2.5
 const SEUIL_GLISSER = 6
 const HISTORIQUE_MAX = 60
 const TAILLE_PAR_DÉFAUT = { l: 120, h: 44 }
+// Presse-papiers des bulles : dans le navigateur, donc partagé entre les
+// graphes, Perso/Pro et les deux Home.
+const CLÉ_PRESSE_PAPIERS = 'react-blocs-graph-presse-papiers'
+function lirePressePapiers() {
+  try { return JSON.parse(localStorage.getItem(CLÉ_PRESSE_PAPIERS)) } catch { return null }
+}
 const SENS = [['aucun', '—', 'Sans flèche'], ['vers', '→', 'Flèche vers la 2ᵉ bulle'], ['inverse', '←', 'Flèche vers la 1ʳᵉ bulle'], ['deux', '↔', 'Flèche dans les deux sens']]
 
 const ANIMATIONS = `
@@ -84,7 +91,10 @@ export default function Graph() {
   const [multi, setMulti] = useState([]) // sélection de plusieurs bulles (ids)
   const [cadre, setCadre] = useState(null) // rectangle de sélection en cours { x0, y0, x1, y1 } (écran)
   const [modeCadre, setModeCadre] = useState(false) // au doigt : glisser trace un cadre
-  const [agrandie, setAgrandie] = useState(null) // id de la bulle dont on regarde l'image / le code en grand
+  const [agrandie, setAgrandie] = useState(null)
+  const [pressePapiersPlein, setPressePapiersPlein] = useState(() => !!lirePressePapiers())
+  const [dialoguePlan, setDialoguePlan] = useState(null) // 'voir' | 'coller'
+  const [versionsOuvertes, setVersionsOuvertes] = useState(false) // id de la bulle dont on regarde l'image / le code en grand
   const [, setVersionHistorique] = useState(0)
 
   const zoneRef = useRef(null)
@@ -325,6 +335,25 @@ export default function Graph() {
           return
         }
         if (e.key === 'Escape' && (multi.length || modeCadre)) { setMulti([]); setModeCadre(false); return }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd' && graphe && !édition) {
+          e.preventDefault()
+          dupliquer()
+          return
+        }
+        // Clavier sur la bulle choisie : Tab = sous-bulle, Entrée = bulle
+        // suivante, F2/Espace = écrire, flèches = se déplacer dans l'arbre.
+        const choisie = sélection && parId.get(sélection)
+        if (graphe && !édition && !agrandie && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          if (choisie && e.key === 'Tab') { e.preventDefault(); if (e.shiftKey) ajouterSœur(choisie.parentId && parId.get(choisie.parentId) ? choisie.parentId : choisie.id, true); else ajouterEnfant(choisie.id, true); return }
+          if (choisie && e.key === 'Enter' && !e.target.closest?.('button, a')) { e.preventDefault(); ajouterSœur(choisie.id, true); return }
+          if (choisie && (e.key === 'F2' || (e.key === ' ' && !e.target.closest?.('button, a')))) { e.preventDefault(); setÉdition({ ...éditionBulle(choisie), clavier: true }); return }
+          if (e.key.startsWith('Arrow') && choisie) {
+            e.preventDefault()
+            const suivante = voisine(choisie, e.key)
+            if (suivante) { setSélection(suivante.id); setMulti([]); setTraitChoisi(null); révéler(suivante) }
+            return
+          }
+        }
         // Suppr / Retour arrière : supprime ce qui est sélectionné (lien,
         // branche détachée, bulle ou groupe de bulles).
         if ((e.key === 'Delete' || e.key === 'Backspace') && !agrandie && !édition && graphe) {
@@ -341,6 +370,39 @@ export default function Graph() {
     }
     window.addEventListener('keydown', surTouche)
     return () => window.removeEventListener('keydown', surTouche)
+  })
+
+  // Ctrl+C / Ctrl+X / Ctrl+V : les bulles vont aussi dans le presse-papiers
+  // du système sous forme de plan texte ; coller un texte crée des bulles.
+  useEffect(() => {
+    const horsGraphe = e => !graphe || présentation || !!édition || !!e.target.closest?.('input, textarea, select, [role=dialog]')
+    const surCopier = (e, couper) => {
+      if (horsGraphe(e) || window.getSelection()?.toString() || !idsÀCopier().length) return
+      const r = copierSélection()
+      e.clipboardData?.setData('text/plain', r.texte)
+      e.preventDefault()
+      if (couper) {
+        const retirées = new Set(r.copie.noeuds.map(n => n.id))
+        retirer(retirées)
+        afficher(`✂️ ${retirées.size} bulle(s) coupée(s)`)
+      } else afficher(`📄 ${r.copie.noeuds.length} bulle(s) copiée(s)`)
+    }
+    const surCouper = e => surCopier(e, true)
+    const surColler = e => {
+      if (horsGraphe(e)) return
+      const texte = e.clipboardData?.getData('text/plain') || ''
+      const interne = lirePressePapiers()
+      if (interne && (!texte || texte === interne.texte)) { e.preventDefault(); insérer(interne.copie, 'collée(s)'); return }
+      if (texte.trim()) { e.preventDefault(); insérer(analyserPlan(texte), 'créée(s) depuis le texte') }
+    }
+    window.addEventListener('copy', surCopier)
+    window.addEventListener('cut', surCouper)
+    window.addEventListener('paste', surColler)
+    return () => {
+      window.removeEventListener('copy', surCopier)
+      window.removeEventListener('cut', surCouper)
+      window.removeEventListener('paste', surColler)
+    }
   })
 
   // ---------- Modifications ----------
@@ -377,21 +439,78 @@ export default function Graph() {
     oublierSélection()
   }
 
-  const ajouterEnfant = parentId => {
+  // Bas d'une branche : une nouvelle bulle se place sous tout ce qui en dépend.
+  const basDeBranche = id => {
+    const ys = [...descendants(noeuds, id)].map(d => parId.get(d)?.y).filter(y => y !== undefined)
+    return ys.length ? Math.max(...ys) : null
+  }
+  // Bulle voisine pour les flèches du clavier : ← parent, → première
+  // sous-bulle, ↑ ↓ bulle d'au-dessus / d'en dessous au même niveau.
+  const voisine = (n, touche) => {
+    if (!n) return [...visibles].sort((a, b) => a.y - b.y || a.x - b.x).find(estRacine) || visibles[0]
+    if (touche === 'ArrowLeft') return n.parentId && idsVisibles.has(n.parentId) ? parId.get(n.parentId) : null
+    if (touche === 'ArrowRight') return visibles.filter(c => c.parentId === n.id).sort((a, b) => a.y - b.y)[0] || null
+    const frères = visibles.filter(c => (estRacine(n) ? estRacine(c) : c.parentId === n.parentId)).sort((a, b) => a.y - b.y || a.x - b.x)
+    const i = frères.findIndex(c => c.id === n.id)
+    return frères[i + (touche === 'ArrowDown' ? 1 : -1)] || null
+  }
+  // `clavier` : saisie enchaînée (Entrée = bulle suivante, Tab = sous-bulle).
+  const créerBulle = (nouveau, parent, clavier) => {
+    majNoeuds(liste => [...liste.map(n => (parent && n.id === parent.id ? { ...n, replié: false } : n)), nouveau])
+    setSélection(nouveau.id); setMulti([]); setTraitChoisi(null)
+    révéler(nouveau, parent || nouveau)
+    setÉdition({ ...éditionBulle(nouveau), nouvelle: true, clavier })
+  }
+  const ajouterEnfant = (parentId, clavier = false) => {
     const parent = parId.get(parentId)
-    const frères = noeuds.filter(n => n.parentId === parentId).length
-    const nouveau = { id: uid(), texte: 'Nouvelle idée', x: parent.x + ÉCART_X, y: parent.y + frères * ÉCART_Y, parentId }
-    majNoeuds(liste => [...liste.map(n => (n.id === parentId ? { ...n, replié: false } : n)), nouveau])
-    setSélection(nouveau.id)
-    révéler(nouveau, parent)
-    setÉdition(éditionBulle(nouveau))
+    const frères = noeuds.filter(n => n.parentId === parentId).sort((a, b) => a.y - b.y)
+    const bas = basDeBranche(parentId)
+    const x = frères.length ? frères[frères.length - 1].x : parent.x + ÉCART_X
+    créerBulle({ id: uid(), texte: 'Nouvelle idée', x, y: bas === null ? parent.y : bas + ÉCART_Y, parentId }, parent, clavier)
+  }
+  const ajouterSœur = (id, clavier = false) => {
+    const n = parId.get(id)
+    if (!n) return
+    if (n.parentId && parId.get(n.parentId)) { ajouterEnfant(n.parentId, clavier); return }
+    const bas = Math.max(...noeuds.map(x => x.y))
+    créerBulle({ id: uid(), texte: 'Nouvelle idée', x: n.x, y: bas + ÉCART_Y * 1.5, parentId: null }, null, clavier)
   }
   const ajouterBulleLibre = () => {
     const { l, h } = dimensions()
-    const nouveau = { id: uid(), texte: 'Nouvelle idée', x: (l / 2 - vue.x) / vue.zoom, y: (h / 2 - vue.y) / vue.zoom, parentId: null }
-    majNoeuds(liste => [...liste, nouveau])
-    setSélection(nouveau.id)
-    setÉdition(éditionBulle(nouveau))
+    créerBulle({ id: uid(), texte: 'Nouvelle idée', x: (l / 2 - vue.x) / vue.zoom, y: (h / 2 - vue.y) / vue.zoom, parentId: null }, null, false)
+  }
+  // Annuler la saisie d'une bulle qu'on vient de créer la retire (sans
+  // laisser de « Nouvelle idée » ni de trace dans l'historique).
+  const annulerÉdition = () => {
+    if (édition?.nouvelle) {
+      const id = édition.id
+      const parent = parId.get(id)?.parentId
+      historiqueRef.current.passé.pop()
+      setVersionHistorique(v => v + 1)
+      majNoeuds(liste => liste.filter(n => n.id !== id), false)
+      setSélection(parent && parId.get(parent) ? parent : null)
+    }
+    setÉdition(null)
+  }
+  // Saisie enchaînée au clavier dans la fenêtre d'une bulle.
+  const toucheSaisie = e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); validerÉdition(); return }
+    if (!édition.clavier) return
+    const id = édition.id
+    const vide = !édition.texte.trim() && !édition.code && !édition.image
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      if (vide && édition.nouvelle) { annulerÉdition(); return }
+      validerÉdition()
+      ajouterSœur(id, true)
+    } else if (e.key === 'Tab') {
+      e.preventDefault()
+      if (vide) return
+      validerÉdition()
+      const n = parId.get(id)
+      if (e.shiftKey) ajouterSœur(n?.parentId && parId.get(n.parentId) ? n.parentId : id, true)
+      else ajouterEnfant(id, true)
+    }
   }
   const supprimerNoeud = id => {
     const sous = descendants(noeuds, id)
@@ -434,7 +553,7 @@ export default function Graph() {
       const tb = tailleDe(b.id)
       return Math.abs(a.x - b.x) < (ta.l + tb.l) / 2 && Math.abs(a.y - b.y) < (ta.h + tb.h) / 2
     }
-    return montrées.some(m => autres.some(o => chevauche(m, o))) ? ranger(après, tailleDe) : après
+    return montrées.some(m => autres.some(o => chevauche(m, o))) ? ranger(après, tailleDe, optionsRanger(!!graphe?.séparer)) : après
   }
   const basculerRepli = id => majNoeuds(liste => {
     const n = liste.find(x => x.id === id)
@@ -469,6 +588,18 @@ export default function Graph() {
     type: 'bulle', id: n.id, texte: n.texte === 'Nouvelle idée' && !n.code ? '' : n.texte, image: n.image || null,
     code: n.code ?? (avecCode ? '' : null), langage: n.langage || '', focusCode: avecCode,
   })
+  const basculerSéparer = () => {
+    const séparer = !graphe.séparer
+    majGraphe(g => {
+      const maj = { ...g, séparer }
+      if (!séparer) delete maj.séparer
+      return maj
+    })
+    if (séparer) {
+      requestAnimationFrame(() => rangerTout(true))
+      afficher('Arbres séparés par une ligne et rangés (↩︎ pour annuler)')
+    }
+  }
   const validerÉdition = () => {
     if (édition.type === 'bulle') surveillerTaille(édition.id)
     const texte = édition.texte.trim()
@@ -491,8 +622,9 @@ export default function Graph() {
     }
     setÉdition(null)
   }
-  const rangerTout = () => {
-    const rangés = ranger(noeuds, tailleDe)
+  const optionsRanger = séparer => ({ écartArbres: séparer ? ÉCART_Y * 1.6 : ÉCART_Y / 2 })
+  const rangerTout = (séparer = !!graphe?.séparer) => {
+    const rangés = ranger(noeuds, tailleDe, optionsRanger(séparer))
     majNoeuds(() => rangés)
     const cachéesRangées = bullesCachées(rangés)
     requestAnimationFrame(() => centrer(rangés.filter(n => !cachéesRangées.has(n.id))))
@@ -559,6 +691,7 @@ export default function Graph() {
         bulles,
         branches,
         liens: liensVisibles.map(({ l, géo }) => ({ ...géo, sens: l.sens || 'aucun', texte: l.texte || '' })),
+        séparateurs: graphe.séparer ? séparateursArbres(visibles, tailleDe) : [],
         couleurs: { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent },
         polices: { serif, sans: getComputedStyle(document.body).fontFamily, mono: POLICE_CODE },
       })
@@ -744,6 +877,7 @@ export default function Graph() {
 
   // ---------- Rendu ----------
   const noeudSélectionné = parId.get(sélection)
+  const séparateurs = graphe?.séparer && !présentation ? séparateursArbres(affichées, tailleDe) : []
   const multiSet = new Set(multi.filter(id => idsVisibles.has(id)))
   const multiNoeuds = [...multiSet].map(id => parId.get(id))
   const verrouillerMulti = valeur => {
@@ -759,12 +893,92 @@ export default function Graph() {
     const retirées = new Set()
     multiSet.forEach(id => { retirées.add(id); descendants(noeuds, id).forEach(d => retirées.add(d)) })
     if (!window.confirm(`Supprimer ${retirées.size} bulle(s) (avec celles qui en dépendent) ?`)) return
+    retirer(retirées)
+  }
+  const retirer = retirées => {
     majGraphe(g => ({
       ...g,
       noeuds: g.noeuds.filter(n => !retirées.has(n.id)),
       liens: g.liens.filter(l => !retirées.has(l.de) && !retirées.has(l.vers)),
     }))
     setMulti([])
+    setSélection(null)
+  }
+
+  // ---------- Copier / coller / dupliquer ----------
+  const idsÀCopier = () => (multiSet.size ? [...multiSet] : sélection && parId.get(sélection) ? [sélection] : [])
+  const copierSélection = () => {
+    const ids = idsÀCopier()
+    if (!ids.length) return null
+    const copie = copierBranches(noeuds, liens, ids)
+    const texte = planTexte(copie.noeuds)
+    try { localStorage.setItem(CLÉ_PRESSE_PAPIERS, JSON.stringify({ texte, copie })) } catch { /* ignore */ }
+    setPressePapiersPlein(true)
+    return { copie, texte }
+  }
+  // Ajoute une copie : sous la bulle choisie (comme sous-bulles) ou au
+  // centre de l'écran ; les bulles ajoutées restent sélectionnées.
+  const insérer = (copie, libellé) => {
+    if (!copie?.noeuds?.length) return
+    const racines = copie.noeuds.filter(n => !n.parentId || !copie.noeuds.some(m => m.id === n.parentId)).sort((a, b) => a.y - b.y)
+    const cible = sélection && parId.get(sélection) && !multiSet.size ? parId.get(sélection) : null
+    let dx
+    let dy
+    if (cible) {
+      const bas = basDeBranche(cible.id)
+      const frères = noeuds.filter(n => n.parentId === cible.id)
+      dx = (frères.length ? Math.max(...frères.map(f => f.x)) : cible.x + ÉCART_X) - racines[0].x
+      dy = (bas === null ? cible.y : bas + ÉCART_Y) - racines[0].y
+    } else {
+      const { l, h } = dimensions()
+      const xs = copie.noeuds.map(n => n.x)
+      const ys = copie.noeuds.map(n => n.y)
+      dx = (l / 2 - vue.x) / vue.zoom - (Math.min(...xs) + Math.max(...xs)) / 2
+      dy = (h / 2 - vue.y) / vue.zoom - (Math.min(...ys) + Math.max(...ys)) / 2
+    }
+    const nouvelle = dupliquerCopie(copie, { dx, dy, parentDe: () => (cible ? cible.id : null) })
+    majGraphe(g => ({
+      ...g,
+      noeuds: [...g.noeuds.map(n => (cible && n.id === cible.id ? { ...n, replié: false } : n)), ...nouvelle.noeuds],
+      liens: [...g.liens, ...nouvelle.liens],
+    }))
+    setSélection(null); setTraitChoisi(null)
+    setMulti(nouvelle.noeuds.map(n => n.id))
+    afficher(`📋 ${nouvelle.noeuds.length} bulle${nouvelle.noeuds.length > 1 ? 's' : ''} ${libellé}`)
+  }
+  const coller = () => insérer(lirePressePapiers()?.copie, 'collée(s)')
+  // La copie se place juste sous l'original, rattachée au même parent.
+  const dupliquer = () => {
+    const ids = idsÀCopier()
+    if (!ids.length) return
+    const copie = copierBranches(noeuds, liens, ids)
+    const ys = copie.noeuds.map(n => n.y)
+    const nouvelle = dupliquerCopie(copie, {
+      dx: 0, dy: Math.max(...ys) - Math.min(...ys) + ÉCART_Y,
+      parentDe: id => { const p = parId.get(id)?.parentId; return p && parId.get(p) ? p : null },
+    })
+    majGraphe(g => ({ ...g, noeuds: [...g.noeuds, ...nouvelle.noeuds], liens: [...g.liens, ...nouvelle.liens] }))
+    setSélection(null); setTraitChoisi(null)
+    setMulti(nouvelle.noeuds.map(n => n.id))
+    afficher(`⧉ ${nouvelle.noeuds.length} bulle${nouvelle.noeuds.length > 1 ? 's' : ''} dupliquée(s)`)
+  }
+
+  // ---------- Aligner / répartir ----------
+  const alignerSélection = mode => {
+    const positions = aligner(visibles, [...multiSet], mode, tailleDe)
+    const déplacements = new Map()
+    Object.entries(positions).forEach(([id, p]) => {
+      const n = parId.get(id)
+      const d = { dx: p.x - n.x, dy: p.y - n.y }
+      if (Math.abs(d.dx) < 0.5 && Math.abs(d.dy) < 0.5) return
+      déplacements.set(id, d)
+      if (n.replié) descendants(noeuds, id).forEach(c => { if (!multiSet.has(c)) déplacements.set(c, d) })
+    })
+    if (!déplacements.size) return
+    majNoeuds(liste => liste.map(n => {
+      const d = déplacements.get(n.id)
+      return d ? { ...n, x: n.x + d.dx, y: n.y + d.dy } : n
+    }))
   }
   const interditsRattachement = rattachement && sélection ? new Set([sélection, ...descendants(noeuds, sélection)]) : new Set()
 
@@ -773,6 +987,10 @@ export default function Graph() {
     border: `1px solid ${T.border}`, cursor: désactivé ? 'default' : 'pointer', display: 'flex', alignItems: 'center',
     justifyContent: 'center', fontSize: '17px', fontWeight: 700, boxShadow: '0 2px 8px rgba(0,0,0,.25)',
     opacity: désactivé ? 0.35 : 1, flexShrink: 0,
+  })
+  const boutonAlign = désactivé => ({
+    width: '34px', height: '30px', borderRadius: '8px', background: T.surface2, color: T.text, border: `1px solid ${T.border}`,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: désactivé ? 'default' : 'pointer', opacity: désactivé ? 0.35 : 1, padding: 0,
   })
   const boutonTexte = { ...boutonFlottant(), width: 'auto', padding: '0 12px', fontSize: '12.5px', fontFamily: grotesk }
   const action = (danger = false) => ({
@@ -817,6 +1035,9 @@ export default function Graph() {
                 <path d="M 0 0 L 10 5 L 0 10 z" fill={T.accent} />
               </marker>
             </defs>
+            {séparateurs.map((l, i) => (
+              <line key={`sep-${i}`} x1={l.x0} x2={l.x1} y1={l.y} y2={l.y} stroke={T.textMuted} strokeOpacity="0.7" strokeWidth="2" strokeDasharray="10 8" vectorEffect="non-scaling-stroke" />
+            ))}
             {affichées.filter(n => n.parentId && idsAffichés.has(n.parentId)).map(n => {
               const p = parId.get(n.parentId)
               const mx = (p.x + n.x) / 2
@@ -958,7 +1179,8 @@ export default function Graph() {
       {graphe && !recherche && (
         <div style={{ position: 'absolute', top: '10px', left: '10px', right: '60px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           <button onClick={ajouterBulleLibre} style={boutonTexte}>＋ Bulle</button>
-          {noeuds.length > 1 && <button onClick={rangerTout} style={boutonTexte}>Ranger</button>}
+          {noeuds.length > 1 && <button onClick={() => rangerTout()} style={boutonTexte}>Ranger</button>}
+          {pressePapiersPlein && <button onClick={coller} title="Coller les bulles copiées (Ctrl+V)" style={boutonTexte}>📋 Coller</button>}
           <button onClick={annuler} disabled={!peutAnnuler} aria-label="Annuler" title="Annuler (Ctrl+Z)" style={boutonFlottant(!peutAnnuler)}>↩︎</button>
           <button onClick={rétablir} disabled={!peutRétablir} aria-label="Rétablir" title="Rétablir (Ctrl+Maj+Z)" style={boutonFlottant(!peutRétablir)}>↪︎</button>
           <button onClick={() => { setModeCadre(m => !m); setSélection(null); setTraitChoisi(null) }} aria-pressed={modeCadre} aria-label="Sélectionner plusieurs bulles"
@@ -1052,9 +1274,27 @@ export default function Graph() {
                 fontSize: '12.5px', fontWeight: 600, cursor: inutile ? 'default' : 'pointer', fontFamily: grotesk, opacity: inutile ? 0.4 : 1,
               }}>{libellé}</button>
             ))}
+            {[['📄 Copier', () => { const r = copierSélection(); if (r) afficher(`📄 ${r.copie.noeuds.length} bulle(s) copiée(s) — « Coller » ou Ctrl+V`) }], ['⧉ Dupliquer', dupliquer]].map(([libellé, fn]) => (
+              <button key={libellé} onClick={fn} style={{
+                background: T.surface2, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '8px 10px',
+                fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+              }}>{libellé}</button>
+            ))}
             <button onClick={supprimerMulti} style={{ background: T.danger, color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 10px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk }}>🗑️ Supprimer</button>
             <button onClick={() => setMulti([])} aria-label="Tout désélectionner" style={{ marginLeft: 'auto', background: 'transparent', color: T.textMuted, border: 'none', fontSize: '16px', cursor: 'pointer', padding: '0 6px' }}>✕</button>
           </div>
+          {multiSet.size > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }} role="group" aria-label="Aligner et répartir">
+              <span style={{ fontSize: '11px', color: T.textMuted, fontFamily: grotesk, marginRight: '2px' }}>Aligner</span>
+              {[['gauche', 'Aligner à gauche'], ['centre', 'Centrer sur une même verticale'], ['haut', 'Aligner en haut'], ['milieu', 'Centrer sur une même horizontale']].map(([mode, titre]) => (
+                <button key={mode} onClick={() => alignerSélection(mode)} title={titre} aria-label={titre} style={boutonAlign(false)}><IcôneAlign type={mode} /></button>
+              ))}
+              <span style={{ fontSize: '11px', color: T.textMuted, fontFamily: grotesk, margin: '0 2px 0 8px' }}>Répartir</span>
+              {[['répartirH', 'Espacer régulièrement à l\'horizontale'], ['répartirV', 'Espacer régulièrement à la verticale']].map(([mode, titre]) => (
+                <button key={mode} onClick={() => alignerSélection(mode)} disabled={multiSet.size < 3} title={multiSet.size < 3 ? 'Choisis au moins 3 bulles' : titre} aria-label={titre} style={boutonAlign(multiSet.size < 3)}><IcôneAlign type={mode} /></button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1257,6 +1497,12 @@ export default function Graph() {
                 actuelId={graphe?.id}
                 onChoisir={id => { setGrapheId(id); oublierSélection(); setRecherche(null) }}
                 onCréer={créerGraphe}
+                actions={[
+                  { icône: '☰', libellé: 'Séparer les arbres', actif: !!graphe?.séparer, onClick: basculerSéparer },
+                  { icône: '📝', libellé: 'Voir et copier le plan (texte)', onClick: () => setDialoguePlan('voir') },
+                  { icône: '📋', libellé: 'Coller un plan ou une liste', onClick: () => setDialoguePlan('coller') },
+                  { icône: '🕓', libellé: 'Versions précédentes', onClick: () => setVersionsOuvertes(true) },
+                ]}
               />
               <BoutonIcone icon="crayon" title="Renommer le graphe" onClick={renommerGraphe} />
               <BoutonIcone icon="corbeille" title="Supprimer le graphe" couleur={T.danger} onClick={supprimerGraphe} />
@@ -1267,17 +1513,47 @@ export default function Graph() {
             </div>
             {canevas}
             <p style={{ margin: '8px 0 0', fontSize: '11px', color: T.textMuted, textAlign: 'center', lineHeight: 1.5 }}>
-              Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule. Plusieurs bulles : ⬚, ou Maj + glisser / Maj + clic à la souris (Ctrl+A : toutes). Touche Suppr : efface la bulle ou le lien choisi.
+              Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule. Plusieurs bulles : ⬚, ou Maj + glisser / Maj + clic à la souris (Ctrl+A : toutes). Clavier : Tab sous-bulle, Entrée bulle suivante, flèches, Suppr, Ctrl+C / V / D.
             </p>
           </>
         )}
       </div>
 
       {création && <DialogueCréation T={T} onCréer={créerGraphe} onFermer={() => setCréation(false)} />}
+      {dialoguePlan && graphe && (
+        <DialoguePlan
+          T={T}
+          mode={dialoguePlan}
+          plan={planTexte(noeuds)}
+          onCréer={texte => { insérer(analyserPlan(texte), 'créée(s) depuis le plan'); setDialoguePlan(null) }}
+          onFermer={() => setDialoguePlan(null)}
+        />
+      )}
+      {versionsOuvertes && graphe && (
+        <DialogueVersions
+          T={T}
+          token={token}
+          chemin={config.chemin}
+          graphe={graphe}
+          onRestaurer={(version, commeCopie) => {
+            mémoriser()
+            setData(d => ({
+              ...d,
+              graphes: commeCopie
+                ? [...d.graphes, { ...version, id: uid(), nom: `${version.nom} (${commeCopie})` }]
+                : d.graphes.map(g => (g.id === version.id ? version : g)),
+            }))
+            setVersionsOuvertes(false)
+            oublierSélection()
+            afficher(commeCopie ? 'Version ajoutée comme nouveau graphe' : 'Version restaurée (↩︎ pour annuler)')
+          }}
+          onFermer={() => setVersionsOuvertes(false)}
+        />
+      )}
 
       {édition && (
         <div role="dialog" aria-label={édition.type === 'lien' ? 'Texte du lien' : 'Texte de la bulle'}
-          onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setÉdition(null) } }}
+          onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); annulerÉdition() } }}
           style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
           <div style={{ width: '100%', maxWidth: '480px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '14px', marginTop: 'max(10px, env(safe-area-inset-top))' }}>
             <p style={{ margin: '0 0 8px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>
@@ -1308,17 +1584,23 @@ export default function Graph() {
                   autoFocus={!édition.focusCode}
                   value={édition.texte}
                   onChange={e => setÉdition(é => ({ ...é, texte: e.target.value }))}
-                  onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) validerÉdition() }}
+                  onKeyDown={toucheSaisie}
                   placeholder="Écris ton idée… (**gras** possible)"
                   rows={3}
                   style={{ width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '10px', fontSize: '15px', fontFamily: 'inherit', resize: 'vertical' }}
                 />
                 <ChampImage image={édition.image} onChange={image => setÉdition(é => ({ ...é, image }))} token={token} libellé="Ajouter une image" />
                 <ChampCode T={T} édition={édition} setÉdition={setÉdition} />
+                {édition.clavier && (
+                  <p style={{ margin: '10px 0 0', fontSize: '11px', color: T.textMuted, lineHeight: 1.6 }}>
+                    <strong>Entrée</strong> bulle suivante · <strong>Tab</strong> sous-bulle · <strong>Maj+Tab</strong> niveau au-dessus ·{' '}
+                    <strong>Entrée</strong> sur une bulle vide : terminer · <strong>Maj+Entrée</strong> retour à la ligne · <strong>Échap</strong> annuler cette bulle
+                  </p>
+                )}
               </>
             )}
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button onClick={() => setÉdition(null)} style={{ flex: 1, padding: '11px', borderRadius: '10px', background: T.surface2, color: T.text, border: `1px solid ${T.border}`, cursor: 'pointer', fontFamily: grotesk, fontWeight: 600 }}>Annuler</button>
+              <button onClick={annulerÉdition} style={{ flex: 1, padding: '11px', borderRadius: '10px', background: T.surface2, color: T.text, border: `1px solid ${T.border}`, cursor: 'pointer', fontFamily: grotesk, fontWeight: 600 }}>Annuler</button>
               <button onClick={validerÉdition} style={{ flex: 2, padding: '11px', borderRadius: '10px', background: T.accent, color: T.accentText, border: 'none', cursor: 'pointer', fontFamily: grotesk, fontWeight: 700 }}>Valider</button>
             </div>
           </div>
@@ -1392,7 +1674,7 @@ function DialogueCréation({ T, onCréer, onFermer }) {
 
 // Liste déroulante des graphes : passer de l'un à l'autre, ou en créer un
 // nouveau avec son libellé (et un modèle de départ).
-function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer }) {
+function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer, actions = [] }) {
   const [ouvert, setOuvert] = useState(false)
   const [nom, setNom] = useState('')
   const [modèleId, setModèleId] = useState('vide')
@@ -1444,6 +1726,22 @@ function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer }) {
                 )
               })}
             </div>
+            {actions.length > 0 && (
+              <>
+                <div style={{ height: '1px', background: T.border, margin: '6px 4px' }} />
+                <p style={titre}>Ce graphe</p>
+                {actions.map(a => (
+                  <button key={a.libellé} onClick={() => { a.onClick(); fermer() }} aria-pressed={a.actif} style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '10px', cursor: 'pointer',
+                    background: 'transparent', border: 'none', color: T.text, fontFamily: grotesk, fontSize: '13.5px', textAlign: 'left',
+                  }}>
+                    <span style={{ width: '18px', textAlign: 'center' }}>{a.icône}</span>
+                    <span style={{ flex: 1 }}>{a.libellé}</span>
+                    {a.actif !== undefined && <span style={{ color: a.actif ? T.accent : T.textMuted, fontWeight: 800, fontSize: '12px' }}>{a.actif ? 'Oui ✓' : 'Non'}</span>}
+                  </button>
+                ))}
+              </>
+            )}
             <div style={{ height: '1px', background: T.border, margin: '6px 4px' }} />
             <p style={titre}>＋ Nouveau graphe</p>
             <div style={{ display: 'flex', gap: '6px', padding: '0 4px' }}>
@@ -1604,6 +1902,145 @@ function VueAgrandie({ T, noeud, onFermer }) {
             <CodeBlock code={noeud.code} />
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+// Petites icônes des boutons Aligner / Répartir.
+function IcôneAlign({ type }) {
+  const c = 'currentColor'
+  const formes = {
+    gauche: <><line x1="3" y1="2" x2="3" y2="16" stroke={c} strokeWidth="1.6" /><rect x="5" y="4" width="10" height="3.5" rx="1" fill={c} /><rect x="5" y="10.5" width="6" height="3.5" rx="1" fill={c} /></>,
+    centre: <><line x1="9" y1="2" x2="9" y2="16" stroke={c} strokeWidth="1.2" strokeDasharray="2 1.5" /><rect x="3" y="4" width="12" height="3.5" rx="1" fill={c} /><rect x="5.5" y="10.5" width="7" height="3.5" rx="1" fill={c} /></>,
+    haut: <><line x1="2" y1="3" x2="16" y2="3" stroke={c} strokeWidth="1.6" /><rect x="4" y="5" width="3.5" height="10" rx="1" fill={c} /><rect x="10.5" y="5" width="3.5" height="6" rx="1" fill={c} /></>,
+    milieu: <><line x1="2" y1="9" x2="16" y2="9" stroke={c} strokeWidth="1.2" strokeDasharray="2 1.5" /><rect x="4" y="3" width="3.5" height="12" rx="1" fill={c} /><rect x="10.5" y="5.5" width="3.5" height="7" rx="1" fill={c} /></>,
+    répartirH: <><rect x="1.5" y="5" width="3.5" height="8" rx="1" fill={c} /><rect x="7.25" y="5" width="3.5" height="8" rx="1" fill={c} /><rect x="13" y="5" width="3.5" height="8" rx="1" fill={c} /></>,
+    répartirV: <><rect x="5" y="1.5" width="8" height="3.5" rx="1" fill={c} /><rect x="5" y="7.25" width="8" height="3.5" rx="1" fill={c} /><rect x="5" y="13" width="8" height="3.5" rx="1" fill={c} /></>,
+  }
+  return <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">{formes[type]}</svg>
+}
+
+// Plan du graphe en texte : à lire et copier, ou à coller pour créer des bulles.
+function DialoguePlan({ T, mode, plan, onCréer, onFermer }) {
+  const [texte, setTexte] = useState(mode === 'voir' ? plan : '')
+  const [copié, setCopié] = useState(false)
+  const lecture = mode === 'voir'
+  const copier = async () => {
+    try { await navigator.clipboard.writeText(texte); setCopié(true); setTimeout(() => setCopié(false), 1500) } catch { /* sélection manuelle */ }
+  }
+  const bouton = principal => ({
+    flex: principal ? 2 : 1, padding: '11px', borderRadius: '10px', cursor: 'pointer', fontFamily: grotesk, fontWeight: principal ? 700 : 600,
+    background: principal ? T.accent : T.surface2, color: principal ? T.accentText : T.text, border: principal ? 'none' : `1px solid ${T.border}`,
+  })
+  return (
+    <div role="dialog" aria-label={lecture ? 'Plan du graphe' : 'Coller un plan'} onKeyDown={e => { if (e.key === 'Escape') onFermer() }}
+      style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
+      <div style={{ width: '100%', maxWidth: '560px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '14px', marginTop: 'max(10px, env(safe-area-inset-top))' }}>
+        <p style={{ margin: '0 0 4px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>
+          {lecture ? '📝 Plan du graphe' : '📋 Coller un plan ou une liste'}
+        </p>
+        <p style={{ margin: '0 0 10px', fontSize: '12px', color: T.textMuted, lineHeight: 1.5 }}>
+          {lecture
+            ? 'À copier dans Notes, un mail… Une ligne vide sépare les arbres.'
+            : 'Une ligne = une bulle. Les retraits (espaces, tabulations), la numérotation (I. A. 1. a)) ou les titres # donnent les sous-bulles. Une bulle choisie avant reçoit le plan comme sous-bulles.'}
+        </p>
+        <textarea
+          autoFocus
+          value={texte}
+          readOnly={lecture}
+          onChange={e => setTexte(e.target.value)}
+          onFocus={e => { if (lecture) e.target.select() }}
+          placeholder={'Exposé\n  I. Introduction\n    A. Accroche\n  II. Développement'}
+          rows={12}
+          spellCheck={!lecture}
+          style={{ width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '10px', fontSize: '13.5px', fontFamily: 'ui-monospace, Menlo, monospace', lineHeight: 1.55, resize: 'vertical', whiteSpace: 'pre', overflowX: 'auto' }}
+        />
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          <button onClick={onFermer} style={bouton(false)}>{lecture ? 'Fermer' : 'Annuler'}</button>
+          {lecture
+            ? <button onClick={copier} style={bouton(true)}>{copié ? '✓ Copié' : '📄 Copier le plan'}</button>
+            : <button onClick={() => onCréer(texte)} disabled={!texte.trim()} style={{ ...bouton(true), opacity: texte.trim() ? 1 : 0.45 }}>Créer les bulles</button>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Versions précédentes du fichier (historique GitHub) : aperçu d'un graphe
+// à une date, puis restauration ou copie.
+function DialogueVersions({ T, token, chemin, graphe, onRestaurer, onFermer }) {
+  const [versions, setVersions] = useState(null)
+  const [erreur, setErreur] = useState('')
+  const [choisie, setChoisie] = useState(null) // { sha, date, graphe | null, chargement }
+  useEffect(() => {
+    let annulé = false
+    listerVersions(token, chemin)
+      .then(v => { if (!annulé) setVersions(v) })
+      .catch(err => { if (!annulé) setErreur(err.message) })
+    return () => { annulé = true }
+  }, [token, chemin])
+  const date = d => new Date(d).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  const ouvrir = async v => {
+    setChoisie({ ...v, chargement: true })
+    try {
+      const contenu = await lireVersion(token, chemin, v.sha)
+      const g = (contenu?.graphes || []).find(x => x.id === graphe.id) || null
+      setChoisie({ ...v, graphe: g ? { ...g, noeuds: g.noeuds || [], liens: g.liens || [] } : null, autres: (contenu?.graphes || []).length })
+    } catch (err) {
+      setChoisie(null)
+      setErreur(err.message)
+    }
+  }
+  const bouton = principal => ({
+    padding: '10px 12px', borderRadius: '10px', cursor: 'pointer', fontFamily: grotesk, fontWeight: principal ? 700 : 600, fontSize: '13px',
+    background: principal ? T.accent : T.surface2, color: principal ? T.accentText : T.text, border: principal ? 'none' : `1px solid ${T.border}`,
+  })
+  return (
+    <div role="dialog" aria-label="Versions précédentes" onKeyDown={e => { if (e.key === 'Escape') onFermer() }}
+      style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
+      <div style={{ width: '100%', maxWidth: '520px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '14px', marginTop: 'max(10px, env(safe-area-inset-top))' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+          <p style={{ flex: 1, margin: 0, fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>🕓 Versions de « {graphe.nom} »</p>
+          <button onClick={onFermer} aria-label="Fermer" style={{ background: 'transparent', border: 'none', color: T.textMuted, fontSize: '17px', cursor: 'pointer' }}>✕</button>
+        </div>
+        <p style={{ margin: '0 0 10px', fontSize: '12px', color: T.textMuted, lineHeight: 1.5 }}>
+          Chaque enregistrement sur GitHub est une version. Choisis une date pour voir le graphe tel qu'il était.
+        </p>
+        {erreur && <p style={{ color: T.danger, fontSize: '13px' }}>{erreur}</p>}
+        {!versions && !erreur && <p style={{ color: T.textMuted, fontSize: '13px' }}>Chargement de l'historique…</p>}
+        {choisie && (
+          <div style={{ background: T.surface2, border: `1px solid ${T.accent}`, borderRadius: '12px', padding: '12px', marginBottom: '10px' }}>
+            <p style={{ margin: '0 0 6px', fontWeight: 700, fontSize: '13.5px', color: T.text }}>{date(choisie.date)}</p>
+            {choisie.chargement ? <p style={{ margin: 0, fontSize: '12.5px', color: T.textMuted }}>Lecture de la version…</p>
+              : choisie.graphe ? (
+                <>
+                  <p style={{ margin: '0 0 6px', fontSize: '12.5px', color: T.textMuted }}>
+                    {choisie.graphe.noeuds.length} bulle(s) à cette date (aujourd'hui : {graphe.noeuds.length})
+                  </p>
+                  <p style={{ margin: '0 0 10px', fontSize: '12px', color: T.text, lineHeight: 1.5, maxHeight: '90px', overflow: 'hidden' }}>
+                    {choisie.graphe.noeuds.slice(0, 14).map(n => texteBrut(n.texte)).join(' · ')}{choisie.graphe.noeuds.length > 14 ? ' …' : ''}
+                  </p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    <button onClick={() => onRestaurer(choisie.graphe, false)} style={bouton(true)}>↺ Remplacer le graphe actuel</button>
+                    <button onClick={() => onRestaurer(choisie.graphe, `version du ${date(choisie.date)}`)} style={bouton(false)}>⧉ Ouvrir comme copie</button>
+                  </div>
+                </>
+              ) : <p style={{ margin: 0, fontSize: '12.5px', color: T.textMuted }}>Ce graphe n'existait pas encore à cette date.</p>}
+          </div>
+        )}
+        {versions && versions.length === 0 && <p style={{ color: T.textMuted, fontSize: '13px' }}>Aucune version enregistrée pour l'instant.</p>}
+        <div style={{ maxHeight: '50dvh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          {versions?.map((v, i) => (
+            <button key={v.sha} onClick={() => ouvrir(v)} aria-pressed={choisie?.sha === v.sha} style={{
+              display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+              background: choisie?.sha === v.sha ? `${T.accent}22` : 'transparent', border: 'none', color: T.text, fontFamily: grotesk, fontSize: '13.5px',
+            }}>
+              <span style={{ flex: 1 }}>{date(v.date)}</span>
+              {i === 0 && <span style={{ fontSize: '11px', color: T.accent, fontWeight: 700 }}>actuelle</span>}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

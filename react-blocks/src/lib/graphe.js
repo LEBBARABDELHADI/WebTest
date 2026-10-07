@@ -65,7 +65,7 @@ export function ancêtres(noeuds, id) {
 // `taille(id)` (facultatif) donne la taille affichée des bulles, pour que
 // les grandes bulles (code, image) gardent de la place autour d'elles.
 const TAILLE_DÉFAUT = { l: 120, h: 44 }
-export function ranger(noeuds, taille = () => TAILLE_DÉFAUT) {
+export function ranger(noeuds, taille = () => TAILLE_DÉFAUT, { écartArbres = ÉCART_Y / 2 } = {}) {
   const ids = new Set(noeuds.map(n => n.id))
   const enfants = new Map()
   noeuds.forEach(n => {
@@ -93,7 +93,7 @@ export function ranger(noeuds, taille = () => TAILLE_DÉFAUT) {
     const ys = fils.map(f => positions[f.id].y)
     positions[n.id] = { y: (Math.min(...ys) + Math.max(...ys)) / 2 }
   }
-  noeuds.filter(n => !n.parentId || !ids.has(n.parentId)).forEach(r => { placer(r, 0); ligne += ÉCART_Y / 2 })
+  noeuds.filter(n => !n.parentId || !ids.has(n.parentId)).forEach(r => { placer(r, 0); ligne += écartArbres })
 
   // Colonnes : assez écartées pour les bulles les plus larges de chacune.
   const largeurs = []
@@ -366,4 +366,208 @@ export const TAILLES_BULLES = [
 ]
 export function facteurTaille(noeud) {
   return TAILLES_BULLES.find(t => t.id === noeud.taille)?.facteur || 1
+}
+
+// ---------- Plan texte (copier / coller) ----------
+
+const ROMAINS = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]
+function romain(n) {
+  let reste = n
+  return ROMAINS.reduce((r, [v, l]) => { while (reste >= v) { r += l; reste -= v } return r }, '')
+}
+const lettre = (i, maj) => String.fromCharCode((maj ? 65 : 97) + (i % 26))
+// Numérotation d'un plan : I. → A. → 1. → a) → -
+function numéro(profondeur, i) {
+  if (profondeur === 1) return `${romain(i + 1)}.`
+  if (profondeur === 2) return `${lettre(i, true)}.`
+  if (profondeur === 3) return `${i + 1}.`
+  if (profondeur === 4) return `${lettre(i, false)})`
+  return '-'
+}
+
+function enfantsTriés(noeuds) {
+  const ids = new Set(noeuds.map(n => n.id))
+  const enfants = new Map()
+  noeuds.forEach(n => {
+    const p = n.parentId && ids.has(n.parentId) ? n.parentId : null
+    if (!enfants.has(p)) enfants.set(p, [])
+    enfants.get(p).push(n)
+  })
+  enfants.forEach(l => l.sort((a, b) => a.y - b.y || a.x - b.x))
+  return enfants
+}
+
+// Graphe → plan numéroté et indenté ; une ligne vide sépare les arbres.
+export function planTexte(noeuds) {
+  const enfants = enfantsTriés(noeuds)
+  const lignes = []
+  const écrire = (n, profondeur, i) => {
+    const texte = `${n.icone ? `${n.icone} ` : ''}${texteSimple(n.texte)}`
+    lignes.push(profondeur === 0 ? texte : `${'  '.repeat(profondeur)}${numéro(profondeur, i)} ${texte}`)
+    ;(enfants.get(n.id) || []).forEach((e, j) => écrire(e, profondeur + 1, j))
+  }
+  ;(enfants.get(null) || []).forEach((r, i) => {
+    if (i > 0) lignes.push('')
+    écrire(r, 0, i)
+  })
+  return lignes.join('\n')
+}
+// Retire le balisage **gras** / {{#hex|couleur}} et les retours à la ligne.
+function texteSimple(texte) {
+  return (texte || '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\{\{#[0-9a-fA-F]{3,8}\|(.+?)\}\}/g, '$1').replace(/\s*\n\s*/g, ' ').trim()
+}
+
+const MARQUEUR = /^(?:([-*+•–·])|(\d+)[.)]|([IVXLCDM]+)\.|([A-Z])[.)]|([a-z])[.)])\s+/
+// Rang d'un marqueur quand le plan n'a aucune indentation : I. < A. < 1. < a) < -
+function rangMarqueur(m) {
+  if (!m) return 0
+  if (m[3]) return 1
+  if (m[4]) return 2
+  if (m[2]) return 3
+  if (m[5]) return 4
+  return 5
+}
+
+// Texte (plan, liste à puces, titres Markdown) → bulles. L'indentation (ou,
+// à défaut, le type de numérotation) donne la profondeur.
+export function analyserPlan(texte) {
+  const brutes = texte.replace(/\r/g, '').split('\n')
+    .map(l => l.replace(/\t/g, '    '))
+    .filter(l => l.trim())
+  if (brutes.length === 0) return { noeuds: [], liens: [] }
+  const sansIndentation = brutes.every(l => !/^\s/.test(l)) && !brutes.some(l => /^#{1,6}\s/.test(l))
+  const lignes = []
+  let base = -1
+  brutes.forEach(l => {
+    const retrait = l.match(/^\s*/)[0].length
+    let contenu = l.trim()
+    const titre = contenu.match(/^(#{1,6})\s+(.*)$/)
+    if (titre) {
+      base = (titre[1].length - 1) * 1000
+      lignes.push({ niveau: base, texte: titre[2], titre: true })
+      return
+    }
+    const m = contenu.match(MARQUEUR)
+    if (m) contenu = contenu.slice(m[0].length)
+    // Une puce au même retrait qu'une ligne simple en dépend (« Titre » puis « - a »).
+    const niveau = sansIndentation ? rangMarqueur(m) : base + 1 + retrait + (m ? 0.5 : 0)
+    lignes.push({ niveau, texte: contenu })
+  })
+  const noeuds = []
+  const pile = []
+  lignes.forEach(({ niveau, texte: t, titre }) => {
+    // Un titre ferme les listes au-dessus de lui et les titres de même niveau.
+    while (pile.length && (pile[pile.length - 1].niveau >= niveau || (titre && !pile[pile.length - 1].titre))) pile.pop()
+    const parent = pile[pile.length - 1]
+    const icône = ICÔNES.find(i => t.startsWith(`${i.emoji} `))
+    const n = { id: uid(), texte: icône ? t.slice(icône.emoji.length + 1) : t, x: 0, y: 0, parentId: parent ? parent.id : null }
+    if (icône) n.icone = icône.emoji
+    noeuds.push(n)
+    pile.push({ niveau, id: n.id, titre })
+  })
+  return { noeuds: ranger(noeuds), liens: [] }
+}
+
+// ---------- Copier / coller des branches ----------
+
+// Les bulles choisies avec tout ce qui en dépend, et les liens entre elles.
+export function copierBranches(noeuds, liens, ids) {
+  const pris = new Set()
+  ids.forEach(id => { pris.add(id); descendants(noeuds, id).forEach(d => pris.add(d)) })
+  return {
+    noeuds: noeuds.filter(n => pris.has(n.id)).map(n => ({ ...n, parentId: pris.has(n.parentId) ? n.parentId : null })),
+    liens: liens.filter(l => pris.has(l.de) && pris.has(l.vers)),
+  }
+}
+
+// Nouvelle copie (nouveaux identifiants), décalée de (dx, dy) ; les racines
+// de la copie sont rattachées à parentDe(ancienId) (null = bulle libre).
+export function dupliquerCopie(copie, { dx = 0, dy = 0, parentDe = () => null } = {}) {
+  const nouveaux = new Map(copie.noeuds.map(n => [n.id, uid()]))
+  return {
+    noeuds: copie.noeuds.map(n => ({
+      ...n, id: nouveaux.get(n.id), x: n.x + dx, y: n.y + dy,
+      parentId: n.parentId && nouveaux.has(n.parentId) ? nouveaux.get(n.parentId) : parentDe(n.id),
+    })),
+    liens: copie.liens.map(l => ({ ...l, id: uid(), de: nouveaux.get(l.de), vers: nouveaux.get(l.vers) })),
+  }
+}
+
+// ---------- Aligner / répartir ----------
+
+// Nouvelles positions des bulles choisies. Les bulles verrouillées ne
+// bougent pas et servent de repère quand il y en a.
+export function aligner(noeuds, ids, mode, taille) {
+  const choisies = noeuds.filter(n => ids.includes(n.id))
+  if (choisies.length < 2) return {}
+  const repères = choisies.some(n => n.verrouillé) ? choisies.filter(n => n.verrouillé) : choisies
+  const t = n => taille(n.id)
+  const positions = {}
+  const placer = (n, x, y) => { if (!n.verrouillé) positions[n.id] = { x, y } }
+  if (mode === 'gauche') {
+    const g = Math.min(...repères.map(n => n.x - t(n).l / 2))
+    choisies.forEach(n => placer(n, g + t(n).l / 2, n.y))
+  } else if (mode === 'centre') {
+    const cx = repères.reduce((s, n) => s + n.x, 0) / repères.length
+    choisies.forEach(n => placer(n, cx, n.y))
+  } else if (mode === 'haut') {
+    const h = Math.min(...repères.map(n => n.y - t(n).h / 2))
+    choisies.forEach(n => placer(n, n.x, h + t(n).h / 2))
+  } else if (mode === 'milieu') {
+    const cy = repères.reduce((s, n) => s + n.y, 0) / repères.length
+    choisies.forEach(n => placer(n, n.x, cy))
+  } else if (mode === 'répartirH' || mode === 'répartirV') {
+    const horiz = mode === 'répartirH'
+    const axe = horiz ? 'x' : 'y'
+    const dim = horiz ? 'l' : 'h'
+    const triées = [...choisies].sort((a, b) => a[axe] - b[axe])
+    const début = triées[0][axe] - t(triées[0])[dim] / 2
+    const fin = triées[triées.length - 1][axe] + t(triées[triées.length - 1])[dim] / 2
+    const total = triées.reduce((s, n) => s + t(n)[dim], 0)
+    const écart = (fin - début - total) / (triées.length - 1)
+    let curseur = début
+    triées.forEach(n => {
+      const centre = curseur + t(n)[dim] / 2
+      placer(n, horiz ? centre : n.x, horiz ? n.y : centre)
+      curseur += t(n)[dim] + écart
+    })
+  }
+  return positions
+}
+
+// ---------- Séparateurs entre les arbres ----------
+
+// Lignes horizontales entre les arbres empilés (un arbre = une bulle racine
+// et ses bulles visibles), là où ils ne se chevauchent pas en hauteur.
+export function séparateursArbres(visibles, taille) {
+  const ids = new Set(visibles.map(n => n.id))
+  const racineDe = new Map()
+  const parId = new Map(visibles.map(n => [n.id, n]))
+  const racine = n => {
+    if (racineDe.has(n.id)) return racineDe.get(n.id)
+    const r = n.parentId && ids.has(n.parentId) ? racine(parId.get(n.parentId)) : n.id
+    racineDe.set(n.id, r)
+    return r
+  }
+  const boîtes = new Map()
+  visibles.forEach(n => {
+    const r = racine(n)
+    const { l, h } = taille(n.id)
+    const b = boîtes.get(r) || { haut: Infinity, bas: -Infinity, gauche: Infinity, droite: -Infinity }
+    boîtes.set(r, {
+      haut: Math.min(b.haut, n.y - h / 2), bas: Math.max(b.bas, n.y + h / 2),
+      gauche: Math.min(b.gauche, n.x - l / 2), droite: Math.max(b.droite, n.x + l / 2),
+    })
+  })
+  const liste = [...boîtes.values()].sort((a, b) => a.haut - b.haut)
+  if (liste.length < 2) return []
+  const x0 = Math.min(...liste.map(b => b.gauche)) - 40
+  const x1 = Math.max(...liste.map(b => b.droite)) + 40
+  const lignes = []
+  let basCourant = liste[0].bas
+  for (let i = 1; i < liste.length; i += 1) {
+    if (liste[i].haut > basCourant + 8) lignes.push({ x0, x1, y: (basCourant + liste[i].haut) / 2 })
+    basCourant = Math.max(basCourant, liste[i].bas)
+  }
+  return lignes
 }
