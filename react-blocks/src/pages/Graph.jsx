@@ -16,7 +16,7 @@ import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import { useDonnéesSynchronisées } from '../lib/synchro'
 import {
   ÉCART_X, ÉCART_Y, compléterGraphes, uid, descendants, bullesCachées, ancêtres, ranger,
-  géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation,
+  géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation, TRACÉS,
   TAILLES_BULLES, facteurTaille,
 } from '../lib/graphe'
 import { exporterGraphePNG } from '../lib/exportGraphe'
@@ -70,6 +70,7 @@ export default function Graph() {
   const [édition, setÉdition] = useState(null) // { type: 'bulle' | 'lien', id, texte, image? }
   const [rattachement, setRattachement] = useState(false)
   const [liaison, setLiaison] = useState(false)
+  const [tracéLiaison, setTracéLiaison] = useState('courbe') // tracé des nouveaux liens
   const [traitChoisi, setTraitChoisi] = useState(null) // { type: 'lien' | 'branche', id }
   const [paletteOuverte, setPaletteOuverte] = useState(false)
   const [agrandi, setAgrandi] = useState(false)
@@ -162,7 +163,7 @@ export default function Graph() {
   const estRacine = n => !n.parentId || !ids.has(n.parentId)
   const liensVisibles = liens
     .filter(l => idsVisibles.has(l.de) && idsVisibles.has(l.vers))
-    .map(l => ({ l, géo: géométrieLien(parId.get(l.de), parId.get(l.vers), tailleDe) }))
+    .map(l => ({ l, géo: géométrieLien(parId.get(l.de), parId.get(l.vers), tailleDe, l.tracé) }))
 
   // En présentation, seules les bulles déjà dévoilées sont affichées.
   const ordre = présentation ? ordrePrésentation(visibles) : []
@@ -444,7 +445,7 @@ export default function Graph() {
     const existant = liens.find(l => (l.de === a && l.vers === b) || (l.de === b && l.vers === a))
     majGraphe(g => ({
       ...g,
-      liens: existant ? g.liens.filter(l => l.id !== existant.id) : [...g.liens, { id: uid(), de: a, vers: b }],
+      liens: existant ? g.liens.filter(l => l.id !== existant.id) : [...g.liens, { id: uid(), de: a, vers: b, ...(tracéLiaison !== 'courbe' ? { tracé: tracéLiaison } : {}) }],
     }))
     afficher(existant ? 'Lien retiré' : 'Lien ajouté')
   }
@@ -988,12 +989,22 @@ export default function Graph() {
       )}
       {liaison && (
         <div style={{ ...bandeau, background: T.accent, color: T.accentText }}>
-          <span style={{ flex: 1 }}>Touche les bulles à relier à « {noeudSélectionné ? court(noeudSélectionné) : ''} » (retoucher retire le lien)</span>
-          <button onClick={() => setLiaison(false)} style={boutonBandeau}>Terminé</button>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <span>Relier « {noeudSélectionné ? court(noeudSélectionné) : ''} » : touche les bulles <span style={{ fontWeight: 500, opacity: 0.8 }}>(retoucher retire le lien)</span></span>
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }} role="group" aria-label="Tracé des nouveaux liens">
+              {TRACÉS.map(t => (
+                <button key={t.id} onClick={() => setTracéLiaison(t.id)} aria-pressed={tracéLiaison === t.id} style={{
+                  ...boutonBandeau, padding: '5px 9px', fontSize: '12px',
+                  background: tracéLiaison === t.id ? T.accentText : 'rgba(0,0,0,.15)', color: tracéLiaison === t.id ? T.accent : 'inherit',
+                }}>{t.symbole} {t.nom}</button>
+              ))}
+            </div>
+          </div>
+          <button onClick={() => setLiaison(false)} style={{ ...boutonBandeau, alignSelf: 'flex-start' }}>Terminé</button>
         </div>
       )}
       {message && (
-        <div role="status" style={{ ...bandeau, top: liaison || rattachement ? '118px' : '60px', background: message.erreur ? T.danger : message.action ? T.surface : '#2f7d4f', color: message.action ? T.text : '#fff', border: message.action ? `1px solid ${T.accent}` : 'none', fontWeight: 500 }}>
+        <div role="status" style={{ ...bandeau, ...(liaison || rattachement ? { top: 'auto', bottom: '16px' } : {}), background: message.erreur ? T.danger : message.action ? T.surface : '#2f7d4f', color: message.action ? T.text : '#fff', border: message.action ? `1px solid ${T.accent}` : 'none', fontWeight: 500 }}>
           <span style={{ flex: 1 }}>{message.texte}</span>
           {message.action && (
             <button onClick={() => { message.action.fn(); setMessage(null) }} style={{ ...boutonBandeau, background: T.accent, color: T.accentText }}>{message.action.libellé}</button>
@@ -1134,6 +1145,18 @@ export default function Graph() {
                         background: sens === id ? T.accent : 'transparent', color: sens === id ? T.accentText : T.text,
                       }}>{symbole}</button>
                     ))}
+                  </div>
+                  <div style={{ display: 'flex', background: T.surface2, borderRadius: '10px', padding: '2px' }} role="group" aria-label="Tracé du lien">
+                    {TRACÉS.map(t => {
+                      const actif = (lien.tracé || 'courbe') === t.id
+                      return (
+                        <button key={t.id} onClick={() => majLien(lien.id, l => { const maj = { ...l, tracé: t.id }; if (t.id === 'courbe') delete maj.tracé; return maj })}
+                          title={`Tracé ${t.nom.toLowerCase()}`} aria-label={`Tracé ${t.nom.toLowerCase()}`} aria-pressed={actif} style={{
+                            width: '36px', height: '32px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: 700,
+                            background: actif ? T.accent : 'transparent', color: actif ? T.accentText : T.text,
+                          }}>{t.symbole}</button>
+                      )
+                    })}
                   </div>
                   <button onClick={() => setÉdition({ type: 'lien', id: lien.id, texte: lien.texte || '' })} style={{ background: T.surface2, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '8px 10px', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk }}>🏷️ Texte</button>
                 </>

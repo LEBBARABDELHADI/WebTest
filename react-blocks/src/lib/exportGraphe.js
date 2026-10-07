@@ -117,7 +117,7 @@ function chargerImage(src) {
 
 // bulles  : [{ x, y, l, h, texte, racine, couleur, image (adresse|null), badge }]
 // branches: [{ de: {x,y}, vers: {x,y}, couleur }]
-// liens   : [{ p0, k, p1, milieu, sens, texte }]
+// liens   : [{ p0, k | points, p1, milieu, sens, texte }]
 export async function exporterGraphePNG({ bulles, branches, liens, couleurs, polices }) {
   const images = await Promise.all(bulles.map(b => chargerImage(b.image)))
 
@@ -159,11 +159,15 @@ export async function exporterGraphePNG({ bulles, branches, liens, couleurs, pol
     ctx.setLineDash([7, 6])
     ctx.beginPath()
     ctx.moveTo(l.p0.x, l.p0.y)
-    ctx.quadraticCurveTo(l.k.x, l.k.y, l.p1.x, l.p1.y)
+    if (l.points) l.points.slice(1).forEach(p => ctx.lineTo(p.x, p.y))
+    else ctx.quadraticCurveTo(l.k.x, l.k.y, l.p1.x, l.p1.y)
     ctx.stroke()
     ctx.setLineDash([])
-    if (l.sens === 'vers' || l.sens === 'deux') flèche(ctx, l.p1, l.k, couleurs.accent)
-    if (l.sens === 'deux') flèche(ctx, l.p0, l.k, couleurs.accent)
+    // Les flèches suivent la direction du dernier (ou premier) segment.
+    const avantFin = l.points ? l.points[l.points.length - 2] : l.k
+    const aprèsDébut = l.points ? l.points[1] : l.k
+    if (l.sens === 'vers' || l.sens === 'deux') flèche(ctx, l.p1, avantFin, couleurs.accent)
+    if (l.sens === 'deux') flèche(ctx, l.p0, aprèsDébut, couleurs.accent)
   })
 
   // Bulles

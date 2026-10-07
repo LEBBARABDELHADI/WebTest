@@ -148,7 +148,52 @@ function point(a, c, b, t) {
 // bulles placées entre les deux et ne pas confondre avec une branche.
 // Les extrémités sont coupées au bord des bulles (pour que les flèches se
 // voient) : `taille(id)` donne la largeur et la hauteur affichées.
-export function géométrieLien(a, b, taille) {
+// tracé : 'courbe' (défaut) | 'droit' | 'horizontal' (sort par les côtés,
+// segments horizontaux et verticaux) | 'vertical' (sort par le haut/bas).
+export const TRACÉS = [
+  { id: 'courbe', nom: 'Courbe', symbole: '⌒' },
+  { id: 'droit', nom: 'Droit', symbole: '╱' },
+  { id: 'horizontal', nom: 'Horizontal', symbole: '↔' },
+  { id: 'vertical', nom: 'Vertical', symbole: '↕' },
+]
+
+// Tracés en lignes droites : `points` = la ligne brisée, du bord de a au bord de b.
+function lienAnguleux(a, b, taille, tracé) {
+  const ta = taille(a.id)
+  const tb = taille(b.id)
+  let points
+  if (tracé === 'horizontal') {
+    const sx = Math.sign(b.x - a.x) || 1
+    const p0 = { x: a.x + sx * (ta.l / 2 + 2), y: a.y }
+    const p1 = { x: b.x - sx * (tb.l / 2 + 2), y: b.y }
+    const mx = (p0.x + p1.x) / 2
+    points = Math.abs(p0.y - p1.y) < 1 ? [p0, p1] : [p0, { x: mx, y: p0.y }, { x: mx, y: p1.y }, p1]
+  } else if (tracé === 'vertical') {
+    const sy = Math.sign(b.y - a.y) || 1
+    const p0 = { x: a.x, y: a.y + sy * (ta.h / 2 + 2) }
+    const p1 = { x: b.x, y: b.y - sy * (tb.h / 2 + 2) }
+    const my = (p0.y + p1.y) / 2
+    points = Math.abs(p0.x - p1.x) < 1 ? [p0, p1] : [p0, { x: p0.x, y: my }, { x: p1.x, y: my }, p1]
+  } else {
+    // Droit : segment coupé au bord des deux rectangles.
+    const dx = b.x - a.x
+    const dy = b.y - a.y
+    const sortie = t => Math.min(dx ? (t.l / 2 + 4) / Math.abs(dx) : Infinity, dy ? (t.h / 2 + 4) / Math.abs(dy) : Infinity)
+    const t0 = Math.min(0.45, sortie(ta))
+    const t1 = Math.min(0.45, sortie(tb))
+    points = [{ x: a.x + dx * t0, y: a.y + dy * t0 }, { x: b.x - dx * t1, y: b.y - dy * t1 }]
+  }
+  const milieu = points.length === 4
+    ? { x: (points[1].x + points[2].x) / 2, y: (points[1].y + points[2].y) / 2 }
+    : { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 }
+  return {
+    p0: points[0], p1: points[points.length - 1], points, milieu,
+    d: points.map((p, i) => `${i ? 'L' : 'M'} ${p.x} ${p.y}`).join(' '),
+  }
+}
+
+export function géométrieLien(a, b, taille, tracé = 'courbe') {
+  if (tracé && tracé !== 'courbe') return lienAnguleux(a, b, taille, tracé)
   const long = Math.hypot(b.x - a.x, b.y - a.y) || 1
   const écart = Math.min(170, Math.max(50, long * 0.6))
   const c = {
