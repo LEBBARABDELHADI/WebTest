@@ -325,6 +325,14 @@ export default function Graph() {
           return
         }
         if (e.key === 'Escape' && (multi.length || modeCadre)) { setMulti([]); setModeCadre(false); return }
+        // Suppr / Retour arrière : supprime ce qui est sélectionné (lien,
+        // branche détachée, bulle ou groupe de bulles).
+        if ((e.key === 'Delete' || e.key === 'Backspace') && !agrandie && !édition && graphe) {
+          if (traitChoisi?.type === 'lien') { e.preventDefault(); supprimerLien(traitChoisi.id); setTraitChoisi(null); afficher('Lien supprimé'); return }
+          if (traitChoisi?.type === 'branche') { e.preventDefault(); détacher(traitChoisi.id); setTraitChoisi(null); afficher('Branche détachée'); return }
+          if (multiSet.size > 0 && !sélection) { e.preventDefault(); supprimerMulti(); return }
+          if (sélection && parId.get(sélection)) { e.preventDefault(); supprimerNoeud(sélection); return }
+        }
       }
       if (e.target.closest?.('input, textarea, select') || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' && e.key.toLowerCase() !== 'y') return
       e.preventDefault()
@@ -1259,7 +1267,7 @@ export default function Graph() {
             </div>
             {canevas}
             <p style={{ margin: '8px 0 0', fontSize: '11px', color: T.textMuted, textAlign: 'center', lineHeight: 1.5 }}>
-              Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule. Plusieurs bulles : ⬚, ou Maj + glisser / Maj + clic à la souris (Ctrl+A : toutes).
+              Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule. Plusieurs bulles : ⬚, ou Maj + glisser / Maj + clic à la souris (Ctrl+A : toutes). Touche Suppr : efface la bulle ou le lien choisi.
             </p>
           </>
         )}
