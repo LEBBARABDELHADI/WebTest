@@ -5,6 +5,24 @@ const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
 
 export const TOKEN_KEY = 'react-blocs-github-token'
 
+// Toutes les écritures (fichiers JSON, images) passent par une seule file :
+// deux commits envoyés en même temps sur la même branche font échouer
+// GitHub (409 ou 500), par exemple une photo et le graphe juste après.
+let file = Promise.resolve()
+function enFile(tâche) {
+  const résultat = file.then(tâche, tâche)
+  file = résultat.catch(() => {})
+  return résultat
+}
+const attendre = ms => new Promise(r => setTimeout(r, ms))
+// Erreurs passagères de GitHub : on réessaie.
+const passagère = statut => statut === 409 || statut >= 500
+function erreurPassagère(message) {
+  const err = new Error(message)
+  err.passagère = true
+  return err
+}
+
 function encoderBase64Utf8(str) {
   return btoa(unescape(encodeURIComponent(str)))
 }
@@ -36,67 +54,83 @@ export async function lireDepuisGitHub(token, chemin) {
 
 // Écriture : nécessite un token avec la permission Contents (lecture/écriture)
 // sur ce dépôt (token fin, "Fine-grained personal access token").
-export async function écrireVersGitHub(data, token, shaConnu, chemin) {
+// En cas d'erreur passagère (conflit, 500…), relit la version actuelle du
+// fichier et réessaie jusqu'à 4 fois.
+export function écrireVersGitHub(data, token, shaConnu, chemin) {
+  return enFile(() => écrireAvecEssais(data, token, shaConnu, chemin))
+}
+async function écrireAvecEssais(data, token, shaConnu, chemin) {
   if (!token) throw new Error('Token manquant')
   const headers = {
     Accept: 'application/vnd.github+json',
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   }
-  let sha = shaConnu
-  if (!sha) {
-    const actuel = await lireDepuisGitHub(token, chemin)
-    sha = actuel.sha
-  }
   const contenu = encoderBase64Utf8(JSON.stringify(data, null, 2))
-  let res
-  try {
-    res = await fetch(`${API_BASE}/${chemin}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        message: `chore: sync tâches ${new Date().toISOString()}`,
-        content: contenu,
-        sha,
-        branch: BRANCHE,
-      }),
-    })
-  } catch {
-    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
-  }
-  if (!res.ok) {
+  let sha = shaConnu
+  let dernièreErreur = null
+  for (let essai = 0; essai < 4; essai += 1) {
+    if (essai > 0) await attendre(800 * 2 ** (essai - 1))
+    if (!sha || essai > 0) {
+      try { sha = (await lireDepuisGitHub(token, chemin)).sha } catch (err) { dernièreErreur = err; continue }
+    }
+    let res
+    try {
+      res = await fetch(`${API_BASE}/${chemin}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ message: `chore: sync tâches ${new Date().toISOString()}`, content: contenu, sha, branch: BRANCHE }),
+      })
+    } catch {
+      dernièreErreur = erreurPassagère('Connexion à GitHub impossible (hors ligne ?)')
+      continue
+    }
+    if (res.ok) return { sha: (await res.json()).content.sha }
     const err = await res.json().catch(() => ({}))
     if (res.status === 401) throw new Error('Token invalide ou expiré')
-    if (res.status === 409) throw new Error('Conflit : le fichier a changé ailleurs, réessaie')
-    throw new Error(err.message || `Écriture impossible (${res.status})`)
+    if (res.status === 403) throw new Error('Le token n\'a pas le droit d\'écrire sur ce dépôt')
+    if (!passagère(res.status) && !(res.status === 422 && /sha/i.test(err.message || ''))) {
+      throw new Error(err.message || `Écriture impossible (${res.status})`)
+    }
+    dernièreErreur = erreurPassagère(`GitHub occupé (${res.status}), nouvel essai…`)
   }
-  const json = await res.json()
-  return { sha: json.content.sha }
+  throw dernièreErreur || erreurPassagère('Écriture impossible, nouvel essai bientôt')
 }
 
 // Envoie un fichier binaire déjà encodé en base64 (image de carte) comme
-// nouveau fichier du dépôt. Nécessite le token en écriture.
-export async function envoyerFichier(chemin, base64, token, message) {
-  if (!token) throw new Error('Token manquant')
-  let res
-  try {
-    res = await fetch(`${API_BASE}/${chemin}`, {
-      method: 'PUT',
-      headers: {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message, content: base64, branch: BRANCHE }),
-    })
-  } catch {
-    throw new Error('Connexion à GitHub impossible (hors ligne ?)')
-  }
-  if (!res.ok) {
-    if (res.status === 401) throw new Error('Token invalide ou expiré')
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.message || `Envoi impossible (${res.status})`)
-  }
+// nouveau fichier du dépôt. Nécessite le token en écriture. Réessaie en cas
+// d'erreur passagère ; si le fichier existe déjà (un essai précédent a
+// abouti malgré l'erreur), c'est réussi.
+export function envoyerFichier(chemin, base64, token, message) {
+  return enFile(async () => {
+    if (!token) throw new Error('Token manquant')
+    let dernièreErreur = null
+    for (let essai = 0; essai < 4; essai += 1) {
+      if (essai > 0) await attendre(800 * 2 ** (essai - 1))
+      let res
+      try {
+        res = await fetch(`${API_BASE}/${chemin}`, {
+          method: 'PUT',
+          headers: {
+            Accept: 'application/vnd.github+json',
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message, content: base64, branch: BRANCHE }),
+        })
+      } catch {
+        dernièreErreur = new Error('Connexion à GitHub impossible (hors ligne ?)')
+        continue
+      }
+      if (res.ok) return
+      const err = await res.json().catch(() => ({}))
+      if (res.status === 401) throw new Error('Token invalide ou expiré')
+      if (res.status === 422 && /sha/i.test(err.message || '')) return
+      if (!passagère(res.status)) throw new Error(err.message || `Envoi impossible (${res.status})`)
+      dernièreErreur = new Error(`GitHub occupé (${res.status}), réessaie dans un instant`)
+    }
+    throw dernièreErreur
+  })
 }
 
 // Adresse publique d'un fichier du dépôt (les images des cartes).

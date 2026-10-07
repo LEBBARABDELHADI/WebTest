@@ -21,6 +21,9 @@ export function useDonnéesSynchronisées(config, compléter) {
   const ignorerÉcritureRef = useRef(false)
   const prêtRef = useRef(false)
   const dernierEnvoiRef = useRef(null)
+  // Après une erreur passagère, nouvel essai automatique (sans attendre une
+  // autre modification).
+  const [relance, setRelance] = useState(0)
 
   useEffect(() => {
     try { localStorage.setItem(config.stockage, JSON.stringify(data)) } catch { /* ignore */ }
@@ -64,11 +67,12 @@ export function useDonnéesSynchronisées(config, compléter) {
         })
         .catch(err => {
           setStatut('erreur')
-          setErreur(err.message)
+          setErreur(err.passagère ? `${err.message} Nouvel essai automatique dans 10 s.` : err.message)
+          if (err.passagère) setTimeout(() => setRelance(r => r + 1), 10000)
         })
     }, 1500)
     return () => clearTimeout(délaiRef.current)
-  }, [data, token, config.chemin])
+  }, [data, token, config.chemin, relance])
 
   const connecter = t => {
     const propre = t.trim()
