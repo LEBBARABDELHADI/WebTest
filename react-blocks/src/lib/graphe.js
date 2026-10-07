@@ -1,7 +1,7 @@
 // Logique des graphes (page Graph), indépendante de l'affichage.
 //
 // Fichier : { graphes: [{ id, nom, noeuds, liens }] }
-// - noeud : { id, texte, x, y, parentId, couleur?, replié?, image? }
+// - noeud : { id, texte, x, y, parentId, couleur?, replié?, image?, verrouillé? }
 //   x, y = centre de la bulle ; parentId = bulle parente dans l'arbre
 //   (null pour une racine ou une bulle libre) ; replié = ses descendants
 //   sont cachés.
@@ -103,6 +103,24 @@ export function ranger(noeuds, taille = () => TAILLE_DÉFAUT) {
     colonnes[p] = colonnes[p - 1] + Math.max(ÉCART_X, (largeurs[p - 1] + largeurs[p]) / 2 + 70)
   }
   Object.keys(positions).forEach(id => { positions[id].x = colonnes[profondeurs[id]] })
+
+  // Bulles verrouillées : elles restent où elles sont, et leur branche
+  // (bulles non verrouillées en dessous) est rangée autour d'elles.
+  const parIdentifiant = new Map(noeuds.map(n => [n.id, n]))
+  const décalageDe = new Map()
+  const décalage = id => {
+    if (décalageDe.has(id)) return décalageDe.get(id)
+    const n = parIdentifiant.get(id)
+    let d = { dx: 0, dy: 0 }
+    if (n.verrouillé && positions[id]) d = { dx: n.x - positions[id].x, dy: n.y - positions[id].y }
+    else if (n.parentId && ids.has(n.parentId) && positions[n.parentId]) d = décalage(n.parentId)
+    décalageDe.set(id, d)
+    return d
+  }
+  Object.keys(positions).forEach(id => {
+    const { dx, dy } = décalage(id)
+    positions[id] = { x: positions[id].x + dx, y: positions[id].y + dy }
+  })
 
   // Les bulles cachées gardent leur position relative à la bulle repliée.
   const décalages = {}

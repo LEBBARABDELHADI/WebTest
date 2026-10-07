@@ -592,7 +592,7 @@ export default function Graph() {
     const bulle = e.target.closest('[data-noeud]')
     if (bulle) {
       const n = parId.get(bulle.dataset.noeud)
-      gesteRef.current = { type: 'bulle', id: n.id, départ: { x: e.clientX, y: e.clientY }, pos0: { x: n.x, y: n.y }, déplacé: false }
+      gesteRef.current = { type: 'bulle', id: n.id, verrouillé: !!n.verrouillé, vue0: vueRef.current, départ: { x: e.clientX, y: e.clientY }, pos0: { x: n.x, y: n.y }, déplacé: false }
     } else {
       const trait = e.target.closest('[data-trait]')
       gesteRef.current = {
@@ -623,7 +623,12 @@ export default function Graph() {
     const dx = e.clientX - g.départ.x
     const dy = e.clientY - g.départ.y
     if (!g.déplacé && Math.hypot(dx, dy) < SEUIL_GLISSER) return
-    if (g.type === 'bulle') {
+    if (g.type === 'bulle' && g.verrouillé) {
+      // Bulle verrouillée : glisser déplace la vue, pas la bulle.
+      if (!g.déplacé) afficher('🔒 Bulle verrouillée : touche « Verrou » pour la déplacer.')
+      g.déplacé = true
+      setVue({ ...g.vue0, x: g.vue0.x + dx, y: g.vue0.y + dy })
+    } else if (g.type === 'bulle') {
       // Un seul point d'annulation par glissement, pris au premier mouvement.
       if (!g.déplacé) mémoriser()
       g.déplacé = true
@@ -680,9 +685,9 @@ export default function Graph() {
   })
   const boutonTexte = { ...boutonFlottant(), width: 'auto', padding: '0 12px', fontSize: '12.5px', fontFamily: grotesk }
   const action = (danger = false) => ({
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', flex: '1 0 44px', minWidth: '44px', padding: '6px 1px',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', flex: '1 1 auto', minWidth: 0, padding: '6px 2px', whiteSpace: 'nowrap',
     background: 'transparent', border: 'none', cursor: 'pointer', color: danger ? T.danger : T.text,
-    fontFamily: grotesk, fontSize: '10.5px', fontWeight: 600,
+    fontFamily: grotesk, fontSize: '9.5px', fontWeight: 600,
   })
   const bandeau = { position: 'absolute', left: '10px', right: '10px', top: '60px', borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600 }
   const boutonBandeau = { background: 'rgba(0,0,0,.15)', color: 'inherit', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', fontWeight: 700 }
@@ -769,7 +774,7 @@ export default function Graph() {
                 ref={refBulle(n.id)}
                 data-noeud={n.id}
                 role="button"
-                aria-label={`Bulle : ${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}${nbCachées ? ` (${nbCachées} bulles repliées)` : ''}`}
+                aria-label={`Bulle : ${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}${nbCachées ? ` (${nbCachées} bulles repliées)` : ''}${n.verrouillé ? ' (verrouillée)' : ''}`}
                 aria-pressed={choisi}
                 className={présentation ? 'anime' : actuelle?.id === n.id ? 'bulle-trouvee' : undefined}
                 style={{
@@ -801,6 +806,13 @@ export default function Graph() {
                 {n.icone && <span style={{ marginRight: '5px' }}>{n.icone}</span>}
                 <TexteFormaté texte={n.texte} couleurDéfaut={racine ? '#1b1b1b' : T.text} />
                 {n.code && <CodeDansBulle code={n.code} langage={n.langage} f={f} />}
+                {n.verrouillé && !présentation && (
+                  <span aria-hidden="true" title="Position verrouillée" style={{
+                    position: 'absolute', top: '-10px', left: '-10px', width: '22px', height: '22px', borderRadius: '50%',
+                    background: T.surface, border: `1.5px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '11px', boxShadow: '0 2px 6px rgba(0,0,0,.3)', pointerEvents: 'none',
+                  }}>🔒</span>
+                )}
                 {(n.image || n.code) && (
                   <span data-agrandir={n.id} role="button" aria-label={`Agrandir ${n.image ? 'l\'image' : 'le code'}`} title="Agrandir" style={{
                     position: 'absolute', bottom: '-12px', right: '-12px', width: '28px', height: '28px', borderRadius: '50%',
@@ -967,6 +979,11 @@ export default function Graph() {
                 <span style={{ fontSize: '18px' }}>{noeudSélectionné.replié ? '📂' : '📁'}</span>{noeudSélectionné.replié ? 'Déplier' : 'Replier'}
               </button>
             )}
+            <button onClick={() => changerChamp(noeudSélectionné.id, 'verrouillé', !noeudSélectionné.verrouillé)} aria-pressed={!!noeudSélectionné.verrouillé}
+              title={noeudSélectionné.verrouillé ? 'Déverrouiller la position' : 'Verrouiller la position (même avec Ranger)'}
+              style={{ ...action(), color: noeudSélectionné.verrouillé ? T.accent : T.text }}>
+              <span style={{ fontSize: '18px' }}>{noeudSélectionné.verrouillé ? '🔒' : '🔓'}</span>Verrou
+            </button>
             <button onClick={() => supprimerNoeud(noeudSélectionné.id)} style={action(true)}><span style={{ fontSize: '18px' }}>🗑️</span>Suppr.</button>
           </div>
         </div>
