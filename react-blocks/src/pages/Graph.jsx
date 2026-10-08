@@ -9,6 +9,7 @@ import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage } from '../components/ImageCarte'
 import CodeBlock from '../components/CodeBlock'
+import SectionsGraphe from '../components/SectionsGraphe'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { normaliser } from '../lib/motsCles'
@@ -327,7 +328,7 @@ export default function Graph() {
         else if (e.key === 'Escape') quitterPrésentation()
         return
       }
-      if (!e.target.closest?.('input, textarea, select, [role=dialog]')) {
+      if (!e.target.closest?.('input, textarea, select, [role=dialog], [data-sections]')) {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && graphe) {
           e.preventDefault()
           setSélection(null); setTraitChoisi(null)
@@ -375,7 +376,7 @@ export default function Graph() {
   // Ctrl+C / Ctrl+X / Ctrl+V : les bulles vont aussi dans le presse-papiers
   // du système sous forme de plan texte ; coller un texte crée des bulles.
   useEffect(() => {
-    const horsGraphe = e => !graphe || présentation || !!édition || !!e.target.closest?.('input, textarea, select, [role=dialog]')
+    const horsGraphe = e => !graphe || présentation || !!édition || !!e.target.closest?.('input, textarea, select, [role=dialog], [data-sections]')
     const surCopier = (e, couper) => {
       if (horsGraphe(e) || window.getSelection()?.toString() || !idsÀCopier().length) return
       const r = copierSélection()
@@ -1515,6 +1516,13 @@ export default function Graph() {
             <p style={{ margin: '8px 0 0', fontSize: '11px', color: T.textMuted, textAlign: 'center', lineHeight: 1.5 }}>
               Touche une bulle pour la choisir, retouche-la pour écrire. Touche un trait pour lui donner un texte, une flèche ou le retirer. Glisse les bulles ou le fond ; pince pour zoomer ; ↩︎ annule. Plusieurs bulles : ⬚, ou Maj + glisser / Maj + clic à la souris (Ctrl+A : toutes). Clavier : Tab sous-bulle, Entrée bulle suivante, flèches, Suppr, Ctrl+C / V / D.
             </p>
+            {graphe && (
+              <SectionsGraphe
+                T={T}
+                sections={graphe.sections || []}
+                onChanger={fn => majGraphe(g => ({ ...g, sections: fn(g.sections || []) }))}
+              />
+            )}
           </>
         )}
       </div>
