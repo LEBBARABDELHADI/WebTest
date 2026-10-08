@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { Fragment, useState, useRef, useEffect } from 'react'
 import { grotesk, serif } from '../lib/theme'
 import { TexteFormaté } from '../lib/texteFormate'
 import { uid } from '../lib/graphe'
@@ -92,22 +92,130 @@ function Poignée({ T, props, libellé }) {
   )
 }
 
-export default function SectionsGraphe({ T, sections, onChanger }) {
-  const [édition, setÉdition] = useState(null) // { sectionId, blocId, texte, langage, nouveau }
-  const [titreÉdité, setTitreÉdité] = useState(null) // { id, valeur }
-  const zoneRef = useRef(null)
-  const listeSections = useRéordonner((de, vers) => onChanger(s => déplacer(s, de, vers)))
+export const NB_COLONNES = 4
 
-  const majSection = (id, fn) => onChanger(s => s.map(x => (x.id === id ? fn(x) : x)))
-  const ajouterSection = () => {
-    const section = { id: uid(), titre: `Section ${sections.length + 1}`, blocs: [] }
-    onChanger(s => [...s, section])
+// Les 4 grandes sections d'un graphe. Les anciennes « sections » (avant
+// les colonnes) deviennent les sous-sections de la première.
+export function colonnesDe(graphe) {
+  const existantes = Array.isArray(graphe?.colonnes) ? graphe.colonnes : []
+  const colonnes = Array.from({ length: NB_COLONNES }, (_, i) => existantes[i] || { id: `col-${i + 1}`, titre: `Section ${i + 1}`, sousSections: [] })
+    .map(c => ({ ...c, sousSections: Array.isArray(c.sousSections) ? c.sousSections : [] }))
+  if (!existantes.length && Array.isArray(graphe?.sections) && graphe.sections.length) {
+    colonnes[0] = { ...colonnes[0], sousSections: graphe.sections }
+  }
+  return colonnes
+}
+
+// Ordinateur (écran large) : 4 colonnes côte à côte ; téléphone : à la suite.
+function useÉcranLarge() {
+  const requête = '(min-width: 900px)'
+  const [large, setLarge] = useState(() => typeof window !== 'undefined' && window.matchMedia(requête).matches)
+  useEffect(() => {
+    const m = window.matchMedia(requête)
+    const changer = () => setLarge(m.matches)
+    m.addEventListener('change', changer)
+    return () => m.removeEventListener('change', changer)
+  }, [])
+  return large
+}
+
+// Glisser une sous-section, dans sa section ou vers une autre : l'élément
+// suit le pointeur et une ligne montre où il va se poser.
+function useGlisserEntreListes(onDéposer) {
+  const [glisse, setGlisse] = useState(null) // { de: { liste, index }, dx, dy, vers: { liste, index } }
+  const listesRef = useRef(new Map()) // id de liste → élément conteneur
+  const refListe = id => el => { if (el) listesRef.current.set(id, el); else listesRef.current.delete(id) }
+
+  const poignée = (liste, index) => ({
+    onPointerDown: e => {
+      if (e.button !== undefined && e.button !== 0) return
+      e.preventDefault()
+      const départ = { x: e.clientX, y: e.clientY, défilement: window.scrollY }
+      const poignéeEl = e.currentTarget
+      poignéeEl.setPointerCapture?.(e.pointerId)
+      let vers = { liste, index }
+      const cible = (x, y) => {
+        // Liste sous le pointeur, sinon la plus proche.
+        let meilleure = null
+        let distance = Infinity
+        listesRef.current.forEach((el, id) => {
+          const r = el.getBoundingClientRect()
+          const dx = x < r.left ? r.left - x : x > r.right ? x - r.right : 0
+          const dy = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0
+          const d = Math.hypot(dx, dy)
+          if (d < distance) { distance = d; meilleure = { id, el } }
+        })
+        if (!meilleure) return vers
+        const éléments = [...meilleure.el.querySelectorAll(':scope > [data-element]')]
+        let i = 0
+        éléments.forEach(el => {
+          if (el.dataset.element === `${liste}:${index}`) return
+          const r = el.getBoundingClientRect()
+          if (r.top + r.height / 2 < y) i += 1
+        })
+        return { liste: meilleure.id, index: i }
+      }
+      const bouger = ev => {
+        if (ev.clientY < 70) window.scrollBy(0, -14)
+        else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 14)
+        vers = cible(ev.clientX, ev.clientY)
+        setGlisse({ de: { liste, index }, dx: ev.clientX - départ.x, dy: ev.clientY - départ.y + (window.scrollY - départ.défilement), vers })
+      }
+      const finir = () => {
+        poignéeEl.removeEventListener('pointermove', bouger)
+        poignéeEl.removeEventListener('pointerup', finir)
+        poignéeEl.removeEventListener('pointercancel', finir)
+        setGlisse(null)
+        if (vers.liste !== liste || vers.index !== index) onDéposer({ liste, index }, vers)
+      }
+      poignéeEl.addEventListener('pointermove', bouger)
+      poignéeEl.addEventListener('pointerup', finir)
+      poignéeEl.addEventListener('pointercancel', finir)
+      setGlisse({ de: { liste, index }, dx: 0, dy: 0, vers })
+    },
+  })
+  const style = (liste, index) => (glisse && glisse.de.liste === liste && glisse.de.index === index
+    ? { transform: `translate(${glisse.dx}px, ${glisse.dy}px)`, zIndex: 20, position: 'relative', boxShadow: '0 14px 34px rgba(0,0,0,.4)', opacity: 0.95, pointerEvents: 'none' }
+    : {})
+  // Ligne d'insertion avant l'élément `index` de la liste (index = longueur : à la fin).
+  // L'index cible ne compte pas l'élément déplacé : dans sa propre liste,
+  // la ligne se place donc une position plus bas après lui.
+  const repère = (liste, index) => {
+    if (!glisse || glisse.vers.liste !== liste) return false
+    const { de, vers } = glisse
+    if (de.liste !== liste) return index === vers.index
+    if (vers.index === de.index) return false
+    return index === (vers.index < de.index ? vers.index : vers.index + 1)
+  }
+  return { refListe, poignée, style, repère, glisse }
+}
+
+export default function SectionsGraphe({ T, colonnes, onChanger }) {
+  const large = useÉcranLarge()
+  const [édition, setÉdition] = useState(null) // { sectionId, blocId, texte, langage, nouveau }
+  const [titreÉdité, setTitreÉdité] = useState(null) // { id, valeur } (colonne ou sous-section)
+  const glisser = useGlisserEntreListes((de, vers) => onChanger(cols => {
+    const copie = cols.map(c => ({ ...c, sousSections: [...c.sousSections] }))
+    const source = copie.find(c => c.id === de.liste)
+    const [élément] = source.sousSections.splice(de.index, 1)
+    const destination = copie.find(c => c.id === vers.liste)
+    // Dans la même liste, l'index cible compte déjà sans l'élément déplacé.
+    destination.sousSections.splice(vers.index, 0, élément)
+    return copie
+  }))
+
+  const majColonne = (id, fn) => onChanger(cols => cols.map(c => (c.id === id ? fn(c) : c)))
+  const majSection = (id, fn) => onChanger(cols => cols.map(c => ({ ...c, sousSections: c.sousSections.map(s => (s.id === id ? fn(s) : s)) })))
+  const ajouterSousSection = colonne => {
+    const section = { id: uid(), titre: `Sous-section ${colonne.sousSections.length + 1}`, blocs: [] }
+    majColonne(colonne.id, c => ({ ...c, sousSections: [...c.sousSections, section] }))
     setTitreÉdité({ id: section.id, valeur: section.titre })
   }
-  const supprimerSection = section => {
-    if (section.blocs.length && !window.confirm(`Supprimer la section « ${section.titre} » et ses ${section.blocs.length} bloc(s) ?`)) return
-    onChanger(s => s.filter(x => x.id !== section.id))
+  const supprimerSousSection = section => {
+    if (section.blocs.length && !window.confirm(`Supprimer la sous-section « ${section.titre} » et ses ${section.blocs.length} bloc(s) ?`)) return
+    onChanger(cols => cols.map(c => ({ ...c, sousSections: c.sousSections.filter(s => s.id !== section.id) })))
   }
+  const supprimerBloc = (sectionId, blocId) => majSection(sectionId, s => ({ ...s, blocs: s.blocs.filter(b => b.id !== blocId) }))
   const ajouterBloc = (sectionId, type) => {
     const bloc = { id: uid(), type, texte: '', ...(type === 'code' ? { langage: '' } : {}) }
     majSection(sectionId, s => ({ ...s, replié: false, blocs: [...s.blocs, bloc] }))
@@ -129,11 +237,10 @@ export default function SectionsGraphe({ T, sections, onChanger }) {
     if (édition?.nouveau) supprimerBloc(édition.sectionId, édition.blocId)
     setÉdition(null)
   }
-  const supprimerBloc = (sectionId, blocId) => majSection(sectionId, s => ({ ...s, blocs: s.blocs.filter(b => b.id !== blocId) }))
   const validerTitre = () => {
     if (!titreÉdité) return
     const titre = titreÉdité.valeur.trim()
-    if (titre) majSection(titreÉdité.id, s => ({ ...s, titre }))
+    if (titre) onChanger(cols => cols.map(c => (c.id === titreÉdité.id ? { ...c, titre } : { ...c, sousSections: c.sousSections.map(s => (s.id === titreÉdité.id ? { ...s, titre } : s)) })))
     setTitreÉdité(null)
   }
 
@@ -144,76 +251,96 @@ export default function SectionsGraphe({ T, sections, onChanger }) {
   const icône = {
     background: 'transparent', border: 'none', color: T.textMuted, cursor: 'pointer', fontSize: '14px', padding: '6px', borderRadius: '7px', flexShrink: 0,
   }
+  const champTitre = (id, taille) => (
+    <input
+      autoFocus
+      value={titreÉdité.valeur}
+      onChange={e => setTitreÉdité({ id, valeur: e.target.value })}
+      onBlur={validerTitre}
+      onKeyDown={e => { if (e.key === 'Enter') validerTitre(); if (e.key === 'Escape') setTitreÉdité(null) }}
+      onFocus={e => e.target.select()}
+      aria-label="Titre"
+      style={{ flex: 1, minWidth: 0, fontSize: taille, fontWeight: 700, color: T.text, background: T.bg, border: `1px solid ${T.accent}`, borderRadius: '8px', padding: '6px 8px', fontFamily: grotesk }}
+    />
+  )
+  const ligneRepère = <div style={{ height: '4px', borderRadius: '2px', background: T.accent, margin: '-2px 0' }} />
 
   return (
-    <div data-sections ref={zoneRef} style={{ marginTop: '18px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-        <h2 style={{ flex: 1, margin: 0, fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '22px', color: T.text }}>
-          Sections <span style={{ fontSize: '13px', color: T.textMuted, fontStyle: 'normal', fontFamily: grotesk }}>({sections.length})</span>
-        </h2>
-        <button onClick={ajouterSection} style={{ ...petitBouton(), background: T.accent, color: T.accentText, border: 'none', fontWeight: 700 }}>＋ Section</button>
+    <div data-sections style={{ marginTop: '18px' }}>
+      <div style={{
+        display: 'grid', gridTemplateColumns: large ? `repeat(${NB_COLONNES}, minmax(0, 1fr))` : '1fr',
+        gap: large ? '14px' : '22px', alignItems: 'start',
+      }}>
+        {colonnes.map(colonne => {
+          const nbBlocs = colonne.sousSections.reduce((n, s) => n + s.blocs.length, 0)
+          return (
+            <section key={colonne.id} aria-label={colonne.titre} style={{
+              background: large ? `${T.surface}88` : 'transparent', border: large ? `1px solid ${T.border}` : 'none',
+              borderRadius: '16px', padding: large ? '12px' : 0, minWidth: 0,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', borderBottom: `2px solid ${T.accent}`, paddingBottom: '8px' }}>
+                {titreÉdité?.id === colonne.id ? champTitre(colonne.id, '18px') : (
+                  <h2 onClick={() => setTitreÉdité({ id: colonne.id, valeur: colonne.titre })} title="Toucher pour renommer"
+                    style={{ flex: 1, minWidth: 0, margin: 0, fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '21px', color: T.text, cursor: 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {colonne.titre}
+                  </h2>
+                )}
+                <span style={{ fontSize: '11px', color: T.textMuted, fontFamily: grotesk, flexShrink: 0 }}>{colonne.sousSections.length} sous-section{colonne.sousSections.length > 1 ? 's' : ''} · {nbBlocs} bloc{nbBlocs > 1 ? 's' : ''}</span>
+              </div>
+
+              <div ref={glisser.refListe(colonne.id)} style={{ display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '24px' }}>
+                {colonne.sousSections.map((section, i) => (
+                  <Fragment key={section.id}>
+                    {glisser.repère(colonne.id, i) && ligneRepère}
+                    <div data-element={`${colonne.id}:${i}`} style={{
+                      background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '8px 10px 10px', minWidth: 0,
+                      ...glisser.style(colonne.id, i),
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        <Poignée T={T} props={glisser.poignée(colonne.id, i)} libellé={`Déplacer la sous-section ${section.titre}`} />
+                        <button onClick={() => majSection(section.id, s => ({ ...s, replié: !s.replié }))} aria-label={section.replié ? 'Déplier la sous-section' : 'Replier la sous-section'}
+                          style={{ ...icône, fontSize: '11px', padding: '6px 4px', transform: section.replié ? 'rotate(-90deg)' : 'none', transition: 'transform .15s' }}>▼</button>
+                        {titreÉdité?.id === section.id ? champTitre(section.id, '15px') : (
+                          <h3 onClick={() => setTitreÉdité({ id: section.id, valeur: section.titre })} title="Toucher pour renommer"
+                            style={{ flex: 1, minWidth: 0, margin: 0, fontSize: '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {section.titre}
+                            <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length}</span>
+                          </h3>
+                        )}
+                        <button onClick={() => supprimerSousSection(section)} aria-label={`Supprimer la sous-section ${section.titre}`} title="Supprimer la sous-section" style={{ ...icône, color: T.danger }}>🗑️</button>
+                      </div>
+                      {!section.replié && (
+                        <BlocsSection
+                          T={T}
+                          section={section}
+                          édition={édition?.sectionId === section.id ? édition : null}
+                          setÉdition={setÉdition}
+                          validerBloc={validerBloc}
+                          annulerBloc={annulerBloc}
+                          supprimerBloc={supprimerBloc}
+                          déplacerBloc={(de, vers) => majSection(section.id, s => ({ ...s, blocs: déplacer(s.blocs, de, vers) }))}
+                          ajouterBloc={ajouterBloc}
+                          petitBouton={petitBouton}
+                          icône={icône}
+                        />
+                      )}
+                    </div>
+                  </Fragment>
+                ))}
+                {glisser.repère(colonne.id, colonne.sousSections.length) && ligneRepère}
+                {colonne.sousSections.length === 0 && !glisser.glisse && (
+                  <p style={{ margin: 0, padding: '12px', textAlign: 'center', fontSize: '12px', color: T.textMuted, border: `1px dashed ${T.border}`, borderRadius: '12px', lineHeight: 1.5 }}>
+                    Aucune sous-section
+                  </p>
+                )}
+              </div>
+              <button onClick={() => ajouterSousSection(colonne)} style={{ ...petitBouton(T.textMuted), width: '100%', marginTop: '10px', padding: '9px', borderStyle: 'dashed', background: 'transparent' }}>
+                ＋ Sous-section
+              </button>
+            </section>
+          )
+        })}
       </div>
-
-      {sections.length === 0 && (
-        <p style={{ margin: 0, padding: '18px', textAlign: 'center', fontSize: '13px', color: T.textMuted, border: `1px dashed ${T.border}`, borderRadius: '14px', lineHeight: 1.6 }}>
-          Ajoute des sections sous le graphe pour y garder du texte (en <strong>gras</strong>, en couleur) et des blocs de code.
-        </p>
-      )}
-
-      <div ref={listeSections.conteneurRef} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {sections.map((section, i) => (
-          <div key={section.id} data-element style={{
-            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '10px 12px 12px',
-            ...listeSections.style(i),
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Poignée T={T} props={listeSections.poignée(i)} libellé={`Déplacer la section ${section.titre}`} />
-              <button onClick={() => majSection(section.id, s => ({ ...s, replié: !s.replié }))} aria-label={section.replié ? 'Déplier la section' : 'Replier la section'}
-                style={{ ...icône, fontSize: '12px', transform: section.replié ? 'rotate(-90deg)' : 'none', transition: 'transform .15s' }}>▼</button>
-              {titreÉdité?.id === section.id ? (
-                <input
-                  autoFocus
-                  value={titreÉdité.valeur}
-                  onChange={e => setTitreÉdité({ id: section.id, valeur: e.target.value })}
-                  onBlur={validerTitre}
-                  onKeyDown={e => { if (e.key === 'Enter') validerTitre(); if (e.key === 'Escape') setTitreÉdité(null) }}
-                  onFocus={e => e.target.select()}
-                  aria-label="Titre de la section"
-                  style={{ flex: 1, minWidth: 0, fontSize: '16px', fontWeight: 700, color: T.text, background: T.bg, border: `1px solid ${T.accent}`, borderRadius: '8px', padding: '6px 8px', fontFamily: grotesk }}
-                />
-              ) : (
-                <h3 onClick={() => setTitreÉdité({ id: section.id, valeur: section.titre })} title="Toucher pour renommer"
-                  style={{ flex: 1, minWidth: 0, margin: 0, fontSize: '16px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {section.titre}
-                  <span style={{ marginLeft: '8px', fontSize: '11.5px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length} bloc{section.blocs.length > 1 ? 's' : ''}</span>
-                </h3>
-              )}
-              <button onClick={() => supprimerSection(section)} aria-label={`Supprimer la section ${section.titre}`} title="Supprimer la section" style={{ ...icône, color: T.danger }}>🗑️</button>
-            </div>
-
-            {!section.replié && (
-              <BlocsSection
-                T={T}
-                section={section}
-                édition={édition?.sectionId === section.id ? édition : null}
-                setÉdition={setÉdition}
-                validerBloc={validerBloc}
-                annulerBloc={annulerBloc}
-                supprimerBloc={supprimerBloc}
-                déplacerBloc={(de, vers) => majSection(section.id, s => ({ ...s, blocs: déplacer(s.blocs, de, vers) }))}
-                ajouterBloc={ajouterBloc}
-                petitBouton={petitBouton}
-                icône={icône}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-      {sections.length > 0 && (
-        <button onClick={ajouterSection} style={{ ...petitBouton(T.textMuted), width: '100%', marginTop: '12px', padding: '11px', borderStyle: 'dashed', background: 'transparent' }}>
-          ＋ Ajouter une section en dessous
-        </button>
-      )}
     </div>
   )
 }

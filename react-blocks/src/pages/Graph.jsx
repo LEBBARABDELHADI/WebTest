@@ -9,7 +9,7 @@ import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage } from '../components/ImageCarte'
 import CodeBlock from '../components/CodeBlock'
-import SectionsGraphe from '../components/SectionsGraphe'
+import SectionsGraphe, { colonnesDe } from '../components/SectionsGraphe'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { normaliser } from '../lib/motsCles'
@@ -1454,7 +1454,7 @@ export default function Graph() {
 
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '24px 16px 20px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ maxWidth: '900px', width: '100%', margin: '0 auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '1400px', width: '100%', margin: '0 auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
           <Link to={FOYERS[config.foyer].accueil} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: T.textMuted, fontSize: '13px', fontFamily: grotesk }}>
             <Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Accueil
@@ -1519,8 +1519,12 @@ export default function Graph() {
             {graphe && (
               <SectionsGraphe
                 T={T}
-                sections={graphe.sections || []}
-                onChanger={fn => majGraphe(g => ({ ...g, sections: fn(g.sections || []) }))}
+                colonnes={colonnesDe(graphe)}
+                onChanger={fn => majGraphe(g => {
+                  // eslint-disable-next-line no-unused-vars
+                  const { sections, ...reste } = g
+                  return { ...reste, colonnes: fn(colonnesDe(g)) }
+                })}
               />
             )}
           </>
