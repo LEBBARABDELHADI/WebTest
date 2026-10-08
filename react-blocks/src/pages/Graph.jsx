@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { Fragment, useState, useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import donnéesPerso from '../data/graph-perso.json'
 import donnéesPro from '../data/graph-pro.json'
@@ -8,8 +8,10 @@ import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage } from '../components/ImageCarte'
-import CodeBlock from '../components/CodeBlock'
-import SectionsGraphe, { colonnesDe } from '../components/SectionsGraphe'
+import SectionsGraphe, { colonnesDe, texteDuBloc } from '../components/SectionsGraphe'
+import BlocCode from '../components/BlocCode'
+import { colorerCode, COULEURS_CODE } from '../lib/coloration'
+import { exporterMarkdown, pageImprimable } from '../lib/exportSections'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { normaliser } from '../lib/motsCles'
@@ -95,7 +97,8 @@ export default function Graph() {
   const [agrandie, setAgrandie] = useState(null)
   const [pressePapiersPlein, setPressePapiersPlein] = useState(() => !!lirePressePapiers())
   const [dialoguePlan, setDialoguePlan] = useState(null) // 'voir' | 'coller'
-  const [versionsOuvertes, setVersionsOuvertes] = useState(false) // id de la bulle dont on regarde l'image / le code en grand
+  const [versionsOuvertes, setVersionsOuvertes] = useState(false)
+  const [surbrillance, setSurbrillance] = useState(null) // sous-section / bloc à montrer { id, sousSectionId?, n } // id de la bulle dont on regarde l'image / le code en grand
   const [, setVersionHistorique] = useState(0)
 
   const zoneRef = useRef(null)
@@ -632,27 +635,76 @@ export default function Graph() {
   }
 
   // ---------- Recherche ----------
-  const correspondances = recherche?.q.trim()
-    ? noeuds.filter(n => normaliser(texteBrut(n.texte)).includes(normaliser(recherche.q)))
-    : []
-  const idsTrouvés = new Set(correspondances.map(n => n.id))
-  const actuelle = correspondances[recherche?.index] || null
-  const allerÀ = index => {
-    const liste = correspondances
-    if (liste.length === 0) return
-    const i = (index + liste.length) % liste.length
-    const n = liste[i]
+  // Les bulles d'abord, puis les sous-sections et blocs des sections.
+  const colonnesGraphe = graphe ? colonnesDe(graphe) : []
+  const q = normaliser(recherche?.q || '')
+  const correspondances = q.trim() ? [
+    ...noeuds.filter(n => normaliser(texteBrut(n.texte)).includes(q)).map(n => ({ type: 'bulle', id: n.id, n })),
+    ...colonnesGraphe.flatMap(c => c.sousSections.flatMap(ss => [
+      ...(normaliser(ss.titre).includes(q) ? [{ type: 'section', id: ss.id }] : []),
+      ...ss.blocs.filter(b => normaliser(texteDuBloc(b)).includes(q)).map(b => ({ type: 'section', id: b.id, sousSectionId: ss.id })),
+    ])),
+  ] : []
+  const idsTrouvés = new Set(correspondances.filter(r => r.type === 'bulle').map(r => r.id))
+  const résultatCourant = correspondances[recherche?.index] || null
+  const actuelle = résultatCourant?.type === 'bulle' ? résultatCourant.n : null
+  // Centre la vue sur une bulle (en dépliant les branches qui la cachent).
+  const centrerSurBulle = n => {
     const àDéplier = ancêtres(noeuds, n.id).filter(id => parId.get(id)?.replié)
     // Si la bulle était cachée, le dépliage peut ranger l'arbre : on centre
     // sur sa nouvelle position.
     const cible = àDéplier.length ? déplier(noeuds, àDéplier).find(x => x.id === n.id) : n
     if (àDéplier.length) majNoeuds(l => déplier(l, àDéplier), false)
-    setRecherche(r => ({ ...r, index: i }))
     const { l, h } = dimensions()
     setVue(v => {
       const zoom = Math.max(v.zoom, 0.9)
       return { zoom, x: l / 2 - cible.x * zoom, y: h / 2 - cible.y * zoom }
     })
+  }
+  const allerÀ = index => {
+    const liste = correspondances
+    if (liste.length === 0) return
+    const i = (index + liste.length) % liste.length
+    const r = liste[i]
+    setRecherche(x => ({ ...x, index: i }))
+    if (r.type === 'section') setSurbrillance({ id: r.id, sousSectionId: r.sousSectionId, n: Date.now() })
+    else centrerSurBulle(r.n)
+  }
+  // Depuis une sous-section : remonter jusqu'à sa bulle dans le graphe.
+  const allerÀBulle = id => {
+    const n = parId.get(id)
+    if (!n) return
+    setSélection(id); setMulti([]); setTraitChoisi(null)
+    zoneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    centrerSurBulle(n)
+  }
+  const allerÀSousSection = id => setSurbrillance({ id, n: Date.now() })
+  const notesParBulle = new Map(colonnesGraphe.flatMap(c => c.sousSections.filter(ss => ss.bulleId).map(ss => [ss.bulleId, ss])))
+  const majColonnes = fn => majGraphe(g => {
+    // eslint-disable-next-line no-unused-vars
+    const { sections, ...reste } = g
+    return { ...reste, colonnes: fn(colonnesDe(g)) }
+  })
+  // Relie une bulle à une sous-section (ssId null = délier) ; une bulle n'a
+  // qu'une sous-section.
+  const relierBulle = (bulleId, ssId) => majColonnes(cols => cols.map(c => ({
+    ...c,
+    sousSections: c.sousSections.map(ss => {
+      if (ss.id === ssId) return { ...ss, bulleId }
+      if (ss.bulleId === bulleId) { const m = { ...ss }; delete m.bulleId; return m }
+      return ss
+    }),
+  })))
+  const créerSousSectionPour = (bulleId, colonneId, titre) => {
+    const id = uid()
+    majColonnes(cols => cols.map(c => ({
+      ...c,
+      sousSections: [
+        ...c.sousSections.map(ss => { if (ss.bulleId !== bulleId) return ss; const m = { ...ss }; delete m.bulleId; return m }),
+        ...(c.id === colonneId ? [{ id, titre, bulleId, blocs: [] }] : []),
+      ],
+    })))
+    return id
   }
   useEffect(() => {
     if (recherche?.q.trim()) allerÀ(0)
@@ -673,6 +725,15 @@ export default function Graph() {
   const exporter = async () => {
     setExportÉtat({ enCours: true })
     try {
+      const blob = await créerImageGraphe()
+      setExportÉtat({ url: URL.createObjectURL(blob), blob, nom: graphe.nom })
+    } catch (err) {
+      setExportÉtat(null)
+      afficher(`Export impossible : ${err.message}`, true)
+    }
+  }
+  const créerImageGraphe = async () => {
+    {
       const bulles = visibles.map(n => {
         const t = tailleDe(n.id)
         const racine = estRacine(n)
@@ -696,10 +757,39 @@ export default function Graph() {
         couleurs: { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent },
         polices: { serif, sans: getComputedStyle(document.body).fontFamily, mono: POLICE_CODE },
       })
-      setExportÉtat({ url: URL.createObjectURL(blob), blob, nom: graphe.nom })
+      return blob
+    }
+  }
+  // Markdown : plan du graphe + sections, en fichier .md.
+  const exporterEnMarkdown = () => {
+    const md = exporterMarkdown({ nom: graphe.nom, plan: planTexte(noeuds), colonnes: colonnesGraphe })
+    const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${graphe.nom}.md`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 4000)
+    afficher('⬇️ Fichier Markdown téléchargé')
+  }
+  // PDF : page imprimable (image du graphe + sections) dans un nouvel
+  // onglet, puis « Imprimer » → « Enregistrer en PDF ».
+  const imprimer = async () => {
+    const fenêtre = window.open('', '_blank')
+    if (!fenêtre) { afficher('Autorise les fenêtres pour ce site pour imprimer', true); return }
+    fenêtre.document.write('<p style="font-family:sans-serif;padding:20px">Préparation du document…</p>')
+    try {
+      const blob = noeuds.length ? await créerImageGraphe() : null
+      const image = blob ? await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob) }) : null
+      const html = pageImprimable({ nom: graphe.nom, image, colonnes: colonnesGraphe })
+        .replace('</body>', '<script>window.onload = () => setTimeout(() => window.print(), 300)</script></body>')
+      fenêtre.document.open()
+      fenêtre.document.write(html)
+      fenêtre.document.close()
     } catch (err) {
-      setExportÉtat(null)
-      afficher(`Export impossible : ${err.message}`, true)
+      fenêtre.close()
+      afficher(`Impression impossible : ${err.message}`, true)
     }
   }
   const fermerExport = () => {
@@ -728,6 +818,8 @@ export default function Graph() {
   }
 
   const surAppui = e => {
+    const note = e.target.closest('[data-note]')
+    if (note) { allerÀSousSection(note.dataset.note); return }
     const loupe = e.target.closest('[data-agrandir]')
     if (loupe) { setAgrandie(loupe.dataset.agrandir); return }
     const zone = zoneRef.current
@@ -1119,6 +1211,13 @@ export default function Graph() {
                 {n.icone && <span style={{ marginRight: '5px' }}>{n.icone}</span>}
                 <TexteFormaté texte={n.texte} couleurDéfaut={racine ? '#1b1b1b' : T.text} />
                 {n.code && <CodeDansBulle code={n.code} langage={n.langage} f={f} />}
+                {notesParBulle.has(n.id) && !présentation && (
+                  <span data-note={notesParBulle.get(n.id).id} role="button" aria-label={`Voir la sous-section « ${notesParBulle.get(n.id).titre} »`} title={`Sous-section : ${notesParBulle.get(n.id).titre}`} style={{
+                    position: 'absolute', bottom: '-12px', left: '-12px', width: '28px', height: '28px', borderRadius: '50%',
+                    background: T.surface, border: `1.5px solid ${T.accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '13px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,.35)',
+                  }}>📎</span>
+                )}
                 {n.verrouillé && !présentation && (
                   <span aria-hidden="true" title="Position verrouillée" style={{
                     position: 'absolute', top: '-10px', left: '-10px', width: '22px', height: '22px', borderRadius: '50%',
@@ -1203,7 +1302,7 @@ export default function Graph() {
           />
           {recherche.q.trim() && (
             <span style={{ fontSize: '11.5px', color: correspondances.length ? T.textMuted : T.danger, fontFamily: grotesk, whiteSpace: 'nowrap' }}>
-              {correspondances.length ? `${recherche.index + 1}/${correspondances.length}` : 'aucune'}
+              {correspondances.length ? `${recherche.index + 1}/${correspondances.length}${résultatCourant?.type === 'section' ? ' · section ↓' : ''}` : 'aucune'}
             </span>
           )}
           <button onClick={() => allerÀ(recherche.index - 1)} disabled={correspondances.length < 2} aria-label="Résultat précédent" style={{ ...boutonFlottant(correspondances.length < 2), width: '32px', height: '32px', boxShadow: 'none', fontSize: '12px' }}>▲</button>
@@ -1503,6 +1602,8 @@ export default function Graph() {
                   { icône: '📝', libellé: 'Voir et copier le plan (texte)', onClick: () => setDialoguePlan('voir') },
                   { icône: '📋', libellé: 'Coller un plan ou une liste', onClick: () => setDialoguePlan('coller') },
                   { icône: '🕓', libellé: 'Versions précédentes', onClick: () => setVersionsOuvertes(true) },
+                  { icône: '⬇️', libellé: 'Exporter en Markdown (.md)', onClick: exporterEnMarkdown },
+                  { icône: '🖨️', libellé: 'Imprimer / enregistrer en PDF', onClick: imprimer },
                 ]}
               />
               <BoutonIcone icon="crayon" title="Renommer le graphe" onClick={renommerGraphe} />
@@ -1519,12 +1620,11 @@ export default function Graph() {
             {graphe && (
               <SectionsGraphe
                 T={T}
-                colonnes={colonnesDe(graphe)}
-                onChanger={fn => majGraphe(g => {
-                  // eslint-disable-next-line no-unused-vars
-                  const { sections, ...reste } = g
-                  return { ...reste, colonnes: fn(colonnesDe(g)) }
-                })}
+                colonnes={colonnesGraphe}
+                onChanger={majColonnes}
+                bulles={noeuds}
+                onAllerÀBulle={allerÀBulle}
+                surbrillance={surbrillance}
               />
             )}
           </>
@@ -1603,6 +1703,20 @@ export default function Graph() {
                 />
                 <ChampImage image={édition.image} onChange={image => setÉdition(é => ({ ...é, image }))} token={token} libellé="Ajouter une image" />
                 <ChampCode T={T} édition={édition} setÉdition={setÉdition} />
+                <ChampSousSection
+                  T={T}
+                  colonnes={colonnesGraphe}
+                  liée={notesParBulle.get(édition.id) || null}
+                  onCréer={colonneId => {
+                    const titre = texteBrut(édition.texte).split('\n')[0].trim() || 'Nouvelle sous-section'
+                    const bulleId = édition.id
+                    validerÉdition()
+                    const id = créerSousSectionPour(bulleId, colonneId, titre)
+                    setTimeout(() => allerÀSousSection(id), 80)
+                  }}
+                  onRelier={ssId => relierBulle(édition.id, ssId)}
+                  onOuvrir={ssId => { validerÉdition(); setTimeout(() => allerÀSousSection(ssId), 80) }}
+                />
                 {édition.clavier && (
                   <p style={{ margin: '10px 0 0', fontSize: '11px', color: T.textMuted, lineHeight: 1.6 }}>
                     <strong>Entrée</strong> bulle suivante · <strong>Tab</strong> sous-bulle · <strong>Maj+Tab</strong> niveau au-dessus ·{' '}
@@ -1806,7 +1920,12 @@ function CodeDansBulle({ code, langage, f }) {
       whiteSpace: 'pre', overflow: 'hidden', maxWidth: '100%', pointerEvents: 'none',
     }}>
       {langage && <span style={{ display: 'block', color: '#94a3b8', fontSize: `${9.5 * f}px`, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: `${3 * f}px` }}>{langage}</span>}
-      {lignes.join('\n')}
+      {lignes.map((ligne, i) => (
+        <Fragment key={i}>
+          {i > 0 && '\n'}
+          {colorerCode(ligne, langage)[0].map((m, j) => <span key={j} style={{ color: COULEURS_CODE[m.type], fontStyle: m.type === 'commentaire' ? 'italic' : 'normal' }}>{m.texte}</span>)}
+        </Fragment>
+      ))}
       {reste > 0 && <span style={{ display: 'block', color: '#94a3b8', marginTop: `${3 * f}px` }}>… +{reste} ligne{reste > 1 ? 's' : ''}</span>}
     </pre>
   )
@@ -1910,8 +2029,7 @@ function VueAgrandie({ T, noeud, onFermer }) {
         )}
         {noeud.code && (
           <div style={{ width: '100%', maxWidth: '900px', alignSelf: 'center' }}>
-            {noeud.langage && <p style={{ margin: '0 0 6px', color: '#94a3b8', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>{noeud.langage}</p>}
-            <CodeBlock code={noeud.code} />
+            <BlocCode code={noeud.code} langage={noeud.langage} taille={13.5} />
           </div>
         )}
       </div>
@@ -2054,6 +2172,52 @@ function DialogueVersions({ T, token, chemin, graphe, onRestaurer, onFermer }) {
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+// Fenêtre d'une bulle : sous-section reliée (ouvrir, délier) ou en créer une.
+function ChampSousSection({ T, colonnes, liée, onCréer, onRelier, onOuvrir }) {
+  const [colonneId, setColonneId] = useState(colonnes[0]?.id)
+  const petit = {
+    fontSize: '11.5px', fontFamily: grotesk, fontWeight: 600, padding: '5px 10px', borderRadius: '20px',
+    background: T.surface2, color: T.text, border: `1px solid ${T.border}`, cursor: 'pointer',
+  }
+  const choix = { fontSize: '12px', fontFamily: grotesk, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '4px 6px', minWidth: 0 }
+  const colonneDe = id => colonnes.find(c => c.sousSections.some(s => s.id === id))
+  return (
+    <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: `1px dashed ${T.border}` }}>
+      <p style={{ margin: '0 0 6px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>📎 Sous-section liée</p>
+      {liée ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '13px', color: T.text, fontWeight: 600 }}>{liée.titre} <span style={{ color: T.textMuted, fontWeight: 400 }}>({colonneDe(liée.id)?.titre})</span></span>
+          <button type="button" onClick={() => onOuvrir(liée.id)} style={{ ...petit, background: T.accent, color: T.accentText, border: 'none' }}>Ouvrir ↓</button>
+          <button type="button" onClick={() => onRelier(null)} style={{ ...petit, color: T.danger }}>Délier</button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '12px', color: T.textMuted }}>Créer dans</span>
+            <select value={colonneId} onChange={e => setColonneId(e.target.value)} aria-label="Section où créer la sous-section" style={choix}>
+              {colonnes.map(c => <option key={c.id} value={c.id}>{c.titre}</option>)}
+            </select>
+            <button type="button" onClick={() => onCréer(colonneId)} style={petit}>＋ Créer et ouvrir</button>
+          </div>
+          {colonnes.some(c => c.sousSections.length) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '12px', color: T.textMuted }}>ou relier à</span>
+              <select value="" onChange={e => e.target.value && onRelier(e.target.value)} aria-label="Relier à une sous-section existante" style={{ ...choix, flex: 1 }}>
+                <option value="">une sous-section existante…</option>
+                {colonnes.filter(c => c.sousSections.length).map(c => (
+                  <optgroup key={c.id} label={c.titre}>
+                    {c.sousSections.map(ss => <option key={ss.id} value={ss.id}>{ss.titre}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
