@@ -186,6 +186,13 @@ function Poignée({ T, props, libellé }) {
   )
 }
 
+// Sous-sections en mode lecture : mémorisé sur l'appareil (préférence
+// d'affichage, pas une donnée du graphe).
+const CLÉ_LECTURE = 'react-blocs-sections-lecture'
+function lireLecture() {
+  try { return new Set(JSON.parse(localStorage.getItem(CLÉ_LECTURE)) || []) } catch { return new Set() }
+}
+
 const ANIMATION = `
 @keyframes repéré { 0%, 100% { box-shadow: 0 0 0 0 #ffd60a00 } 30%, 70% { box-shadow: 0 0 0 4px #ffd60acc } }
 .repere-section { animation: repéré 1s ease-in-out 2 }
@@ -201,6 +208,18 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
   const [liaisonOuverte, setLiaisonOuverte] = useState(null) // id de sous-section
   const [repérée, setRepérée] = useState(null)
   const [ouvertes, setOuvertes] = useState(() => new Set()) // dépliées le temps d'une recherche
+  const [enLecture, setEnLecture] = useState(lireLecture)
+  const basculerLecture = id => {
+    if (édition?.sectionId === id) annulerBloc()
+    if (titreÉdité?.id === id) setTitreÉdité(null)
+    if (liaisonOuverte === id) setLiaisonOuverte(null)
+    setEnLecture(avant => {
+      const après = new Set(avant)
+      if (après.has(id)) après.delete(id); else après.add(id)
+      try { localStorage.setItem(CLÉ_LECTURE, JSON.stringify([...après])) } catch { /* ignore */ }
+      return après
+    })
+  }
   const zoneRef = useRef(null)
 
   const sousSectionsParId = new Map(colonnes.flatMap(c => c.sousSections.map(s => [s.id, s])))
@@ -330,6 +349,7 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
                 {colonne.sousSections.map((section, i) => {
                   const bulle = section.bulleId && bullesParId.get(section.bulleId)
                   const visible = !section.replié || ouvertes.has(section.id)
+                  const lecture = enLecture.has(section.id)
                   return (
                     <Fragment key={section.id}>
                       {glisserSections.repère(colonne.id, i) && ligneRepère}
@@ -338,26 +358,36 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
                         data-repere={section.id}
                         data-sous-section={section.id}
                         className={repérée === section.id ? 'repere-section' : undefined}
-                        style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '8px 10px 10px', minWidth: 0, ...glisserSections.style(colonne.id, i) }}
+                        style={{
+                          background: T.surface, border: `1px solid ${lecture ? `${T.accent}66` : T.border}`, borderRadius: '14px',
+                          padding: lecture ? '8px 14px 12px' : '8px 10px 10px', minWidth: 0, ...glisserSections.style(colonne.id, i),
+                        }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          <Poignée T={T} props={glisserSections.poignée(colonne.id, i)} libellé={`Déplacer la sous-section ${section.titre}`} />
+                          {!lecture && <Poignée T={T} props={glisserSections.poignée(colonne.id, i)} libellé={`Déplacer la sous-section ${section.titre}`} />}
                           <button onClick={() => { majSection(section.id, s => ({ ...s, replié: !visible })); setOuvertes(o => { const n = new Set(o); n.delete(section.id); return n }) }}
                             aria-label={visible ? 'Replier la sous-section' : 'Déplier la sous-section'}
                             style={{ ...icône, fontSize: '11px', padding: '6px 4px', transform: visible ? 'none' : 'rotate(-90deg)', transition: 'transform .15s' }}>▼</button>
                           {titreÉdité?.id === section.id ? champTitre(section.id, '15px') : (
-                            <h3 onClick={() => setTitreÉdité({ id: section.id, valeur: section.titre })} title="Toucher pour renommer"
-                              style={{ flex: 1, minWidth: 0, margin: 0, fontSize: '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <h3 onClick={lecture ? undefined : () => setTitreÉdité({ id: section.id, valeur: section.titre })} title={lecture ? undefined : 'Toucher pour renommer'}
+                              style={{ flex: 1, minWidth: 0, margin: 0, fontSize: lecture ? '16px' : '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: lecture ? 'default' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {section.titre}
-                              <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length}</span>
+                              {!lecture && <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length}</span>}
                             </h3>
                           )}
-                          <button onClick={() => setLiaisonOuverte(o => (o === section.id ? null : section.id))} aria-label="Relier à une bulle du graphe" title="Relier à une bulle du graphe"
-                            style={{ ...icône, color: bulle ? T.accent : T.textMuted }}>🔗</button>
-                          <button onClick={() => supprimerSousSection(section)} aria-label={`Supprimer la sous-section ${section.titre}`} title="Supprimer la sous-section" style={{ ...icône, color: T.danger }}>🗑️</button>
+                          <button onClick={() => basculerLecture(section.id)} aria-pressed={lecture} aria-label={lecture ? 'Quitter le mode lecture' : 'Mode lecture'}
+                            title={lecture ? 'Quitter le mode lecture (modifier)' : 'Mode lecture : masquer les boutons de modification'}
+                            style={{ ...icône, ...(lecture ? { background: `${T.accent}26`, color: T.accent } : {}) }}>{lecture ? '✏️' : '📖'}</button>
+                          {!lecture && (
+                            <>
+                              <button onClick={() => setLiaisonOuverte(o => (o === section.id ? null : section.id))} aria-label="Relier à une bulle du graphe" title="Relier à une bulle du graphe"
+                                style={{ ...icône, color: bulle ? T.accent : T.textMuted }}>🔗</button>
+                              <button onClick={() => supprimerSousSection(section)} aria-label={`Supprimer la sous-section ${section.titre}`} title="Supprimer la sous-section" style={{ ...icône, color: T.danger }}>🗑️</button>
+                            </>
+                          )}
                         </div>
                         {(bulle || liaisonOuverte === section.id) && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '2px 0 4px 30px', flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: lecture ? '4px 0 6px' : '2px 0 4px 30px', flexWrap: 'wrap' }}>
                             {bulle && liaisonOuverte !== section.id && (
                               <button onClick={() => onAllerÀBulle?.(bulle.id)} title="Voir la bulle dans le graphe" style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '5px', maxWidth: '100%', padding: '3px 10px', borderRadius: '20px', cursor: 'pointer',
@@ -382,6 +412,7 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
                           <BlocsSection
                             T={T}
                             section={section}
+                            lecture={lecture}
                             glisser={glisserBlocs}
                             repérée={repérée}
                             édition={édition?.sectionId === section.id ? édition : null}
@@ -419,7 +450,7 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
   )
 }
 
-function BlocsSection({ T, section, glisser, repérée, édition, setÉdition, éditer, validerBloc, annulerBloc, supprimerBloc, majBloc, ajouterBloc, petitBouton, icône, ligneRepère }) {
+function BlocsSection({ T, section, lecture, glisser, repérée, édition, setÉdition, éditer, validerBloc, annulerBloc, supprimerBloc, majBloc, ajouterBloc, petitBouton, icône, ligneRepère }) {
   return (
     <>
       <div ref={glisser.refListe(section.id)} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', minHeight: '10px' }}>
@@ -432,13 +463,13 @@ function BlocsSection({ T, section, glisser, repérée, édition, setÉdition, �
               className={repérée === bloc.id ? 'repere-section' : undefined}
               style={{ display: 'flex', alignItems: 'flex-start', gap: '4px', background: T.surface, borderRadius: '10px', ...glisser.style(section.id, i) }}
             >
-              <Poignée T={T} props={glisser.poignée(section.id, i)} libellé="Déplacer le bloc" />
+              {!lecture && <Poignée T={T} props={glisser.poignée(section.id, i)} libellé="Déplacer le bloc" />}
               <div style={{ flex: 1, minWidth: 0 }}>
-                {édition?.blocId === bloc.id
+                {édition?.blocId === bloc.id && !lecture
                   ? <ÉditeurBloc T={T} bloc={bloc} édition={édition} setÉdition={setÉdition} valider={validerBloc} annuler={annulerBloc} petitBouton={petitBouton} />
-                  : <VueBloc T={T} bloc={bloc} majBloc={fn => majBloc(section.id, bloc.id, fn)} />}
+                  : <VueBloc T={T} bloc={bloc} lecture={lecture} majBloc={fn => majBloc(section.id, bloc.id, fn)} />}
               </div>
-              {édition?.blocId !== bloc.id && (
+              {édition?.blocId !== bloc.id && !lecture && (
                 <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
                   <button onClick={() => éditer(section.id, bloc)} aria-label="Modifier le bloc" title="Modifier" style={icône}>✏️</button>
                   <button onClick={() => supprimerBloc(section.id, bloc.id)} aria-label="Supprimer le bloc" title="Supprimer" style={icône}>🗑️</button>
@@ -449,25 +480,29 @@ function BlocsSection({ T, section, glisser, repérée, édition, setÉdition, �
         ))}
         {glisser.repère(section.id, section.blocs.length) && ligneRepère}
       </div>
+      {lecture ? (
+        section.blocs.length === 0 && <p style={{ margin: '6px 0 0', fontSize: '12.5px', color: T.textMuted, fontStyle: 'italic' }}>Sous-section vide.</p>
+      ) : (
       <div style={{ display: 'flex', gap: '5px', marginTop: '10px', flexWrap: 'wrap' }}>
         {TYPES_BLOCS.map(([type, libellé]) => (
           <button key={type} onClick={() => ajouterBloc(section.id, type)} style={{ ...petitBouton(), padding: '6px 9px', fontSize: '12px' }}>{libellé}</button>
         ))}
       </div>
+      )}
     </>
   )
 }
 
 // Affichage d'un bloc (hors édition). Les cases des listes et les numéros
 // de ligne du code se touchent directement.
-function VueBloc({ T, bloc, majBloc }) {
+function VueBloc({ T, bloc, lecture, majBloc }) {
   if (bloc.type === 'code') {
     return (
       <BlocCode
         code={bloc.texte}
         langage={bloc.langage}
         surlignées={bloc.surlignées || []}
-        onBasculerLigne={n => majBloc(b => {
+        onBasculerLigne={lecture ? undefined : n => majBloc(b => {
           const s = new Set(b.surlignées || [])
           if (s.has(n)) s.delete(n); else s.add(n)
           const maj = { ...b, surlignées: [...s].sort((x, y) => x - y) }
