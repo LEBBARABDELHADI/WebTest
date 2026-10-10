@@ -6,6 +6,7 @@ import donnéesIdrissiPerso from '../data/taches-idrissi-perso.json'
 import donnéesIdrissiPro from '../data/taches-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
+import { analyserAujourdhui } from '../lib/aujourdhui'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
@@ -544,11 +545,11 @@ export default function Taches() {
   const nomMois = new Date(moisAffiché.année, moisAffiché.mois, 1)
     .toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
 
-  const planifiéesAujourdhui = data.timeline.filter(ev => ev.date === aujourdhuiISO)
-  const cartesÉchéanceAujourdhui = data.cartes.filter(c => c.échéance === aujourdhuiISO)
-  const cartesEnRetard = data.cartes.filter(c => c.échéance && c.échéance < aujourdhuiISO)
-  const totalAujourdhui = planifiéesAujourdhui.length + cartesÉchéanceAujourdhui.length + cartesEnRetard.length
-  const colonneTerminée = data.colonnes.find(c => c.titre === 'Terminé')
+  // Même définition que l'accueil (lib/aujourdhui.js).
+  const {
+    enRetard: cartesEnRetard, échéance: cartesÉchéanceAujourdhui, colonne: cartesColonneAujourdhui,
+    planifiées: planifiéesAujourdhui, total: totalAujourdhui, colonneAujourdhui, colonneTerminée,
+  } = analyserAujourdhui(data, aujourdhuiISO)
 
   // Statistiques de progression
   const cartesActives = data.cartes.filter(c => !c.archivé)
@@ -644,6 +645,11 @@ export default function Taches() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: totalAujourdhui > 0 ? '12px' : '0' }}>
             <Icon nom="cible" taille={16} style={{ color: T.accent }} />
             <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>Aujourd'hui</strong>
+            {totalAujourdhui > 0 && (
+              <span style={{ marginLeft: 'auto', fontSize: '11.5px', color: cartesEnRetard.length ? T.danger : T.textMuted, fontFamily: grotesk }}>
+                {totalAujourdhui - cartesEnRetard.length} pour aujourd'hui{cartesEnRetard.length ? ` · ${cartesEnRetard.length} en retard` : ''}
+              </span>
+            )}
           </div>
           {totalAujourdhui === 0 ? (
             <p style={{ fontSize: '12px', color: T.textMuted, margin: 0 }}>Rien de prévu pour aujourd'hui.</p>
@@ -683,6 +689,29 @@ export default function Taches() {
                       <BoutonIcone icon="checklist" title="Déplacer vers Terminé" couleur={colonneTerminée.couleur} taille={12} onClick={() => déplacerCarte(c.id, colonneTerminée.id)} />
                     )}
                     <BoutonIcone icon="x" title="Retirer l'échéance" taille={11} onClick={() => définirÉchéance(c.id, null)} />
+                  </div>
+                  {(c.checklist || []).length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 0 14px' }}>
+                      {c.checklist.map(item => (
+                        <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: item.fait ? T.textMuted : T.text, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={item.fait} onChange={() => basculerItemChecklist(c.id, item.id)}
+                            style={{ accentColor: T.accent, width: '12px', height: '12px', flexShrink: 0 }} />
+                          <span style={{ textDecoration: item.fait ? 'line-through' : 'none' }}>{item.texte}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {cartesColonneAujourdhui.map(c => (
+                <div key={'c' + c.id}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: T.text }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colonneAujourdhui?.couleur || T.accent, flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>{c.texte}</span>
+                    <span style={{ fontSize: '10px', color: T.textMuted, flexShrink: 0 }}>colonne</span>
+                    {colonneTerminée && (
+                      <BoutonIcone icon="checklist" title="Déplacer vers Terminé" couleur={colonneTerminée.couleur} taille={12} onClick={() => déplacerCarte(c.id, colonneTerminée.id)} />
+                    )}
                   </div>
                   {(c.checklist || []).length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 0 14px' }}>

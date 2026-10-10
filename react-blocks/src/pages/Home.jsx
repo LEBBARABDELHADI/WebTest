@@ -4,7 +4,7 @@ import { notions } from '../notions'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import { TexteFormaté } from '../lib/texteFormate'
-import { normaliser } from '../lib/motsCles'
+import { analyserAujourdhui } from '../lib/aujourdhui'
 import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import { lireRécents, depuis } from '../lib/recents'
 import { verrouiller } from '../components/Verrou'
@@ -15,15 +15,13 @@ import { rappelsActifs, activerRappels, désactiverRappels, vérifierRappels } f
 const aujourdhui = () => new Date().toISOString().slice(0, 10)
 
 function statsTâches(d) {
-  const auj = aujourdhui()
-  const cartes = (d.cartes || []).filter(c => !c.archivé)
-  const colonnes = d.colonnes || []
-  const colAuj = colonnes.find(c => normaliser(c.titre).includes('aujourd'))
-  const colFini = colonnes.find(c => /termin|fait|fini/.test(normaliser(c.titre)))
+  // Même définition que le bloc « Aujourd'hui » du Programme.
+  const a = analyserAujourdhui(d)
+  const colFini = a.colonneTerminée
   return {
-    duJour: cartes.filter(c => (colAuj && c.colonneId === colAuj.id) || c.échéance === auj).length,
-    enRetard: cartes.filter(c => c.échéance && c.échéance < auj && c.colonneId !== colFini?.id).length,
-    enCours: cartes.filter(c => c.colonneId !== colFini?.id).length,
+    duJour: a.duJour,
+    enRetard: a.enRetard.length,
+    enCours: (d.cartes || []).filter(c => !c.archivé && c.colonneId !== colFini?.id).length,
   }
 }
 function statsMémo(d) {
