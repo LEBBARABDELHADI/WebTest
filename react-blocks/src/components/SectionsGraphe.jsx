@@ -1,4 +1,4 @@
-import { Fragment, useState, useRef, useEffect } from 'react'
+import { Fragment, memo, useState, useRef, useEffect } from 'react'
 import { grotesk, serif } from '../lib/theme'
 import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { uid } from '../lib/graphe'
@@ -201,7 +201,10 @@ const ANIMATION = `
 
 // surbrillance : { id, sousSectionId?, n } — sous-section ou bloc à montrer
 // (défile jusqu'à lui et le fait clignoter) ; n change à chaque demande.
-export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, surbrillance }) {
+// memo : ne se redessine pas quand seul le graphe bouge (vue, glissement).
+export default memo(SectionsGraphe)
+
+function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, surbrillance }) {
   const large = useÉcranLarge()
   const [édition, setÉdition] = useState(null) // { sectionId, blocId, texte, langage, variante, nouveau }
   const [titreÉdité, setTitreÉdité] = useState(null) // { id, valeur }

@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useRef } from 'react'
+import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import donnéesPerso from '../data/graph-perso.json'
 import donnéesPro from '../data/graph-pro.json'
@@ -72,8 +72,16 @@ export default function Graph() {
   const cléActif = `react-blocs-graph-actif-${config.id}`
   const [grapheId, setGrapheId] = useState(() => localStorage.getItem(cléActif))
   const graphe = data.graphes.find(g => g.id === grapheId) || data.graphes[0] || null
-  const noeuds = graphe?.noeuds || []
+  // Pendant un glissement, les bulles déplacées sont décalées à l'affichage
+  // seulement ; la position n'est enregistrée qu'au relâcher (fluidité).
+  const [déplacement, setDéplacement] = useState(null) // { ids: Set, dx, dy }
+  const déplacementRef = useRef(null)
+  const noeudsBruts = graphe?.noeuds || []
+  const noeuds = useMemo(() => (déplacement
+    ? noeudsBruts.map(n => (déplacement.ids.has(n.id) ? { ...n, x: n.x + déplacement.dx, y: n.y + déplacement.dy } : n))
+    : noeudsBruts), [noeudsBruts, déplacement])
   const liens = graphe?.liens || []
+  const lignes = graphe?.lignes || []
 
   const [vue, setVue] = useState({ x: 0, y: 0, zoom: 1 })
   const [sélection, setSélection] = useState(null)
@@ -95,6 +103,18 @@ export default function Graph() {
   const [cadre, setCadre] = useState(null) // rectangle de sélection en cours { x0, y0, x1, y1 } (écran)
   const [modeCadre, setModeCadre] = useState(false) // au doigt : glisser trace un cadre
   const [agrandie, setAgrandie] = useState(null)
+  // Lignes libres (traits dessinés) : { id, x1, y1, x2, y2, couleur, épaisseur, style, flèche }
+  const [modeLigne, setModeLigne] = useState(false)
+  const [ligneChoisie, setLigneChoisie] = useState(null)
+  const [ligneTemp, setLigneTemp] = useState(null) // ligne en cours de tracé ou de réglage
+  const ligneTempRef = useRef(null)
+  const [styleLigne, setStyleLigne] = useState(() => {
+    try { return { ...STYLE_LIGNE_DÉFAUT, ...JSON.parse(localStorage.getItem('react-blocs-style-ligne')) } } catch { return STYLE_LIGNE_DÉFAUT }
+  })
+  const mondeRef = useRef(null)
+  const rafRef = useRef(null)
+  const mouvementRef = useRef(null)
+  const vueDirecteRef = useRef(false)
   const [pressePapiersPlein, setPressePapiersPlein] = useState(() => !!lirePressePapiers())
   const [dialoguePlan, setDialoguePlan] = useState(null) // 'voir' | 'coller'
   const [versionsOuvertes, setVersionsOuvertes] = useState(false)
@@ -105,7 +125,9 @@ export default function Graph() {
   const pointeursRef = useRef(new Map())
   const gesteRef = useRef(null)
   const vueRef = useRef(vue)
-  vueRef.current = vue
+  // Pendant un déplacement de la vue, la vue « vivante » est dans vueRef
+  // (appliquée directement au DOM) ; l'état n'est mis à jour qu'au relâcher.
+  if (!vueDirecteRef.current) vueRef.current = vue
   const dataRef = useRef(data)
   dataRef.current = data
   const historiqueRef = useRef({ passé: [], futur: [] })
@@ -303,7 +325,7 @@ export default function Graph() {
     setVersionHistorique(v => v + 1)
   }
   const oublierSélection = () => {
-    setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false); setMulti([])
+    setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false); setMulti([]); setLigneChoisie(null)
   }
   const voyager = (depuis, vers, libellé) => {
     const h = historiqueRef.current
@@ -338,6 +360,7 @@ export default function Graph() {
           setMulti(visibles.map(n => n.id))
           return
         }
+        if (e.key === 'Escape' && (modeLigne || ligneChoisie)) { setModeLigne(false); setLigneChoisie(null); setLigneTemp(null); return }
         if (e.key === 'Escape' && (multi.length || modeCadre)) { setMulti([]); setModeCadre(false); return }
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd' && graphe && !édition) {
           e.preventDefault()
@@ -361,6 +384,7 @@ export default function Graph() {
         // Suppr / Retour arrière : supprime ce qui est sélectionné (lien,
         // branche détachée, bulle ou groupe de bulles).
         if ((e.key === 'Delete' || e.key === 'Backspace') && !agrandie && !édition && graphe) {
+          if (ligneChoisie) { e.preventDefault(); supprimerLigne(ligneChoisie); return }
           if (traitChoisi?.type === 'lien') { e.preventDefault(); supprimerLien(traitChoisi.id); setTraitChoisi(null); afficher('Lien supprimé'); return }
           if (traitChoisi?.type === 'branche') { e.preventDefault(); détacher(traitChoisi.id); setTraitChoisi(null); afficher('Branche détachée'); return }
           if (multiSet.size > 0 && !sélection) { e.preventDefault(); supprimerMulti(); return }
@@ -379,7 +403,12 @@ export default function Graph() {
   // Ctrl+C / Ctrl+X / Ctrl+V : les bulles vont aussi dans le presse-papiers
   // du système sous forme de plan texte ; coller un texte crée des bulles.
   useEffect(() => {
-    const horsGraphe = e => !graphe || présentation || !!édition || !!e.target.closest?.('input, textarea, select, [role=dialog], [data-sections]')
+    // La cible d'un « copier » est l'endroit du dernier clic dans du texte :
+    // c'est l'élément actif (champ, fenêtre, sections) qui compte.
+    const horsGraphe = () => {
+      const actif = document.activeElement
+      return !graphe || présentation || !!édition || !!actif?.closest?.('input, textarea, select, [role=dialog], [data-sections]')
+    }
     const surCopier = (e, couper) => {
       if (horsGraphe(e) || window.getSelection()?.toString() || !idsÀCopier().length) return
       const r = copierSélection()
@@ -636,7 +665,7 @@ export default function Graph() {
 
   // ---------- Recherche ----------
   // Les bulles d'abord, puis les sous-sections et blocs des sections.
-  const colonnesGraphe = graphe ? colonnesDe(graphe) : []
+  const colonnesGraphe = useMemo(() => (graphe ? colonnesDe(graphe) : []), [graphe])
   const q = normaliser(recherche?.q || '')
   const correspondances = q.trim() ? [
     ...noeuds.filter(n => normaliser(texteBrut(n.texte)).includes(q)).map(n => ({ type: 'bulle', id: n.id, n })),
@@ -679,6 +708,12 @@ export default function Graph() {
     centrerSurBulle(n)
   }
   const allerÀSousSection = id => setSurbrillance({ id, n: Date.now() })
+  // Fonctions stables pour que les sections ne se redessinent pas à chaque
+  // mouvement du graphe.
+  const rappelsRef = useRef({})
+  rappelsRef.current = { majColonnes: fn => majColonnes(fn), allerÀBulle: id => allerÀBulle(id) }
+  const majColonnesStable = useCallback(fn => rappelsRef.current.majColonnes(fn), [])
+  const allerÀBulleStable = useCallback(id => rappelsRef.current.allerÀBulle(id), [])
 
   // Lien venant de la recherche de l'accueil : ?graphe=…&bulle=… ou &section=…
   const [paramètres, setParamètres] = useSearchParams()
@@ -778,6 +813,7 @@ export default function Graph() {
         branches,
         liens: liensVisibles.map(({ l, géo }) => ({ ...géo, sens: l.sens || 'aucun', texte: l.texte || '' })),
         séparateurs: graphe.séparer ? séparateursArbres(visibles, tailleDe) : [],
+        lignes,
         couleurs: { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent },
         polices: { serif, sans: getComputedStyle(document.body).fontFamily, mono: POLICE_CODE },
       })
@@ -841,6 +877,53 @@ export default function Graph() {
     }
   }
 
+  // Vue appliquée directement au DOM pendant un geste (pas de rendu React).
+  const appliquerVue = v => {
+    vueRef.current = v
+    vueDirecteRef.current = true
+    if (mondeRef.current) mondeRef.current.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.zoom})`
+    if (zoneRef.current) {
+      zoneRef.current.style.backgroundSize = `${24 * v.zoom}px ${24 * v.zoom}px`
+      zoneRef.current.style.backgroundPosition = `${v.x}px ${v.y}px`
+    }
+  }
+  const validerVue = () => {
+    if (!vueDirecteRef.current) return
+    vueDirecteRef.current = false
+    setVue(vueRef.current)
+  }
+  const versMonde = (cx, cy) => {
+    const { gauche, haut } = dimensions()
+    const v = vueRef.current
+    return { x: (cx - gauche - v.x) / v.zoom, y: (cy - haut - v.y) / v.zoom }
+  }
+  // Maj : horizontale, verticale ou diagonale à 45°.
+  const aligné = (a, b, actif) => {
+    if (!actif) return b
+    const angle = Math.round(Math.atan2(b.y - a.y, b.x - a.x) / (Math.PI / 4)) * (Math.PI / 4)
+    const long = Math.hypot(b.x - a.x, b.y - a.y)
+    return { x: a.x + Math.cos(angle) * long, y: a.y + Math.sin(angle) * long }
+  }
+  const définirLigneTemp = l => { ligneTempRef.current = l; setLigneTemp(l) }
+
+  // ---------- Lignes libres ----------
+  const majLigne = (id, patch, garderTrace = true) => {
+    majGraphe(gr => ({ ...gr, lignes: (gr.lignes || []).map(l => (l.id === id ? { ...l, ...patch } : l)) }), garderTrace)
+    // Le dernier style choisi sert aux prochaines lignes.
+    const style = Object.fromEntries(Object.entries(patch).filter(([k]) => k in STYLE_LIGNE_DÉFAUT))
+    if (Object.keys(style).length) {
+      setStyleLigne(st => {
+        const nouveau = { ...st, ...style }
+        try { localStorage.setItem('react-blocs-style-ligne', JSON.stringify(nouveau)) } catch { /* ignore */ }
+        return nouveau
+      })
+    }
+  }
+  const supprimerLigne = id => {
+    majGraphe(gr => ({ ...gr, lignes: (gr.lignes || []).filter(l => l.id !== id) }))
+    setLigneChoisie(null)
+  }
+
   const surAppui = e => {
     const note = e.target.closest('[data-note]')
     if (note) { allerÀSousSection(note.dataset.note); return }
@@ -861,6 +944,22 @@ export default function Graph() {
       return
     }
     const bulle = e.target.closest('[data-noeud]')
+    const départ = { x: e.clientX, y: e.clientY }
+    // Lignes libres : poignée d'une extrémité, tracé d'une nouvelle ligne, ligne entière.
+    const poignéeEl = e.target.closest('[data-poignee]')
+    if (poignéeEl) {
+      const l = lignes.find(x => x.id === poignéeEl.dataset.ligneId)
+      if (l) { gesteRef.current = { type: 'poignée', id: l.id, bout: poignéeEl.dataset.poignee, départ, orig: l, déplacé: false }; return }
+    }
+    if (modeLigne && !bulle) {
+      gesteRef.current = { type: 'tracer', départ, p0: versMonde(e.clientX, e.clientY), déplacé: false }
+      return
+    }
+    const ligneEl = !bulle && e.target.closest('[data-ligne]')
+    if (ligneEl) {
+      const l = lignes.find(x => x.id === ligneEl.dataset.ligne)
+      if (l) { gesteRef.current = { type: 'ligne', id: l.id, départ, orig: l, déplacé: false }; return }
+    }
     const ajout = e.shiftKey || e.ctrlKey || e.metaKey
     if (bulle && ajout && !liaison && !rattachement) {
       // Maj/Ctrl + clic : ajoute ou retire la bulle de la sélection multiple.
@@ -892,9 +991,25 @@ export default function Graph() {
     }
   }
 
+  // Les mouvements sont traités au plus une fois par image (fluidité).
   const surMouvement = e => {
     if (!pointeursRef.current.has(e.pointerId)) return
     pointeursRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    mouvementRef.current = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId, shiftKey: e.shiftKey }
+    if (rafRef.current) return
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      if (mouvementRef.current) traiterMouvement(mouvementRef.current)
+    })
+  }
+  const viderMouvement = () => {
+    if (!rafRef.current) return
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = null
+    if (mouvementRef.current) traiterMouvement(mouvementRef.current)
+  }
+
+  const traiterMouvement = e => {
     const g = gesteRef.current
     if (!g) return
     if (g.type === 'pincer') {
@@ -907,7 +1022,7 @@ export default function Graph() {
       const zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, g.vue0.zoom * (dist / g.dist0)))
       const wx = (m0.x - g.vue0.x) / g.vue0.zoom
       const wy = (m0.y - g.vue0.y) / g.vue0.zoom
-      setVue({ zoom, x: milieu.x - wx * zoom, y: milieu.y - wy * zoom })
+      appliquerVue({ zoom, x: milieu.x - wx * zoom, y: milieu.y - wy * zoom })
       return
     }
     const dx = e.clientX - g.départ.x
@@ -918,18 +1033,38 @@ export default function Graph() {
       setCadre({ x0: g.origine.x, y0: g.origine.y, x1: g.origine.x + dx, y1: g.origine.y + dy })
       return
     }
+    if (g.type === 'tracer') {
+      g.déplacé = true
+      const p1 = aligné(g.p0, versMonde(e.clientX, e.clientY), e.shiftKey)
+      définirLigneTemp({ x1: g.p0.x, y1: g.p0.y, x2: p1.x, y2: p1.y })
+      return
+    }
+    if (g.type === 'poignée' || g.type === 'ligne') {
+      if (!g.déplacé) mémoriser()
+      g.déplacé = true
+      const z = vueRef.current.zoom
+      const o = g.orig
+      if (g.type === 'ligne') {
+        définirLigneTemp({ ...o, x1: o.x1 + dx / z, y1: o.y1 + dy / z, x2: o.x2 + dx / z, y2: o.y2 + dy / z })
+      } else {
+        const bout = g.bout === '1' ? { x: o.x1, y: o.y1 } : { x: o.x2, y: o.y2 }
+        const fixe = g.bout === '1' ? { x: o.x2, y: o.y2 } : { x: o.x1, y: o.y1 }
+        const p = aligné(fixe, { x: bout.x + dx / z, y: bout.y + dy / z }, e.shiftKey)
+        définirLigneTemp(g.bout === '1' ? { ...o, x1: p.x, y1: p.y } : { ...o, x2: p.x, y2: p.y })
+      }
+      return
+    }
     if (g.type === 'bulle' && g.verrouillé) {
       // Bulle verrouillée : glisser déplace la vue, pas la bulle.
       if (!g.déplacé) afficher('🔒 Bulle verrouillée : touche « Verrou » pour la déplacer.')
       g.déplacé = true
-      setVue({ ...g.vue0, x: g.vue0.x + dx, y: g.vue0.y + dy })
+      appliquerVue({ ...g.vue0, x: g.vue0.x + dx, y: g.vue0.y + dy })
     } else if (g.type === 'bulle') {
       // Un seul point d'annulation par glissement, pris au premier mouvement.
       if (!g.déplacé) mémoriser()
       g.déplacé = true
       const z = vueRef.current.zoom
       // Une branche repliée se déplace avec ses bulles cachées.
-      const n = parId.get(g.id)
       // Si la bulle fait partie d'une sélection multiple, tout le groupe suit
       // (sauf les bulles verrouillées).
       const groupe = multi.includes(g.id) ? multi.filter(id => !parId.get(id)?.verrouillé) : [g.id]
@@ -938,19 +1073,48 @@ export default function Graph() {
         àDéplacer.add(id)
         if (parId.get(id)?.replié) descendants(noeuds, id).forEach(d => àDéplacer.add(d))
       })
-      const ddx = g.pos0.x + dx / z - n.x
-      const ddy = g.pos0.y + dy / z - n.y
-      majNoeuds(liste => liste.map(x => (àDéplacer.has(x.id) ? { ...x, x: x.x + ddx, y: x.y + ddy } : x)), false)
+      const d = { ids: àDéplacer, dx: dx / z, dy: dy / z }
+      déplacementRef.current = d
+      setDéplacement(d)
     } else {
       g.déplacé = true
-      setVue({ ...g.vue0, x: g.vue0.x + dx, y: g.vue0.y + dy })
+      appliquerVue({ ...g.vue0, x: g.vue0.x + dx, y: g.vue0.y + dy })
     }
   }
 
   const surRelâche = e => {
+    viderMouvement()
     pointeursRef.current.delete(e.pointerId)
     const g = gesteRef.current
     if (!g) return
+    if (pointeursRef.current.size === 0) validerVue()
+    // Fin d'un glissement de bulles : on enregistre la position une fois.
+    if (g.type === 'bulle' && déplacementRef.current) {
+      const { ids, dx: ddx, dy: ddy } = déplacementRef.current
+      déplacementRef.current = null
+      majNoeuds(liste => liste.map(x => (ids.has(x.id) ? { ...x, x: x.x + ddx, y: x.y + ddy } : x)), false)
+      setDéplacement(null)
+    }
+    if (g.type === 'tracer' || g.type === 'poignée' || g.type === 'ligne') {
+      if (pointeursRef.current.size === 0) gesteRef.current = null
+      const temp = ligneTempRef.current
+      définirLigneTemp(null)
+      if (g.type === 'tracer') {
+        if (g.déplacé && temp && Math.hypot(temp.x2 - temp.x1, temp.y2 - temp.y1) > 8) {
+          const nouvelle = { id: uid(), x1: temp.x1, y1: temp.y1, x2: temp.x2, y2: temp.y2, ...styleLigne }
+          majGraphe(gr => ({ ...gr, lignes: [...(gr.lignes || []), nouvelle] }))
+          setLigneChoisie(nouvelle.id)
+          setModeLigne(false)
+        }
+        return
+      }
+      if (g.déplacé && temp) {
+        majGraphe(gr => ({ ...gr, lignes: (gr.lignes || []).map(l => (l.id === g.id ? { ...l, x1: temp.x1, y1: temp.y1, x2: temp.x2, y2: temp.y2 } : l)) }), false)
+      } else if (!g.déplacé) {
+        setLigneChoisie(g.id); setSélection(null); setTraitChoisi(null); setMulti([]); setPaletteOuverte(false)
+      }
+      return
+    }
     if (g.type === 'pincer') {
       // On repart sur un simple déplacement avec le doigt restant.
       const reste = [...pointeursRef.current.values()][0]
@@ -982,8 +1146,8 @@ export default function Graph() {
       allerÀÉtape(présentation.étape + (e.clientX - gauche < l / 4 ? -1 : 1))
       return
     }
-    if (g.type === 'bulle') { setMulti([]); touche(g.id) }
-    else if (g.trait && !liaison && !rattachement) { setTraitChoisi(g.trait); setSélection(null); setPaletteOuverte(false) }
+    if (g.type === 'bulle') { setMulti([]); setLigneChoisie(null); touche(g.id) }
+    else if (g.trait && !liaison && !rattachement) { setTraitChoisi(g.trait); setSélection(null); setPaletteOuverte(false); setLigneChoisie(null) }
     else oublierSélection()
   }
 
@@ -995,6 +1159,13 @@ export default function Graph() {
   // ---------- Rendu ----------
   const noeudSélectionné = parId.get(sélection)
   const séparateurs = graphe?.séparer && !présentation ? séparateursArbres(affichées, tailleDe) : []
+  const vueAffichée = vueDirecteRef.current ? vueRef.current : vue
+  // Lignes à dessiner (avec celle en cours de réglage / de tracé).
+  const lignesAffichées = [
+    ...lignes.map(l => (ligneTemp?.id === l.id ? { ...l, ...ligneTemp } : l)),
+    ...(ligneTemp && !ligneTemp.id ? [{ id: '__nouvelle', ...styleLigne, ...ligneTemp }] : []),
+  ]
+  const objetLigneChoisie = lignes.find(l => l.id === ligneChoisie)
   const multiSet = new Set(multi.filter(id => idsVisibles.has(id)))
   const multiNoeuds = [...multiSet].map(id => parId.get(id))
   const verrouillerMulti = valeur => {
@@ -1115,7 +1286,7 @@ export default function Graph() {
     background: 'transparent', border: 'none', cursor: 'pointer', color: danger ? T.danger : T.text,
     fontFamily: grotesk, fontSize: '9.5px', fontWeight: 600,
   })
-  const bandeau = { position: 'absolute', left: '10px', right: '10px', top: '60px', borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600 }
+  const bandeau = { position: 'absolute', left: '10px', right: '10px', top: '60px', borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 600, userSelect: 'none', WebkitUserSelect: 'none' }
   const boutonBandeau = { background: 'rgba(0,0,0,.15)', color: 'inherit', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', fontWeight: 700 }
   const court = n => texteBrut(n.texte).split('\n')[0].slice(0, 22)
 
@@ -1135,15 +1306,16 @@ export default function Graph() {
         onPointerCancel={surRelâche}
         onWheel={surMolette}
         style={{
-          position: 'absolute', inset: 0, touchAction: 'none', cursor: présentation ? 'pointer' : 'grab',
+          position: 'absolute', inset: 0, touchAction: 'none', cursor: présentation ? 'pointer' : modeLigne ? 'crosshair' : 'grab',
           backgroundImage: présentation ? 'none' : `radial-gradient(${T.border} 1.2px, transparent 1.2px)`,
-          backgroundSize: `${24 * vue.zoom}px ${24 * vue.zoom}px`,
-          backgroundPosition: `${vue.x}px ${vue.y}px`,
+          backgroundSize: `${24 * vueAffichée.zoom}px ${24 * vueAffichée.zoom}px`,
+          backgroundPosition: `${vueAffichée.x}px ${vueAffichée.y}px`,
           userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none',
         }}
       >
-        <div style={{
-          position: 'absolute', left: 0, top: 0, transform: `translate(${vue.x}px, ${vue.y}px) scale(${vue.zoom})`, transformOrigin: '0 0',
+        <div ref={mondeRef} style={{
+          position: 'absolute', left: 0, top: 0, transform: `translate(${vueAffichée.x}px, ${vueAffichée.y}px) scale(${vueAffichée.zoom})`, transformOrigin: '0 0',
+          willChange: 'transform',
           transition: présentation && transitionVue ? 'transform .8s cubic-bezier(.45, 0, .2, 1)' : 'none',
         }}>
           <svg width="1" height="1" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
@@ -1181,6 +1353,9 @@ export default function Graph() {
                 </g>
               )
             })}
+            {lignesAffichées.map(l => (
+              <LigneLibre key={l.id} ligne={l} choisie={l.id === ligneChoisie} interactive={!présentation && l.id !== '__nouvelle'} zoom={vueAffichée.zoom} T={T} />
+            ))}
           </svg>
 
           {affichées.map(n => {
@@ -1310,6 +1485,11 @@ export default function Graph() {
           <button onClick={() => { setModeCadre(m => !m); setSélection(null); setTraitChoisi(null) }} aria-pressed={modeCadre} aria-label="Sélectionner plusieurs bulles"
             title="Sélectionner plusieurs bulles (ou Maj + glisser avec la souris)"
             style={{ ...boutonFlottant(), ...(modeCadre ? { background: T.accent, color: T.accentText, border: 'none' } : {}), fontSize: '16px' }}>⬚</button>
+          <button onClick={() => { setModeLigne(m => !m); setSélection(null); setTraitChoisi(null); setLigneChoisie(null); setModeCadre(false) }} aria-pressed={modeLigne} aria-label="Tracer une ligne"
+            title="Tracer une ligne (couleur et épaisseur réglables)"
+            style={{ ...boutonFlottant(), ...(modeLigne ? { background: T.accent, color: T.accentText, border: 'none' } : {}) }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M5 19 19 5" /><circle cx="5" cy="19" r="1.6" fill="currentColor" /><circle cx="19" cy="5" r="1.6" fill="currentColor" /></svg>
+          </button>
         </div>
       )}
 
@@ -1373,6 +1553,16 @@ export default function Graph() {
           width: Math.abs(cadre.x1 - cadre.x0), height: Math.abs(cadre.y1 - cadre.y0),
           border: `1.5px dashed ${T.accent}`, background: `${T.accent}1f`, borderRadius: '4px',
         }} />
+      )}
+      {modeLigne && !ligneTemp && (
+        <div style={{ ...bandeau, background: T.accent, color: T.accentText }}>
+          <span style={{ flex: 1 }}>Glisse sur le fond pour tracer une ligne <span style={{ fontWeight: 500, opacity: 0.8 }}>(Maj : droite ou 45°)</span></span>
+          <button onClick={() => setModeLigne(false)} style={boutonBandeau}>Annuler</button>
+        </div>
+      )}
+      {objetLigneChoisie && !présentation && (
+        <BarreLigne T={T} ligne={objetLigneChoisie} mémoriser={mémoriser} majLigne={patch => majLigne(objetLigneChoisie.id, patch)} majLigneSansTrace={patch => majLigne(objetLigneChoisie.id, patch, false)}
+          supprimer={() => supprimerLigne(objetLigneChoisie.id)} fermer={() => setLigneChoisie(null)} />
       )}
       {modeCadre && !cadre && (
         <div style={{ ...bandeau, background: T.accent, color: T.accentText }}>
@@ -1645,9 +1835,9 @@ export default function Graph() {
               <SectionsGraphe
                 T={T}
                 colonnes={colonnesGraphe}
-                onChanger={majColonnes}
-                bulles={noeuds}
-                onAllerÀBulle={allerÀBulle}
+                onChanger={majColonnesStable}
+                bulles={noeudsBruts}
+                onAllerÀBulle={allerÀBulleStable}
                 surbrillance={surbrillance}
               />
             )}
@@ -2242,6 +2432,105 @@ function ChampSousSection({ T, colonnes, liée, onCréer, onRelier, onOuvrir }) 
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+const STYLE_LIGNE_DÉFAUT = { couleur: '#f0a839', épaisseur: 3, style: 'plein', flèche: 'aucune' }
+const COULEURS_LIGNE = ['#f0a839', '#e2574c', '#4a9d94', '#5b8dc9', '#8b7ab8', '#e8e2d6', '#8a8174', '#1b1b1b']
+
+// Pointe de flèche (triangle) au bout (x, y), orientée depuis (dx, dy).
+function pointeFlèche(x, y, deX, deY, épaisseur) {
+  const t = 6 + épaisseur * 2.6
+  const a = Math.atan2(y - deY, x - deX)
+  const pt = (d, ang) => `${x - d * Math.cos(ang)},${y - d * Math.sin(ang)}`
+  return `${x},${y} ${pt(t, a - 0.42)} ${pt(t, a + 0.42)}`
+}
+const pointillés = (style, é) => (style === 'tirets' ? `${é * 3 + 4} ${é * 2 + 4}` : style === 'pointillés' ? `0.1 ${é * 2 + 3}` : undefined)
+
+// Une ligne libre : trait, flèches, zone de toucher large, poignées si choisie.
+function LigneLibre({ ligne: l, choisie, interactive, zoom, T }) {
+  const é = l.épaisseur || 3
+  const long = Math.hypot(l.x2 - l.x1, l.y2 - l.y1) || 1
+  const ux = (l.x2 - l.x1) / long
+  const uy = (l.y2 - l.y1) / long
+  const recul = 4 + é * 2.2
+  const fin = l.flèche === 'fin' || l.flèche === 'deux'
+  const début = l.flèche === 'début' || l.flèche === 'deux'
+  // Le trait s'arrête sous la pointe pour qu'elle reste nette.
+  const x1 = début ? l.x1 + ux * recul : l.x1
+  const y1 = début ? l.y1 + uy * recul : l.y1
+  const x2 = fin ? l.x2 - ux * recul : l.x2
+  const y2 = fin ? l.y2 - uy * recul : l.y2
+  const r = 9 / zoom
+  return (
+    <g>
+      {choisie && <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={T.accent} strokeOpacity="0.25" strokeWidth={é + 10 / zoom} strokeLinecap="round" />}
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={l.couleur} strokeWidth={é} strokeLinecap="round" strokeDasharray={pointillés(l.style, é)} />
+      {fin && <polygon points={pointeFlèche(l.x2, l.y2, l.x1, l.y1, é)} fill={l.couleur} />}
+      {début && <polygon points={pointeFlèche(l.x1, l.y1, l.x2, l.y2, é)} fill={l.couleur} />}
+      {interactive && (
+        <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} data-ligne={l.id} stroke="transparent" strokeWidth={Math.max(18 / zoom, é + 12)} strokeLinecap="round" style={{ pointerEvents: 'stroke', cursor: 'move' }} />
+      )}
+      {interactive && choisie && [['1', l.x1, l.y1], ['2', l.x2, l.y2]].map(([b, x, y]) => (
+        <circle key={b} cx={x} cy={y} r={r} data-poignee={b} data-ligne-id={l.id} fill={T.surface} stroke={T.accent} strokeWidth={2.5 / zoom}
+          style={{ pointerEvents: 'all', cursor: 'grab' }} />
+      ))}
+    </g>
+  )
+}
+
+// Réglages de la ligne choisie : couleur, épaisseur, style, flèches.
+function BarreLigne({ T, ligne, mémoriser, majLigne, majLigneSansTrace, supprimer, fermer }) {
+  const segment = (actif) => ({
+    padding: '6px 10px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, fontFamily: grotesk,
+    background: actif ? T.accent : 'transparent', color: actif ? T.accentText : T.text, minWidth: '36px',
+  })
+  const groupe = { display: 'flex', background: T.surface2, borderRadius: '10px', padding: '2px' }
+  const titre = { fontSize: '11px', color: T.textMuted, fontFamily: grotesk, width: '70px', flexShrink: 0 }
+  const rangée = { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }
+  return (
+    <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '10px 12px', boxShadow: '0 6px 20px rgba(0,0,0,.3)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <svg width="70" height="16" aria-hidden="true"><line x1="4" y1="8" x2="66" y2="8" stroke={ligne.couleur} strokeWidth={Math.min(ligne.épaisseur, 14)} strokeLinecap="round" strokeDasharray={pointillés(ligne.style, ligne.épaisseur)} /></svg>
+        <span style={{ flex: 1, fontSize: '12.5px', color: T.text, fontWeight: 600 }}>Ligne</span>
+        <button onClick={supprimer} style={{ background: T.danger, color: '#fff', border: 'none', borderRadius: '9px', padding: '6px 10px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk }}>Supprimer</button>
+        <button onClick={fermer} aria-label="Fermer" style={{ background: 'transparent', border: 'none', color: T.textMuted, fontSize: '16px', cursor: 'pointer' }}>✕</button>
+      </div>
+      <div style={rangée}>
+        <span style={titre}>Couleur</span>
+        {COULEURS_LIGNE.map(c => (
+          <button key={c} onClick={() => majLigne({ couleur: c })} aria-label={`Couleur ${c}`} style={{
+            width: '24px', height: '24px', borderRadius: '50%', background: c, cursor: 'pointer', padding: 0,
+            border: `2px solid ${ligne.couleur === c ? T.text : T.border}`, boxShadow: ligne.couleur === c ? `0 0 0 2px ${T.surface}, 0 0 0 4px ${T.accent}` : 'none',
+          }} />
+        ))}
+        <label title="Autre couleur" style={{ position: 'relative', width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', border: `2px dashed ${T.textMuted}`, cursor: 'pointer' }}>
+          <input type="color" value={/^#[0-9a-f]{6}$/i.test(ligne.couleur) ? ligne.couleur : '#f0a839'} onFocus={mémoriser} onChange={e => majLigneSansTrace({ couleur: e.target.value })}
+            aria-label="Autre couleur" style={{ position: 'absolute', inset: '-6px', width: '40px', height: '40px', border: 'none', padding: 0, cursor: 'pointer', opacity: 0 }} />
+          <span aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: T.textMuted, pointerEvents: 'none' }}>+</span>
+        </label>
+      </div>
+      <div style={rangée}>
+        <span style={titre}>Épaisseur</span>
+        <input type="range" min="1" max="16" step="1" value={ligne.épaisseur} onPointerDown={mémoriser} onKeyDown={mémoriser}
+          onChange={e => majLigneSansTrace({ épaisseur: Number(e.target.value) })} aria-label="Épaisseur" style={{ flex: 1, minWidth: '120px', accentColor: T.accent }} />
+        <span style={{ fontSize: '12px', color: T.text, fontFamily: grotesk, width: '34px', textAlign: 'right' }}>{ligne.épaisseur} px</span>
+      </div>
+      <div style={rangée}>
+        <span style={titre}>Style</span>
+        <div style={groupe} role="group" aria-label="Style de ligne">
+          {[['plein', '———'], ['tirets', '– – –'], ['pointillés', '• • •']].map(([id, sym]) => (
+            <button key={id} onClick={() => majLigne({ style: id })} aria-pressed={ligne.style === id} title={id} style={segment(ligne.style === id)}>{sym}</button>
+          ))}
+        </div>
+        <div style={groupe} role="group" aria-label="Flèches">
+          {[['aucune', '—', 'Sans flèche'], ['fin', '→', 'Flèche au bout'], ['début', '←', 'Flèche au début'], ['deux', '↔', 'Deux flèches']].map(([id, sym, nom]) => (
+            <button key={id} onClick={() => majLigne({ flèche: id })} aria-pressed={(ligne.flèche || 'aucune') === id} title={nom} aria-label={nom} style={segment((ligne.flèche || 'aucune') === id)}>{sym}</button>
+          ))}
+        </div>
+      </div>
+      <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>Glisse la ligne pour la déplacer, ses ronds pour l'ajuster (Maj : droite ou 45°). Suppr pour l'effacer.</p>
     </div>
   )
 }

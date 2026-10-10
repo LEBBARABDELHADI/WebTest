@@ -54,8 +54,13 @@ export function useDonnéesSynchronisées(config, compléter) {
   })
 
   dataRef.current = data
+  // Copie locale écrite un court instant après la dernière modification
+  // (pas à chaque mouvement), et tout de suite si on quitte la page.
   useEffect(() => {
-    try { localStorage.setItem(config.stockage, JSON.stringify(data)) } catch { /* ignore */ }
+    const écrire = () => { try { localStorage.setItem(config.stockage, JSON.stringify(dataRef.current)) } catch { /* ignore */ } }
+    const minuteur = setTimeout(écrire, 300)
+    window.addEventListener('pagehide', écrire)
+    return () => { clearTimeout(minuteur); window.removeEventListener('pagehide', écrire) }
   }, [data, config.stockage])
 
   useEffect(() => {

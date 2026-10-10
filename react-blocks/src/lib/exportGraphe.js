@@ -118,11 +118,11 @@ function chargerImage(src) {
 // bulles  : [{ x, y, l, h, texte, racine, couleur, image (adresse|null), badge }]
 // branches: [{ de: {x,y}, vers: {x,y}, couleur }]
 // liens   : [{ p0, k | points, p1, milieu, sens, texte }]
-export async function exporterGraphePNG({ bulles, branches, liens, séparateurs = [], couleurs, polices }) {
+export async function exporterGraphePNG({ bulles, branches, liens, séparateurs = [], lignes = [], couleurs, polices }) {
   const images = await Promise.all(bulles.map(b => chargerImage(b.image)))
 
-  const xs = bulles.flatMap(b => [b.x - b.l / 2, b.x + b.l / 2]).concat(liens.map(l => l.milieu.x))
-  const ys = bulles.flatMap(b => [b.y - b.h / 2, b.y + b.h / 2]).concat(liens.map(l => l.milieu.y))
+  const xs = bulles.flatMap(b => [b.x - b.l / 2, b.x + b.l / 2]).concat(liens.map(l => l.milieu.x), lignes.flatMap(l => [l.x1, l.x2]))
+  const ys = bulles.flatMap(b => [b.y - b.h / 2, b.y + b.h / 2]).concat(liens.map(l => l.milieu.y), lignes.flatMap(l => [l.y1, l.y2]))
   const minX = Math.min(...xs) - MARGE
   const minY = Math.min(...ys) - MARGE
   const largeur = Math.max(...xs) + MARGE - minX
@@ -182,6 +182,41 @@ export async function exporterGraphePNG({ bulles, branches, liens, séparateurs 
     const aprèsDébut = l.points ? l.points[1] : l.k
     if (l.sens === 'vers' || l.sens === 'deux') flèche(ctx, l.p1, avantFin, couleurs.accent)
     if (l.sens === 'deux') flèche(ctx, l.p0, aprèsDébut, couleurs.accent)
+  })
+
+  // Lignes libres (couleur, épaisseur, style, flèches)
+  lignes.forEach(l => {
+    const é = l.épaisseur || 3
+    const long = Math.hypot(l.x2 - l.x1, l.y2 - l.y1) || 1
+    const ux = (l.x2 - l.x1) / long
+    const uy = (l.y2 - l.y1) / long
+    const recul = 4 + é * 2.2
+    const fin = l.flèche === 'fin' || l.flèche === 'deux'
+    const début = l.flèche === 'début' || l.flèche === 'deux'
+    ctx.save()
+    ctx.strokeStyle = l.couleur
+    ctx.fillStyle = l.couleur
+    ctx.lineWidth = é
+    ctx.lineCap = 'round'
+    ctx.setLineDash(l.style === 'tirets' ? [é * 3 + 4, é * 2 + 4] : l.style === 'pointillés' ? [0.1, é * 2 + 3] : [])
+    ctx.beginPath()
+    ctx.moveTo(début ? l.x1 + ux * recul : l.x1, début ? l.y1 + uy * recul : l.y1)
+    ctx.lineTo(fin ? l.x2 - ux * recul : l.x2, fin ? l.y2 - uy * recul : l.y2)
+    ctx.stroke()
+    ctx.setLineDash([])
+    const pointe = (x, y, deX, deY) => {
+      const t = 6 + é * 2.6
+      const a = Math.atan2(y - deY, x - deX)
+      ctx.beginPath()
+      ctx.moveTo(x, y)
+      ctx.lineTo(x - t * Math.cos(a - 0.42), y - t * Math.sin(a - 0.42))
+      ctx.lineTo(x - t * Math.cos(a + 0.42), y - t * Math.sin(a + 0.42))
+      ctx.closePath()
+      ctx.fill()
+    }
+    if (fin) pointe(l.x2, l.y2, l.x1, l.y1)
+    if (début) pointe(l.x1, l.y1, l.x2, l.y2)
+    ctx.restore()
   })
 
   // Bulles
