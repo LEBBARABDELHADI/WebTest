@@ -12,6 +12,7 @@ import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import OutilsTexte from '../components/OutilsTexte'
 import { pageMémo } from '../lib/exportMemo'
+import LiensÉlément from '../components/LiensElement'
 import { adresseImage } from '../components/ImageCarte'
 import {
   analyserTexte, TexteFormaté, texteBrut, lireTexte,
@@ -846,6 +847,12 @@ export default function Memoriser() {
                         </div>
                       )}
 
+                      {(ouvert || (paquet.liens || []).length > 0) && (
+                        <div style={{ marginTop: '10px' }}>
+                          <LiensÉlément T={T} liens={paquet.liens || []} foyer={FOYERS[config.foyer]}
+                            onChange={liens => setData(d => ({ ...d, paquets: d.paquets.map(p => (p.id === paquet.id ? { ...p, liens } : p)) }))} />
+                        </div>
+                      )}
                       {ouvert && (
                         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {cartesPaquet.length > 0 && (

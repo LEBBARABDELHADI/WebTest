@@ -7,6 +7,7 @@ import donnéesNotesIdrissiPro from '../data/notes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
 import VersCartes from '../components/VersCartes'
+import LiensÉlément from '../components/LiensElement'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
@@ -122,7 +123,7 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
     changerCatégorieNote,
     lienOuvertPour, setLienOuvertPour, espaceLienChoisi, setEspaceLienChoisi, cartesDisponibles, lierTâche, délierTâche,
     majBloc, ajouterBloc, supprimerBloc, ajouterOption, majOption, supprimerOption,
-    setNoteVersCartes,
+    setNoteVersCartes, majLiensNote, foyer,
   } = ctx
 
   const rotation = pleinÉcran ? '0deg' : index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
@@ -222,6 +223,8 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
           }}>{s.titre}</button>
         ))}
       </div>
+
+      {<LiensÉlément T={T} liens={note.liens || []} onChange={l => majLiensNote(note.id, l)} foyer={foyer} />}
 
       {note.carteLiée && (
         <Link to={`/taches/${note.carteLiée.espace}`} style={{
@@ -740,6 +743,8 @@ export default function Notes() {
   // un composant défini à l'intérieur du rendu serait recréé à chaque
   // frappe et ferait perdre le focus du champ actif — fatal au clavier
   // virtuel sur mobile).
+  const majLiensNote = (id, liens) => setData(d => ({ ...d, notes: d.notes.map(n => (n.id === id ? { ...n, liens } : n)) }))
+  const foyer = FOYERS[config.foyer]
   const ctx = {
     espacesTâches: ESPACES_TÂCHES.filter(e => e.foyer === config.foyer),
     noteEnGlissement, setNoteEnGlissement, noteSurvolée, setNoteSurvolée, setSectionSurvolée,
@@ -750,7 +755,7 @@ export default function Notes() {
     changerCatégorieNote,
     lienOuvertPour, setLienOuvertPour, espaceLienChoisi, setEspaceLienChoisi, cartesDisponibles, lierTâche, délierTâche,
     majBloc, ajouterBloc, supprimerBloc, ajouterOption, majOption, supprimerOption,
-    setNoteVersCartes,
+    setNoteVersCartes, majLiensNote, foyer,
   }
   const noteVersCartesObjet = noteVersCartes ? data.notes.find(n => n.id === noteVersCartes) : null
 

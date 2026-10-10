@@ -7,6 +7,7 @@ import donnéesIdrissiPro from '../data/taches-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
 import { analyserAujourdhui } from '../lib/aujourdhui'
+import LiensÉlément from '../components/LiensElement'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
@@ -1068,6 +1069,13 @@ export default function Taches() {
                           <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                             {carte.texte}
                           </p>
+                          {(carte.liens || []).length > 0 && détailsId !== carte.id && (
+                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', margin: '-2px 0 8px' }}>
+                              {carte.liens.map(l => (
+                                <Link key={l.lien} to={l.lien} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '20px', background: `${T.accent}1f`, color: T.text, fontFamily: grotesk, textDecoration: 'none', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>🔗 {l.titre}</Link>
+                              ))}
+                            </div>
+                          )}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                             <BoutonIcone icon="crayon" title="Modifier" onClick={() => démarrerÉdition(carte)} taille={14} />
                             <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} onClick={() => archiverCarte(carte.id)} taille={14} />
@@ -1088,6 +1096,8 @@ export default function Taches() {
 
                           {détailsId === carte.id && (
                             <div style={{ marginTop: '4px', paddingTop: '10px', borderTop: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                              <LiensÉlément T={T} liens={carte.liens || []} foyer={FOYERS[config.foyer]}
+                                onChange={liens => setData(d => ({ ...d, cartes: d.cartes.map(c => (c.id === carte.id ? { ...c, liens } : c)) }))} />
                               <div>
                                 <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Échéance</p>
                                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>

@@ -9,6 +9,7 @@ import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage } from '../components/ImageCarte'
 import SectionsGraphe, { colonnesDe, texteDuBloc } from '../components/SectionsGraphe'
+import LiensÉlément from '../components/LiensElement'
 import BlocCode from '../components/BlocCode'
 import { colorerCode, COULEURS_CODE } from '../lib/coloration'
 import { exporterMarkdown, pageImprimable } from '../lib/exportSections'
@@ -973,6 +974,8 @@ export default function Graph() {
   }
 
   const surAppui = e => {
+    const ouvrirLiens = e.target.closest('[data-ouvrir-liens]')
+    if (ouvrirLiens) { const n = parId.get(ouvrirLiens.dataset.ouvrirLiens); if (n) { setSélection(n.id); setÉdition(éditionBulle(n)) } return }
     const note = e.target.closest('[data-note]')
     if (note) { allerÀSousSection(note.dataset.note); return }
     const loupe = e.target.closest('[data-agrandir]')
@@ -1527,6 +1530,12 @@ export default function Graph() {
                 {n.icone && <span style={{ marginRight: '5px' }}>{n.icone}</span>}
                 <TexteFormaté texte={n.texte} couleurDéfaut={racine ? '#1b1b1b' : T.text} />
                 {n.code && <CodeDansBulle code={n.code} langage={n.langage} f={f} />}
+                {(n.liens || []).length > 0 && !présentation && (
+                  <span data-ouvrir-liens={n.id} role="button" aria-label={`${n.liens.length} lien(s)`} title={n.liens.map(l => l.titre).join(' · ')} style={{
+                    position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', padding: '1px 7px', borderRadius: '10px',
+                    background: T.surface, border: `1.5px solid ${T.accent}`, fontSize: '11px', fontWeight: 700, color: T.text, cursor: 'pointer', fontFamily: grotesk,
+                  }}>🔗 {n.liens.length}</span>
+                )}
                 {notesParBulle.has(n.id) && !présentation && (
                   <span data-note={notesParBulle.get(n.id).id} role="button" aria-label={`Voir la sous-section « ${notesParBulle.get(n.id).titre} »`} title={`Sous-section : ${notesParBulle.get(n.id).titre}`} style={{
                     position: 'absolute', bottom: '-12px', left: '-12px', width: '28px', height: '28px', borderRadius: '50%',
@@ -2057,6 +2066,10 @@ export default function Graph() {
                 />
                 <ChampImage image={édition.image} onChange={image => setÉdition(é => ({ ...é, image }))} token={token} libellé="Ajouter une image" />
                 <ChampCode T={T} édition={édition} setÉdition={setÉdition} />
+                <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: `1px dashed ${T.border}` }}>
+                  <LiensÉlément T={T} liens={parId.get(édition.id)?.liens || []} foyer={FOYERS[config.foyer]}
+                    onChange={liensBulle => majNoeuds(l => l.map(n => (n.id === édition.id ? { ...n, liens: liensBulle } : n)))} />
+                </div>
                 <ChampSousSection
                   T={T}
                   colonnes={colonnesGraphe}
