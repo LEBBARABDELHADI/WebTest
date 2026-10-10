@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import NotionPage from './pages/NotionPage'
 import Taches from './pages/Taches'
@@ -8,6 +9,7 @@ import Timer from './pages/Timer'
 import Graph from './pages/Graph'
 import Verrou from './components/Verrou'
 import { foyerDeLEspace } from './lib/foyers'
+import { enregistrerVisite } from './lib/recents'
 import './App.css'
 
 // key = foyers : sans ça, React réutiliserait le même verrou (déjà ouvert)
@@ -27,8 +29,17 @@ function EspaceRoute({ Page }) {
   )
 }
 
+// Note chaque page ouverte pour la liste « Reprendre » de l'accueil.
+function SuiviRécents() {
+  const { pathname } = useLocation()
+  useEffect(() => { enregistrerVisite(pathname) }, [pathname])
+  return null
+}
+
 function App() {
   return (
+    <>
+    <SuiviRécents />
     <Routes>
       <Route path="/" element={<Protégé foyers={['lebbar']}><Home key="lebbar" foyerId="lebbar" /></Protégé>} />
       <Route path="/idrissi" element={<Protégé foyers={['idrissi']}><Home key="idrissi" foyerId="idrissi" /></Protégé>} />
@@ -43,6 +54,7 @@ function App() {
       <Route path="/graph" element={<Navigate to="/graph/perso" replace />} />
       <Route path="/graph/:espace" element={<EspaceRoute Page={Graph} />} />
     </Routes>
+    </>
   )
 }
 
