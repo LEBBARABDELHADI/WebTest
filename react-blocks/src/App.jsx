@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import NotionPage from './pages/NotionPage'
@@ -29,6 +29,25 @@ function EspaceRoute({ Page }) {
   )
 }
 
+// Messages globaux (ex. « Mis à jour avec les changements d'un autre appareil »).
+function Annonces() {
+  const [texte, setTexte] = useState(null)
+  useEffect(() => {
+    let minuteur
+    const surAnnonce = e => { setTexte(e.detail); clearTimeout(minuteur); minuteur = setTimeout(() => setTexte(null), 4000) }
+    window.addEventListener('react-blocs-annonce', surAnnonce)
+    return () => { window.removeEventListener('react-blocs-annonce', surAnnonce); clearTimeout(minuteur) }
+  }, [])
+  if (!texte) return null
+  return (
+    <div role="status" style={{
+      position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 'max(18px, env(safe-area-inset-bottom))', zIndex: 2000,
+      maxWidth: 'calc(100vw - 32px)', padding: '11px 16px', borderRadius: '12px', fontSize: '14px', fontFamily: 'system-ui, sans-serif',
+      background: '#2f7d4f', color: '#fff', boxShadow: '0 8px 24px rgba(0,0,0,.35)',
+    }}>🔄 {texte}</div>
+  )
+}
+
 // Note chaque page ouverte pour la liste « Reprendre » de l'accueil.
 function SuiviRécents() {
   const { pathname } = useLocation()
@@ -40,6 +59,7 @@ function App() {
   return (
     <>
     <SuiviRécents />
+    <Annonces />
     <Routes>
       <Route path="/" element={<Protégé foyers={['lebbar']}><Home key="lebbar" foyerId="lebbar" /></Protégé>} />
       <Route path="/idrissi" element={<Protégé foyers={['idrissi']}><Home key="idrissi" foyerId="idrissi" /></Protégé>} />

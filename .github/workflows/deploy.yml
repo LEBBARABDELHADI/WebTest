@@ -5,7 +5,17 @@ on:
     branches:
       - main
       - claude/react-blocks-simulation-FxGEl
+    # Les enregistrements de l'app (données JSON, images) ne changent pas le
+    # code : inutile de reconstruire et republier le site pour eux.
+    paths-ignore:
+      - 'react-blocks/src/data/**'
   workflow_dispatch:
+
+# Une seule publication à la fois : si une nouvelle arrive, l'ancienne est
+# annulée (deux publications simultanées sur gh-pages peuvent échouer).
+concurrency:
+  group: publication-gh-pages
+  cancel-in-progress: true
 
 permissions:
   contents: write

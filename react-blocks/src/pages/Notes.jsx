@@ -6,6 +6,7 @@ import donnéesNotesIdrissiPerso from '../data/notes-idrissi-perso.json'
 import donnéesNotesIdrissiPro from '../data/notes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
+import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
@@ -429,9 +430,15 @@ export default function Notes() {
       .then(({ data: distant, sha }) => {
         if (annulé) return
         shaRef.current = sha
-        dernierEnvoiRef.current = JSON.stringify(distant)
-        ignoreProchaineÉcritureRef.current = true
-        setData(complète(distant))
+        const distantComplet = complète(distant)
+        // Modifications pas encore envoyées (hors ligne, erreur…) : fusionnées
+        // avec la version en ligne au lieu d'être écrasées.
+        const { données, àEnvoyer } = réconcilier({ distant: distantComplet, local: donnéesActuellesRef.current, base: lireBase(config.stockage) })
+        dernierEnvoiRef.current = JSON.stringify(distantComplet)
+        écrireBase(config.stockage, dernierEnvoiRef.current)
+        if (!àEnvoyer) ignoreProchaineÉcritureRef.current = true
+        setData(données)
+        if (àEnvoyer) annoncer('Modifications faites hors ligne ajoutées à la version en ligne')
         setStatutSync(token ? 'connecté' : 'lecture-seule')
       })
       .catch(err => {
@@ -452,10 +459,18 @@ export default function Notes() {
     clearTimeout(syncTimeoutRef.current)
     syncTimeoutRef.current = setTimeout(() => {
       setStatutSync('synchronisation')
-      écrireVersGitHub(data, token, shaRef.current, config.chemin)
-        .then(({ sha }) => {
+      const base = dernierEnvoiRef.current ? JSON.parse(dernierEnvoiRef.current) : undefined
+      écrireVersGitHub(data, token, shaRef.current, config.chemin, base)
+        .then(({ sha, données: écrites, fusionné }) => {
           shaRef.current = sha
-          dernierEnvoiRef.current = contenu
+          dernierEnvoiRef.current = fusionné ? JSON.stringify(écrites) : contenu
+          écrireBase(config.stockage, dernierEnvoiRef.current)
+          if (fusionné) {
+            // Un autre appareil avait changé le fichier : on affiche la
+            // fusion, sans perdre ce qui a été tapé depuis l'envoi.
+            setData(courant => fusionner(data, courant, écrites))
+            annoncer('Mis à jour avec les changements d\'un autre appareil')
+          }
           setStatutSync('connecté')
         })
         .catch(err => {

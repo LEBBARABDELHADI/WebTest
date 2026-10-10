@@ -4,6 +4,7 @@ const BRANCHE = 'claude/react-blocks-simulation-FxGEl'
 const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
 
 export const TOKEN_KEY = 'react-blocs-github-token'
+import { fusionner, égal } from './fusion'
 
 // Toutes les écritures (fichiers JSON, images) passent par une seule file :
 // deux commits envoyés en même temps sur la même branche font échouer
@@ -56,24 +57,32 @@ export async function lireDepuisGitHub(token, chemin) {
 // sur ce dépôt (token fin, "Fine-grained personal access token").
 // En cas d'erreur passagère (conflit, 500…), relit la version actuelle du
 // fichier et réessaie jusqu'à 4 fois.
-export function écrireVersGitHub(data, token, shaConnu, chemin) {
-  return enFile(() => écrireAvecEssais(data, token, shaConnu, chemin))
+// `base` (facultatif) : la version sur laquelle l'appareil a travaillé. Si
+// GitHub a changé entre-temps (autre appareil), on relit et on FUSIONNE au
+// lieu d'écraser. Renvoie { sha, données: ce qui a été écrit, fusionné }.
+export function écrireVersGitHub(data, token, shaConnu, chemin, base) {
+  return enFile(() => écrireAvecEssais(data, token, shaConnu, chemin, base))
 }
-async function écrireAvecEssais(data, token, shaConnu, chemin) {
+async function écrireAvecEssais(data, token, shaConnu, chemin, base) {
   if (!token) throw new Error('Token manquant')
   const headers = {
     Accept: 'application/vnd.github+json',
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   }
-  const contenu = encoderBase64Utf8(JSON.stringify(data, null, 2))
+  let àÉcrire = data
   let sha = shaConnu
   let dernièreErreur = null
   for (let essai = 0; essai < 4; essai += 1) {
     if (essai > 0) await attendre(800 * 2 ** (essai - 1))
     if (!sha || essai > 0) {
-      try { sha = (await lireDepuisGitHub(token, chemin)).sha } catch (err) { dernièreErreur = err; continue }
+      try {
+        const lu = await lireDepuisGitHub(token, chemin)
+        sha = lu.sha
+        if (base !== undefined && base !== null) àÉcrire = fusionner(base, data, lu.data)
+      } catch (err) { dernièreErreur = err; continue }
     }
+    const contenu = encoderBase64Utf8(JSON.stringify(àÉcrire, null, 2))
     let res
     try {
       res = await fetch(`${API_BASE}/${chemin}`, {
@@ -85,7 +94,7 @@ async function écrireAvecEssais(data, token, shaConnu, chemin) {
       dernièreErreur = erreurPassagère('Connexion à GitHub impossible (hors ligne ?)')
       continue
     }
-    if (res.ok) return { sha: (await res.json()).content.sha }
+    if (res.ok) return { sha: (await res.json()).content.sha, données: àÉcrire, fusionné: !égal(àÉcrire, data) }
     const err = await res.json().catch(() => ({}))
     if (res.status === 401) throw new Error('Token invalide ou expiré')
     if (res.status === 403) throw new Error('Le token n\'a pas le droit d\'écrire sur ce dépôt')

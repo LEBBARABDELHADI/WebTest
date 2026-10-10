@@ -218,7 +218,8 @@ export async function ajouterRapidement({ type, espace, saisie }) {
     nouveau = { ...data, paquets, cartes: [...(data.cartes || []), carte] }
     résumé = `Carte ajoutée au paquet « ${paquet.nom} »`
   }
-  await écrireVersGitHub(nouveau, token, sha, chemin(outil, espace))
-  try { localStorage.setItem(clé(outil, espace), JSON.stringify(nouveau)) } catch { /* ignore */ }
-  return { outil, données: nouveau, résumé }
+  // base = la version lue : si le fichier change entre-temps, fusion.
+  const écrit = await écrireVersGitHub(nouveau, token, sha, chemin(outil, espace), data)
+  try { localStorage.setItem(clé(outil, espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
+  return { outil, données: écrit.données, résumé }
 }

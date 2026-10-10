@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from './githubSync'
+import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from './fusion'
 
 // Données d'un espace, enregistrées sur l'appareil et synchronisées avec
 // leur fichier JSON du dépôt GitHub : lecture à l'ouverture (sans token,
@@ -70,9 +71,14 @@ export function useDonnéesSynchronisées(config, compléter) {
       .then(({ data: distant, sha }) => {
         if (annulé) return
         shaRef.current = sha
-        dernierEnvoiRef.current = JSON.stringify(distant)
-        ignorerÉcritureRef.current = true
-        setData(compléter(distant))
+        const distantComplet = compléter(distant)
+        // Modifications pas encore envoyées : fusionnées, pas écrasées.
+        const { données, àEnvoyer } = réconcilier({ distant: distantComplet, local: dataRef.current, base: lireBase(config.stockage) })
+        dernierEnvoiRef.current = JSON.stringify(distantComplet)
+        écrireBase(config.stockage, dernierEnvoiRef.current)
+        if (!àEnvoyer) ignorerÉcritureRef.current = true
+        setData(données)
+        if (àEnvoyer) annoncer('Modifications faites hors ligne ajoutées à la version en ligne')
         setStatut(token ? 'connecté' : 'lecture-seule')
       })
       .catch(err => {
@@ -93,10 +99,16 @@ export function useDonnéesSynchronisées(config, compléter) {
     clearTimeout(délaiRef.current)
     délaiRef.current = setTimeout(() => {
       setStatut('synchronisation')
-      écrireVersGitHub(data, token, shaRef.current, config.chemin)
-        .then(({ sha }) => {
+      const base = dernierEnvoiRef.current ? JSON.parse(dernierEnvoiRef.current) : undefined
+      écrireVersGitHub(data, token, shaRef.current, config.chemin, base)
+        .then(({ sha, données: écrites, fusionné }) => {
           shaRef.current = sha
-          dernierEnvoiRef.current = contenu
+          dernierEnvoiRef.current = fusionné ? JSON.stringify(écrites) : contenu
+          écrireBase(config.stockage, dernierEnvoiRef.current)
+          if (fusionné) {
+            setData(courant => fusionner(data, courant, écrites))
+            annoncer('Mis à jour avec les changements d\'un autre appareil')
+          }
           setStatut('connecté')
         })
         .catch(err => {
