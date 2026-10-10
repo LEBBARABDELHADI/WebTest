@@ -208,34 +208,54 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
   const [liaisonOuverte, setLiaisonOuverte] = useState(null) // id de sous-section
   const [repérée, setRepérée] = useState(null)
   const [ouvertes, setOuvertes] = useState(() => new Set()) // dépliées le temps d'une recherche
+  // Ensemble des sous-sections ET des sections (colonnes) en mode lecture.
   const [enLecture, setEnLecture] = useState(lireLecture)
-  const basculerLecture = id => {
-    if (édition?.sectionId === id) annulerBloc()
-    if (titreÉdité?.id === id) setTitreÉdité(null)
-    if (liaisonOuverte === id) setLiaisonOuverte(null)
+  const [sommaireOuvert, setSommaireOuvert] = useState(false)
+  const [pleinÉcran, setPleinÉcran] = useState(null) // id de la sous-section lue en plein écran
+  const définirLecture = (ids, actif) => {
+    if (actif) {
+      if (édition && ids.includes(édition.sectionId)) annulerBloc()
+      if (titreÉdité && ids.includes(titreÉdité.id)) setTitreÉdité(null)
+      if (ids.includes(liaisonOuverte)) setLiaisonOuverte(null)
+    }
     setEnLecture(avant => {
       const après = new Set(avant)
-      if (après.has(id)) après.delete(id); else après.add(id)
+      ids.forEach(id => (actif ? après.add(id) : après.delete(id)))
       try { localStorage.setItem(CLÉ_LECTURE, JSON.stringify([...après])) } catch { /* ignore */ }
       return après
     })
   }
+  // Quitter la lecture d'une sous-section sort aussi sa section du mode lecture.
+  const basculerLecture = (id, colonneId) => {
+    const actif = !(enLecture.has(id) || enLecture.has(colonneId))
+    définirLecture(actif ? [id] : [id, colonneId], actif)
+  }
+  const idsColonne = c => [c.id, ...c.sousSections.map(s => s.id)]
+  const basculerColonne = c => définirLecture(idsColonne(c), !enLecture.has(c.id))
+  const toutEnLecture = colonnes.every(c => enLecture.has(c.id))
+  const basculerTout = () => définirLecture(colonnes.flatMap(idsColonne), !toutEnLecture)
+  const replierTout = replié => {
+    onChanger(cols => cols.map(c => ({ ...c, sousSections: c.sousSections.map(s => ({ ...s, replié })) })))
+    setOuvertes(new Set())
+  }
+  // Fait défiler jusqu'à une section / sous-section / bloc et le fait clignoter.
+  const montrer = (id, sousSectionId) => {
+    setOuvertes(o => new Set([...o, sousSectionId || id]))
+    setRepérée(id)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      zoneRef.current?.querySelector(`[data-repere="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: id.startsWith?.('col-') ? 'start' : 'center' })
+    }))
+    clearTimeout(minuteurRepère.current)
+    minuteurRepère.current = setTimeout(() => setRepérée(null), 2400)
+  }
+  const minuteurRepère = useRef(null)
   const zoneRef = useRef(null)
 
   const sousSectionsParId = new Map(colonnes.flatMap(c => c.sousSections.map(s => [s.id, s])))
   const bullesParId = new Map(bulles.map(b => [b.id, b]))
 
   useEffect(() => {
-    if (!surbrillance) return
-    if (surbrillance.sousSectionId) setOuvertes(o => new Set([...o, surbrillance.sousSectionId]))
-    else setOuvertes(o => new Set([...o, surbrillance.id]))
-    setRepérée(surbrillance.id)
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const el = zoneRef.current?.querySelector(`[data-repere="${surbrillance.id}"]`)
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }))
-    const minuteur = setTimeout(() => setRepérée(null), 2400)
-    return () => clearTimeout(minuteur)
+    if (surbrillance) montrer(surbrillance.id, surbrillance.sousSectionId)
   }, [surbrillance?.n]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const glisserSections = useGlisserEntreListes((de, vers) => onChanger(cols => {
@@ -325,31 +345,78 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
   return (
     <div data-sections ref={zoneRef} style={{ marginTop: '18px' }}>
       <style>{ANIMATION}</style>
+      {/* Barre des sections : reste en haut de l'écran pendant qu'on fait défiler. */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 30, background: T.bg, padding: '8px 0', marginBottom: '8px', borderBottom: `1px solid ${T.border}` }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button onClick={() => setSommaireOuvert(o => !o)} aria-expanded={sommaireOuvert} style={{ ...petitBouton(), ...(sommaireOuvert ? { background: T.accent, color: T.accentText, border: 'none' } : {}) }}>
+            📑 Sommaire {sommaireOuvert ? '▴' : '▾'}
+          </button>
+          <button onClick={() => replierTout(true)} title="Replier toutes les sous-sections" style={petitBouton()}>⊟ Tout replier</button>
+          <button onClick={() => replierTout(false)} title="Déplier toutes les sous-sections" style={petitBouton()}>⊞ Tout déplier</button>
+          <button onClick={basculerTout} aria-pressed={toutEnLecture}
+            title={toutEnLecture ? 'Revenir en modification partout' : 'Toutes les sections et sous-sections en mode lecture'}
+            style={{ ...petitBouton(), ...(toutEnLecture ? { background: `${T.accent}26`, color: T.accent, borderColor: T.accent } : {}) }}>
+            {toutEnLecture ? '✏️ Tout modifier' : '📖 Tout en lecture'}
+          </button>
+        </div>
+        {sommaireOuvert && (
+          <nav aria-label="Sommaire des sections" style={{
+            marginTop: '8px', display: 'grid', gridTemplateColumns: large ? `repeat(${NB_COLONNES}, minmax(0, 1fr))` : '1fr', gap: large ? '14px' : '10px',
+            background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '10px 12px', maxHeight: large ? 'none' : '55dvh', overflowY: 'auto',
+          }}>
+            {colonnes.map(c => (
+              <div key={c.id} style={{ minWidth: 0 }}>
+                <button onClick={() => { montrer(c.id); if (!large) setSommaireOuvert(false) }} style={{
+                  display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '4px 0', cursor: 'pointer',
+                  fontFamily: serif, fontStyle: 'italic', fontSize: '16px', color: T.accent, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>{c.titre}</button>
+                {c.sousSections.length === 0 && <p style={{ margin: '2px 0 0 10px', fontSize: '12px', color: T.textMuted }}>—</p>}
+                {c.sousSections.map(ss => (
+                  <div key={ss.id} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <button onClick={() => { montrer(ss.id); if (!large) setSommaireOuvert(false) }} style={{
+                      flex: 1, minWidth: 0, textAlign: 'left', background: 'transparent', border: 'none', padding: '4px 0 4px 10px', cursor: 'pointer',
+                      fontSize: '13px', color: T.text, fontFamily: grotesk, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', borderLeft: `2px solid ${T.border}`,
+                    }}>{ss.titre} <span style={{ color: T.textMuted, fontSize: '11px' }}>{ss.blocs.length}</span></button>
+                    <button onClick={() => setPleinÉcran(ss.id)} aria-label={`Lire « ${ss.titre} » en plein écran`} title="Lire en plein écran"
+                      style={{ background: 'transparent', border: 'none', color: T.textMuted, cursor: 'pointer', fontSize: '13px', padding: '2px 4px' }}>⛶</button>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </nav>
+        )}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: large ? `repeat(${NB_COLONNES}, minmax(0, 1fr))` : '1fr', gap: large ? '14px' : '22px', alignItems: 'start' }}>
         {colonnes.map(colonne => {
           const nbBlocs = colonne.sousSections.reduce((n, s) => n + s.blocs.length, 0)
+          const colonneEnLecture = enLecture.has(colonne.id)
           return (
-            <section key={colonne.id} aria-label={colonne.titre} style={{
+            <section key={colonne.id} aria-label={colonne.titre} data-repere={colonne.id} className={repérée === colonne.id ? 'repere-section' : undefined} style={{
+              scrollMarginTop: '70px',
               background: large ? `${T.surface}88` : 'transparent', border: large ? `1px solid ${T.border}` : 'none',
               borderRadius: '16px', padding: large ? '12px' : 0, minWidth: 0,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', borderBottom: `2px solid ${T.accent}`, paddingBottom: '8px' }}>
                 {titreÉdité?.id === colonne.id ? champTitre(colonne.id, '18px') : (
-                  <h2 onClick={() => setTitreÉdité({ id: colonne.id, valeur: colonne.titre })} title="Toucher pour renommer"
-                    style={{ flex: 1, minWidth: 0, margin: 0, fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '21px', color: T.text, cursor: 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <h2 onClick={colonneEnLecture ? undefined : () => setTitreÉdité({ id: colonne.id, valeur: colonne.titre })} title={colonneEnLecture ? undefined : 'Toucher pour renommer'}
+                    style={{ flex: 1, minWidth: 0, margin: 0, fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '21px', color: T.text, cursor: colonneEnLecture ? 'default' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {colonne.titre}
                   </h2>
                 )}
                 <span style={{ fontSize: '11px', color: T.textMuted, fontFamily: grotesk, flexShrink: 0 }}>
                   {colonne.sousSections.length} sous-section{colonne.sousSections.length > 1 ? 's' : ''} · {nbBlocs} bloc{nbBlocs > 1 ? 's' : ''}
                 </span>
+                <button onClick={() => basculerColonne(colonne)} aria-pressed={colonneEnLecture}
+                  aria-label={colonneEnLecture ? `Modifier la section ${colonne.titre}` : `Section ${colonne.titre} en mode lecture`}
+                  title={colonneEnLecture ? 'Revenir en modification pour toute la section' : 'Toute la section en mode lecture'}
+                  style={{ ...icône, ...(colonneEnLecture ? { background: `${T.accent}26`, color: T.accent } : {}) }}>{colonneEnLecture ? '✏️' : '📖'}</button>
               </div>
 
               <div ref={glisserSections.refListe(colonne.id)} style={{ display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '24px' }}>
                 {colonne.sousSections.map((section, i) => {
                   const bulle = section.bulleId && bullesParId.get(section.bulleId)
                   const visible = !section.replié || ouvertes.has(section.id)
-                  const lecture = enLecture.has(section.id)
+                  const lecture = enLecture.has(section.id) || colonneEnLecture
                   return (
                     <Fragment key={section.id}>
                       {glisserSections.repère(colonne.id, i) && ligneRepère}
@@ -359,6 +426,7 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
                         data-sous-section={section.id}
                         className={repérée === section.id ? 'repere-section' : undefined}
                         style={{
+                          scrollMarginTop: '70px',
                           background: T.surface, border: `1px solid ${lecture ? `${T.accent}66` : T.border}`, borderRadius: '14px',
                           padding: lecture ? '8px 14px 12px' : '8px 10px 10px', minWidth: 0, ...glisserSections.style(colonne.id, i),
                         }}
@@ -375,7 +443,8 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
                               {!lecture && <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length}</span>}
                             </h3>
                           )}
-                          <button onClick={() => basculerLecture(section.id)} aria-pressed={lecture} aria-label={lecture ? 'Quitter le mode lecture' : 'Mode lecture'}
+                          <button onClick={() => setPleinÉcran(section.id)} aria-label={`Lire « ${section.titre} » en plein écran`} title="Lire en plein écran" style={icône}>⛶</button>
+                          <button onClick={() => basculerLecture(section.id, colonne.id)} aria-pressed={lecture} aria-label={lecture ? 'Quitter le mode lecture' : 'Mode lecture'}
                             title={lecture ? 'Quitter le mode lecture (modifier)' : 'Mode lecture : masquer les boutons de modification'}
                             style={{ ...icône, ...(lecture ? { background: `${T.accent}26`, color: T.accent } : {}) }}>{lecture ? '✏️' : '📖'}</button>
                           {!lecture && (
@@ -439,13 +508,90 @@ export default function SectionsGraphe({ T, colonnes, onChanger, bulles = [], on
                   </p>
                 )}
               </div>
-              <button onClick={() => ajouterSousSection(colonne)} style={{ ...petitBouton(T.textMuted), width: '100%', marginTop: '10px', padding: '9px', borderStyle: 'dashed', background: 'transparent' }}>
-                ＋ Sous-section
-              </button>
+              {!colonneEnLecture && (
+                <button onClick={() => ajouterSousSection(colonne)} style={{ ...petitBouton(T.textMuted), width: '100%', marginTop: '10px', padding: '9px', borderStyle: 'dashed', background: 'transparent' }}>
+                  ＋ Sous-section
+                </button>
+              )}
             </section>
           )
         })}
       </div>
+      {pleinÉcran && sousSectionsParId.get(pleinÉcran) && (
+        <LecturePleinÉcran
+          T={T}
+          colonnes={colonnes}
+          id={pleinÉcran}
+          onAller={setPleinÉcran}
+          onFermer={() => { const id = pleinÉcran; setPleinÉcran(null); montrer(id) }}
+          majBloc={majBloc}
+        />
+      )}
+    </div>
+  )
+}
+
+// Taille du texte en plein écran, mémorisée sur l'appareil.
+const CLÉ_TAILLE = 'react-blocs-lecture-taille'
+function lireTaille() {
+  const v = Number(localStorage.getItem(CLÉ_TAILLE))
+  return v >= 0.8 && v <= 2 ? v : 1.25
+}
+
+// Lecture d'une sous-section en plein écran : grand texte, rien d'autre ;
+// ‹ › (ou flèches) passent à la sous-section précédente / suivante.
+function LecturePleinÉcran({ T, colonnes, id, onAller, onFermer, majBloc }) {
+  const [échelle, setÉchelle] = useState(lireTaille)
+  const fenêtreRef = useRef(null)
+  const toutes = colonnes.flatMap(c => c.sousSections.map(ss => ({ ss, colonne: c })))
+  const i = toutes.findIndex(x => x.ss.id === id)
+  const { ss, colonne } = toutes[i]
+  const précédente = toutes[i - 1]
+  const suivante = toutes[i + 1]
+  useEffect(() => { fenêtreRef.current?.focus(); fenêtreRef.current?.scrollTo?.(0, 0) }, [id])
+  const changerTaille = delta => setÉchelle(é => {
+    const v = Math.round(Math.min(2, Math.max(0.8, é + delta)) * 100) / 100
+    try { localStorage.setItem(CLÉ_TAILLE, String(v)) } catch { /* ignore */ }
+    return v
+  })
+  const surTouche = e => {
+    if (e.key === 'Escape') { e.preventDefault(); onFermer() }
+    else if (e.key === 'ArrowRight' && suivante) { e.preventDefault(); onAller(suivante.ss.id) }
+    else if (e.key === 'ArrowLeft' && précédente) { e.preventDefault(); onAller(précédente.ss.id) }
+  }
+  const rond = actif => ({
+    minWidth: '40px', height: '40px', borderRadius: '12px', border: `1px solid ${T.border}`, background: T.surface, color: T.text,
+    cursor: actif ? 'pointer' : 'default', opacity: actif ? 1 : 0.35, fontSize: '15px', fontWeight: 700, fontFamily: grotesk, padding: '0 10px',
+  })
+  return (
+    <div role="dialog" aria-label={`Lecture : ${ss.titre}`} ref={fenêtreRef} tabIndex={-1} onKeyDown={surTouche}
+      style={{ position: 'fixed', inset: 0, zIndex: 1300, background: T.bg, overflowY: 'auto', outline: 'none' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 2, background: T.bg, borderBottom: `1px solid ${T.border}`, padding: 'max(10px, env(safe-area-inset-top)) 14px 10px' }}>
+        <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={() => précédente && onAller(précédente.ss.id)} disabled={!précédente} aria-label="Sous-section précédente" title={précédente ? précédente.ss.titre : ''} style={rond(!!précédente)}>‹</button>
+          <span style={{ flex: 1, minWidth: 0, textAlign: 'center', fontSize: '12px', color: T.textMuted, fontFamily: grotesk, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {i + 1} / {toutes.length}
+          </span>
+          <button onClick={() => changerTaille(-0.1)} aria-label="Texte plus petit" style={rond(échelle > 0.8)}>A−</button>
+          <button onClick={() => changerTaille(0.1)} aria-label="Texte plus grand" style={rond(échelle < 2)}>A+</button>
+          <button onClick={() => suivante && onAller(suivante.ss.id)} disabled={!suivante} aria-label="Sous-section suivante" title={suivante ? suivante.ss.titre : ''} style={rond(!!suivante)}>›</button>
+          <button onClick={onFermer} aria-label="Fermer la lecture" style={{ ...rond(true), marginLeft: '6px' }}>✕</button>
+        </div>
+      </div>
+      <article style={{ maxWidth: '820px', margin: '0 auto', padding: '22px 18px max(40px, env(safe-area-inset-bottom))' }}>
+        <p style={{ margin: '0 0 4px', fontFamily: serif, fontStyle: 'italic', fontSize: `${15 * échelle}px`, color: T.accent }}>{colonne.titre}</p>
+        <h1 style={{ margin: '0 0 18px', fontFamily: grotesk, fontSize: `${26 * échelle}px`, lineHeight: 1.2, color: T.text }}>{ss.titre}</h1>
+        {ss.blocs.length === 0 && <p style={{ color: T.textMuted, fontStyle: 'italic' }}>Sous-section vide.</p>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: `${14 * échelle}px` }}>
+          {ss.blocs.map(b => <VueBloc key={b.id} T={T} bloc={b} lecture échelle={échelle} majBloc={fn => majBloc(ss.id, b.id, fn)} />)}
+        </div>
+        {suivante && (
+          <button onClick={() => onAller(suivante.ss.id)} style={{
+            marginTop: '34px', width: '100%', padding: '14px', borderRadius: '14px', border: `1px dashed ${T.border}`, background: 'transparent',
+            color: T.textMuted, cursor: 'pointer', fontFamily: grotesk, fontSize: '14px', textAlign: 'right',
+          }}>Suivante : <strong style={{ color: T.text }}>{suivante.ss.titre}</strong> ›</button>
+        )}
+      </article>
     </div>
   )
 }
@@ -495,13 +641,14 @@ function BlocsSection({ T, section, lecture, glisser, repérée, édition, setÉ
 
 // Affichage d'un bloc (hors édition). Les cases des listes et les numéros
 // de ligne du code se touchent directement.
-function VueBloc({ T, bloc, lecture, majBloc }) {
+function VueBloc({ T, bloc, lecture, majBloc, échelle = 1 }) {
   if (bloc.type === 'code') {
     return (
       <BlocCode
         code={bloc.texte}
         langage={bloc.langage}
         surlignées={bloc.surlignées || []}
+        taille={12.5 * échelle}
         onBasculerLigne={lecture ? undefined : n => majBloc(b => {
           const s = new Set(b.surlignées || [])
           if (s.has(n)) s.delete(n); else s.add(n)
@@ -516,8 +663,8 @@ function VueBloc({ T, bloc, lecture, majBloc }) {
     const v = VARIANTES[bloc.variante] || VARIANTES.astuce
     return (
       <div style={{ borderLeft: `4px solid ${v.couleur}`, background: `${v.couleur}1f`, borderRadius: '8px', padding: '8px 12px' }}>
-        <p style={{ margin: '0 0 3px', fontSize: '11.5px', fontWeight: 800, color: v.couleur, fontFamily: grotesk, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{v.emoji} {v.nom}</p>
-        <div style={{ fontSize: '14px', lineHeight: 1.55, color: T.text, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><TexteFormaté texte={bloc.texte} couleurDéfaut={T.text} /></div>
+        <p style={{ margin: '0 0 3px', fontSize: `${11.5 * échelle}px`, fontWeight: 800, color: v.couleur, fontFamily: grotesk, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{v.emoji} {v.nom}</p>
+        <div style={{ fontSize: `${14 * échelle}px`, lineHeight: 1.55, color: T.text, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><TexteFormaté texte={bloc.texte} couleurDéfaut={T.text} /></div>
       </div>
     )
   }
@@ -533,12 +680,12 @@ function VueBloc({ T, bloc, lecture, majBloc }) {
           <span style={{ fontSize: '11px', color: T.textMuted, fontFamily: grotesk }}>{faits}/{éléments.length}</span>
         </div>
         {éléments.map(é => (
-          <label key={é.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '3px 0', cursor: 'pointer', fontSize: '14px', lineHeight: 1.45, color: é.fait ? T.textMuted : T.text }}>
+          <label key={é.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '3px 0', cursor: 'pointer', fontSize: `${14 * échelle}px`, lineHeight: 1.45, color: é.fait ? T.textMuted : T.text }}>
             <input
               type="checkbox"
               checked={!!é.fait}
               onChange={() => majBloc(b => ({ ...b, éléments: b.éléments.map(x => (x.id === é.id ? { ...x, fait: !x.fait } : x)) }))}
-              style={{ width: '17px', height: '17px', marginTop: '1px', accentColor: '#4a9d94', flexShrink: 0 }}
+              style={{ width: `${17 * échelle}px`, height: `${17 * échelle}px`, marginTop: `${2 * échelle}px`, accentColor: '#4a9d94', flexShrink: 0 }}
             />
             <span style={{ textDecoration: é.fait ? 'line-through' : 'none' }}><TexteFormaté texte={é.texte} couleurDéfaut={é.fait ? T.textMuted : T.text} /></span>
           </label>
@@ -552,7 +699,7 @@ function VueBloc({ T, bloc, lecture, majBloc }) {
     const cellule = { border: `1px solid ${T.border}`, padding: '6px 9px', textAlign: 'left', verticalAlign: 'top' }
     return (
       <div style={{ overflowX: 'auto', padding: '2px 0' }}>
-        <table style={{ borderCollapse: 'collapse', fontSize: '13px', color: T.text, minWidth: '100%' }}>
+        <table style={{ borderCollapse: 'collapse', fontSize: `${13 * échelle}px`, color: T.text, minWidth: '100%' }}>
           <thead>
             <tr>{Array.from({ length: nbColonnes }, (_, j) => (
               <th key={j} style={{ ...cellule, background: T.surface2, fontWeight: 700, fontFamily: grotesk }}><TexteFormaté texte={entête[j] || ''} couleurDéfaut={T.text} /></th>
@@ -570,7 +717,7 @@ function VueBloc({ T, bloc, lecture, majBloc }) {
     )
   }
   return (
-    <div style={{ fontSize: '14.5px', lineHeight: 1.6, color: T.text, whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '4px 2px' }}>
+    <div style={{ fontSize: `${14.5 * échelle}px`, lineHeight: 1.6, color: T.text, whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '4px 2px' }}>
       <TexteFormaté texte={bloc.texte} couleurDéfaut={T.text} />
     </div>
   )
