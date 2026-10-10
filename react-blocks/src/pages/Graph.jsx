@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import donnéesPerso from '../data/graph-perso.json'
 import donnéesPro from '../data/graph-pro.json'
 import donnéesIdrissiPerso from '../data/graph-idrissi-perso.json'
@@ -679,6 +679,30 @@ export default function Graph() {
     centrerSurBulle(n)
   }
   const allerÀSousSection = id => setSurbrillance({ id, n: Date.now() })
+
+  // Lien venant de la recherche de l'accueil : ?graphe=…&bulle=… ou &section=…
+  const [paramètres, setParamètres] = useSearchParams()
+  useEffect(() => {
+    const voulu = paramètres.get('graphe')
+    const bulle = paramètres.get('bulle')
+    const section = paramètres.get('section')
+    const sous = paramètres.get('sous')
+    if (!voulu && !bulle && !section) return
+    // Attendre la lecture GitHub si l'élément n'est pas encore là.
+    const chargé = !['chargement', 'lecture'].includes(statut)
+    if (voulu && graphe?.id !== voulu) {
+      if (data.graphes.some(g => g.id === voulu)) setGrapheId(voulu)
+      else if (chargé) setParamètres({}, { replace: true })
+      return
+    }
+    if (bulle && !parId.get(bulle) && !chargé) return
+    setParamètres({}, { replace: true })
+    // Laisser le graphe s'afficher (et se centrer) avant de viser.
+    setTimeout(() => {
+      if (bulle && parId.get(bulle)) allerÀBulle(bulle)
+      if (section) setSurbrillance({ id: section, sousSectionId: sous || undefined, n: Date.now() })
+    }, 350)
+  }, [paramètres, graphe?.id, data, statut]) // eslint-disable-line react-hooks/exhaustive-deps
   const notesParBulle = new Map(colonnesGraphe.flatMap(c => c.sousSections.filter(ss => ss.bulleId).map(ss => [ss.bulleId, ss])))
   const majColonnes = fn => majGraphe(g => {
     // eslint-disable-next-line no-unused-vars
@@ -782,7 +806,7 @@ export default function Graph() {
     try {
       const blob = noeuds.length ? await créerImageGraphe() : null
       const image = blob ? await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob) }) : null
-      const html = pageImprimable({ nom: graphe.nom, image, colonnes: colonnesGraphe })
+      const html = pageImprimable({ nom: graphe.nom, image, colonnes: colonnesGraphe, noeuds, liens, imageDe: n => (n.image ? adresseImage(n.image) : null) })
         .replace('</body>', '<script>window.onload = () => setTimeout(() => window.print(), 300)</script></body>')
       fenêtre.document.open()
       fenêtre.document.write(html)
@@ -1603,7 +1627,7 @@ export default function Graph() {
                   { icône: '📋', libellé: 'Coller un plan ou une liste', onClick: () => setDialoguePlan('coller') },
                   { icône: '🕓', libellé: 'Versions précédentes', onClick: () => setVersionsOuvertes(true) },
                   { icône: '⬇️', libellé: 'Exporter en Markdown (.md)', onClick: exporterEnMarkdown },
-                  { icône: '🖨️', libellé: 'Imprimer / enregistrer en PDF', onClick: imprimer },
+                  { icône: '🖨️', libellé: 'PDF structuré (sommaire, chapitres)', onClick: imprimer },
                 ]}
               />
               <BoutonIcone icon="crayon" title="Renommer le graphe" onClick={renommerGraphe} />

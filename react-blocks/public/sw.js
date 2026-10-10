@@ -1,4 +1,4 @@
-const CACHE = 'react-blocs-v2'
+const CACHE = 'react-blocs-v3'
 const APP_SHELL = ['/WebTest/', '/WebTest/index.html']
 
 self.addEventListener('install', e => {
@@ -34,4 +34,14 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(request).then(caché => caché || caches.match('/WebTest/index.html')))
   )
+})
+
+// Toucher le rappel du jour ouvre (ou ramène au premier plan) l'accueil.
+self.addEventListener('notificationclick', e => {
+  e.notification.close()
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(fenêtres => {
+    const ouverte = fenêtres.find(f => f.url.includes('/WebTest/'))
+    if (ouverte) return ouverte.focus()
+    return self.clients.openWindow('/WebTest/')
+  }))
 })

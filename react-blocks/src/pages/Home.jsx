@@ -1,22 +1,6 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { notions } from '../notions'
-import tâchesPerso from '../data/taches-perso.json'
-import tâchesPro from '../data/taches-pro.json'
-import tâchesIdrissiPerso from '../data/taches-idrissi-perso.json'
-import tâchesIdrissiPro from '../data/taches-idrissi-pro.json'
-import notesPerso from '../data/notes-perso.json'
-import notesPro from '../data/notes-pro.json'
-import notesIdrissiPerso from '../data/notes-idrissi-perso.json'
-import notesIdrissiPro from '../data/notes-idrissi-pro.json'
-import mémoPerso from '../data/memoriser-perso.json'
-import mémoPro from '../data/memoriser-pro.json'
-import mémoIdrissiPerso from '../data/memoriser-idrissi-perso.json'
-import mémoIdrissiPro from '../data/memoriser-idrissi-pro.json'
-import graphPerso from '../data/graph-perso.json'
-import graphPro from '../data/graph-pro.json'
-import graphIdrissiPerso from '../data/graph-idrissi-perso.json'
-import graphIdrissiPro from '../data/graph-idrissi-pro.json'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import { TexteFormaté } from '../lib/texteFormate'
@@ -25,24 +9,8 @@ import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import { lireRécents, depuis } from '../lib/recents'
 import { verrouiller } from '../components/Verrou'
 import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
-
-// Données livrées avec le site, si l'appareil n'a pas encore de copie locale.
-const LIVRÉES = {
-  taches: { perso: tâchesPerso, pro: tâchesPro, 'idrissi-perso': tâchesIdrissiPerso, 'idrissi-pro': tâchesIdrissiPro },
-  notes: { perso: notesPerso, pro: notesPro, 'idrissi-perso': notesIdrissiPerso, 'idrissi-pro': notesIdrissiPro },
-  memoriser: { perso: mémoPerso, pro: mémoPro, 'idrissi-perso': mémoIdrissiPerso, 'idrissi-pro': mémoIdrissiPro },
-  graph: { perso: graphPerso, pro: graphPro, 'idrissi-perso': graphIdrissiPerso, 'idrissi-pro': graphIdrissiPro },
-}
-
-// La copie la plus récente sur l'appareil (chaque page la garde à jour),
-// sinon celle du site.
-function lire(outil, espace) {
-  try {
-    const brut = localStorage.getItem(`react-blocs-${outil}-${espace}`)
-    if (brut) return JSON.parse(brut)
-  } catch { /* ignore */ }
-  return LIVRÉES[outil][espace] || {}
-}
+import { useDonnéesFoyer, rechercherPartout, ajouterRapidement, analyserSaisie } from '../lib/donneesFoyer'
+import { rappelsActifs, activerRappels, désactiverRappels, vérifierRappels } from '../lib/rappels'
 
 const aujourdhui = () => new Date().toISOString().slice(0, 10)
 
@@ -63,7 +31,7 @@ function statsMémo(d) {
   const cartes = d.cartes || []
   return { àRéviser: cartes.filter(c => !c.prochaineRevision || c.prochaineRevision <= auj).length, cartes: cartes.length, paquets: (d.paquets || []).length }
 }
-function nomGrapheActif(espace) {
+function nomGrapheActif(lire, espace) {
   const graphes = lire('graph', espace).graphes || []
   const id = localStorage.getItem(`react-blocs-graph-actif-${espace}`)
   return (graphes.find(g => g.id === id) || graphes[0])?.nom
@@ -75,7 +43,7 @@ function hashJour(chaîne) {
   for (let i = 0; i < chaîne.length; i++) h = (h * 31 + chaîne.charCodeAt(i)) >>> 0
   return h
 }
-function carteDuJour(foyer) {
+function carteDuJour(lire, foyer) {
   const toutes = ['perso', 'pro'].flatMap(type => {
     const espace = `${foyer.préfixe}${type}`
     const d = lire('memoriser', espace)
@@ -93,14 +61,14 @@ function salutation(heure) {
 }
 
 // Libellé d'une page récente, d'après son adresse.
-function libelléRécent(chemin) {
+function libelléRécent(lire, chemin) {
   const [, outil, espace] = chemin.split('/')
   const type = espace?.endsWith('pro') ? 'Pro' : 'Perso'
   if (outil === 'taches') return { titre: `Programme ${type.toLowerCase()}`, icône: 'checklist' }
   if (outil === 'notes') return { titre: `Notes ${type.toLowerCase()}`, icône: 'note' }
   if (outil === 'memoriser') return { titre: `Mémoriser ${type.toLowerCase()}`, icône: 'cartes' }
   if (outil === 'graph') {
-    const nom = nomGrapheActif(espace)
+    const nom = nomGrapheActif(lire, espace)
     return { titre: nom ? `${nom}` : 'Graph', détail: `Graph ${type.toLowerCase()}`, icône: 'reseau' }
   }
   if (outil === 'timer') return { titre: 'Timer', icône: 'horloge' }
@@ -122,6 +90,27 @@ export default function Home({ foyerId = 'lebbar' }) {
   const [maintenant, setMaintenant] = useState(() => new Date())
   const [retournée, setRetournée] = useState(false)
   const [coursOuverts, setCoursOuverts] = useState(false)
+  const [rechercheOuverte, setRechercheOuverte] = useState(false)
+  const [rappels, setRappels] = useState(rappelsActifs)
+  const [message, setMessage] = useState(null) // { texte, erreur }
+  const { lire, remplacer, rafraîchir } = useDonnéesFoyer(foyer)
+  const afficher = (texte, erreur = false) => {
+    setMessage({ texte, erreur })
+    setTimeout(() => setMessage(m => (m?.texte === texte ? null : m)), erreur ? 6000 : 3500)
+  }
+
+  // Ctrl+K (ou « / ») ouvre la recherche globale.
+  useEffect(() => {
+    const surTouche = e => {
+      const dansChamp = e.target.closest?.('input, textarea, select')
+      if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !dansChamp)) {
+        e.preventDefault()
+        setRechercheOuverte(true)
+      }
+    }
+    window.addEventListener('keydown', surTouche)
+    return () => window.removeEventListener('keydown', surTouche)
+  }, [])
 
   useEffect(() => {
     const t = setInterval(() => setMaintenant(new Date()), 30000)
@@ -137,22 +126,33 @@ export default function Home({ foyerId = 'lebbar' }) {
   const notes = lire('notes', espace).notes || []
   const mémo = statsMémo(lire('memoriser', espace))
   const graphes = lire('graph', espace).graphes || []
-  const grapheActif = nomGrapheActif(espace)
+  const grapheActif = nomGrapheActif(lire, espace)
   // Résumé du jour sur les deux espaces (perso + pro).
   const total = ['perso', 'pro'].reduce((acc, t) => {
     const e = `${foyer.préfixe}${t}`
     const st = statsTâches(lire('taches', e))
     return { duJour: acc.duJour + st.duJour, enRetard: acc.enRetard + st.enRetard, àRéviser: acc.àRéviser + statsMémo(lire('memoriser', e)).àRéviser }
   }, { duJour: 0, enRetard: 0, àRéviser: 0 })
-  const carte = carteDuJour(foyer)
+  const carte = carteDuJour(lire, foyer)
   const récents = lireRécents()
     .filter(r => {
       const e = r.chemin.split('/')[2]
       return !['taches', 'notes', 'memoriser', 'graph'].includes(r.chemin.split('/')[1]) || foyerDeLEspace(e) === foyer.id
     })
-    .map(r => ({ ...r, ...libelléRécent(r.chemin) }))
+    .map(r => ({ ...r, ...libelléRécent(lire, r.chemin) }))
     .filter(r => r.titre)
     .slice(0, 5)
+
+  // Badge de l'icône et notification du jour (si les rappels sont activés).
+  useEffect(() => { vérifierRappels(total, foyer.nom) }, [total.duJour, total.enRetard, total.àRéviser, rappels]) // eslint-disable-line react-hooks/exhaustive-deps
+  const basculerRappels = async () => {
+    if (rappels) { désactiverRappels(); setRappels(false); afficher('Rappels désactivés'); return }
+    try {
+      await activerRappels()
+      setRappels(true)
+      afficher('🔔 Rappels activés : une notification par jour quand il y a quelque chose à faire')
+    } catch (err) { afficher(err.message, true) }
+  }
 
   const date = maintenant.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
   const heure = maintenant.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
@@ -199,6 +199,7 @@ export default function Home({ foyerId = 'lebbar' }) {
         .tuile:hover { border-color: ${T.accent} !important; transform: translateY(-2px) }
         .ligne-recente:hover { background: ${T.surface2} }
         .grille-outils { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+        @media (max-width: 560px) { .masque-tel { display: none } }
         @media (min-width: 700px) { .grille-outils { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
         @media (min-width: 1000px) { .grille-outils { grid-template-columns: repeat(5, minmax(0, 1fr)) } }
         @media (prefers-reduced-motion: reduce) { .tuile, .tuile:hover { transition: none; transform: none } }
@@ -219,6 +220,20 @@ export default function Home({ foyerId = 'lebbar' }) {
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
+            <button onClick={() => setRechercheOuverte(true)} title="Rechercher partout (Ctrl+K)" aria-label="Rechercher partout" style={{
+              display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', marginRight: '6px', borderRadius: '10px', cursor: 'pointer',
+              background: T.surface, border: `1px solid ${T.border}`, color: T.textMuted, fontFamily: grotesk, fontSize: '13px',
+            }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+              <span className="masque-tel">Rechercher</span>
+              <kbd className="masque-tel" style={{ fontSize: '11px', border: `1px solid ${T.border}`, borderRadius: '5px', padding: '0 5px', fontFamily: grotesk }}>Ctrl K</kbd>
+            </button>
+            <button onClick={basculerRappels} title={rappels ? 'Désactiver les rappels' : 'Activer les rappels'} aria-pressed={rappels} aria-label="Rappels" style={{
+              width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', borderRadius: '7px', cursor: 'pointer',
+              background: rappels ? `${T.accent}26` : 'transparent', color: rappels ? T.accent : T.textMuted,
+            }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />{!rappels && <path d="M3 3l18 18" />}</svg>
+            </button>
             <BoutonIcone icon={mode === 'sombre' ? 'soleil' : 'lune'} title={mode === 'sombre' ? 'Thème clair' : 'Thème sombre'} onClick={basculer} />
             <BoutonIcone icon="cadenas" title="Verrouiller" onClick={verrouiller} />
           </div>
@@ -240,6 +255,8 @@ export default function Home({ foyerId = 'lebbar' }) {
             </Link>
           ))}
         </div>
+
+        <AjoutRapide T={T} espace={espace} type={type} afficher={afficher} onAjouté={(outil, données) => { remplacer(outil, espace, données); setTimeout(() => rafraîchir(true), 4000) }} />
 
         {/* Outils */}
         <div className="grille-outils" style={{ display: 'grid', gap: '10px', marginBottom: '26px' }}>
@@ -326,6 +343,134 @@ export default function Home({ foyerId = 'lebbar' }) {
             </div>
           )}
         </section>
+      </div>
+      {message && (
+        <div role="status" style={{
+          position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 'max(18px, env(safe-area-inset-bottom))', zIndex: 50,
+          maxWidth: 'calc(100vw - 32px)', padding: '11px 16px', borderRadius: '12px', fontSize: '14px', boxShadow: '0 8px 24px rgba(0,0,0,.35)',
+          background: message.erreur ? T.danger : T.text, color: message.erreur ? '#fff' : T.bg,
+        }}>{message.texte}</div>
+      )}
+      {rechercheOuverte && <RechercheGlobale T={T} lire={lire} foyer={foyer} onFermer={() => setRechercheOuverte(false)} />}
+    </div>
+  )
+}
+
+const TYPES_AJOUT = [
+  ['tâche', 'Tâche', 'Appeler le notaire demain #urgent'],
+  ['note', 'Note', 'Titre de la note // texte de la note'],
+  ['carte', 'Carte', 'Question :: réponse #paquet'],
+]
+
+// Ligne « ＋ Ajouter » : une tâche, une note ou une carte, écrite tout de
+// suite dans le bon fichier (Perso ou Pro selon le sélecteur).
+function AjoutRapide({ T, espace, type: typeEspace, afficher, onAjouté }) {
+  const [genre, setGenre] = useState('tâche')
+  const [saisie, setSaisie] = useState('')
+  const [envoi, setEnvoi] = useState(false)
+  const analyse = saisie.trim() ? analyserSaisie(saisie) : null
+  const valider = async e => {
+    e.preventDefault()
+    if (!saisie.trim() || envoi) return
+    setEnvoi(true)
+    try {
+      const { outil, données, résumé } = await ajouterRapidement({ type: genre, espace, saisie })
+      onAjouté(outil, données)
+      setSaisie('')
+      afficher(`✓ ${résumé} (${typeEspace === 'pro' ? 'Pro' : 'Perso'})`)
+    } catch (err) {
+      afficher(err.message, true)
+    } finally {
+      setEnvoi(false)
+    }
+  }
+  const puce = { fontSize: '11.5px', padding: '2px 8px', borderRadius: '20px', background: `${T.accent}1f`, color: T.accent, fontFamily: grotesk, fontWeight: 600 }
+  return (
+    <form onSubmit={valider} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '14px', padding: '6px', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div role="tablist" aria-label="Type à ajouter" style={{ display: 'flex', flexShrink: 0 }}>
+          {TYPES_AJOUT.map(([id, nom]) => (
+            <button key={id} type="button" role="tab" aria-selected={genre === id} onClick={() => setGenre(id)} style={{
+              padding: '7px 10px', border: 'none', borderRadius: '9px', cursor: 'pointer', fontFamily: grotesk, fontSize: '12.5px', fontWeight: 600,
+              background: genre === id ? T.surface2 : 'transparent', color: genre === id ? T.text : T.textMuted,
+            }}>{nom}</button>
+          ))}
+        </div>
+        <input
+          value={saisie}
+          onChange={e => setSaisie(e.target.value)}
+          placeholder={TYPES_AJOUT.find(t => t[0] === genre)[2]}
+          aria-label="Ajouter rapidement"
+          style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: T.text, fontSize: '15px', padding: '8px 6px' }}
+        />
+        <button type="submit" disabled={!saisie.trim() || envoi} aria-label="Ajouter" style={{
+          flexShrink: 0, height: '34px', padding: '0 14px', borderRadius: '10px', border: 'none', fontFamily: grotesk, fontWeight: 700, fontSize: '13px',
+          background: saisie.trim() ? T.accent : T.surface2, color: saisie.trim() ? T.accentText : T.textMuted, cursor: saisie.trim() ? 'pointer' : 'default',
+        }}>{envoi ? '…' : 'Ajouter'}</button>
+      </div>
+      {analyse && genre === 'tâche' && (analyse.date || analyse.étiquettes.length > 0) && (
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', padding: '4px 8px 4px' }}>
+          {analyse.date && <span style={puce}>📅 {new Date(analyse.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}</span>}
+          {analyse.étiquettes.map(é => <span key={é} style={puce}>#{é}</span>)}
+        </div>
+      )}
+    </form>
+  )
+}
+
+const ICÔNES_RÉSULTAT = { tâche: 'checklist', note: 'note', carte: 'cartes', graphe: 'reseau', bulle: 'reseau', section: 'texte' }
+const NOMS_RÉSULTAT = { tâche: 'Tâches', note: 'Notes', carte: 'Cartes', graphe: 'Graphes', bulle: 'Bulles', section: 'Sections de graphe' }
+
+// Palette de recherche : un champ, des résultats groupés, ↑ ↓ Entrée.
+function RechercheGlobale({ T, lire, foyer, onFermer }) {
+  const [q, setQ] = useState('')
+  const [actif, setActif] = useState(0)
+  const naviguer = useNavigate()
+  const listeRef = useRef(null)
+  const résultats = rechercherPartout(lire, foyer, q)
+  const ouvrir = r => { onFermer(); naviguer(r.lien) }
+  useEffect(() => { setActif(0) }, [q])
+  useEffect(() => { listeRef.current?.querySelector('[data-actif="oui"]')?.scrollIntoView({ block: 'nearest' }) }, [actif])
+  const surTouche = e => {
+    if (e.key === 'Escape') { e.preventDefault(); onFermer() }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setActif(a => Math.min(résultats.length - 1, a + 1)) }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActif(a => Math.max(0, a - 1)) }
+    else if (e.key === 'Enter' && résultats[actif]) { e.preventDefault(); ouvrir(résultats[actif]) }
+  }
+  let groupePrécédent = null
+  return (
+    <div role="dialog" aria-label="Recherche globale" onClick={onFermer} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,.5)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: 'max(12px, env(safe-area-inset-top)) 12px 12px' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '640px', marginTop: 'min(10vh, 80px)', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,.45)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderBottom: `1px solid ${T.border}` }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.textMuted} strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+          <input autoFocus value={q} onChange={e => setQ(e.target.value)} onKeyDown={surTouche} placeholder="Tâches, notes, cartes, graphes, sections…" aria-label="Rechercher partout"
+            style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: T.text, fontSize: '16px' }} />
+          <button onClick={onFermer} style={{ background: 'transparent', border: `1px solid ${T.border}`, borderRadius: '6px', color: T.textMuted, fontSize: '11px', padding: '2px 6px', cursor: 'pointer', fontFamily: grotesk }}>Échap</button>
+        </div>
+        <div ref={listeRef} style={{ maxHeight: '60dvh', overflowY: 'auto', padding: '6px' }}>
+          {q.trim().length < 2 && <p style={{ margin: 0, padding: '14px', fontSize: '13px', color: T.textMuted }}>Tape au moins 2 lettres. La recherche couvre Perso et Pro de {foyer.nom}.</p>}
+          {q.trim().length >= 2 && résultats.length === 0 && <p style={{ margin: 0, padding: '14px', fontSize: '13px', color: T.textMuted }}>Aucun résultat pour « {q} ».</p>}
+          {résultats.map((r, i) => {
+            const nouveauGroupe = r.type !== groupePrécédent
+            groupePrécédent = r.type
+            return (
+              <div key={`${r.lien}-${i}`}>
+                {nouveauGroupe && <p style={{ margin: '8px 10px 4px', fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.textMuted, fontFamily: grotesk }}>{NOMS_RÉSULTAT[r.type]}</p>}
+                <button data-actif={i === actif ? 'oui' : 'non'} onMouseEnter={() => setActif(i)} onClick={() => ouvrir(r)} style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '9px 10px', borderRadius: '10px', border: 'none', cursor: 'pointer', textAlign: 'left',
+                  background: i === actif ? T.surface2 : 'transparent', color: T.text,
+                }}>
+                  <span style={{ color: i === actif ? T.accent : T.textMuted }}><Icon nom={ICÔNES_RÉSULTAT[r.type]} taille={16} /></span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: '14px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.titre || '(sans titre)'}</span>
+                    {r.extrait && <span style={{ display: 'block', fontSize: '12px', color: T.textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.extrait}</span>}
+                  </span>
+                  <span style={{ fontSize: '11px', color: T.textMuted, flexShrink: 0, fontFamily: grotesk }}>{r.espace}</span>
+                </button>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

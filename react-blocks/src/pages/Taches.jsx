@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import donnéesPerso from '../data/taches-perso.json'
 import donnéesPro from '../data/taches-pro.json'
 import donnéesIdrissiPerso from '../data/taches-idrissi-perso.json'
 import donnéesIdrissiPro from '../data/taches-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
+import { useRelectureAuRetour } from '../lib/synchro'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
@@ -63,6 +64,7 @@ export default function Taches() {
   const [éditionId, setÉditionId] = useState(null)
   const [texteÉdition, setTexteÉdition] = useState('')
   const [détailsId, setDétailsId] = useState(null)
+  const [carteRepérée, setCarteRepérée] = useState(null)
   const [nouvelItem, setNouvelItem] = useState({})
   const [colonneÉditionId, setColonneÉditionId] = useState(null)
   const [titreÉdition, setTitreÉdition] = useState('')
@@ -71,6 +73,19 @@ export default function Taches() {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '')
   const [tokenSaisi, setTokenSaisi] = useState('')
   const [statutSync, setStatutSync] = useState(token ? 'chargement' : 'lecture')
+  // Lien venant de la recherche de l'accueil : ?carte=… ouvre ses détails,
+  // fait défiler jusqu'à elle et la met en évidence.
+  const [paramètres, setParamètres] = useSearchParams()
+  useEffect(() => {
+    const id = paramètres.get('carte')
+    if (!id) return
+    if (!data.cartes.some(c => c.id === id) && ['chargement', 'lecture'].includes(statutSync)) return // attendre GitHub
+    setParamètres({}, { replace: true })
+    setDétailsId(id)
+    setCarteRepérée(id)
+    setTimeout(() => document.querySelector(`[data-carte="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250)
+    setTimeout(() => setCarteRepérée(null), 3000)
+  }, [paramètres, data, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
   const [erreurSync, setErreurSync] = useState('')
   const [syncOuvert, setSyncOuvert] = useState(false)
   const [étiquettesOuvert, setÉtiquettesOuvert] = useState(false)
@@ -128,6 +143,14 @@ export default function Taches() {
   // Lecture depuis le fichier data/taches-{espace}.json du dépôt GitHub
   // (fonctionne sans token car le dépôt est public) — c'est ce qui permet
   // de retrouver les mêmes données sur n'importe quel ordinateur.
+  // Relecture de GitHub au retour sur l'app, seulement si tout est envoyé.
+  const [relecture, setRelecture] = useState(0)
+  const donnéesActuellesRef = useRef(data)
+  donnéesActuellesRef.current = data
+  useRelectureAuRetour(() => {
+    if (prêtPourSyncRef.current && JSON.stringify(donnéesActuellesRef.current) === dernierEnvoiRef.current) setRelecture(r => r + 1)
+  })
+
   useEffect(() => {
     let annulé = false
     setStatutSync(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
@@ -148,7 +171,7 @@ export default function Taches() {
       })
       .finally(() => { prêtPourSyncRef.current = true })
     return () => { annulé = true }
-  }, [token, config.chemin])
+  }, [token, config.chemin, relecture])
 
   // Replanifie une fois, au premier chargement, les cartes récurrentes qui
   // n'ont pas encore de copie dans la timeline pour aujourd'hui.
@@ -922,11 +945,13 @@ export default function Taches() {
                   return (
                     <div
                       key={carte.id}
+                      data-carte={carte.id}
                       draggable
                       onDragStart={() => { dragCarte.current = carte.id }}
                       style={{
                         background: T.surface2, borderRadius: '10px', padding: '10px 10px 6px',
-                        border: `1px solid ${T.border}`,
+                        border: `1px solid ${carteRepérée === carte.id ? T.accent : T.border}`,
+                        boxShadow: carteRepérée === carte.id ? `0 0 0 3px ${T.accent}55` : 'none', transition: 'box-shadow .3s, border-color .3s',
                       }}
                     >
                       {éditionId === carte.id ? (

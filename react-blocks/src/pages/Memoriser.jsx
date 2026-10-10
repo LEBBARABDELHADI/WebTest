@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import donnéesPerso from '../data/memoriser-perso.json'
 import donnéesPro from '../data/memoriser-pro.json'
 import donnéesIdrissiPerso from '../data/memoriser-idrissi-perso.json'
 import donnéesIdrissiPro from '../data/memoriser-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
+import { useRelectureAuRetour } from '../lib/synchro'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
@@ -141,6 +142,19 @@ export default function Memoriser() {
   const [paquetÉditionId, setPaquetÉditionId] = useState(null)
   const [nomÉditionPaquet, setNomÉditionPaquet] = useState('')
   const [rechercheCarte, setRechercheCarte] = useState('')
+  // Lien venant de la recherche de l'accueil : ?carte=… ouvre son paquet
+  // filtré sur cette carte.
+  const [paramètres, setParamètres] = useSearchParams()
+  useEffect(() => {
+    const id = paramètres.get('carte')
+    if (!id) return
+    const carte = data.cartes.find(c => c.id === id)
+    if (!carte && ['chargement', 'lecture'].includes(statutSync)) return // attendre GitHub
+    setParamètres({}, { replace: true })
+    if (!carte) return
+    setPaquetOuvertId(carte.paquetId)
+    setRechercheCarte(texteBrut(carte.recto || '').slice(0, 40))
+  }, [paramètres, data, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionCarteId, setÉditionCarteId] = useState(null)
   const [éditionRecto, setÉditionRecto] = useState('')
@@ -196,6 +210,14 @@ export default function Memoriser() {
 
   // Lecture depuis le fichier data/memoriser-{espace}.json du dépôt GitHub
   // (fonctionne sans token car le dépôt est public).
+  // Relecture de GitHub au retour sur l'app, seulement si tout est envoyé.
+  const [relecture, setRelecture] = useState(0)
+  const donnéesActuellesRef = useRef(data)
+  donnéesActuellesRef.current = data
+  useRelectureAuRetour(() => {
+    if (prêtPourSyncRef.current && JSON.stringify(donnéesActuellesRef.current) === dernierEnvoiRef.current) setRelecture(r => r + 1)
+  })
+
   useEffect(() => {
     let annulé = false
     setStatutSync(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
@@ -215,7 +237,7 @@ export default function Memoriser() {
       })
       .finally(() => { prêtPourSyncRef.current = true })
     return () => { annulé = true }
-  }, [token, config.chemin])
+  }, [token, config.chemin, relecture])
 
   // Écriture différée vers GitHub après chaque modification, si un token
   // est configuré (le même que pour Programme/Notes).

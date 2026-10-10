@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import donnéesNotesPerso from '../data/notes-perso.json'
 import donnéesNotesPro from '../data/notes-pro.json'
 import donnéesNotesIdrissiPerso from '../data/notes-idrissi-perso.json'
 import donnéesNotesIdrissiPro from '../data/notes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
+import { useRelectureAuRetour } from '../lib/synchro'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
@@ -391,6 +392,16 @@ export default function Notes() {
   const [sectionSurvolée, setSectionSurvolée] = useState(null)
   const [catégorieChoisie, setCatégorieChoisie] = useState('autres')
   const [noteEnPleinÉcran, setNoteEnPleinÉcran] = useState(null)
+  // Lien venant de la recherche de l'accueil : ?note=… ouvre la note.
+  const [paramètres, setParamètres] = useSearchParams()
+  useEffect(() => {
+    const id = paramètres.get('note')
+    if (!id) return
+    const trouvée = data.notes.some(n => n.id === id)
+    if (!trouvée && ['chargement', 'lecture'].includes(statutSync)) return // attendre GitHub
+    setParamètres({}, { replace: true })
+    if (trouvée) setNoteEnPleinÉcran(id)
+  }, [paramètres, data, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
   const [archivesOuvertes, setArchivesOuvertes] = useState(false)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
@@ -402,6 +413,14 @@ export default function Notes() {
   useEffect(() => {
     localStorage.setItem(config.stockage, JSON.stringify(data))
   }, [data, config.stockage])
+
+  // Relecture de GitHub au retour sur l'app, seulement si tout est envoyé.
+  const [relecture, setRelecture] = useState(0)
+  const donnéesActuellesRef = useRef(data)
+  donnéesActuellesRef.current = data
+  useRelectureAuRetour(() => {
+    if (prêtPourSyncRef.current && JSON.stringify(donnéesActuellesRef.current) === dernierEnvoiRef.current) setRelecture(r => r + 1)
+  })
 
   useEffect(() => {
     let annulé = false
@@ -422,7 +441,7 @@ export default function Notes() {
       })
       .finally(() => { prêtPourSyncRef.current = true })
     return () => { annulé = true }
-  }, [token, config.chemin])
+  }, [token, config.chemin, relecture])
 
   useEffect(() => {
     if (!token) return
