@@ -118,11 +118,11 @@ function chargerImage(src) {
 // bulles  : [{ x, y, l, h, texte, racine, couleur, image (adresse|null), badge }]
 // branches: [{ de: {x,y}, vers: {x,y}, couleur }]
 // liens   : [{ p0, k | points, p1, milieu, sens, texte }]
-export async function exporterGraphePNG({ bulles, branches, liens, séparateurs = [], lignes = [], couleurs, polices }) {
+export async function exporterGraphePNG({ bulles, branches, liens, séparateurs = [], lignes = [], zones = [], couleurs, polices }) {
   const images = await Promise.all(bulles.map(b => chargerImage(b.image)))
 
-  const xs = bulles.flatMap(b => [b.x - b.l / 2, b.x + b.l / 2]).concat(liens.map(l => l.milieu.x), lignes.flatMap(l => [l.x1, l.x2]))
-  const ys = bulles.flatMap(b => [b.y - b.h / 2, b.y + b.h / 2]).concat(liens.map(l => l.milieu.y), lignes.flatMap(l => [l.y1, l.y2]))
+  const xs = bulles.flatMap(b => [b.x - b.l / 2, b.x + b.l / 2]).concat(liens.map(l => l.milieu.x), lignes.flatMap(l => [l.x1, l.x2]), zones.flatMap(z => [z.x, z.x + z.l]))
+  const ys = bulles.flatMap(b => [b.y - b.h / 2, b.y + b.h / 2]).concat(liens.map(l => l.milieu.y), lignes.flatMap(l => [l.y1, l.y2]), zones.flatMap(z => [z.y, z.y + z.h]))
   const minX = Math.min(...xs) - MARGE
   const minY = Math.min(...ys) - MARGE
   const largeur = Math.max(...xs) + MARGE - minX
@@ -138,6 +138,28 @@ export async function exporterGraphePNG({ bulles, branches, liens, séparateurs 
   ctx.fillStyle = couleurs.fond
   ctx.fillRect(minX, minY, largeur, hauteur)
   ctx.lineCap = 'round'
+
+  // Zones (cadres de fond avec titre)
+  zones.forEach(z => {
+    ctx.save()
+    rectangleArrondi(ctx, z.x, z.y, z.l, z.h, 18)
+    ctx.globalAlpha = 0.09
+    ctx.fillStyle = z.couleur
+    ctx.fill()
+    ctx.globalAlpha = 0.75
+    ctx.setLineDash([9, 7])
+    ctx.lineWidth = 2
+    ctx.strokeStyle = z.couleur
+    ctx.stroke()
+    ctx.setLineDash([])
+    ctx.globalAlpha = 1
+    ctx.fillStyle = z.couleur
+    ctx.font = `700 14px ${polices.sans}`
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'top'
+    ctx.fillText(z.titre || 'Zone', z.x + 14, z.y + 10)
+    ctx.restore()
+  })
 
   // Séparateurs entre les arbres
   séparateurs.forEach(l => {

@@ -20,7 +20,7 @@ import { useDonnéesSynchronisées } from '../lib/synchro'
 import { listerVersions, lireVersion } from '../lib/githubSync'
 import {
   ÉCART_X, ÉCART_Y, compléterGraphes, uid, descendants, bullesCachées, ancêtres, ranger,
-  géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation, TRACÉS,
+  géométrieLien, MODÈLES, ÉTIQUETTES_LIENS, instancierModèle, zoneAutour, FORMES, ICÔNES, CHEMIN_NUAGE, ordrePrésentation, TRACÉS,
   TAILLES_BULLES, facteurTaille, planTexte, analyserPlan, copierBranches, dupliquerCopie, aligner, séparateursArbres,
 } from '../lib/graphe'
 import { exporterGraphePNG } from '../lib/exportGraphe'
@@ -82,6 +82,7 @@ export default function Graph() {
     : noeudsBruts), [noeudsBruts, déplacement])
   const liens = graphe?.liens || []
   const lignes = graphe?.lignes || []
+  const zones = graphe?.zones || []
 
   const [vue, setVue] = useState({ x: 0, y: 0, zoom: 1 })
   const [sélection, setSélection] = useState(null)
@@ -112,6 +113,13 @@ export default function Graph() {
     try { return { ...STYLE_LIGNE_DÉFAUT, ...JSON.parse(localStorage.getItem('react-blocs-style-ligne')) } } catch { return STYLE_LIGNE_DÉFAUT }
   })
   const mondeRef = useRef(null)
+  // Zones : cadres de fond { id, titre, couleur, x, y, l, h }
+  const [zoneChoisie, setZoneChoisie] = useState(null)
+  const [zoneTemp, setZoneTemp] = useState(null)
+  const zoneTempRef = useRef(null)
+  const [guides, setGuides] = useState(null) // lignes d'alignement pendant un glissement { x?, y? }
+  const [aimant, setAimant] = useState(() => localStorage.getItem('react-blocs-graph-aimant') === 'oui')
+  const [miniCarte, setMiniCarte] = useState(() => localStorage.getItem('react-blocs-graph-minicarte') !== 'non')
   const rafRef = useRef(null)
   const mouvementRef = useRef(null)
   const vueDirecteRef = useRef(false)
@@ -325,7 +333,7 @@ export default function Graph() {
     setVersionHistorique(v => v + 1)
   }
   const oublierSélection = () => {
-    setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false); setMulti([]); setLigneChoisie(null)
+    setSélection(null); setTraitChoisi(null); setRattachement(false); setLiaison(false); setPaletteOuverte(false); setMulti([]); setLigneChoisie(null); setZoneChoisie(null)
   }
   const voyager = (depuis, vers, libellé) => {
     const h = historiqueRef.current
@@ -360,6 +368,7 @@ export default function Graph() {
           setMulti(visibles.map(n => n.id))
           return
         }
+        if (e.key === 'Escape' && zoneChoisie) { setZoneChoisie(null); return }
         if (e.key === 'Escape' && (modeLigne || ligneChoisie)) { setModeLigne(false); setLigneChoisie(null); setLigneTemp(null); return }
         if (e.key === 'Escape' && (multi.length || modeCadre)) { setMulti([]); setModeCadre(false); return }
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd' && graphe && !édition) {
@@ -384,6 +393,7 @@ export default function Graph() {
         // Suppr / Retour arrière : supprime ce qui est sélectionné (lien,
         // branche détachée, bulle ou groupe de bulles).
         if ((e.key === 'Delete' || e.key === 'Backspace') && !agrandie && !édition && graphe) {
+          if (zoneChoisie) { e.preventDefault(); supprimerZone(zoneChoisie); return }
           if (ligneChoisie) { e.preventDefault(); supprimerLigne(ligneChoisie); return }
           if (traitChoisi?.type === 'lien') { e.preventDefault(); supprimerLien(traitChoisi.id); setTraitChoisi(null); afficher('Lien supprimé'); return }
           if (traitChoisi?.type === 'branche') { e.preventDefault(); détacher(traitChoisi.id); setTraitChoisi(null); afficher('Branche détachée'); return }
@@ -450,16 +460,53 @@ export default function Graph() {
   const majNoeuds = (fn, garderTrace = true) => majGraphe(g => ({ ...g, noeuds: fn(g.noeuds) }), garderTrace)
 
   const créerGraphe = (nom, modèleId) => {
+    const perso = modèleId?.startsWith('perso:') && (data.modèles || []).find(m => `perso:${m.id}` === modèleId)
     const modèle = MODÈLES.find(m => m.id === modèleId) || MODÈLES[0]
-    const { noeuds: bulles, liens: traits } = modèle.créer(nom)
-    const nouveau = { id: uid(), nom, noeuds: bulles, liens: traits }
+    const contenu = perso ? instancierModèle(perso.contenu) : modèle.créer(nom)
+    const bulles = contenu.noeuds
+    const nouveau = { id: uid(), nom, ...contenu }
     mémoriser()
     setData(d => ({ ...d, graphes: [...d.graphes, nouveau] }))
     setGrapheId(nouveau.id)
     oublierSélection()
-    setSélection(bulles[0].id)
+    if (bulles[0]) setSélection(bulles[0].id)
     setCréation(false)
   }
+  // Modèles perso : enregistrés dans le fichier de l'espace (synchronisés).
+  const modèlesPerso = (data.modèles || []).map(m => ({ id: `perso:${m.id}`, emoji: '⭐', nom: m.nom, description: m.description, perso: true }))
+  const tousModèles = [...MODÈLES, ...modèlesPerso]
+  const enregistrerModèle = () => {
+    const nom = window.prompt('Nom du modèle ?', graphe.nom)
+    if (!nom || !nom.trim()) return
+    // eslint-disable-next-line no-unused-vars
+    const { id, nom: _n, ...contenu } = graphe
+    const modèle = { id: uid(), nom: nom.trim(), description: `${noeudsBruts.length} bulles${(graphe.colonnes || []).some(c => c.sousSections?.length) ? ' + sections' : ''}`, contenu }
+    mémoriser()
+    setData(d => ({ ...d, modèles: [...(d.modèles || []), modèle] }))
+    afficher(`⭐ Modèle « ${modèle.nom} » enregistré : choisis-le en créant un graphe`)
+  }
+  const supprimerModèle = idPerso => {
+    const id = idPerso.replace(/^perso:/, '')
+    const m = (data.modèles || []).find(x => x.id === id)
+    if (!m || !window.confirm(`Supprimer le modèle « ${m.nom} » ?`)) return
+    setData(d => ({ ...d, modèles: (d.modèles || []).filter(x => x.id !== id) }))
+  }
+
+  // ---------- Zones ----------
+  const COULEURS_ZONE = ['#5b8dc9', '#4a9d94', '#f0a839', '#e2574c', '#8b7ab8', '#8a8174']
+  const ajouterZone = (bullesDedans = null) => {
+    const { l, h } = dimensions()
+    const cadre = bullesDedans?.length
+      ? zoneAutour(bullesDedans, tailleDe)
+      : { x: (l / 2 - vue.x) / vue.zoom - 160, y: (h / 2 - vue.y) / vue.zoom - 100, l: 320, h: 200 }
+    const zone = { id: uid(), titre: 'Zone', couleur: COULEURS_ZONE[zones.length % COULEURS_ZONE.length], ...cadre }
+    majGraphe(g => ({ ...g, zones: [...(g.zones || []), zone] }))
+    oublierSélection()
+    setZoneChoisie(zone.id)
+  }
+  const majZone = (id, patch, garderTrace = true) => majGraphe(g => ({ ...g, zones: (g.zones || []).map(z => (z.id === id ? { ...z, ...patch } : z)) }), garderTrace)
+  const supprimerZone = id => { majGraphe(g => ({ ...g, zones: (g.zones || []).filter(z => z.id !== id) })); setZoneChoisie(null) }
+  const définirZoneTemp = z => { zoneTempRef.current = z; setZoneTemp(z) }
   const renommerGraphe = () => {
     const nom = window.prompt('Nouveau nom du graphe ?', graphe.nom)
     if (nom && nom.trim()) majGraphe(g => ({ ...g, nom: nom.trim() }))
@@ -814,6 +861,7 @@ export default function Graph() {
         liens: liensVisibles.map(({ l, géo }) => ({ ...géo, sens: l.sens || 'aucun', texte: l.texte || '' })),
         séparateurs: graphe.séparer ? séparateursArbres(visibles, tailleDe) : [],
         lignes,
+        zones,
         couleurs: { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent },
         polices: { serif, sans: getComputedStyle(document.body).fontFamily, mono: POLICE_CODE },
       })
@@ -946,6 +994,17 @@ export default function Graph() {
     const bulle = e.target.closest('[data-noeud]')
     const départ = { x: e.clientX, y: e.clientY }
     // Lignes libres : poignée d'une extrémité, tracé d'une nouvelle ligne, ligne entière.
+    const zoneTitre = e.target.closest('[data-zone]')
+    const zoneCoin = e.target.closest('[data-zone-taille]')
+    if (zoneTitre || zoneCoin) {
+      const z = zones.find(x => x.id === (zoneTitre ? zoneTitre.dataset.zone : zoneCoin.dataset.zoneTaille))
+      if (z) {
+        // Bulles dont le centre est dans la zone : elles suivent la zone.
+        const dedans = noeuds.filter(n => n.x >= z.x && n.x <= z.x + z.l && n.y >= z.y && n.y <= z.y + z.h && !n.verrouillé).map(n => n.id)
+        gesteRef.current = { type: zoneTitre ? 'zone' : 'zoneTaille', id: z.id, départ, orig: z, membres: new Set(dedans), déplacé: false }
+        return
+      }
+    }
     const poignéeEl = e.target.closest('[data-poignee]')
     if (poignéeEl) {
       const l = lignes.find(x => x.id === poignéeEl.dataset.ligneId)
@@ -1033,6 +1092,20 @@ export default function Graph() {
       setCadre({ x0: g.origine.x, y0: g.origine.y, x1: g.origine.x + dx, y1: g.origine.y + dy })
       return
     }
+    if (g.type === 'zone' || g.type === 'zoneTaille') {
+      if (!g.déplacé) mémoriser()
+      g.déplacé = true
+      const z = vueRef.current.zoom
+      if (g.type === 'zone') {
+        définirZoneTemp({ id: g.id, x: g.orig.x + dx / z, y: g.orig.y + dy / z })
+        const d = { ids: g.membres, dx: dx / z, dy: dy / z }
+        déplacementRef.current = d
+        setDéplacement(d)
+      } else {
+        définirZoneTemp({ id: g.id, l: Math.max(140, g.orig.l + dx / z), h: Math.max(90, g.orig.h + dy / z) })
+      }
+      return
+    }
     if (g.type === 'tracer') {
       g.déplacé = true
       const p1 = aligné(g.p0, versMonde(e.clientX, e.clientY), e.shiftKey)
@@ -1073,7 +1146,26 @@ export default function Graph() {
         àDéplacer.add(id)
         if (parId.get(id)?.replié) descendants(noeuds, id).forEach(d => àDéplacer.add(d))
       })
-      const d = { ids: àDéplacer, dx: dx / z, dy: dy / z }
+      // Alignement : la bulle s'accroche au centre d'une autre bulle proche
+      // (ligne guide), sinon à la grille si l'aimant est actif.
+      let ddx = dx / z
+      let ddy = dy / z
+      const cible = { x: g.pos0.x + ddx, y: g.pos0.y + ddy }
+      const seuil = 7 / z
+      let gx = null
+      let gy = null
+      visibles.forEach(o => {
+        if (àDéplacer.has(o.id)) return
+        if (Math.abs(o.x - cible.x) < seuil && (gx === null || Math.abs(o.x - cible.x) < Math.abs(gx - cible.x))) gx = o.x
+        if (Math.abs(o.y - cible.y) < seuil && (gy === null || Math.abs(o.y - cible.y) < Math.abs(gy - cible.y))) gy = o.y
+      })
+      const PAS = 24
+      const x = gx ?? (aimant ? Math.round(cible.x / PAS) * PAS : cible.x)
+      const y = gy ?? (aimant ? Math.round(cible.y / PAS) * PAS : cible.y)
+      ddx = x - g.pos0.x
+      ddy = y - g.pos0.y
+      setGuides(gx !== null || gy !== null ? { x: gx, y: gy } : null)
+      const d = { ids: àDéplacer, dx: ddx, dy: ddy }
       déplacementRef.current = d
       setDéplacement(d)
     } else {
@@ -1088,6 +1180,26 @@ export default function Graph() {
     const g = gesteRef.current
     if (!g) return
     if (pointeursRef.current.size === 0) validerVue()
+    setGuides(null)
+    if (g.type === 'zone' || g.type === 'zoneTaille') {
+      if (pointeursRef.current.size === 0) gesteRef.current = null
+      const temp = zoneTempRef.current
+      const dép = déplacementRef.current
+      définirZoneTemp(null)
+      déplacementRef.current = null
+      if (g.déplacé && temp) {
+        majGraphe(gr => ({
+          ...gr,
+          zones: (gr.zones || []).map(z => (z.id === g.id ? { ...z, ...temp } : z)),
+          noeuds: dép ? gr.noeuds.map(n => (dép.ids.has(n.id) ? { ...n, x: n.x + dép.dx, y: n.y + dép.dy } : n)) : gr.noeuds,
+        }), false)
+        setDéplacement(null)
+      } else if (!g.déplacé) {
+        setSélection(null); setTraitChoisi(null); setMulti([]); setLigneChoisie(null); setPaletteOuverte(false)
+        setZoneChoisie(g.id)
+      }
+      return
+    }
     // Fin d'un glissement de bulles : on enregistre la position une fois.
     if (g.type === 'bulle' && déplacementRef.current) {
       const { ids, dx: ddx, dy: ddy } = déplacementRef.current
@@ -1146,7 +1258,7 @@ export default function Graph() {
       allerÀÉtape(présentation.étape + (e.clientX - gauche < l / 4 ? -1 : 1))
       return
     }
-    if (g.type === 'bulle') { setMulti([]); setLigneChoisie(null); touche(g.id) }
+    if (g.type === 'bulle') { setMulti([]); setLigneChoisie(null); setZoneChoisie(null); touche(g.id) }
     else if (g.trait && !liaison && !rattachement) { setTraitChoisi(g.trait); setSélection(null); setPaletteOuverte(false); setLigneChoisie(null) }
     else oublierSélection()
   }
@@ -1318,7 +1430,12 @@ export default function Graph() {
           willChange: 'transform',
           transition: présentation && transitionVue ? 'transform .8s cubic-bezier(.45, 0, .2, 1)' : 'none',
         }}>
+          {zones.map(z => (
+            <ZoneGraphe key={z.id} T={T} zone={zoneTemp?.id === z.id ? { ...z, ...zoneTemp } : z} choisie={z.id === zoneChoisie} interactive={!présentation} />
+          ))}
           <svg width="1" height="1" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
+            {guides?.x != null && <line x1={guides.x} x2={guides.x} y1={-100000} y2={100000} stroke={T.accent} strokeWidth="1.5" strokeDasharray="6 5" vectorEffect="non-scaling-stroke" />}
+            {guides?.y != null && <line y1={guides.y} y2={guides.y} x1={-100000} x2={100000} stroke={T.accent} strokeWidth="1.5" strokeDasharray="6 5" vectorEffect="non-scaling-stroke" />}
             <defs>
               <marker id="pointe" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill={T.accent} />
@@ -1469,6 +1586,11 @@ export default function Graph() {
         <button onClick={() => setAgrandi(a => !a)} aria-label={agrandi ? 'Réduire' : 'Agrandir'} title={agrandi ? 'Réduire' : 'Plein écran'} style={{ ...boutonFlottant(), fontSize: '15px' }}>{agrandi ? '✕' : '⛶'}</button>
         {graphe && <button onClick={() => setRecherche(r => (r ? null : { q: '', index: 0 }))} aria-label="Rechercher" title="Rechercher" style={{ ...boutonFlottant(), fontSize: '15px' }}>🔍</button>}
         {graphe && noeuds.length > 0 && (
+          <button onClick={() => setMiniCarte(m => { try { localStorage.setItem('react-blocs-graph-minicarte', m ? 'non' : 'oui') } catch { /* ignore */ } return !m })}
+            aria-pressed={miniCarte} aria-label="Mini-carte" title="Mini-carte"
+            style={{ ...boutonFlottant(), fontSize: '15px', ...(miniCarte ? { borderColor: T.accent } : {}) }}>🗺️</button>
+        )}
+        {graphe && noeuds.length > 0 && (
           <button onClick={exporter} disabled={exportÉtat?.enCours} aria-label="Exporter en image" title="Exporter en image PNG" style={{ ...boutonFlottant(), fontSize: '15px' }}>
             {exportÉtat?.enCours ? '⏳' : '📤'}
           </button>
@@ -1560,6 +1682,14 @@ export default function Graph() {
           <button onClick={() => setModeLigne(false)} style={boutonBandeau}>Annuler</button>
         </div>
       )}
+      {zoneChoisie && zones.find(z => z.id === zoneChoisie) && !présentation && (
+        <BarreZone T={T} zone={zones.find(z => z.id === zoneChoisie)} couleurs={COULEURS_ZONE} mémoriser={mémoriser}
+          majZone={(patch, trace) => majZone(zoneChoisie, patch, trace)} supprimer={() => supprimerZone(zoneChoisie)} fermer={() => setZoneChoisie(null)} />
+      )}
+      {miniCarte && !présentation && noeuds.length > 1 && !noeudSélectionné && !traitChoisi && !objetLigneChoisie && !zoneChoisie && multiSet.size === 0 && (
+        <MiniCarte T={T} bulles={visibles} zones={zones} tailleDe={tailleDe} vue={vueAffichée} dimensions={dimensions}
+          onAller={(x, y) => { const { l, h } = dimensions(); setVue(v => ({ ...v, x: l / 2 - x * v.zoom, y: h / 2 - y * v.zoom })) }} />
+      )}
       {objetLigneChoisie && !présentation && (
         <BarreLigne T={T} ligne={objetLigneChoisie} mémoriser={mémoriser} majLigne={patch => majLigne(objetLigneChoisie.id, patch)} majLigneSansTrace={patch => majLigne(objetLigneChoisie.id, patch, false)}
           supprimer={() => supprimerLigne(objetLigneChoisie.id)} fermer={() => setLigneChoisie(null)} />
@@ -1588,6 +1718,10 @@ export default function Graph() {
                 fontSize: '12.5px', fontWeight: 600, cursor: inutile ? 'default' : 'pointer', fontFamily: grotesk, opacity: inutile ? 0.4 : 1,
               }}>{libellé}</button>
             ))}
+            <button onClick={() => ajouterZone(multiNoeuds)} style={{
+              background: T.surface2, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '8px 10px',
+              fontSize: '12.5px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+            }}>▢ Zone</button>
             {[['📄 Copier', () => { const r = copierSélection(); if (r) afficher(`📄 ${r.copie.noeuds.length} bulle(s) copiée(s) — « Coller » ou Ctrl+V`) }], ['⧉ Dupliquer', dupliquer]].map(([libellé, fn]) => (
               <button key={libellé} onClick={fn} style={{
                 background: T.surface2, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '8px 10px',
@@ -1811,11 +1945,15 @@ export default function Graph() {
                 actuelId={graphe?.id}
                 onChoisir={id => { setGrapheId(id); oublierSélection(); setRecherche(null) }}
                 onCréer={créerGraphe}
+                modèles={tousModèles}
                 actions={[
                   { icône: '☰', libellé: 'Séparer les arbres', actif: !!graphe?.séparer, onClick: basculerSéparer },
                   { icône: '📝', libellé: 'Voir et copier le plan (texte)', onClick: () => setDialoguePlan('voir') },
                   { icône: '📋', libellé: 'Coller un plan ou une liste', onClick: () => setDialoguePlan('coller') },
                   { icône: '🕓', libellé: 'Versions précédentes', onClick: () => setVersionsOuvertes(true) },
+                  { icône: '▢', libellé: 'Nouvelle zone (cadre de fond)', onClick: () => ajouterZone() },
+                  { icône: '🧲', libellé: 'Grille magnétique', actif: aimant, onClick: () => setAimant(a => { try { localStorage.setItem('react-blocs-graph-aimant', a ? 'non' : 'oui') } catch { /* ignore */ } return !a }) },
+                  { icône: '⭐', libellé: 'Enregistrer comme modèle', onClick: enregistrerModèle },
                   { icône: '⬇️', libellé: 'Exporter en Markdown (.md)', onClick: exporterEnMarkdown },
                   { icône: '🖨️', libellé: 'PDF structuré (sommaire, chapitres)', onClick: imprimer },
                 ]}
@@ -1845,7 +1983,7 @@ export default function Graph() {
         )}
       </div>
 
-      {création && <DialogueCréation T={T} onCréer={créerGraphe} onFermer={() => setCréation(false)} />}
+      {création && <DialogueCréation T={T} modèles={tousModèles} onSupprimerModèle={supprimerModèle} onCréer={créerGraphe} onFermer={() => setCréation(false)} />}
       {dialoguePlan && graphe && (
         <DialoguePlan
           T={T}
@@ -1956,6 +2094,7 @@ export default function Graph() {
             Sur iPhone : appui long sur l'image → « Enregistrer dans Photos », ou « Partager ».
           </p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button onClick={() => { fermerExport(); imprimer() }} title="PDF structuré : sommaire, structure, sections" style={{ padding: '11px 16px', borderRadius: '12px', background: '#2c2c2e', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: grotesk, fontWeight: 700 }}>📄 PDF</button>
             {partagePossible && (
               <button onClick={() => navigator.share({ files: [fichierExport], title: exportÉtat.nom }).catch(() => {})} style={{ padding: '11px 16px', borderRadius: '12px', background: T.accent, color: T.accentText, border: 'none', cursor: 'pointer', fontFamily: grotesk, fontWeight: 700 }}>Partager</button>
             )}
@@ -1969,10 +2108,10 @@ export default function Graph() {
 }
 
 // Création d'un graphe : nom + choix d'un modèle de départ.
-function DialogueCréation({ T, onCréer, onFermer }) {
+function DialogueCréation({ T, modèles = MODÈLES, onSupprimerModèle, onCréer, onFermer }) {
   const [nom, setNom] = useState('')
   const [modèleId, setModèleId] = useState('vide')
-  const modèle = MODÈLES.find(m => m.id === modèleId)
+  const modèle = modèles.find(m => m.id === modèleId)
   const valider = () => onCréer(nom.trim() || (modèleId === 'vide' ? 'Nouveau graphe' : modèle.nom), modèleId)
   return (
     <div role="dialog" aria-label="Nouveau graphe" onKeyDown={e => { if (e.key === 'Escape') onFermer() }} style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
@@ -1989,16 +2128,21 @@ function DialogueCréation({ T, onCréer, onFermer }) {
         />
         <p style={{ margin: '0 0 8px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>Modèle</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '8px' }}>
-          {MODÈLES.map(m => {
+          {modèles.map(m => {
             const actif = m.id === modèleId
             return (
               <button key={m.id} onClick={() => setModèleId(m.id)} aria-pressed={actif} style={{
-                textAlign: 'left', padding: '10px', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit',
+                position: 'relative', textAlign: 'left', padding: '10px', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit',
                 background: actif ? `${T.accent}22` : T.surface2, border: `2px solid ${actif ? T.accent : T.border}`, color: T.text,
               }}>
                 <span style={{ fontSize: '20px' }}>{m.emoji}</span>
                 <strong style={{ display: 'block', fontSize: '13px', margin: '4px 0 2px', fontFamily: grotesk }}>{m.nom}</strong>
                 <span style={{ fontSize: '11px', color: T.textMuted, lineHeight: 1.35 }}>{m.description}</span>
+                {m.perso && onSupprimerModèle && (
+                  <span role="button" aria-label={`Supprimer le modèle ${m.nom}`} title="Supprimer ce modèle"
+                    onClick={e => { e.stopPropagation(); onSupprimerModèle(m.id); if (modèleId === m.id) setModèleId('vide') }}
+                    style={{ position: 'absolute', top: '6px', right: '8px', color: T.textMuted, fontSize: '13px' }}>✕</span>
+                )}
               </button>
             )
           })}
@@ -2014,7 +2158,7 @@ function DialogueCréation({ T, onCréer, onFermer }) {
 
 // Liste déroulante des graphes : passer de l'un à l'autre, ou en créer un
 // nouveau avec son libellé (et un modèle de départ).
-function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer, actions = [] }) {
+function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer, actions = [], modèles = MODÈLES }) {
   const [ouvert, setOuvert] = useState(false)
   const [nom, setNom] = useState('')
   const [modèleId, setModèleId] = useState('vide')
@@ -2099,7 +2243,7 @@ function SélecteurGraphes({ T, graphes, actuelId, onChoisir, onCréer, actions 
               }}>Créer</button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '8px 4px 4px' }}>
-              {MODÈLES.map(m => {
+              {modèles.map(m => {
                 const actif = m.id === modèleId
                 return (
                   <button key={m.id} onClick={() => setModèleId(m.id)} aria-pressed={actif} title={m.description} style={{
@@ -2532,5 +2676,91 @@ function BarreLigne({ T, ligne, mémoriser, majLigne, majLigneSansTrace, supprim
       </div>
       <p style={{ margin: 0, fontSize: '11px', color: T.textMuted }}>Glisse la ligne pour la déplacer, ses ronds pour l'ajuster (Maj : droite ou 45°). Suppr pour l'effacer.</p>
     </div>
+  )
+}
+
+// Zone : cadre coloré derrière un groupe de bulles. Seuls le titre (pour
+// la déplacer avec ses bulles) et le coin (pour l'agrandir) se touchent.
+function ZoneGraphe({ T, zone: z, choisie, interactive }) {
+  return (
+    <div style={{
+      position: 'absolute', left: z.x, top: z.y, width: z.l, height: z.h, borderRadius: '18px', pointerEvents: 'none',
+      background: `${z.couleur}17`, border: `2px dashed ${choisie ? T.text : `${z.couleur}bb`}`,
+      boxShadow: choisie ? `0 0 0 4px ${z.couleur}44` : 'none', boxSizing: 'border-box',
+    }}>
+      <div data-zone={interactive ? z.id : undefined} style={{
+        position: 'absolute', left: '10px', top: '8px', maxWidth: 'calc(100% - 20px)', padding: '3px 10px', borderRadius: '9px',
+        background: `${z.couleur}26`, color: z.couleur, fontWeight: 800, fontSize: '14px', fontFamily: grotesk, whiteSpace: 'nowrap',
+        overflow: 'hidden', textOverflow: 'ellipsis', pointerEvents: interactive ? 'auto' : 'none', cursor: 'move', userSelect: 'none',
+      }}>{z.titre || 'Zone'}</div>
+      {interactive && (
+        <div data-zone-taille={z.id} title="Agrandir la zone" style={{
+          position: 'absolute', right: '-2px', bottom: '-2px', width: '22px', height: '22px', pointerEvents: 'auto', cursor: 'nwse-resize',
+          background: `linear-gradient(135deg, transparent 50%, ${z.couleur} 50%)`, borderBottomRightRadius: '16px', opacity: choisie ? 1 : 0.55,
+        }} />
+      )}
+    </div>
+  )
+}
+
+function BarreZone({ T, zone, couleurs, mémoriser, majZone, supprimer, fermer }) {
+  const [titre, setTitre] = useState(zone.titre)
+  useEffect(() => { setTitre(zone.titre) }, [zone.id, zone.titre])
+  const valider = () => { if (titre.trim() && titre.trim() !== zone.titre) majZone({ titre: titre.trim() }) }
+  return (
+    <div style={{ position: 'absolute', left: '8px', right: '8px', bottom: 'max(8px, env(safe-area-inset-bottom))', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '10px 12px', boxShadow: '0 6px 20px rgba(0,0,0,.3)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '12px', color: T.textMuted, fontFamily: grotesk }}>Zone</span>
+        <input value={titre} onChange={e => setTitre(e.target.value)} onBlur={valider} onKeyDown={e => { if (e.key === 'Enter') { valider(); e.currentTarget.blur() } }}
+          aria-label="Titre de la zone" onFocus={e => e.target.select()}
+          style={{ flex: 1, minWidth: 0, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '9px', padding: '7px 9px', fontSize: '14px', fontFamily: grotesk, fontWeight: 700 }} />
+        <button onClick={supprimer} style={{ background: T.danger, color: '#fff', border: 'none', borderRadius: '9px', padding: '7px 10px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk }}>Supprimer</button>
+        <button onClick={fermer} aria-label="Fermer" style={{ background: 'transparent', border: 'none', color: T.textMuted, fontSize: '16px', cursor: 'pointer' }}>✕</button>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        {couleurs.map(c => (
+          <button key={c} onClick={() => majZone({ couleur: c })} aria-label={`Couleur ${c}`} style={{
+            width: '24px', height: '24px', borderRadius: '50%', background: c, cursor: 'pointer', padding: 0,
+            border: `2px solid ${zone.couleur === c ? T.text : 'transparent'}`,
+          }} />
+        ))}
+        <label title="Autre couleur" style={{ position: 'relative', width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', border: `2px dashed ${T.textMuted}`, cursor: 'pointer' }}>
+          <input type="color" value={/^#[0-9a-f]{6}$/i.test(zone.couleur) ? zone.couleur : '#5b8dc9'} onFocus={mémoriser} onChange={e => majZone({ couleur: e.target.value }, false)}
+            aria-label="Autre couleur" style={{ position: 'absolute', inset: '-6px', width: '40px', height: '40px', opacity: 0, cursor: 'pointer' }} />
+        </label>
+        <span style={{ fontSize: '11px', color: T.textMuted, marginLeft: 'auto' }}>Glisse le titre pour déplacer la zone et ses bulles, le coin pour l'agrandir.</span>
+      </div>
+    </div>
+  )
+}
+
+// Mini-carte : tout le graphe en petit, avec le cadre de ce qui est à
+// l'écran ; toucher ou glisser dessus déplace la vue.
+function MiniCarte({ T, bulles, zones, tailleDe, vue, dimensions, onAller }) {
+  const L = 170
+  const H = 112
+  const xs = bulles.flatMap(n => [n.x - tailleDe(n.id).l / 2, n.x + tailleDe(n.id).l / 2]).concat(zones.flatMap(z => [z.x, z.x + z.l]))
+  const ys = bulles.flatMap(n => [n.y - tailleDe(n.id).h / 2, n.y + tailleDe(n.id).h / 2]).concat(zones.flatMap(z => [z.y, z.y + z.h]))
+  const minX = Math.min(...xs) - 40
+  const minY = Math.min(...ys) - 40
+  const éch = Math.min(L / (Math.max(...xs) + 40 - minX), H / (Math.max(...ys) + 40 - minY))
+  const { l, h } = dimensions()
+  const écran = { x: (-vue.x / vue.zoom - minX) * éch, y: (-vue.y / vue.zoom - minY) * éch, l: (l / vue.zoom) * éch, h: (h / vue.zoom) * éch }
+  const viser = e => {
+    const r = e.currentTarget.getBoundingClientRect()
+    onAller((e.clientX - r.left) / éch + minX, (e.clientY - r.top) / éch + minY)
+  }
+  return (
+    <svg width={L} height={H} role="img" aria-label="Mini-carte du graphe"
+      onPointerDown={e => { e.stopPropagation(); e.currentTarget.setPointerCapture?.(e.pointerId); viser(e) }}
+      onPointerMove={e => { if (e.buttons) viser(e) }}
+      style={{ position: 'absolute', left: '10px', bottom: 'max(10px, env(safe-area-inset-bottom))', background: `${T.surface}ee`, border: `1px solid ${T.border}`, borderRadius: '12px', boxShadow: '0 4px 14px rgba(0,0,0,.3)', touchAction: 'none', cursor: 'pointer' }}>
+      {zones.map(z => <rect key={z.id} x={(z.x - minX) * éch} y={(z.y - minY) * éch} width={z.l * éch} height={z.h * éch} rx="4" fill={`${z.couleur}22`} stroke={z.couleur} strokeWidth="1" strokeDasharray="3 2" />)}
+      {bulles.map(n => {
+        const t = tailleDe(n.id)
+        return <rect key={n.id} x={(n.x - t.l / 2 - minX) * éch} y={(n.y - t.h / 2 - minY) * éch} width={Math.max(3, t.l * éch)} height={Math.max(2, t.h * éch)} rx="2" fill={n.couleur || T.textMuted} opacity="0.85" />
+      })}
+      <rect x={écran.x} y={écran.y} width={écran.l} height={écran.h} fill={`${T.accent}1a`} stroke={T.accent} strokeWidth="1.5" rx="3" />
+    </svg>
   )
 }

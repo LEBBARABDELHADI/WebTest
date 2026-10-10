@@ -15,6 +15,8 @@ export const ÉCART_Y = 92
 export function compléterGraphes(objet) {
   const graphes = Array.isArray(objet?.graphes) ? objet.graphes : []
   return {
+    // Les autres clés du fichier (ex. modèles perso) sont conservées.
+    ...(objet && typeof objet === 'object' ? objet : {}),
     graphes: graphes.map(g => ({
       ...g,
       noeuds: Array.isArray(g.noeuds) ? g.noeuds : [],
@@ -570,4 +572,40 @@ export function séparateursArbres(visibles, taille) {
     basCourant = Math.max(basCourant, liste[i].bas)
   }
   return lignes
+}
+
+// ---------- Modèles perso ----------
+// Contenu d'un graphe enregistré comme modèle → copie neuve (nouveaux
+// identifiants partout, liens et sous-sections reliées remis en place).
+export function instancierModèle(contenu) {
+  const ids = new Map((contenu.noeuds || []).map(n => [n.id, uid()]))
+  const nv = id => ids.get(id) || id
+  const neuf = o => ({ ...o, id: uid() })
+  return {
+    noeuds: (contenu.noeuds || []).map(n => ({ ...n, id: nv(n.id), parentId: n.parentId ? nv(n.parentId) : null })),
+    liens: (contenu.liens || []).filter(l => ids.has(l.de) && ids.has(l.vers)).map(l => ({ ...l, id: uid(), de: nv(l.de), vers: nv(l.vers) })),
+    lignes: (contenu.lignes || []).map(neuf),
+    zones: (contenu.zones || []).map(neuf),
+    ...(contenu.séparer ? { séparer: true } : {}),
+    ...(contenu.colonnes ? {
+      colonnes: contenu.colonnes.map(c => ({
+        ...c,
+        sousSections: (c.sousSections || []).map(ss => ({
+          ...ss, id: uid(), ...(ss.bulleId ? { bulleId: nv(ss.bulleId) } : {}),
+          blocs: (ss.blocs || []).map(b => ({ ...neuf(b), ...(b.éléments ? { éléments: b.éléments.map(neuf) } : {}) })),
+        })),
+      })),
+    } : {}),
+  }
+}
+
+// Zone qui entoure des bulles (avec la place du titre en haut).
+export function zoneAutour(bulles, taille, marge = 28) {
+  const g = Math.min(...bulles.map(n => n.x - taille(n.id).l / 2)) - marge
+  const d = Math.max(...bulles.map(n => n.x + taille(n.id).l / 2)) + marge
+  const h = Math.min(...bulles.map(n => n.y - taille(n.id).h / 2)) - marge - 26
+  const b = Math.max(...bulles.map(n => n.y + taille(n.id).h / 2)) + marge
+  // Assez large pour lire le titre.
+  const l = Math.max(220, d - g)
+  return { x: g - (l - (d - g)) / 2, y: h, l, h: b - h }
 }
