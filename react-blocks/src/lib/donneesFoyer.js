@@ -247,3 +247,53 @@ export async function ajouterCartes({ espace, paquetId, nouveauPaquet, cartes })
   try { localStorage.setItem(clé('memoriser', espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
   return { paquet, nombre: neuves.length }
 }
+
+// ---------- Sauvegarde complète ----------
+
+// Toutes les données d'un foyer (perso + pro, tous les outils) en un objet,
+// relues sur GitHub (ou, à défaut, la copie de l'appareil).
+export async function créerSauvegarde(foyer) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  const paires = espacesDu(foyer).flatMap(e => OUTILS.map(o => [o, e]))
+  const lus = await Promise.allSettled(paires.map(([o, e]) => lireDepuisGitHub(token, chemin(o, e))))
+  const fichiers = {}
+  const depuisAppareil = []
+  lus.forEach((r, i) => {
+    const [o, e] = paires[i]
+    if (r.status === 'fulfilled') fichiers[`${o}-${e}.json`] = r.value.data
+    else { fichiers[`${o}-${e}.json`] = lireLocal(o, e); depuisAppareil.push(`${o}-${e}.json`) }
+  })
+  return { app: 'react-blocs', version: 1, foyer: foyer.id, date: new Date().toISOString(), fichiers, depuisAppareil }
+}
+
+// Résumé lisible d'une sauvegarde (pour l'aperçu avant restauration).
+export function résumerSauvegarde(s) {
+  return Object.entries(s.fichiers || {}).map(([nom, d]) => {
+    const n = d?.cartes?.length ?? d?.notes?.length ?? d?.graphes?.length ?? d?.habitudes?.length ?? 0
+    const unité = nom.startsWith('taches') ? 'tâches' : nom.startsWith('notes') ? 'notes' : nom.startsWith('memoriser') ? 'cartes' : nom.startsWith('graph') ? 'graphes' : 'habitudes'
+    return { nom, texte: `${n} ${unité}` }
+  })
+}
+
+// Réécrit chaque fichier sur GitHub avec le contenu de la sauvegarde
+// (remplace la version en ligne) et met à jour les copies de l'appareil.
+export async function restaurerSauvegarde(s, foyer, progression = () => {}) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  if (!token) throw new Error('Connecte le token GitHub pour restaurer.')
+  if (s?.app !== 'react-blocs' || !s.fichiers) throw new Error('Ce fichier n\'est pas une sauvegarde React Blocs.')
+  const autorisés = new Set(espacesDu(foyer).flatMap(e => OUTILS.map(o => `${o}-${e}.json`)))
+  const noms = Object.keys(s.fichiers).filter(n => autorisés.has(n))
+  if (!noms.length) throw new Error(`Cette sauvegarde ne contient rien pour ${foyer.nom}.`)
+  for (const [i, nom] of noms.entries()) {
+    progression(i, noms.length, nom)
+    const [, o, e] = nom.match(/^([a-z]+)-(.+)\.json$/)
+    const données = s.fichiers[nom]
+    await écrireVersGitHub(données, token, undefined, chemin(o, e))
+    try {
+      localStorage.setItem(clé(o, e), JSON.stringify(données))
+      // Base = version restaurée : à la prochaine ouverture, rien à fusionner.
+      localStorage.setItem(`${clé(o, e)}:base`, JSON.stringify(données))
+    } catch { /* ignore */ }
+  }
+  return noms.length
+}

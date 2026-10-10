@@ -10,6 +10,7 @@ import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import { lireRécents, depuis } from '../lib/recents'
 import { verrouiller } from '../components/Verrou'
 import RechercheGlobale from '../components/RechercheGlobale'
+import Sauvegarde from '../components/Sauvegarde'
 import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 import { useDonnéesFoyer, ajouterRapidement, analyserSaisie } from '../lib/donneesFoyer'
 import { rappelsActifs, activerRappels, désactiverRappels, vérifierRappels } from '../lib/rappels'
@@ -93,6 +94,7 @@ export default function Home({ foyerId = 'lebbar' }) {
   const [retournée, setRetournée] = useState(false)
   const [coursOuverts, setCoursOuverts] = useState(false)
   const [rechercheOuverte, setRechercheOuverte] = useState(false)
+  const [sauvegardeOuverte, setSauvegardeOuverte] = useState(false)
   const [rappels, setRappels] = useState(rappelsActifs)
   const [message, setMessage] = useState(null) // { texte, erreur }
   const { lire, remplacer, rafraîchir } = useDonnéesFoyer(foyer)
@@ -261,6 +263,7 @@ export default function Home({ foyerId = 'lebbar' }) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />{!rappels && <path d="M3 3l18 18" />}</svg>
             </button>
             <BoutonIcone icon={mode === 'sombre' ? 'soleil' : 'lune'} title={mode === 'sombre' ? 'Thème clair' : 'Thème sombre'} onClick={basculer} />
+            <BoutonIcone icon="telecharger" title="Sauvegarde (télécharger / restaurer)" onClick={() => setSauvegardeOuverte(true)} />
             <BoutonIcone icon="cadenas" title="Verrouiller" onClick={verrouiller} />
           </div>
         </header>
@@ -377,6 +380,7 @@ export default function Home({ foyerId = 'lebbar' }) {
           background: message.erreur ? T.danger : T.text, color: message.erreur ? '#fff' : T.bg,
         }}>{message.texte}</div>
       )}
+      {sauvegardeOuverte && <Sauvegarde T={T} foyer={foyer} onFermer={() => setSauvegardeOuverte(false)} onRestauré={() => rafraîchir(true)} />}
       {rechercheOuverte && <RechercheGlobale T={T} lire={lire} foyer={foyer} onFermer={() => setRechercheOuverte(false)} />}
     </div>
   )
