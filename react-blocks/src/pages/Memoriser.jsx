@@ -11,6 +11,8 @@ import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import OutilsTexte from '../components/OutilsTexte'
+import { pageMémo } from '../lib/exportMemo'
+import { adresseImage } from '../components/ImageCarte'
 import {
   analyserTexte, TexteFormaté, texteBrut, lireTexte,
   lirePréférencesVoix, enregistrerPréférencesVoix, useVoix, STYLES_VOIX, nomDeLangue, qualitéVoix,
@@ -143,6 +145,7 @@ export default function Memoriser() {
   const [paquetÉditionId, setPaquetÉditionId] = useState(null)
   const [nomÉditionPaquet, setNomÉditionPaquet] = useState('')
   const [rechercheCarte, setRechercheCarte] = useState('')
+  const [pdfPaquet, setPdfPaquet] = useState(null) // id du paquet à imprimer
   // Lien venant de la recherche de l'accueil : ?carte=… ouvre son paquet
   // filtré sur cette carte.
   const [paramètres, setParamètres] = useSearchParams()
@@ -835,6 +838,11 @@ export default function Memoriser() {
                             border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
                             fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
                           }}>🎙️ Entretien</button>
+                          <button onClick={() => setPdfPaquet(paquet.id)} style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                            border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}>🖨️ PDF</button>
                         </div>
                       )}
 
@@ -1419,6 +1427,21 @@ export default function Memoriser() {
           onBulles={setCarteBullesId}
         />
       )}
+      {pdfPaquet && (
+        <DialoguePdfMémo T={T} paquet={data.paquets.find(p => p.id === pdfPaquet)} nbPaquets={data.paquets.length}
+          onChoisir={(mode, tous) => {
+            const paquets = tous ? data.paquets : data.paquets.filter(p => p.id === pdfPaquet)
+            const groupes = paquets.map(p => ({ paquet: p, cartes: data.cartes.filter(c => c.paquetId === p.id) })).filter(g => g.cartes.length)
+            const fenêtre = window.open('', '_blank')
+            if (!fenêtre) { window.alert('Autorise les fenêtres pour ce site pour imprimer.'); return }
+            const html = pageMémo({ titre: tous ? config.titre : paquets[0].nom, groupes, mode, imageDe: image => adresseImage(image) })
+              .replace('</body>', '<script>window.onload = () => setTimeout(() => window.print(), 300)</script></body>')
+            fenêtre.document.write(html)
+            fenêtre.document.close()
+            setPdfPaquet(null)
+          }}
+          onFermer={() => setPdfPaquet(null)} />
+      )}
       {modeVocal?.type === 'podcast' && (
         <ModePodcast
           cartes={data.cartes.filter(c => c.paquetId === modeVocal.paquetId)}
@@ -1441,6 +1464,38 @@ export default function Memoriser() {
       {carteBullesId && data.cartes.find(c => c.id === carteBullesId) && (
         <CarteBulles carte={data.cartes.find(c => c.id === carteBullesId)} onFermer={() => setCarteBullesId(null)} />
       )}
+    </div>
+  )
+}
+
+// Choix de la mise en page PDF d'un paquet.
+function DialoguePdfMémo({ T, paquet, nbPaquets, onChoisir, onFermer }) {
+  const [tous, setTous] = useState(false)
+  const choix = [
+    ['fiche', '📄 Fiche de révision', 'Questions et réponses dans un tableau'],
+    ['quiz', '✍️ Interrogation', 'Questions avec la place pour écrire les réponses'],
+    ['decouper', '✂️ Cartes à découper', '8 cartes par page, recto verso (bord long)'],
+  ]
+  return (
+    <div role="dialog" aria-label="Imprimer en PDF" onClick={onFermer} onKeyDown={e => { if (e.key === 'Escape') onFermer() }}
+      style={{ position: 'fixed', inset: 0, zIndex: 1300, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '420px', background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px', padding: '16px' }}>
+        <p style={{ margin: '0 0 12px', fontSize: '11px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: grotesk }}>🖨️ PDF de « {paquet?.nom} »</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {choix.map(([id, titre, desc]) => (
+            <button key={id} onClick={() => onChoisir(id, tous)} style={{ textAlign: 'left', padding: '12px', borderRadius: '12px', border: `1px solid ${T.border}`, background: T.surface2, color: T.text, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <strong style={{ display: 'block', fontSize: '14px', fontFamily: grotesk }}>{titre}</strong>
+              <span style={{ fontSize: '12px', color: T.textMuted }}>{desc}</span>
+            </button>
+          ))}
+        </div>
+        {nbPaquets > 1 && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', fontSize: '13px', color: T.text, cursor: 'pointer' }}>
+            <input type="checkbox" checked={tous} onChange={e => setTous(e.target.checked)} style={{ accentColor: T.accent }} /> Tous les paquets ({nbPaquets})
+          </label>
+        )}
+        <p style={{ margin: '12px 0 0', fontSize: '11.5px', color: T.textMuted, lineHeight: 1.5 }}>Dans la fenêtre d'impression, choisis « Enregistrer en PDF ».</p>
+      </div>
     </div>
   )
 }

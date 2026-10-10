@@ -4,6 +4,7 @@ import { TexteFormaté, texteBrut } from '../lib/texteFormate'
 import { uid } from '../lib/graphe'
 import BlocCode from './BlocCode'
 import OutilsTexte from './OutilsTexte'
+import VersCartes from './VersCartes'
 
 // Sous le graphe : 4 grandes sections (colonnes sur ordinateur, à la suite
 // sur téléphone), chacune avec ses sous-sections, qui contiennent des blocs.
@@ -204,7 +205,7 @@ const ANIMATION = `
 // memo : ne se redessine pas quand seul le graphe bouge (vue, glissement).
 export default memo(SectionsGraphe)
 
-function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, surbrillance }) {
+function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, surbrillance, foyer, espace }) {
   const large = useÉcranLarge()
   const [édition, setÉdition] = useState(null) // { sectionId, blocId, texte, langage, variante, nouveau }
   const [titreÉdité, setTitreÉdité] = useState(null) // { id, valeur }
@@ -215,6 +216,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
   const [enLecture, setEnLecture] = useState(lireLecture)
   const [sommaireOuvert, setSommaireOuvert] = useState(false)
   const [pleinÉcran, setPleinÉcran] = useState(null) // id de la sous-section lue en plein écran
+  const [versCartes, setVersCartes] = useState(null) // sous-section à transformer en cartes
   const définirLecture = (ids, actif) => {
     if (actif) {
       if (édition && ids.includes(édition.sectionId)) annulerBloc()
@@ -452,6 +454,9 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                             style={{ ...icône, ...(lecture ? { background: `${T.accent}26`, color: T.accent } : {}) }}>{lecture ? '✏️' : '📖'}</button>
                           {!lecture && (
                             <>
+                              {foyer && section.blocs.length > 0 && (
+                                <button onClick={() => setVersCartes(section.id)} aria-label="Créer des cartes Mémoriser" title="Créer des cartes Mémoriser" style={icône}>🧠</button>
+                              )}
                               <button onClick={() => setLiaisonOuverte(o => (o === section.id ? null : section.id))} aria-label="Relier à une bulle du graphe" title="Relier à une bulle du graphe"
                                 style={{ ...icône, color: bulle ? T.accent : T.textMuted }}>🔗</button>
                               <button onClick={() => supprimerSousSection(section)} aria-label={`Supprimer la sous-section ${section.titre}`} title="Supprimer la sous-section" style={{ ...icône, color: T.danger }}>🗑️</button>
@@ -520,6 +525,10 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
           )
         })}
       </div>
+      {versCartes && sousSectionsParId.get(versCartes) && (
+        <VersCartes T={T} titre={sousSectionsParId.get(versCartes).titre} blocs={sousSectionsParId.get(versCartes).blocs}
+          foyer={foyer} espaceParDéfaut={espace} onFermer={() => setVersCartes(null)} />
+      )}
       {pleinÉcran && sousSectionsParId.get(pleinÉcran) && (
         <LecturePleinÉcran
           T={T}

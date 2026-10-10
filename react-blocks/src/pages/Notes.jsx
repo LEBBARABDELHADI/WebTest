@@ -6,6 +6,7 @@ import donnéesNotesIdrissiPerso from '../data/notes-idrissi-perso.json'
 import donnéesNotesIdrissiPro from '../data/notes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
+import VersCartes from '../components/VersCartes'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
 import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
@@ -121,6 +122,7 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
     changerCatégorieNote,
     lienOuvertPour, setLienOuvertPour, espaceLienChoisi, setEspaceLienChoisi, cartesDisponibles, lierTâche, délierTâche,
     majBloc, ajouterBloc, supprimerBloc, ajouterOption, majOption, supprimerOption,
+    setNoteVersCartes,
   } = ctx
 
   const rotation = pleinÉcran ? '0deg' : index % 3 === 0 ? '-0.6deg' : index % 3 === 1 ? '0.5deg' : '-0.3deg'
@@ -195,6 +197,7 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
         )}
         <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
         <BoutonIcone icon="dupliquer" title="Dupliquer" taille={14} onClick={() => dupliquerNote(note.id)} />
+        <BoutonIcone icon="cartes" title="Créer des cartes Mémoriser" taille={14} onClick={() => setNoteVersCartes(note.id)} />
         <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} taille={14} onClick={() => { archiverNote(note.id); if (pleinÉcran) setNoteEnPleinÉcran(null) }} />
       </div>
 
@@ -393,6 +396,7 @@ export default function Notes() {
   const [sectionSurvolée, setSectionSurvolée] = useState(null)
   const [catégorieChoisie, setCatégorieChoisie] = useState('autres')
   const [noteEnPleinÉcran, setNoteEnPleinÉcran] = useState(null)
+  const [noteVersCartes, setNoteVersCartes] = useState(null)
   // Lien venant de la recherche de l'accueil : ?note=… ouvre la note.
   const [paramètres, setParamètres] = useSearchParams()
   useEffect(() => {
@@ -746,7 +750,9 @@ export default function Notes() {
     changerCatégorieNote,
     lienOuvertPour, setLienOuvertPour, espaceLienChoisi, setEspaceLienChoisi, cartesDisponibles, lierTâche, délierTâche,
     majBloc, ajouterBloc, supprimerBloc, ajouterOption, majOption, supprimerOption,
+    setNoteVersCartes,
   }
+  const noteVersCartesObjet = noteVersCartes ? data.notes.find(n => n.id === noteVersCartes) : null
 
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '40px 16px 60px' }}>
@@ -960,6 +966,10 @@ export default function Notes() {
         </p>
       )}
 
+      {noteVersCartesObjet && (
+        <VersCartes T={T} titre={noteVersCartesObjet.titre || 'Note'} blocs={noteVersCartesObjet.blocs || []}
+          foyer={FOYERS[config.foyer]} espaceParDéfaut={config.id} onFermer={() => setNoteVersCartes(null)} />
+      )}
       {noteEnPleinÉcranObjet && (
         <div
           onClick={() => setNoteEnPleinÉcran(null)}

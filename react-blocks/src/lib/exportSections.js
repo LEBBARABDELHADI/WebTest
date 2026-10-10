@@ -39,7 +39,7 @@ export function exporterMarkdown({ nom, plan, colonnes }) {
   return `${parties.join('\n')}\n`
 }
 
-function texteEnHTML(texte) {
+export function texteEnHTML(texte) {
   return analyserTexte(texte || '').map(seg => {
     let h = échapper(seg.texte).replace(/\n/g, '<br>')
     if (seg.gras) h = `<strong>${h}</strong>`

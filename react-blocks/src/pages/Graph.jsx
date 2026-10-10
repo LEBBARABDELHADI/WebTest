@@ -1976,6 +1976,8 @@ export default function Graph() {
                 onChanger={majColonnesStable}
                 bulles={noeudsBruts}
                 onAllerÀBulle={allerÀBulleStable}
+                foyer={FOYERS[config.foyer]}
+                espace={config.id}
                 surbrillance={surbrillance}
               />
             )}

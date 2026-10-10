@@ -223,3 +223,22 @@ export async function ajouterRapidement({ type, espace, saisie }) {
   try { localStorage.setItem(clé(outil, espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
   return { outil, données: écrit.données, résumé }
 }
+
+// Ajoute plusieurs cartes dans un paquet (existant ou nouveau) de Mémoriser,
+// directement dans le fichier GitHub (fusion si le fichier a changé).
+export async function ajouterCartes({ espace, paquetId, nouveauPaquet, cartes }) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  if (!token) throw new Error('Connecte le token GitHub pour créer des cartes.')
+  const { data, sha } = await lireDepuisGitHub(token, chemin('memoriser', espace))
+  let paquets = data.paquets || []
+  let paquet = paquets.find(p => p.id === paquetId)
+  if (!paquet) {
+    paquet = { id: uid(), nom: (nouveauPaquet || 'Nouveau paquet').trim(), couleur: '#f0a839' }
+    paquets = [...paquets, paquet]
+  }
+  const neuves = cartes.map(c => ({ id: uid(), paquetId: paquet.id, recto: c.recto, verso: c.verso, niveau: 0, prochaineRevision: aujourdhui() }))
+  const nouveau = { ...data, paquets, cartes: [...(data.cartes || []), ...neuves] }
+  const écrit = await écrireVersGitHub(nouveau, token, sha, chemin('memoriser', espace), data)
+  try { localStorage.setItem(clé('memoriser', espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
+  return { paquet, nombre: neuves.length }
+}
