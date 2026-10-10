@@ -13,7 +13,7 @@ import { grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import OutilsTexte from '../components/OutilsTexte'
 import { pageMémo } from '../lib/exportMemo'
 import LiensÉlément from '../components/LiensElement'
-import { adresseImage } from '../components/ImageCarte'
+import { adresseImage, urlImage } from '../components/ImageCarte'
 import {
   analyserTexte, TexteFormaté, texteBrut, lireTexte,
   lirePréférencesVoix, enregistrerPréférencesVoix, useVoix, STYLES_VOIX, nomDeLangue, qualitéVoix,
@@ -1436,11 +1436,14 @@ export default function Memoriser() {
       )}
       {pdfPaquet && (
         <DialoguePdfMémo T={T} paquet={data.paquets.find(p => p.id === pdfPaquet)} nbPaquets={data.paquets.length}
-          onChoisir={(mode, tous) => {
+          onChoisir={async (mode, tous) => {
             const paquets = tous ? data.paquets : data.paquets.filter(p => p.id === pdfPaquet)
             const groupes = paquets.map(p => ({ paquet: p, cartes: data.cartes.filter(c => c.paquetId === p.id) })).filter(g => g.cartes.length)
             const fenêtre = window.open('', '_blank')
             if (!fenêtre) { window.alert('Autorise les fenêtres pour ce site pour imprimer.'); return }
+            fenêtre.document.write('<p style="font-family:sans-serif;padding:20px">Préparation…</p>')
+            await Promise.all(groupes.flatMap(g => g.cartes.flatMap(c => [c.imageRecto, c.imageVerso].filter(Boolean).map(urlImage))))
+            fenêtre.document.open()
             const html = pageMémo({ titre: tous ? config.titre : paquets[0].nom, groupes, mode, imageDe: image => adresseImage(image) })
               .replace('</body>', '<script>window.onload = () => setTimeout(() => window.print(), 300)</script></body>')
             fenêtre.document.write(html)

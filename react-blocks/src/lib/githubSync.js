@@ -1,7 +1,16 @@
 const OWNER = 'LEBBARABDELHADI'
 const REPO = 'WebTest'
 const BRANCHE = 'claude/react-blocks-simulation-FxGEl'
-const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
+
+// Où vivent les données (tâches, notes, cartes, graphes, habitudes, images).
+// DONNÉES_SÉPARÉES = true : dans un dépôt PRIVÉ à part (lu et écrit avec le
+// token), les fichiers à la racine ; le dépôt du code (public, qui publie le
+// site) ne contient plus aucune donnée. false : comme avant, dans ce dépôt.
+export const DONNÉES_SÉPARÉES = false
+const DONNÉES = DONNÉES_SÉPARÉES
+  ? { repo: 'WebTest-donnees', branche: 'main', chemin: c => c.replace(/^react-blocks\/src\/data\//, '') }
+  : { repo: REPO, branche: BRANCHE, chemin: c => c }
+const API_BASE = `https://api.github.com/repos/${OWNER}/${DONNÉES.repo}/contents`
 
 export const TOKEN_KEY = 'react-blocs-github-token'
 import { fusionner, égal } from './fusion'
@@ -40,13 +49,17 @@ export async function lireDepuisGitHub(token, chemin) {
   if (token) headers.Authorization = `Bearer ${token}`
   let res
   try {
-    res = await fetch(`${API_BASE}/${chemin}?ref=${BRANCHE}`, { headers, cache: 'no-store' })
+    res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}?ref=${encodeURIComponent(DONNÉES.branche)}`, { headers, cache: 'no-store' })
   } catch {
     throw new Error('Connexion à GitHub impossible (hors ligne ?)')
   }
   if (!res.ok) {
     if (res.status === 403) throw new Error('Limite de requêtes GitHub atteinte, réessaie plus tard')
-    throw new Error(`Lecture impossible (${res.status})`)
+    const err = new Error(res.status === 404 && DONNÉES_SÉPARÉES && !token
+      ? 'Données privées : connecte ton token GitHub (menu Synchronisation) pour les lire'
+      : `Lecture impossible (${res.status})`)
+    err.statut = res.status
+    throw err
   }
   const json = await res.json()
   const contenu = décoderBase64Utf8(json.content.replace(/\n/g, ''))
@@ -80,15 +93,19 @@ async function écrireAvecEssais(data, token, shaConnu, chemin, base) {
         const lu = await lireDepuisGitHub(token, chemin)
         sha = lu.sha
         if (base !== undefined && base !== null) àÉcrire = fusionner(base, data, lu.data)
-      } catch (err) { dernièreErreur = err; continue }
+      } catch (err) {
+        // Fichier pas encore créé (nouvel outil) : on le crée.
+        if (err.statut !== 404) { dernièreErreur = err; continue }
+        sha = undefined
+      }
     }
     const contenu = encoderBase64Utf8(JSON.stringify(àÉcrire, null, 2))
     let res
     try {
-      res = await fetch(`${API_BASE}/${chemin}`, {
+      res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}`, {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ message: `chore: sync tâches ${new Date().toISOString()}`, content: contenu, sha, branch: BRANCHE }),
+        body: JSON.stringify({ message: `chore: sync ${DONNÉES.chemin(chemin).split('/').pop()} ${new Date().toISOString()}`, content: contenu, ...(sha ? { sha } : {}), branch: DONNÉES.branche }),
       })
     } catch {
       dernièreErreur = erreurPassagère('Connexion à GitHub impossible (hors ligne ?)')
@@ -118,14 +135,14 @@ export function envoyerFichier(chemin, base64, token, message) {
       if (essai > 0) await attendre(800 * 2 ** (essai - 1))
       let res
       try {
-        res = await fetch(`${API_BASE}/${chemin}`, {
+        res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}`, {
           method: 'PUT',
           headers: {
             Accept: 'application/vnd.github+json',
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ message, content: base64, branch: BRANCHE }),
+          body: JSON.stringify({ message, content: base64, branch: DONNÉES.branche }),
         })
       } catch {
         dernièreErreur = new Error('Connexion à GitHub impossible (hors ligne ?)')
@@ -144,6 +161,8 @@ export function envoyerFichier(chemin, base64, token, message) {
 
 // Adresse publique d'un fichier du dépôt (les images des cartes).
 export function adresseBrute(chemin) {
+  // Dépôt privé : pas d'adresse publique, l'image se charge avec le token.
+  if (DONNÉES_SÉPARÉES) return null
   return `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${BRANCHE}/${chemin}`
 }
 
@@ -153,7 +172,7 @@ export async function listerVersions(token, chemin) {
   if (token) headers.Authorization = `Bearer ${token}`
   let res
   try {
-    res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${encodeURIComponent(chemin)}&sha=${encodeURIComponent(BRANCHE)}&per_page=60`, { headers, cache: 'no-store' })
+    res = await fetch(`https://api.github.com/repos/${OWNER}/${DONNÉES.repo}/commits?path=${encodeURIComponent(DONNÉES.chemin(chemin))}&sha=${encodeURIComponent(DONNÉES.branche)}&per_page=60`, { headers, cache: 'no-store' })
   } catch {
     throw new Error('Connexion à GitHub impossible (hors ligne ?)')
   }
@@ -171,11 +190,21 @@ export async function lireVersion(token, chemin, sha) {
   if (token) headers.Authorization = `Bearer ${token}`
   let res
   try {
-    res = await fetch(`${API_BASE}/${chemin}?ref=${sha}`, { headers })
+    res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}?ref=${sha}`, { headers })
   } catch {
     throw new Error('Connexion à GitHub impossible (hors ligne ?)')
   }
   if (!res.ok) throw new Error(`Version illisible (${res.status})`)
   const json = await res.json()
   return JSON.parse(décoderBase64Utf8(json.content.replace(/\n/g, '')))
+}
+
+// Fichier binaire (image) lu avec le token : nécessaire quand les données
+// sont dans un dépôt privé (pas d'adresse publique).
+export async function lireFichierBinaire(chemin, token) {
+  const res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}?ref=${encodeURIComponent(DONNÉES.branche)}`, {
+    headers: { Accept: 'application/vnd.github.raw', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  })
+  if (!res.ok) throw new Error(`Image illisible (${res.status})`)
+  return res.blob()
 }

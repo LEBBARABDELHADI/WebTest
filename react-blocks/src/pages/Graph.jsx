@@ -7,7 +7,7 @@ import donnéesIdrissiPro from '../data/graph-idrissi-pro.json'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
-import { ImageCarte, ChampImage, adresseImage } from '../components/ImageCarte'
+import { ImageCarte, ChampImage, adresseImage, urlImage, useUrlImage } from '../components/ImageCarte'
 import SectionsGraphe, { colonnesDe, texteDuBloc } from '../components/SectionsGraphe'
 import LiensÉlément from '../components/LiensElement'
 import BlocCode from '../components/BlocCode'
@@ -840,6 +840,8 @@ export default function Graph() {
     }
   }
   const créerImageGraphe = async () => {
+    // Images du dépôt (privé) chargées avant de dessiner.
+    await Promise.all(visibles.filter(n => n.image).map(n => urlImage(n.image)))
     {
       const bulles = visibles.map(n => {
         const t = tailleDe(n.id)
@@ -889,6 +891,7 @@ export default function Graph() {
     if (!fenêtre) { afficher('Autorise les fenêtres pour ce site pour imprimer', true); return }
     fenêtre.document.write('<p style="font-family:sans-serif;padding:20px">Préparation du document…</p>')
     try {
+      await Promise.all(noeuds.filter(n => n.image).map(n => urlImage(n.image)))
       const blob = noeuds.length ? await créerImageGraphe() : null
       const image = blob ? await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob) }) : null
       const html = pageImprimable({ nom: graphe.nom, image, colonnes: colonnesGraphe, noeuds, liens, imageDe: n => (n.image ? adresseImage(n.image) : null) })
@@ -2370,6 +2373,7 @@ function ChampCode({ T, édition, setÉdition }) {
 
 // Image et code d'une bulle en grand, par-dessus tout.
 function VueAgrandie({ T, noeud, onFermer }) {
+  const { url: urlVue } = useUrlImage(noeud.image)
   const [zoom, setZoom] = useState(false)
   useEffect(() => {
     const surTouche = e => { if (e.key === 'Escape') onFermer() }
@@ -2392,7 +2396,7 @@ function VueAgrandie({ T, noeud, onFermer }) {
       <div style={{ flex: 1, overflow: 'auto', padding: '6px 14px max(16px, env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: zoom ? 'flex-start' : 'center' }}>
         {noeud.image && (
           <img
-            src={adresseImage(noeud.image)}
+            src={urlVue || undefined}
             alt={texteBrut(noeud.texte)}
             onClick={() => setZoom(z => !z)}
             style={zoom

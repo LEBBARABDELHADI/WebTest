@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useTheme, grotesk } from '../lib/theme'
-import { envoyerFichier, adresseBrute } from '../lib/githubSync'
+import { envoyerFichier, adresseBrute, lireFichierBinaire, TOKEN_KEY } from '../lib/githubSync'
 
 const DOSSIER_IMAGES = 'react-blocks/src/data/images'
 const CÔTÉ_MAX = 900
@@ -10,8 +10,37 @@ const QUALITÉ = 0.78
 // le téléphone, sans attendre que GitHub les serve.
 const aperçus = new Map()
 
+// Adresses déjà prêtes (aperçu de session, adresse publique ou image déjà
+// chargée avec le token).
+const chargées = new Map()
+const enCours = new Map()
 export function adresseImage(image) {
-  return aperçus.get(image.chemin) || adresseBrute(image.chemin)
+  if (!image?.chemin) return null
+  return aperçus.get(image.chemin) || adresseBrute(image.chemin) || chargées.get(image.chemin) || null
+}
+// Adresse utilisable de l'image (chargée avec le token si le dépôt est privé).
+export function urlImage(image) {
+  const prête = adresseImage(image)
+  if (prête || !image?.chemin) return Promise.resolve(prête)
+  const { chemin } = image
+  if (!enCours.has(chemin)) {
+    enCours.set(chemin, lireFichierBinaire(chemin, localStorage.getItem(TOKEN_KEY) || '')
+      .then(b => { const u = URL.createObjectURL(b); chargées.set(chemin, u); return u })
+      .catch(() => { enCours.delete(chemin); return null }))
+  }
+  return enCours.get(chemin)
+}
+export function useUrlImage(image) {
+  const [url, setUrl] = useState(() => adresseImage(image))
+  const [échec, setÉchec] = useState(false)
+  useEffect(() => {
+    let actif = true
+    const prête = adresseImage(image)
+    if (prête) { setUrl(prête); return undefined }
+    urlImage(image).then(u => { if (!actif) return; if (u) setUrl(u); else setÉchec(true) })
+    return () => { actif = false }
+  }, [image?.chemin]) // eslint-disable-line react-hooks/exhaustive-deps
+  return { url, échec }
 }
 
 // Réduit la photo (900 px max, JPEG) pour qu'elle pèse ~100 Ko au lieu de
@@ -43,13 +72,15 @@ function préparerImage(fichier) {
 
 export function ImageCarte({ image, hauteurMax = 220, style }) {
   const [erreur, setErreur] = useState(false)
+  const { url, échec } = useUrlImage(image)
   if (!image?.chemin) return null
-  if (erreur) {
+  if (!url && !échec) return <div aria-hidden="true" style={{ height: `${Math.min(60, hauteurMax)}px`, borderRadius: '10px', background: 'rgba(127,127,127,.15)', ...style }} />
+  if (erreur || échec) {
     return <p style={{ margin: 0, fontSize: '11px', opacity: 0.6, textAlign: 'center' }}>🖼️ Image en cours de publication…</p>
   }
   return (
     <img
-      src={adresseImage(image)}
+      src={url}
       alt="Illustration de la carte"
       loading="lazy"
       draggable={false}
