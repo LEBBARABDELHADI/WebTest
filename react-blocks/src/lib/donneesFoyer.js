@@ -17,17 +17,22 @@ import graphPerso from '../data/graph-perso.json'
 import graphPro from '../data/graph-pro.json'
 import graphIdrissiPerso from '../data/graph-idrissi-perso.json'
 import graphIdrissiPro from '../data/graph-idrissi-pro.json'
+import habPerso from '../data/habitudes-perso.json'
+import habPro from '../data/habitudes-pro.json'
+import habIdrissiPerso from '../data/habitudes-idrissi-perso.json'
+import habIdrissiPro from '../data/habitudes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from './githubSync'
 import { normaliser } from './motsCles'
 import { texteBrut } from './texteFormate'
 
-export const OUTILS = ['taches', 'notes', 'memoriser', 'graph']
+export const OUTILS = ['taches', 'notes', 'memoriser', 'graph', 'habitudes']
 
 const LIVRÉES = {
   taches: { perso: tâchesPerso, pro: tâchesPro, 'idrissi-perso': tâchesIdrissiPerso, 'idrissi-pro': tâchesIdrissiPro },
   notes: { perso: notesPerso, pro: notesPro, 'idrissi-perso': notesIdrissiPerso, 'idrissi-pro': notesIdrissiPro },
   memoriser: { perso: mémoPerso, pro: mémoPro, 'idrissi-perso': mémoIdrissiPerso, 'idrissi-pro': mémoIdrissiPro },
   graph: { perso: graphPerso, pro: graphPro, 'idrissi-perso': graphIdrissiPerso, 'idrissi-pro': graphIdrissiPro },
+  habitudes: { perso: habPerso, pro: habPro, 'idrissi-perso': habIdrissiPerso, 'idrissi-pro': habIdrissiPro },
 }
 
 const chemin = (outil, espace) => `react-blocks/src/data/${outil}-${espace}.json`

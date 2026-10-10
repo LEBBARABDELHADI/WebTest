@@ -5,6 +5,7 @@ import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import { TexteFormaté } from '../lib/texteFormate'
 import { analyserAujourdhui } from '../lib/aujourdhui'
+import { bilanJour, série, actives, aujourdhuiLocal, décaler, dateDe } from '../lib/habitudes'
 import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import { lireRécents, depuis } from '../lib/recents'
 import { verrouiller } from '../components/Verrou'
@@ -69,6 +70,8 @@ function libelléRécent(lire, chemin) {
     const nom = nomGrapheActif(lire, espace)
     return { titre: nom ? `${nom}` : 'Graph', détail: `Graph ${type.toLowerCase()}`, icône: 'reseau' }
   }
+  if (outil === 'habitudes') return { titre: `Habitudes ${type.toLowerCase()}`, icône: 'checklist' }
+  if (outil === 'agenda') return { titre: 'Agenda', icône: 'calendrier' }
   if (outil === 'timer') return { titre: 'Timer', icône: 'horloge' }
   if (outil === 'notion') {
     const n = notions.find(x => x.id === espace)
@@ -131,11 +134,24 @@ export default function Home({ foyerId = 'lebbar' }) {
     const st = statsTâches(lire('taches', e))
     return { duJour: acc.duJour + st.duJour, enRetard: acc.enRetard + st.enRetard, àRéviser: acc.àRéviser + statsMémo(lire('memoriser', e)).àRéviser }
   }, { duJour: 0, enRetard: 0, àRéviser: 0 })
+  // Habitudes du jour (perso + pro) et de l'espace choisi.
+  const habAujourdhui = ['perso', 'pro'].reduce((n, t) => { const b = bilanJour(lire('habitudes', `${foyer.préfixe}${t}`)); return n + b.prévues.length - b.faites.length }, 0)
+  const habEspace = lire('habitudes', espace)
+  const bilanHab = bilanJour(habEspace)
+  const meilleureSérieEnCours = Math.max(0, ...actives(habEspace).map(h => série(h, habEspace.coches)))
+  // Agenda : échéances des 7 prochains jours (perso + pro).
+  const aujLocal = aujourdhuiLocal()
+  const dansSemaine = ['perso', 'pro'].flatMap(t => {
+    const d = lire('taches', `${foyer.préfixe}${t}`)
+    const fini = analyserAujourdhui(d).colonneTerminée?.id
+    return (d.cartes || []).filter(c => !c.archivé && c.colonneId !== fini && c.échéance && c.échéance >= aujLocal && c.échéance <= décaler(aujLocal, 6))
+  })
+    .sort((a, b) => a.échéance.localeCompare(b.échéance))
   const carte = carteDuJour(lire, foyer)
   const récents = lireRécents()
     .filter(r => {
       const e = r.chemin.split('/')[2]
-      return !['taches', 'notes', 'memoriser', 'graph'].includes(r.chemin.split('/')[1]) || foyerDeLEspace(e) === foyer.id
+      return !['taches', 'notes', 'memoriser', 'graph', 'habitudes', 'agenda'].includes(r.chemin.split('/')[1]) || foyerDeLEspace(e) === foyer.id
     })
     .map(r => ({ ...r, ...libelléRécent(lire, r.chemin) }))
     .filter(r => r.titre)
@@ -159,6 +175,7 @@ export default function Home({ foyerId = 'lebbar' }) {
   if (total.duJour) résumé.push(`${total.duJour} tâche${total.duJour > 1 ? 's' : ''} pour aujourd'hui`)
   if (total.enRetard) résumé.push(`${total.enRetard} en retard`)
   if (total.àRéviser) résumé.push(`${total.àRéviser} carte${total.àRéviser > 1 ? 's' : ''} à réviser`)
+  if (habAujourdhui) résumé.push(`${habAujourdhui} habitude${habAujourdhui > 1 ? 's' : ''} à cocher`)
 
   const tuiles = [
     {
@@ -182,6 +199,16 @@ export default function Home({ foyerId = 'lebbar' }) {
       chiffre: graphes.length, unité: `graphe${graphes.length > 1 ? 's' : ''}`,
       détail: grapheActif ? `Dernier : ${grapheActif}` : 'Aucun graphe',
     },
+    {
+      to: `/habitudes/${espace}`, icône: 'checklist', titre: 'Habitudes',
+      chiffre: bilanHab.prévues.length ? `${bilanHab.faites.length}/${bilanHab.prévues.length}` : '—', unité: bilanHab.prévues.length ? "aujourd'hui" : '',
+      détail: meilleureSérieEnCours ? `🔥 série de ${meilleureSérieEnCours} jour${meilleureSérieEnCours > 1 ? 's' : ''}` : actives(habEspace).length ? 'Coche tes habitudes' : 'Ajoute une habitude',
+    },
+    {
+      to: `/agenda/${foyer.préfixe}perso`, icône: 'calendrier', titre: 'Agenda',
+      chiffre: dansSemaine.length, unité: `échéance${dansSemaine.length > 1 ? 's' : ''} sur 7 j`,
+      détail: dansSemaine[0] ? `${dateDe(dansSemaine[0].échéance).toLocaleDateString('fr-FR', { weekday: 'short' })} : ${dansSemaine[0].texte.split('\n')[0]}` : 'Perso et Pro réunis',
+    },
     { to: '/timer', icône: 'horloge', titre: 'Timer', chiffre: heure, unité: '', détail: 'Chrono · minuteur' },
   ]
 
@@ -198,8 +225,8 @@ export default function Home({ foyerId = 'lebbar' }) {
         .ligne-recente:hover { background: ${T.surface2} }
         .grille-outils { grid-template-columns: repeat(2, minmax(0, 1fr)) }
         @media (max-width: 560px) { .masque-tel { display: none } }
-        @media (min-width: 700px) { .grille-outils { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
-        @media (min-width: 1000px) { .grille-outils { grid-template-columns: repeat(5, minmax(0, 1fr)) } }
+        @media (min-width: 700px) { .grille-outils { grid-template-columns: repeat(4, minmax(0, 1fr)) } }
+        @media (min-width: 1050px) { .grille-outils { grid-template-columns: repeat(7, minmax(0, 1fr)) } }
         @media (prefers-reduced-motion: reduce) { .tuile, .tuile:hover { transition: none; transform: none } }
       `}</style>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: 'max(24px, env(safe-area-inset-top)) 16px 40px' }}>

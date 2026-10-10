@@ -7,6 +7,8 @@ import Notes from './pages/Notes'
 import Memoriser from './pages/Memoriser'
 import Timer from './pages/Timer'
 import Graph from './pages/Graph'
+import Habitudes from './pages/Habitudes'
+import Agenda from './pages/Agenda'
 import Verrou from './components/Verrou'
 import { foyerDeLEspace } from './lib/foyers'
 import { enregistrerVisite } from './lib/recents'
@@ -73,6 +75,10 @@ function App() {
       <Route path="/memoriser/:espace" element={<EspaceRoute Page={Memoriser} />} />
       <Route path="/graph" element={<Navigate to="/graph/perso" replace />} />
       <Route path="/graph/:espace" element={<EspaceRoute Page={Graph} />} />
+      <Route path="/habitudes" element={<Navigate to="/habitudes/perso" replace />} />
+      <Route path="/habitudes/:espace" element={<EspaceRoute Page={Habitudes} />} />
+      <Route path="/agenda" element={<Navigate to="/agenda/perso" replace />} />
+      <Route path="/agenda/:espace" element={<EspaceRoute Page={Agenda} />} />
     </Routes>
     </>
   )
