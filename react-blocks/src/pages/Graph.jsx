@@ -7,6 +7,7 @@ import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage, urlImage, useUrlImage } from '../components/ImageCarte'
 import SectionsGraphe, { colonnesDe, texteDuBloc } from '../components/SectionsGraphe'
 import LiensÉlément from '../components/LiensElement'
+import Dictée from '../components/Dictee'
 import BlocCode from '../components/BlocCode'
 import { colorerCode, COULEURS_CODE } from '../lib/coloration'
 import { exporterMarkdown, pageImprimable } from '../lib/exportSections'
@@ -102,6 +103,7 @@ export default function Graph() {
   const [ligneChoisie, setLigneChoisie] = useState(null)
   const [ligneTemp, setLigneTemp] = useState(null) // ligne en cours de tracé ou de réglage
   const ligneTempRef = useRef(null)
+  const champBulleRef = useRef(null)
   const [styleLigne, setStyleLigne] = useState(() => {
     try { return { ...STYLE_LIGNE_DÉFAUT, ...JSON.parse(localStorage.getItem('react-blocs-style-ligne')) } } catch { return STYLE_LIGNE_DÉFAUT }
   })
@@ -2051,6 +2053,7 @@ export default function Graph() {
             ) : (
               <>
                 <textarea
+                  ref={champBulleRef}
                   autoFocus={!édition.focusCode}
                   value={édition.texte}
                   onChange={e => setÉdition(é => ({ ...é, texte: e.target.value }))}
@@ -2059,6 +2062,9 @@ export default function Graph() {
                   rows={3}
                   style={{ width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '10px', fontSize: '15px', fontFamily: 'inherit', resize: 'vertical' }}
                 />
+                <div style={{ marginTop: '6px' }}>
+                  <Dictée T={T} obtenirInput={() => champBulleRef.current} setValeur={v => setÉdition(é => ({ ...é, texte: v }))} />
+                </div>
                 <ChampImage image={édition.image} onChange={image => setÉdition(é => ({ ...é, image }))} token={token} libellé="Ajouter une image" />
                 <ChampCode T={T} édition={édition} setÉdition={setÉdition} />
                 <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: `1px dashed ${T.border}` }}>

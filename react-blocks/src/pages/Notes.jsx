@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Dictée from '../components/Dictee'
 import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
@@ -261,6 +262,7 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
             <div key={bloc.id}>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
                 <textarea
+                  data-bloc-texte={bloc.id}
                   value={bloc.contenu}
                   onChange={e => majBloc(note.id, bloc.id, { contenu: e.target.value })}
                   placeholder="Écris quelque chose… (**gras**, *italique*)"
@@ -271,6 +273,9 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
                   }}
                 />
                 <BoutonIcone icon="x" title="Retirer" taille={13} onClick={() => supprimerBloc(note.id, bloc.id)} />
+              </div>
+              <div style={{ marginTop: '4px' }}>
+                <Dictée T={T} obtenirInput={() => document.querySelector(`[data-bloc-texte="${bloc.id}"]`)} setValeur={v => majBloc(note.id, bloc.id, { contenu: v })} />
               </div>
               {/\*\*[^*]+\*\*|\*[^*]+\*/.test(bloc.contenu) && (
                 <div style={{ padding: '6px 10px' }}>

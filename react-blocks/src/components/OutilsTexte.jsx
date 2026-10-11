@@ -1,4 +1,5 @@
 import { PALETTE, grotesk } from '../lib/theme'
+import Dictée from './Dictee'
 
 // Barre d'outils gras + couleur qui s'applique uniquement au texte
 // sélectionné dans le champ (pas tout le champ) : on enveloppe la
@@ -59,6 +60,7 @@ export default function OutilsTexte({ T, obtenirInput, valeur, setValeur, grand 
         title="Effacer la mise en forme du texte sélectionné"
         style={{ width: `${pastille}px`, height: `${pastille}px`, borderRadius: '50%', cursor: 'pointer', flexShrink: 0, background: 'transparent', border: `1.5px dashed ${T.textMuted}` }}
       />
+      <span style={{ marginLeft: '4px' }}><Dictée T={T} grand={grand} obtenirInput={obtenirInput} setValeur={setValeur} /></span>
     </div>
   )
 }

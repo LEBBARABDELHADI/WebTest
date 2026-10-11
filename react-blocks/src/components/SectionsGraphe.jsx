@@ -243,6 +243,10 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
     onChanger(cols => cols.map(c => ({ ...c, sousSections: c.sousSections.map(s => ({ ...s, replié })) })))
     setOuvertes(new Set())
   }
+  const replierColonne = (colonne, replié) => {
+    majColonne(colonne.id, c => ({ ...c, sousSections: c.sousSections.map(s => ({ ...s, replié })) }))
+    setOuvertes(o => { const n = new Set(o); colonne.sousSections.forEach(ss => n.delete(ss.id)); return n })
+  }
   // Fait défiler jusqu'à une section / sous-section / bloc et le fait clignoter.
   const montrer = (id, sousSectionId) => {
     setOuvertes(o => new Set([...o, sousSectionId || id]))
@@ -411,6 +415,15 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                 <span style={{ fontSize: '11px', color: T.textMuted, fontFamily: grotesk, flexShrink: 0 }}>
                   {colonne.sousSections.length} sous-section{colonne.sousSections.length > 1 ? 's' : ''} · {nbBlocs} bloc{nbBlocs > 1 ? 's' : ''}
                 </span>
+                {colonne.sousSections.length > 0 && (() => {
+                  const toutRepliée = colonne.sousSections.every(ss => ss.replié && !ouvertes.has(ss.id))
+                  return (
+                    <button onClick={() => replierColonne(colonne, !toutRepliée)}
+                      aria-label={toutRepliée ? `Déplier les sous-sections de ${colonne.titre}` : `Replier les sous-sections de ${colonne.titre}`}
+                      title={toutRepliée ? 'Déplier toutes les sous-sections de cette section' : 'Replier toutes les sous-sections de cette section'}
+                      style={{ ...icône, fontSize: '15px', fontWeight: 700, border: `1px solid ${T.border}`, padding: '3px 8px' }}>{toutRepliée ? '⊞' : '⊟'}</button>
+                  )
+                })()}
                 <button onClick={() => basculerColonne(colonne)} aria-pressed={colonneEnLecture}
                   aria-label={colonneEnLecture ? `Modifier la section ${colonne.titre}` : `Section ${colonne.titre} en mode lecture`}
                   title={colonneEnLecture ? 'Revenir en modification pour toute la section' : 'Toute la section en mode lecture'}
@@ -439,8 +452,11 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                           {!lecture && <Poignée T={T} props={glisserSections.poignée(colonne.id, i)} libellé={`Déplacer la sous-section ${section.titre}`} />}
                           <button onClick={() => { majSection(section.id, s => ({ ...s, replié: !visible })); setOuvertes(o => { const n = new Set(o); n.delete(section.id); return n }) }}
-                            aria-label={visible ? 'Replier la sous-section' : 'Déplier la sous-section'}
-                            style={{ ...icône, fontSize: '11px', padding: '6px 4px', transform: visible ? 'none' : 'rotate(-90deg)', transition: 'transform .15s' }}>▼</button>
+                            aria-label={visible ? 'Replier la sous-section' : 'Déplier la sous-section'} aria-expanded={visible}
+                            title={visible ? 'Replier la sous-section' : 'Déplier la sous-section'}
+                            style={{ ...icône, width: '26px', height: '26px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: T.text, background: T.surface2, border: `1px solid ${T.border}` }}>
+                            <span style={{ display: 'inline-block', transform: visible ? 'none' : 'rotate(-90deg)', transition: 'transform .15s' }}>▼</span>
+                          </button>
                           {titreÉdité?.id === section.id ? champTitre(section.id, '15px') : (
                             <h3 onClick={lecture ? undefined : () => setTitreÉdité({ id: section.id, valeur: section.titre })} title={lecture ? undefined : 'Toucher pour renommer'}
                               style={{ flex: 1, minWidth: 0, margin: 0, fontSize: lecture ? '16px' : '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: lecture ? 'default' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
