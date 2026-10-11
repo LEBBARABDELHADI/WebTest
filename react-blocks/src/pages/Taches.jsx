@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import donnéesPerso from '../data/taches-perso.json'
-import donnéesPro from '../data/taches-pro.json'
-import donnéesIdrissiPerso from '../data/taches-idrissi-perso.json'
-import donnéesIdrissiPro from '../data/taches-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
 import { analyserAujourdhui } from '../lib/aujourdhui'
@@ -14,12 +11,7 @@ import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 
-const DONNÉES = {
-  perso: donnéesPerso,
-  pro: donnéesPro,
-  'idrissi-perso': donnéesIdrissiPerso,
-  'idrissi-pro': donnéesIdrissiPro,
-}
+const DONNÉES = videsParEspace('taches')
 
 const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
   titre: `Programme ${type}`,

@@ -1,39 +1,14 @@
 // Données de tous les outils d'un foyer (perso + pro), pour l'accueil :
 // lecture (copie locale, site, puis GitHub), recherche globale et ajout rapide.
 import { useState, useEffect, useRef, useCallback } from 'react'
-import tâchesPerso from '../data/taches-perso.json'
-import tâchesPro from '../data/taches-pro.json'
-import tâchesIdrissiPerso from '../data/taches-idrissi-perso.json'
-import tâchesIdrissiPro from '../data/taches-idrissi-pro.json'
-import notesPerso from '../data/notes-perso.json'
-import notesPro from '../data/notes-pro.json'
-import notesIdrissiPerso from '../data/notes-idrissi-perso.json'
-import notesIdrissiPro from '../data/notes-idrissi-pro.json'
-import mémoPerso from '../data/memoriser-perso.json'
-import mémoPro from '../data/memoriser-pro.json'
-import mémoIdrissiPerso from '../data/memoriser-idrissi-perso.json'
-import mémoIdrissiPro from '../data/memoriser-idrissi-pro.json'
-import graphPerso from '../data/graph-perso.json'
-import graphPro from '../data/graph-pro.json'
-import graphIdrissiPerso from '../data/graph-idrissi-perso.json'
-import graphIdrissiPro from '../data/graph-idrissi-pro.json'
-import habPerso from '../data/habitudes-perso.json'
-import habPro from '../data/habitudes-pro.json'
-import habIdrissiPerso from '../data/habitudes-idrissi-perso.json'
-import habIdrissiPro from '../data/habitudes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from './githubSync'
 import { normaliser } from './motsCles'
 import { texteBrut } from './texteFormate'
+import { videsParEspace } from './donneesVides'
 
 export const OUTILS = ['taches', 'notes', 'memoriser', 'graph', 'habitudes']
 
-const LIVRÉES = {
-  taches: { perso: tâchesPerso, pro: tâchesPro, 'idrissi-perso': tâchesIdrissiPerso, 'idrissi-pro': tâchesIdrissiPro },
-  notes: { perso: notesPerso, pro: notesPro, 'idrissi-perso': notesIdrissiPerso, 'idrissi-pro': notesIdrissiPro },
-  memoriser: { perso: mémoPerso, pro: mémoPro, 'idrissi-perso': mémoIdrissiPerso, 'idrissi-pro': mémoIdrissiPro },
-  graph: { perso: graphPerso, pro: graphPro, 'idrissi-perso': graphIdrissiPerso, 'idrissi-pro': graphIdrissiPro },
-  habitudes: { perso: habPerso, pro: habPro, 'idrissi-perso': habIdrissiPerso, 'idrissi-pro': habIdrissiPro },
-}
+const LIVRÉES = Object.fromEntries(OUTILS.map(o => [o, videsParEspace(o)]))
 
 const chemin = (outil, espace) => `react-blocks/src/data/${outil}-${espace}.json`
 const clé = (outil, espace) => `react-blocs-${outil}-${espace}`
@@ -41,7 +16,7 @@ export const aujourdhui = () => new Date().toISOString().slice(0, 10)
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 
 // La copie la plus récente sur l'appareil (chaque page la garde à jour),
-// sinon celle publiée avec le site.
+// sinon un contenu vide (les données ne sont plus livrées avec le site).
 export function lireLocal(outil, espace) {
   try {
     const brut = localStorage.getItem(clé(outil, espace))

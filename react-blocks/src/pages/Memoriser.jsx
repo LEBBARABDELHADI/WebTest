@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import donnéesPerso from '../data/memoriser-perso.json'
-import donnéesPro from '../data/memoriser-pro.json'
-import donnéesIdrissiPerso from '../data/memoriser-idrissi-perso.json'
-import donnéesIdrissiPro from '../data/memoriser-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
@@ -40,12 +37,7 @@ function libelléVoix(v) {
   return v.name.toLowerCase().includes(langue.split(' ')[0]) ? nom : `${nom} · ${langue}`
 }
 
-const DONNÉES = {
-  perso: donnéesPerso,
-  pro: donnéesPro,
-  'idrissi-perso': donnéesIdrissiPerso,
-  'idrissi-pro': donnéesIdrissiPro,
-}
+const DONNÉES = videsParEspace('memoriser')
 
 const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
   titre: `Mémoriser ${type}`,

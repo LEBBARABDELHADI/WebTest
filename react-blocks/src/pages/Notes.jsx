@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import donnéesNotesPerso from '../data/notes-perso.json'
-import donnéesNotesPro from '../data/notes-pro.json'
-import donnéesNotesIdrissiPerso from '../data/notes-idrissi-perso.json'
-import donnéesNotesIdrissiPro from '../data/notes-idrissi-pro.json'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour } from '../lib/synchro'
 import VersCartes from '../components/VersCartes'
@@ -20,12 +17,7 @@ const ESPACES_TÂCHES = Object.values(espacesPourTousLesFoyers((foyer, type, id)
   stockage: `react-blocs-taches-${id}`,
 })))
 
-const DONNÉES_NOTES = {
-  perso: donnéesNotesPerso,
-  pro: donnéesNotesPro,
-  'idrissi-perso': donnéesNotesIdrissiPerso,
-  'idrissi-pro': donnéesNotesIdrissiPro,
-}
+const DONNÉES_NOTES = videsParEspace('notes')
 
 const ESPACES_NOTES = espacesPourTousLesFoyers((foyer, type, id) => ({
   titre: `Notes ${type}`,

@@ -1,9 +1,6 @@
 import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import donnéesPerso from '../data/graph-perso.json'
-import donnéesPro from '../data/graph-pro.json'
-import donnéesIdrissiPerso from '../data/graph-idrissi-perso.json'
-import donnéesIdrissiPro from '../data/graph-idrissi-pro.json'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
@@ -26,12 +23,7 @@ import {
 } from '../lib/graphe'
 import { exporterGraphePNG } from '../lib/exportGraphe'
 
-const DONNÉES = {
-  perso: donnéesPerso,
-  pro: donnéesPro,
-  'idrissi-perso': donnéesIdrissiPerso,
-  'idrissi-pro': donnéesIdrissiPro,
-}
+const DONNÉES = videsParEspace('graph')
 
 const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
   titre: `Graph ${type}`,

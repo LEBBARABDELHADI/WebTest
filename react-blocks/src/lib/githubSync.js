@@ -6,7 +6,7 @@ const BRANCHE = 'claude/react-blocks-simulation-FxGEl'
 // DONNÉES_SÉPARÉES = true : dans un dépôt PRIVÉ à part (lu et écrit avec le
 // token), les fichiers à la racine ; le dépôt du code (public, qui publie le
 // site) ne contient plus aucune donnée. false : comme avant, dans ce dépôt.
-export const DONNÉES_SÉPARÉES = false
+export const DONNÉES_SÉPARÉES = true
 const DONNÉES = DONNÉES_SÉPARÉES
   ? { repo: 'WebTest-donnees', branche: 'main', chemin: c => c.replace(/^react-blocks\/src\/data\//, '') }
   : { repo: REPO, branche: BRANCHE, chemin: c => c }

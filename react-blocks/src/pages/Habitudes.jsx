@@ -1,9 +1,6 @@
 import { useState } from 'react'
+import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams } from 'react-router-dom'
-import donnéesPerso from '../data/habitudes-perso.json'
-import donnéesPro from '../data/habitudes-pro.json'
-import donnéesIdrissiPerso from '../data/habitudes-idrissi-perso.json'
-import donnéesIdrissiPro from '../data/habitudes-idrissi-pro.json'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
@@ -15,7 +12,7 @@ import {
   aujourdhuiLocal, décaler, dateDe,
 } from '../lib/habitudes'
 
-const DONNÉES = { perso: donnéesPerso, pro: donnéesPro, 'idrissi-perso': donnéesIdrissiPerso, 'idrissi-pro': donnéesIdrissiPro }
+const DONNÉES = videsParEspace('habitudes')
 const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
   titre: `Habitudes ${type}`,
   eyebrow: `${foyer.nom} · Habitudes ${type}`,

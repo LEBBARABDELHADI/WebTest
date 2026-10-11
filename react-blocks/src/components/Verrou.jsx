@@ -4,8 +4,8 @@ import { FOYERS } from '../lib/foyers'
 
 // Le dépôt est public : on n'y met jamais les mots de passe en clair,
 // seulement leur empreinte SHA-256 (salée), une par foyer. C'est un verrou
-// d'accès côté navigateur, pas une protection des données (les fichiers
-// JSON restent lisibles sur GitHub).
+// d'accès côté navigateur ; les données, elles, sont protégées par le dépôt
+// privé WebTest-donnees (lisible seulement avec le token).
 const SEL = 'react-blocs:'
 const EMPREINTES = {
   lebbar: '8b3b3ef272dbec4908e0cea0c60cefdfd5b9ec1f2e4933c80104de2a57bc9515',
