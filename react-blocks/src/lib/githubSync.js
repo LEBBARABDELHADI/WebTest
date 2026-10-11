@@ -55,8 +55,10 @@ export async function lireDepuisGitHub(token, chemin) {
   }
   if (!res.ok) {
     if (res.status === 403) throw new Error('Limite de requêtes GitHub atteinte, réessaie plus tard')
-    const err = new Error(res.status === 404 && DONNÉES_SÉPARÉES && !token
-      ? 'Données privées : connecte ton token GitHub (menu Synchronisation) pour les lire'
+    const err = new Error(res.status === 404 && DONNÉES_SÉPARÉES
+      ? (token
+        ? `Ton token n'a pas accès au dépôt privé ${DONNÉES.repo} : ajoute-le au token sur GitHub (Developer settings → Fine-grained tokens)`
+        : 'Données privées : connecte ton token GitHub (menu Synchronisation) pour les lire')
       : `Lecture impossible (${res.status})`)
     err.statut = res.status
     throw err
@@ -67,7 +69,7 @@ export async function lireDepuisGitHub(token, chemin) {
 }
 
 // Écriture : nécessite un token avec la permission Contents (lecture/écriture)
-// sur ce dépôt (token fin, "Fine-grained personal access token").
+// sur le dépôt des données (token fin, "Fine-grained personal access token").
 // En cas d'erreur passagère (conflit, 500…), relit la version actuelle du
 // fichier et réessaie jusqu'à 4 fois.
 // `base` (facultatif) : la version sur laquelle l'appareil a travaillé. Si

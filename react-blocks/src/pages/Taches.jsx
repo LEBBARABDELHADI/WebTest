@@ -756,7 +756,7 @@ export default function Taches() {
                   <div>
                     <p style={{ fontSize: '11px', color: T.textMuted, margin: '0 0 10px', lineHeight: '1.6' }}>
                       Colle un token GitHub pour écrire tes modifications dans <code style={{ background: T.bg, padding: '1px 5px', borderRadius: '4px' }}>taches-{config.id}.json</code> — visible ensuite sur tous tes appareils.
-                      Génère-le sur <strong style={{ color: T.text }}>github.com → Settings → Developer settings → Fine-grained tokens</strong>, limité au dépôt <strong style={{ color: T.text }}>WebTest</strong>, permission <strong style={{ color: T.text }}>Contents: Read and write</strong>.
+                      Génère-le sur <strong style={{ color: T.text }}>github.com → Settings → Developer settings → Fine-grained tokens</strong>, avec accès au dépôt privé <strong style={{ color: T.text }}>WebTest-donnees</strong>, permission <strong style={{ color: T.text }}>Contents: Read and write</strong>.
                     </p>
                     <div style={{ display: 'flex', gap: '6px' }}>
                       <input
