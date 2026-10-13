@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react'
 import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
@@ -30,6 +30,43 @@ const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
 // « Audrey ★ Premium · français (France) » ; les voix déjà nommées avec leur
 // langue (« Google français ») ne la répètent pas.
 const LIBELLÉS_QUALITÉ = ['', ' ✦ Améliorée', ' ★ Premium']
+
+
+// Champ recto / verso qui s'agrandit avec le texte (tout reste visible), et
+// qu'on peut encore étirer à la main ; ⤢ l'ouvre en grand. Entrée va à la
+// ligne, Ctrl/⌘ + Entrée valide.
+function ChampCarte({ T, champRef, value, onChange, placeholder, autoFocus, onValider, accent = false }) {
+  const el = useRef(null)
+  const [grand, setGrand] = useState(false)
+  useLayoutEffect(() => {
+    const c = el.current
+    if (!c) return
+    c.style.height = 'auto'
+    c.style.height = `${Math.max(c.scrollHeight + 2, grand ? 260 : 0)}px`
+  }, [value, grand])
+  return (
+    <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+      <textarea
+        ref={n => { el.current = n; if (typeof champRef === 'function') champRef(n); else if (champRef) champRef.current = n }}
+        autoFocus={autoFocus}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        rows={1}
+        onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); onValider?.() } }}
+        style={{
+          display: 'block', width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text,
+          border: `1px solid ${accent ? T.accent : T.border}`, borderRadius: '6px', padding: '7px 30px 7px 9px', fontSize: grand ? '14px' : '12.5px',
+          lineHeight: 1.5, fontFamily: 'inherit', resize: 'vertical', overflow: 'hidden', minHeight: '34px', maxHeight: grand ? 'none' : '60vh',
+        }}
+      />
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setGrand(g => !g)}
+        aria-label={grand ? 'Réduire le champ' : 'Agrandir le champ'} aria-pressed={grand}
+        title={grand ? 'Réduire le champ' : 'Agrandir le champ'}
+        style={{ position: 'absolute', top: '4px', right: '4px', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: grand ? `${T.accent}33` : 'transparent', color: grand ? T.accent : T.textMuted, border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '14px' }}>⤢</button>
+    </div>
+  )
+}
 
 function libelléVoix(v) {
   const langue = nomDeLangue(v.lang)
@@ -873,32 +910,14 @@ export default function Memoriser() {
                               {éditionCarteId === carte.id ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                   <div>
-                                    <input
-                                      autoFocus
-                                      ref={refÉditionRecto}
-                                      value={éditionRecto}
-                                      onChange={e => setÉditionRecto(e.target.value)}
-                                      placeholder="Recto"
-                                      style={{
-                                        width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text,
-                                        border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12.5px',
-                                      }}
-                                    />
+                                    <ChampCarte T={T} accent autoFocus champRef={refÉditionRecto} value={éditionRecto}
+                                      onChange={e => setÉditionRecto(e.target.value)} placeholder="Recto" onValider={() => validerÉditionCarte(carte.id)} />
                                     <OutilsTexte T={T} obtenirInput={() => refÉditionRecto.current} valeur={éditionRecto} setValeur={setÉditionRecto} />
                                     <ChampImage image={éditionImageRecto} onChange={setÉditionImageRecto} token={token} libellé="Image côté question" />
                                   </div>
                                   <div>
-                                    <input
-                                      ref={refÉditionVerso}
-                                      value={éditionVerso}
-                                      onChange={e => setÉditionVerso(e.target.value)}
-                                      placeholder="Verso"
-                                      onKeyDown={e => { if (e.key === 'Enter') validerÉditionCarte(carte.id) }}
-                                      style={{
-                                        width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text,
-                                        border: `1px solid ${T.accent}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12.5px',
-                                      }}
-                                    />
+                                    <ChampCarte T={T} accent champRef={refÉditionVerso} value={éditionVerso}
+                                      onChange={e => setÉditionVerso(e.target.value)} placeholder="Verso" onValider={() => validerÉditionCarte(carte.id)} />
                                     <OutilsTexte T={T} obtenirInput={() => refÉditionVerso.current} valeur={éditionVerso} setValeur={setÉditionVerso} />
                                     <ChampImage image={éditionImageVerso} onChange={setÉditionImageVerso} token={token} libellé="Image côté réponse" />
                                   </div>
@@ -913,11 +932,11 @@ export default function Memoriser() {
                                     {(carte.imageRecto || carte.imageVerso) && (
                                       <ImageCarte image={carte.imageRecto || carte.imageVerso} hauteurMax={56} style={{ margin: '0 0 6px', maxWidth: '96px' }} />
                                     )}
-                                    <p style={{ margin: 0, fontSize: '12.5px', wordBreak: 'break-word' }}>
+                                    <p style={{ margin: 0, fontSize: '12.5px', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                                       {(carte.fautesConsécutives || 0) >= SEUIL_POINT_FAIBLE && <span title="Point faible" style={{ marginRight: '4px' }}>⚠️</span>}
                                       <TexteFormaté texte={carte.recto} couleurDéfaut={T.text} />
                                     </p>
-                                    <p style={{ margin: '2px 0 0', fontSize: '11.5px', wordBreak: 'break-word' }}><TexteFormaté texte={carte.verso} couleurDéfaut={T.textMuted} /></p>
+                                    <p style={{ margin: '2px 0 0', fontSize: '11.5px', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}><TexteFormaté texte={carte.verso} couleurDéfaut={T.textMuted} /></p>
                                   </div>
                                   <BoutonIcone icon="bulles" title="Voir en bulles" taille={13} onClick={() => setCarteBullesId(carte.id)} />
                                   {aDesPuces(carte.verso) && (
@@ -934,18 +953,16 @@ export default function Memoriser() {
 
                           <form onSubmit={e => { e.preventDefault(); ajouterCarte(paquet.id) }} style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
                             <div>
-                              <input
-                                ref={el => {
+                              <ChampCarte
+                                T={T}
+                                champRef={el => {
                                   if (!refsNouvelleCarte.current[paquet.id]) refsNouvelleCarte.current[paquet.id] = {}
                                   refsNouvelleCarte.current[paquet.id].recto = el
                                 }}
                                 value={(nouvelleCarte[paquet.id] || {}).recto || ''}
                                 onChange={e => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), recto: e.target.value } }))}
                                 placeholder="Recto (question)"
-                                style={{
-                                  width: '100%', boxSizing: 'border-box', background: T.bg, color: T.text,
-                                  border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', fontSize: '12.5px',
-                                }}
+                                onValider={() => ajouterCarte(paquet.id)}
                               />
                               <OutilsTexte
                                 T={T}
@@ -956,21 +973,19 @@ export default function Memoriser() {
                             </div>
                             <div>
                               <div style={{ display: 'flex', gap: '6px' }}>
-                                <input
-                                  ref={el => {
+                                <ChampCarte
+                                  T={T}
+                                  champRef={el => {
                                     if (!refsNouvelleCarte.current[paquet.id]) refsNouvelleCarte.current[paquet.id] = {}
                                     refsNouvelleCarte.current[paquet.id].verso = el
                                   }}
                                   value={(nouvelleCarte[paquet.id] || {}).verso || ''}
                                   onChange={e => setNouvelleCarte(n => ({ ...n, [paquet.id]: { ...(n[paquet.id] || {}), verso: e.target.value } }))}
                                   placeholder="Verso (réponse)"
-                                  style={{
-                                    flex: 1, minWidth: 0, background: T.bg, color: T.text,
-                                    border: `1px solid ${T.border}`, borderRadius: '6px', padding: '7px 9px', fontSize: '12.5px',
-                                  }}
+                                  onValider={() => ajouterCarte(paquet.id)}
                                 />
-                                <button type="submit" style={{
-                                  background: T.accent, color: T.accentText, border: 'none', borderRadius: '6px', width: '32px',
+                                <button type="submit" title="Ajouter la carte (Ctrl + Entrée)" style={{
+                                  background: T.accent, color: T.accentText, border: 'none', borderRadius: '6px', width: '32px', alignSelf: 'flex-start', height: '34px',
                                   display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
                                 }}><Icon nom="plus" taille={14} /></button>
                               </div>
