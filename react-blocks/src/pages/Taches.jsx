@@ -151,6 +151,58 @@ function PanneauDates({ T, cartes, colonnes, colonneTerminée, vert, onAller }) 
   )
 }
 
+// Dernière colonne du tableau : créer une nouvelle section (nom + couleur).
+function NouvelleSection({ T, onCréer }) {
+  const [ouvert, setOuvert] = useState(false)
+  const [titre, setTitre] = useState('')
+  const [couleur, setCouleur] = useState(PALETTE_ÉTIQUETTES[0])
+  const valider = () => {
+    if (!titre.trim()) return
+    onCréer(titre, couleur)
+    setTitre('')
+    setOuvert(false)
+  }
+  const cadre = {
+    minWidth: 'min(272px, 84vw)', maxWidth: 'min(272px, 84vw)', flexShrink: 0, alignSelf: 'flex-start',
+    borderRadius: '14px', border: `1.5px dashed ${T.border}`, padding: '14px', scrollSnapAlign: 'start', boxSizing: 'border-box',
+  }
+  if (!ouvert) return (
+    <button onClick={() => setOuvert(true)} style={{
+      ...cadre, background: 'transparent', color: T.textMuted, cursor: 'pointer', fontFamily: grotesk, fontSize: '14px', fontWeight: 600,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '64px',
+    }}><Icon nom="plus" taille={16} trait={2.5} /> Nouvelle section</button>
+  )
+  return (
+    <form onSubmit={e => { e.preventDefault(); valider() }} aria-label="Nouvelle section" style={{ ...cadre, background: T.surface, borderColor: T.accent, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <strong style={{ fontFamily: grotesk, fontSize: '13px', color: T.text }}>Nouvelle section</strong>
+      <input
+        autoFocus
+        value={titre}
+        onChange={e => setTitre(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Escape') setOuvert(false) }}
+        placeholder="Nom de la section…"
+        enterKeyHint="done"
+        style={{ background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '7px', padding: '9px 10px', fontSize: '13px', outline: 'none' }}
+      />
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        {PALETTE_ÉTIQUETTES.map(c => (
+          <button key={c} type="button" onClick={() => setCouleur(c)} aria-label={`Couleur ${c}`} aria-pressed={couleur === c} style={{
+            width: '22px', height: '22px', borderRadius: '50%', background: c, cursor: 'pointer',
+            border: couleur === c ? `2px solid ${T.text}` : '2px solid transparent',
+          }} />
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+        <button type="button" onClick={() => { setOuvert(false); setTitre('') }} style={{ background: 'none', border: 'none', color: T.textMuted, fontSize: '12.5px', cursor: 'pointer', fontFamily: grotesk }}>Annuler</button>
+        <button type="submit" disabled={!titre.trim()} style={{
+          background: titre.trim() ? T.accent : T.bg, color: titre.trim() ? T.accentText : T.textMuted, border: 'none', borderRadius: '7px',
+          padding: '8px 14px', fontSize: '12.5px', fontWeight: 700, cursor: titre.trim() ? 'pointer' : 'default', fontFamily: grotesk,
+        }}>Créer</button>
+      </div>
+    </form>
+  )
+}
+
 export default function Taches() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES[espaceParam] || ESPACES.perso
@@ -474,6 +526,14 @@ export default function Taches() {
       ajouterÉvénementTimeline(dragCarte.current, date)
       dragCarte.current = null
     }
+  }
+
+  const ajouterColonne = (titre, couleur) => {
+    const nom = titre.trim()
+    if (!nom) return
+    const id = uid()
+    setData(d => ({ ...d, colonnes: [...d.colonnes, { id, titre: nom, couleur }] }))
+    setTimeout(() => document.querySelector(`[data-colonne="${id}"]`)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 100)
   }
 
   const démarrerÉditionColonne = col => {
@@ -1059,6 +1119,7 @@ export default function Taches() {
           return (
             <div
               key={col.id}
+              data-colonne={col.id}
               onDragOver={e => e.preventDefault()}
               onDrop={() => onDrop(col.id)}
               style={{
@@ -1361,6 +1422,7 @@ export default function Taches() {
             </div>
           )
         })}
+        <NouvelleSection T={T} onCréer={ajouterColonne} />
       </div>
 
       <div style={{ maxWidth: '560px', margin: '30px auto 0' }}>
