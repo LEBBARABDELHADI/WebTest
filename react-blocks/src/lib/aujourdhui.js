@@ -5,7 +5,7 @@
 //   - cartes de la colonne « Aujourd'hui »,
 //   - planifiées aujourd'hui dans la timeline.
 // Chaque tâche n'est comptée qu'une fois ; les cartes archivées ou dans la
-// colonne « Terminé » sont ignorées.
+// colonne « Terminé » sont ignorées, comme celles cochées (barrées).
 import { normaliser } from './motsCles'
 
 export const dateDuJour = () => new Date().toISOString().slice(0, 10)
@@ -14,7 +14,7 @@ export function analyserAujourdhui(data, auj = dateDuJour()) {
   const colonnes = data.colonnes || []
   const colonneAujourdhui = colonnes.find(c => normaliser(c.titre).includes('aujourd'))
   const colonneTerminée = colonnes.find(c => /termin|fini|fait$/.test(normaliser(c.titre)))
-  const actives = (data.cartes || []).filter(c => !c.archivé && c.colonneId !== colonneTerminée?.id)
+  const actives = (data.cartes || []).filter(c => !c.archivé && !c.fait && c.colonneId !== colonneTerminée?.id)
   const vues = new Set()
   const prendre = liste => liste.filter(c => (vues.has(c.id) ? false : (vues.add(c.id), true)))
   const enRetard = prendre(actives.filter(c => c.échéance && c.échéance < auj))

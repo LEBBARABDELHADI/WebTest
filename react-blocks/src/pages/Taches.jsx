@@ -83,7 +83,7 @@ function DatesCarte({ T, carte, vert }) {
   const couleurÉch = !éch ? null : éch.n < 0 ? T.danger : éch.n <= 1 ? T.accent : T.text
   const fondÉch = !éch ? null : éch.n < 0 ? T.dangerSoft : éch.n <= 1 ? T.accentSoft : T.bg
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '0 0 8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '0 0 8px', opacity: carte.fait ? 0.55 : 1 }}>
       {éch && ligne('⏰', 'Échéance', carte.échéance, couleurÉch, fondÉch, éch.n < 0 ? `en retard de ${-éch.n} j` : éch.texte)}
       {carte.livraison && ligne('📦', 'Livraison', carte.livraison, vert, `${vert}1f`, écartJours(carte.livraison).texte)}
     </div>
@@ -449,6 +449,20 @@ export default function Taches() {
       colonnes: d.colonnes.filter(c => c.id !== id),
       cartes: d.cartes.filter(c => c.colonneId !== id),
       timeline: d.timeline.filter(ev => ev.colonneId !== id),
+    }))
+  }
+
+  // Case à cocher sur la carte : la tâche est faite (texte barré).
+  const basculerFait = carteId => {
+    setData(d => ({
+      ...d,
+      cartes: d.cartes.map(c => {
+        if (c.id !== carteId) return c
+        const copie = { ...c }
+        if (c.fait) delete copie.fait
+        else copie.fait = true
+        return copie
+      }),
     }))
   }
 
@@ -1092,9 +1106,22 @@ export default function Taches() {
                               )}
                             </div>
                           )}
-                          <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-                            {carte.texte}
-                          </p>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '0 0 8px' }}>
+                            <input
+                              type="checkbox"
+                              checked={!!carte.fait}
+                              onChange={() => basculerFait(carte.id)}
+                              aria-label={carte.fait ? `Décocher « ${carte.texte} »` : `Cocher « ${carte.texte} » (fait)`}
+                              title={carte.fait ? 'Décocher' : 'Cocher : la tâche est faite'}
+                              style={{ width: '20px', height: '20px', margin: '1px 0 0', flexShrink: 0, cursor: 'pointer', accentColor: vertLivraison }}
+                            />
+                            <p style={{
+                              flex: 1, minWidth: 0, color: carte.fait ? T.textMuted : T.text, fontSize: '13.5px', margin: 0, lineHeight: '1.5', whiteSpace: 'pre-wrap',
+                              textDecoration: carte.fait ? 'line-through' : 'none', textDecorationThickness: '2px', opacity: carte.fait ? 0.75 : 1,
+                            }}>
+                              {carte.texte}
+                            </p>
+                          </div>
                           <DatesCarte T={T} carte={carte} vert={vertLivraison} />
                           {(carte.liens || []).length > 0 && détailsId !== carte.id && (
                             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', margin: '-2px 0 8px' }}>

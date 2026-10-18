@@ -22,7 +22,7 @@ function construireIndex(lire, foyer, auj) {
     const t = lire('taches', espace)
     const { colonneTerminée } = analyserAujourdhui(t, auj)
     ;(t.cartes || []).filter(c => !c.archivé && c.échéance).forEach(c => {
-      const finie = c.colonneId === colonneTerminée?.id
+      const finie = c.fait || c.colonneId === colonneTerminée?.id
       const e = { type: 'tâche', espace: étiquette, titre: c.texte.split('\n')[0], fait: finie, retard: !finie && c.échéance < auj, lien: `/taches/${espace}?carte=${c.id}` }
       ajouter(c.échéance, e)
       // Une tâche en retard réapparaît aussi aujourd'hui.
@@ -31,7 +31,7 @@ function construireIndex(lire, foyer, auj) {
     ;(t.timeline || []).forEach(ev => {
       const c = (t.cartes || []).find(x => x.id === ev.carteId)
       if (c?.archivé) return
-      ajouter(ev.date, { type: 'planifiée', espace: étiquette, titre: ev.texte || c?.texte || 'Tâche', fait: c?.colonneId === colonneTerminée?.id, lien: `/taches/${espace}${ev.carteId ? `?carte=${ev.carteId}` : ''}` })
+      ajouter(ev.date, { type: 'planifiée', espace: étiquette, titre: ev.texte || c?.texte || 'Tâche', fait: !!c?.fait || c?.colonneId === colonneTerminée?.id, lien: `/taches/${espace}${ev.carteId ? `?carte=${ev.carteId}` : ''}` })
     })
     const m = lire('memoriser', espace)
     const révisions = new Map()
