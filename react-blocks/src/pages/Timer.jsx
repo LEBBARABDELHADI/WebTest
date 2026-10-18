@@ -10,6 +10,7 @@ import { useÉcranAllumé } from '../lib/ecoute'
 // juste même si le téléphone ralentit la page ou si on change de page.
 
 const CLÉ = 'react-blocs-timer'
+const CLÉ_VUE = 'react-blocs-timer-vue' // minuteur | heure
 const NOIR = '#000000'
 const CARTE = '#1c1c1e'
 const BLANC = '#ffffff'
@@ -121,6 +122,26 @@ function heureDuMoment() {
   return `${deux(d.getHours())}${deux(d.getMinutes())}`
 }
 
+// Mode heure : grande horloge HH:MM:SS et la date du jour.
+function Horloge({ maintenant, taille, géante = false }) {
+  const d = new Date(maintenant)
+  const date = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: géante ? '3vh' : '18px' }}>
+      <div role="timer" aria-label={`Il est ${d.getHours()} heures ${d.getMinutes()}`} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: géante ? '1vw' : '4px' }}>
+        <Groupe valeur={d.getHours()} libellé="Heures" taille={taille} couleur={BLANC} sansLibellé={géante} />
+        <Séparateur taille={taille} couleur={BLANC} />
+        <Groupe valeur={d.getMinutes()} libellé="Minutes" taille={taille} couleur={BLANC} sansLibellé={géante} />
+        <Séparateur taille={taille} couleur={BLANC} />
+        <Groupe valeur={d.getSeconds()} libellé="Secondes" taille={taille} couleur={BLANC} sansLibellé={géante} />
+      </div>
+      <p style={{ margin: 0, fontFamily: grotesk, fontWeight: 600, color: GRIS, fontSize: géante ? 'min(4vw, 26px)' : '16px', textAlign: 'center' }}>
+        {date[0].toUpperCase() + date.slice(1)}
+      </p>
+    </div>
+  )
+}
+
 function HeureActuelle({ taille }) {
   const [heure, setHeure] = useState(heureDuMoment)
   useEffect(() => {
@@ -147,18 +168,25 @@ export default function Timer() {
   const [contrôlesVisibles, setContrôlesVisibles] = useState(true)
   const masquageRef = useRef(null)
 
+  const [vue, setVue] = useState(() => { try { return localStorage.getItem(CLÉ_VUE) === 'heure' ? 'heure' : 'minuteur' } catch { return 'minuteur' } })
+  const modeHeure = vue === 'heure'
+  const choisirVue = v => {
+    setVue(v)
+    try { localStorage.setItem(CLÉ_VUE, v) } catch { /* ignore */ }
+  }
+
   const enCours = t.état === 'en cours'
-  useÉcranAllumé(enCours)
+  useÉcranAllumé(enCours || modeHeure)
 
   useEffect(() => {
     try { localStorage.setItem(CLÉ, JSON.stringify(t)) } catch { /* ignore */ }
   }, [t])
 
   useEffect(() => {
-    if (!enCours) return
+    if (!enCours && !modeHeure) return
     const id = setInterval(() => setMaintenant(Date.now()), 200)
     return () => clearInterval(id)
-  }, [enCours])
+  }, [enCours, modeHeure])
 
   // Fin du compte à rebours : alarme (bips + vibration) pendant une minute.
   const arrêterAlarme = () => {
@@ -169,6 +197,7 @@ export default function Timer() {
   useEffect(() => {
     if (t.mode === 'rebours' && enCours && t.fin <= maintenant) {
       setT(s => ({ ...s, état: 'fini' }))
+      choisirVue('minuteur') // le minuteur tournait pendant qu'on regardait l'heure
       let n = 0
       const sonner = () => {
         bip(988, 0.18)
@@ -214,6 +243,9 @@ export default function Timer() {
     setT(s => ({ ...ÉTAT_INITIAL, mode: s.mode, durée: s.durée }))
   }
   const changerMode = mode => {
+    choisirVue('minuteur')
+    // Revenir de l'heure au même mode ne remet pas le minuteur à zéro.
+    if (modeHeure && t.mode === mode) return
     arrêterAlarme()
     setT(s => ({ ...ÉTAT_INITIAL, mode, durée: s.durée }))
   }
@@ -255,6 +287,28 @@ export default function Timer() {
     padding: '8px 14px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk, fontSize: '13px', fontWeight: 600,
     background: actif ? BLANC : CARTE, color: actif ? NOIR : BLANC, border: 'none',
   })
+
+  if (pleinÉcran && modeHeure) {
+    return (
+      <div onClick={montrerContrôles} role="dialog" aria-label="Heure en plein écran" style={{
+        position: 'fixed', inset: 0, zIndex: 2000, background: NOIR, color: BLANC, overflow: 'hidden',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: contrôlesVisibles ? 'default' : 'none',
+      }}>
+        <style>{ANIMATIONS}</style>
+        <Horloge maintenant={maintenant} taille="min(14.5vw, 52vh)" géante />
+        <button
+          onClick={e => { e.stopPropagation(); sortirPleinÉcran() }}
+          aria-label="Quitter le plein écran"
+          style={{
+            position: 'absolute', top: 'max(16px, env(safe-area-inset-top))', left: 'max(16px, env(safe-area-inset-left))',
+            width: '44px', height: '44px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC,
+            fontSize: '18px', cursor: 'pointer', opacity: contrôlesVisibles ? 1 : 0, transition: 'opacity .4s',
+            pointerEvents: contrôlesVisibles ? 'auto' : 'none',
+          }}
+        >✕</button>
+      </div>
+    )
+  }
 
   if (pleinÉcran) {
     const géante = avecHeures ? 'min(14.5vw, 52vh)' : 'min(22vw, 52vh)'
@@ -341,17 +395,32 @@ export default function Timer() {
           style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '20px', cursor: 'pointer' }}
         >‹</button>
         <div style={{ display: 'flex', background: CARTE, borderRadius: '22px', padding: '3px' }}>
-          {[['rebours', 'Compte à rebours'], ['chrono', 'Chronomètre']].map(([id, libellé]) => (
-            <button key={id} onClick={() => changerMode(id)} style={{ ...pastille(t.mode === id), padding: '8px 12px' }}>{libellé}</button>
+          {[['rebours', 'Minuteur'], ['chrono', 'Chrono']].map(([id, libellé]) => (
+            <button key={id} onClick={() => changerMode(id)} aria-pressed={!modeHeure && t.mode === id} style={{ ...pastille(!modeHeure && t.mode === id), padding: '8px 12px' }}>{libellé}</button>
           ))}
+          <button onClick={() => choisirVue('heure')} aria-pressed={modeHeure} style={{ ...pastille(modeHeure), padding: '8px 12px' }}>Heure</button>
         </div>
         <button onClick={entrerPleinÉcran} aria-label="Plein écran" title="Plein écran" style={{ width: '42px', height: '42px', borderRadius: '50%', background: CARTE, border: 'none', color: BLANC, fontSize: '16px', cursor: 'pointer' }}>⛶</button>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '-6px 0 10px' }}>
-        <HeureActuelle taille="20px" />
-      </div>
+      {!modeHeure && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '-6px 0 10px' }}>
+          <HeureActuelle taille="20px" />
+        </div>
+      )}
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
+      {modeHeure && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
+          <Horloge maintenant={maintenant} taille="min(11.5vw, 92px)" />
+          {(enCours || t.état === 'pause') && (
+            <button onClick={() => choisirVue('minuteur')} style={{ ...pastille(false), color: GRIS }}>
+              {t.mode === 'rebours' ? '⏳ Minuteur' : '⏱️ Chrono'} {t.état === 'pause' ? 'en pause' : 'en cours'} — voir
+            </button>
+          )}
+          <p style={{ margin: 0, fontSize: '12px', color: GRIS, textAlign: 'center' }}>L'écran reste allumé. ⛶ pour l'afficher en grand.</p>
+        </div>
+      )}
+
+      <div style={{ flex: 1, display: modeHeure ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px' }}>
         <div
           className={t.état === 'fini' ? 'clignote-anim' : undefined}
           aria-live="off"
