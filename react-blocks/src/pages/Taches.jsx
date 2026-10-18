@@ -83,10 +83,105 @@ function DatesCarte({ T, carte, vert }) {
   const couleurÉch = !éch ? null : éch.n < 0 ? T.danger : éch.n <= 1 ? T.accent : T.text
   const fondÉch = !éch ? null : éch.n < 0 ? T.dangerSoft : éch.n <= 1 ? T.accentSoft : T.bg
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '0 0 8px', opacity: carte.fait ? 0.55 : 1 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '0 0 8px', opacity: estBarrée(carte) ? 0.55 : 1 }}>
       {éch && ligne('⏰', 'Échéance', carte.échéance, couleurÉch, fondÉch, éch.n < 0 ? `en retard de ${-éch.n} j` : éch.texte)}
       {carte.livraison && ligne('📦', 'Livraison', carte.livraison, vert, `${vert}1f`, écartJours(carte.livraison).texte)}
     </div>
+  )
+}
+
+// ---------- Tâches récurrentes (quotidiennes, hebdomadaires) ----------
+// Une tâche récurrente n'est pas « faite » une fois pour toutes : on la
+// valide chaque jour. `validées` garde les jours validés (AAAA-MM-JJ, date
+// locale), les 90 derniers.
+function jourLocal(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+const validéeAujourdhui = c => (c.validées || []).includes(jourLocal())
+// Barrée sur la carte : faite (tâche simple) ou validée aujourd'hui (récurrente).
+const estBarrée = c => (c.récurrence ? validéeAujourdhui(c) : !!c.fait)
+const prévueAujourdhui = c => c.récurrence === 'quotidienne' || (c.récurrence === 'hebdomadaire' && c.récurrenceJour === new Date().getDay())
+// Nombre de jours de suite (quotidiennes) validés, jusqu'à aujourd'hui ou hier.
+function série(c) {
+  const jours = new Set(c.validées || [])
+  const d = new Date()
+  if (!jours.has(jourLocal(d))) d.setDate(d.getDate() - 1)
+  let n = 0
+  while (jours.has(jourLocal(d))) { n += 1; d.setDate(d.getDate() - 1) }
+  return n
+}
+
+// Sous les échéances : les tâches quotidiennes (et hebdomadaires du jour),
+// chacune avec sa case à cocher pour la valider aujourd'hui.
+function PanneauQuotidiennes({ T, cartes, colonnes, vert, onBasculer, onAjouter, onAller }) {
+  const [saisie, setSaisie] = useState('')
+  const nomColonne = new Map(colonnes.map(c => [c.id, c.titre]))
+  const liste = cartes.filter(c => !c.archivé && prévueAujourdhui(c))
+  const faites = liste.filter(validéeAujourdhui).length
+  const triée = [...liste].sort((a, b) => Number(validéeAujourdhui(a)) - Number(validéeAujourdhui(b)))
+  const ajouter = () => {
+    if (!saisie.trim()) return
+    onAjouter(saisie.trim())
+    setSaisie('')
+  }
+  return (
+    <section aria-label="Tâches quotidiennes" style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 14px 12px', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: liste.length ? '8px' : '10px' }}>
+        <span aria-hidden="true">🔁</span>
+        <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>Tâches quotidiennes</strong>
+        {liste.length > 0 && (
+          <span style={{ marginLeft: 'auto', fontSize: '12px', fontFamily: grotesk, fontWeight: 800, color: faites === liste.length ? vert : T.textMuted }}>
+            {faites === liste.length ? '✓ ' : ''}{faites}/{liste.length}
+          </span>
+        )}
+      </div>
+      {liste.length > 0 && (
+        <div aria-hidden="true" style={{ height: '4px', borderRadius: '2px', background: T.bg, overflow: 'hidden', marginBottom: '10px' }}>
+          <div style={{ width: `${(faites / liste.length) * 100}%`, height: '100%', background: vert, transition: 'width .3s' }} />
+        </div>
+      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {triée.map(c => {
+          const fait = validéeAujourdhui(c)
+          const n = c.récurrence === 'quotidienne' ? série(c) : 0
+          return (
+            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 4px', borderRadius: '8px', background: fait ? `${vert}12` : 'transparent' }}>
+              <input
+                type="checkbox"
+                checked={fait}
+                onChange={() => onBasculer(c.id)}
+                aria-label={fait ? `Annuler la validation de « ${c.texte} »` : `Valider « ${c.texte} » pour aujourd'hui`}
+                style={{ width: '22px', height: '22px', margin: 0, flexShrink: 0, cursor: 'pointer', accentColor: vert }}
+              />
+              <button onClick={() => onAller(c.id)} title="Voir la tâche" style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: grotesk }}>
+                <span style={{
+                  display: 'block', fontSize: '14px', fontWeight: 600, color: fait ? T.textMuted : T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  textDecoration: fait ? 'line-through' : 'none', textDecorationThickness: '2px',
+                }}>{c.texte}</span>
+                <span style={{ fontSize: '11px', color: T.textMuted }}>
+                  {c.récurrence === 'quotidienne' ? 'Chaque jour' : 'Chaque semaine'}{nomColonne.get(c.colonneId) ? ` · ${nomColonne.get(c.colonneId)}` : ''}
+                </span>
+              </button>
+              {n >= 2 && <span title={`${n} jours de suite`} style={{ fontSize: '12px', fontWeight: 800, color: T.accent, fontFamily: grotesk, flexShrink: 0 }}>🔥 {n}</span>}
+            </div>
+          )
+        })}
+      </div>
+      <form onSubmit={e => { e.preventDefault(); ajouter() }} style={{ display: 'flex', gap: '6px', marginTop: liste.length ? '10px' : 0 }}>
+        <input
+          value={saisie}
+          onChange={e => setSaisie(e.target.value)}
+          placeholder="Ajouter une tâche quotidienne…"
+          aria-label="Nouvelle tâche quotidienne"
+          enterKeyHint="done"
+          style={{ flex: 1, minWidth: 0, background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none' }}
+        />
+        <button type="submit" aria-label="Ajouter la tâche quotidienne" disabled={!saisie.trim()} style={{
+          background: saisie.trim() ? T.accent : T.bg, color: saisie.trim() ? T.accentText : T.textMuted, border: 'none', borderRadius: '7px', width: '36px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saisie.trim() ? 'pointer' : 'default',
+        }}><Icon nom="plus" taille={15} trait={2.5} /></button>
+      </form>
+    </section>
   )
 }
 
@@ -627,17 +722,28 @@ export default function Taches() {
   }
 
   // Case à cocher sur la carte : la tâche est faite (texte barré).
+  // Tâche récurrente : coche / décoche la validation du jour.
   const basculerFait = carteId => {
+    const auj = jourLocal()
     setData(d => ({
       ...d,
       cartes: d.cartes.map(c => {
         if (c.id !== carteId) return c
         const copie = { ...c }
-        if (c.fait) delete copie.fait
+        if (c.récurrence) {
+          const jours = (c.validées || []).filter(j => j !== auj)
+          copie.validées = (jours.length === (c.validées || []).length ? [...jours, auj].sort() : jours).slice(-90)
+          if (!copie.validées.length) delete copie.validées
+        } else if (c.fait) delete copie.fait
         else copie.fait = true
         return copie
       }),
     }))
+  }
+  const ajouterQuotidienne = texte => {
+    const colonne = colonneAujourdhui || data.colonnes[0]
+    if (!colonne) return
+    setData(d => ({ ...d, cartes: [...d.cartes, { id: uid(), colonneId: colonne.id, texte, étiquettes: [], récurrence: 'quotidienne' }] }))
   }
 
   // champ : 'échéance' ou 'livraison'
@@ -774,7 +880,7 @@ export default function Taches() {
   const {
     enRetard: cartesEnRetard, échéance: cartesÉchéanceAujourdhui, colonne: cartesColonneAujourdhui,
     planifiées: planifiéesAujourdhui, total: totalAujourdhui, colonneAujourdhui, colonneTerminée,
-  } = analyserAujourdhui(data, aujourdhuiISO)
+  } = analyserAujourdhui(data, aujourdhuiISO, { sansRécurrentes: true })
 
   // Statistiques de progression
   const cartesActives = data.cartes.filter(c => !c.archivé)
@@ -867,6 +973,14 @@ export default function Taches() {
         )}
 
         <PanneauDates T={T} cartes={data.cartes} colonnes={data.colonnes} colonneTerminée={colonneTerminée} vert={vertLivraison}
+          onAller={id => {
+            setCarteRepérée(id)
+            document.querySelector(`[data-carte="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            setTimeout(() => setCarteRepérée(null), 3000)
+          }} />
+
+        <PanneauQuotidiennes T={T} cartes={data.cartes} colonnes={data.colonnes} vert={vertLivraison}
+          onBasculer={basculerFait} onAjouter={ajouterQuotidienne}
           onAller={id => {
             setCarteRepérée(id)
             document.querySelector(`[data-carte="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -1322,15 +1436,15 @@ export default function Taches() {
                           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '0 0 8px' }}>
                             <input
                               type="checkbox"
-                              checked={!!carte.fait}
+                              checked={estBarrée(carte)}
                               onChange={() => basculerFait(carte.id)}
-                              aria-label={carte.fait ? `Décocher « ${carte.texte} »` : `Cocher « ${carte.texte} » (fait)`}
-                              title={carte.fait ? 'Décocher' : 'Cocher : la tâche est faite'}
+                              aria-label={estBarrée(carte) ? `Décocher « ${carte.texte} »` : `Cocher « ${carte.texte} » (fait)`}
+                              title={estBarrée(carte) ? 'Décocher' : carte.récurrence ? 'Cocher : faite pour aujourd\'hui' : 'Cocher : la tâche est faite'}
                               style={{ width: '20px', height: '20px', margin: '1px 0 0', flexShrink: 0, cursor: 'pointer', accentColor: vertLivraison }}
                             />
                             <p style={{
-                              flex: 1, minWidth: 0, color: carte.fait ? T.textMuted : T.text, fontSize: '13.5px', margin: 0, lineHeight: '1.5', whiteSpace: 'pre-wrap',
-                              textDecoration: carte.fait ? 'line-through' : 'none', textDecorationThickness: '2px', opacity: carte.fait ? 0.75 : 1,
+                              flex: 1, minWidth: 0, color: estBarrée(carte) ? T.textMuted : T.text, fontSize: '13.5px', margin: 0, lineHeight: '1.5', whiteSpace: 'pre-wrap',
+                              textDecoration: estBarrée(carte) ? 'line-through' : 'none', textDecorationThickness: '2px', opacity: estBarrée(carte) ? 0.75 : 1,
                             }}>
                               {carte.texte}
                             </p>
