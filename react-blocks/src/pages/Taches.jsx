@@ -536,6 +536,59 @@ export default function Taches() {
     setTimeout(() => document.querySelector(`[data-colonne="${id}"]`)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 100)
   }
 
+  // Réordonner les sections : on attrape la poignée ⠿ et on glisse (souris
+  // ou doigt). Les milieux des autres colonnes sont relevés au départ ; la
+  // rangée défile toute seule près des bords.
+  const rangéeRef = useRef(null)
+  const glisseRef = useRef(null)
+  const [glisseCol, setGlisseCol] = useState(null) // { id, dx, cible }
+  const déplacerColonne = (id, index) => setData(d => {
+    const col = d.colonnes.find(c => c.id === id)
+    if (!col) return d
+    const colonnes = d.colonnes.filter(c => c.id !== id)
+    colonnes.splice(Math.max(0, Math.min(index, colonnes.length)), 0, col)
+    return colonnes.every((c, i) => c.id === d.colonnes[i].id) ? d : { ...d, colonnes }
+  })
+  const calculerGlisse = () => {
+    const g = glisseRef.current
+    const r = rangéeRef.current
+    if (!g || !r) return
+    const x = g.clientX - r.getBoundingClientRect().left + r.scrollLeft
+    g.cible = g.milieux.filter(m => m < x).length
+    setGlisseCol({ id: g.id, dx: x - g.x0, cible: g.cible })
+  }
+  const débutGlisseCol = (e, id) => {
+    if (e.button) return
+    e.preventDefault()
+    const r = rangéeRef.current
+    const gauche = r.getBoundingClientRect().left
+    const milieux = [...r.querySelectorAll('[data-colonne]')]
+      .filter(el => el.dataset.colonne !== id)
+      .map(el => { const b = el.getBoundingClientRect(); return b.left - gauche + r.scrollLeft + b.width / 2 })
+    glisseRef.current = { id, clientX: e.clientX, x0: e.clientX - gauche + r.scrollLeft, milieux, cible: null }
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+    const boucle = () => {
+      const g = glisseRef.current
+      if (!g) return
+      const b = r.getBoundingClientRect()
+      if (g.clientX < b.left + 48) r.scrollLeft -= 10
+      else if (g.clientX > b.right - 48) r.scrollLeft += 10
+      calculerGlisse()
+      g.raf = requestAnimationFrame(boucle)
+    }
+    boucle()
+  }
+  const mouvementGlisseCol = e => { if (glisseRef.current) glisseRef.current.clientX = e.clientX }
+  const finGlisseCol = () => {
+    const g = glisseRef.current
+    if (!g) return
+    cancelAnimationFrame(g.raf)
+    glisseRef.current = null
+    setGlisseCol(null)
+    if (g.cible != null) déplacerColonne(g.id, g.cible)
+  }
+  useEffect(() => () => cancelAnimationFrame(glisseRef.current?.raf), [])
+
   const démarrerÉditionColonne = col => {
     setColonneÉditionId(col.id)
     setTitreÉdition(col.titre)
@@ -1109,13 +1162,22 @@ export default function Taches() {
         )}
       </div>
 
-      <div style={{
+      <div ref={rangéeRef} style={{
         display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 16px 20px',
         maxWidth: '1132px', margin: '0 auto', justifyContent: 'safe center',
-        scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch',
+        scrollSnapType: glisseCol ? 'none' : 'x proximity', WebkitOverflowScrolling: 'touch',
       }}>
-        {data.colonnes.map(col => {
+        {data.colonnes.map((col, i) => {
           const cartes = data.cartes.filter(c => c.colonneId === col.id && !c.archivé)
+          // Pendant un glissement : la colonne attrapée suit le doigt, un trait
+          // montre où elle sera posée (à gauche de la colonne cible, ou à
+          // droite de la dernière).
+          const attrapée = glisseCol?.id === col.id
+          const autres = glisseCol ? data.colonnes.filter(c => c.id !== glisseCol.id) : []
+          const rang = autres.findIndex(c => c.id === col.id)
+          const repère = glisseCol && !attrapée && (rang === glisseCol.cible
+            ? `-9px 0 0 -5px ${T.accent}`
+            : glisseCol.cible === autres.length && rang === autres.length - 1 ? `9px 0 0 -5px ${T.accent}` : null)
           return (
             <div
               key={col.id}
@@ -1128,9 +1190,30 @@ export default function Taches() {
                 border: `1px solid ${T.border}`, padding: '14px',
                 display: 'flex', flexDirection: 'column', gap: '12px',
                 scrollSnapAlign: 'start',
+                ...(attrapée ? {
+                  position: 'relative', zIndex: 5, transform: `translateX(${glisseCol.dx}px) rotate(1deg)`,
+                  boxShadow: `0 18px 40px rgba(0,0,0,.45)`, borderColor: T.accent,
+                } : repère ? { boxShadow: repère } : {}),
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <button
+                  type="button"
+                  aria-label={`Déplacer la section ${col.titre} (glisser, ou flèches gauche / droite)`}
+                  title="Glisser pour déplacer la section"
+                  onPointerDown={e => débutGlisseCol(e, col.id)}
+                  onPointerMove={mouvementGlisseCol}
+                  onPointerUp={finGlisseCol}
+                  onPointerCancel={finGlisseCol}
+                  onKeyDown={e => {
+                    if (e.key === 'ArrowLeft' && i > 0) { e.preventDefault(); déplacerColonne(col.id, i - 1) }
+                    if (e.key === 'ArrowRight' && i < data.colonnes.length - 1) { e.preventDefault(); déplacerColonne(col.id, i + 1) }
+                  }}
+                  style={{
+                    touchAction: 'none', cursor: attrapée ? 'grabbing' : 'grab', background: 'none', border: 'none', color: T.textMuted,
+                    fontSize: '18px', lineHeight: 1, padding: '6px 4px', margin: '-6px -4px -6px -6px', flexShrink: 0, userSelect: 'none', WebkitUserSelect: 'none',
+                  }}
+                >⠿</button>
                 <span style={{ width: '3px', height: '16px', borderRadius: '2px', background: col.couleur, flexShrink: 0 }} />
                 {colonneÉditionId === col.id ? (
                   <input
