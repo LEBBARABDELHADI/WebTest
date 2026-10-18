@@ -90,6 +90,67 @@ function DatesCarte({ T, carte, vert }) {
   )
 }
 
+// En haut de la page : toutes les échéances et dates de livraison, de toutes
+// les sections, par ordre de date. Les tâches faites, archivées ou dans
+// « Terminé » n'y sont pas.
+function PanneauDates({ T, cartes, colonnes, colonneTerminée, vert, onAller }) {
+  const [toutVoir, setToutVoir] = useState(false)
+  const nomColonne = new Map(colonnes.map(c => [c.id, c]))
+  const entrées = cartes
+    .filter(c => !c.archivé && !c.fait && c.colonneId !== colonneTerminée?.id)
+    .flatMap(c => [
+      c.échéance && { carte: c, type: 'échéance', date: c.échéance },
+      c.livraison && { carte: c, type: 'livraison', date: c.livraison },
+    ].filter(Boolean))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.type === 'échéance' ? -1 : 1))
+  if (entrées.length === 0) return null
+  const LIMITE = 6
+  const visibles = toutVoir ? entrées : entrées.slice(0, LIMITE)
+  const nbRetard = entrées.filter(e => e.type === 'échéance' && écartJours(e.date).n < 0).length
+  return (
+    <section aria-label="Échéances et livraisons" style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 14px 10px', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+        <span aria-hidden="true">📅</span>
+        <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>Échéances et livraisons</strong>
+        <span style={{ marginLeft: 'auto', fontSize: '11.5px', fontFamily: grotesk, fontWeight: 700, color: nbRetard ? T.danger : T.textMuted }}>
+          {nbRetard ? `${nbRetard} en retard · ` : ''}{entrées.length} date{entrées.length > 1 ? 's' : ''}
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {visibles.map(({ carte, type, date }) => {
+          const écart = écartJours(date)
+          const livraison = type === 'livraison'
+          const couleur = livraison ? vert : écart.n < 0 ? T.danger : écart.n <= 1 ? T.accent : T.text
+          const fond = livraison ? `${vert}1a` : écart.n < 0 ? T.dangerSoft : écart.n <= 1 ? T.accentSoft : T.bg
+          const col = nomColonne.get(carte.colonneId)
+          return (
+            <button key={`${carte.id}-${type}`} onClick={() => onAller(carte.id)} style={{
+              display: 'flex', alignItems: 'center', gap: '10px', width: '100%', textAlign: 'left', cursor: 'pointer',
+              background: fond, border: 'none', borderLeft: `4px solid ${couleur}`, borderRadius: '8px', padding: '7px 10px', fontFamily: grotesk,
+            }}>
+              <span style={{ flexShrink: 0, minWidth: '92px', display: 'flex', flexDirection: 'column' }}>
+                <strong style={{ fontSize: '13px', fontWeight: 800, color: couleur }}>{formatDateClaire(date)}</strong>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: couleur, opacity: 0.85 }}>{!livraison && écart.n < 0 ? `retard ${-écart.n} j` : écart.texte}</span>
+              </span>
+              <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{carte.texte}</span>
+                <span style={{ fontSize: '11px', color: T.textMuted }}>
+                  {livraison ? '📦 Livraison' : '⏰ Échéance'}{col ? ` · ${col.titre}` : ''}
+                </span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+      {entrées.length > LIMITE && (
+        <button onClick={() => setToutVoir(v => !v)} style={{ marginTop: '8px', background: 'none', border: 'none', color: T.accent, fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk, padding: '4px 2px' }}>
+          {toutVoir ? 'Voir moins' : `Tout voir (${entrées.length})`}
+        </button>
+      )}
+    </section>
+  )
+}
+
 export default function Taches() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES[espaceParam] || ESPACES.perso
@@ -692,6 +753,13 @@ export default function Taches() {
           <p style={{ fontSize: '12px', color: T.accent, margin: '-14px 0 14px' }}>{messageImport}</p>
         )}
 
+        <PanneauDates T={T} cartes={data.cartes} colonnes={data.colonnes} colonneTerminée={colonneTerminée} vert={vertLivraison}
+          onAller={id => {
+            setCarteRepérée(id)
+            document.querySelector(`[data-carte="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            setTimeout(() => setCarteRepérée(null), 3000)
+          }} />
+
         <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '16px', marginBottom: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: totalAujourdhui > 0 ? '12px' : '0' }}>
             <Icon nom="cible" taille={16} style={{ color: T.accent }} />
@@ -1106,6 +1174,7 @@ export default function Taches() {
                               )}
                             </div>
                           )}
+                          <DatesCarte T={T} carte={carte} vert={vertLivraison} />
                           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '0 0 8px' }}>
                             <input
                               type="checkbox"
@@ -1122,7 +1191,6 @@ export default function Taches() {
                               {carte.texte}
                             </p>
                           </div>
-                          <DatesCarte T={T} carte={carte} vert={vertLivraison} />
                           {(carte.liens || []).length > 0 && détailsId !== carte.id && (
                             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', margin: '-2px 0 8px' }}>
                               {carte.liens.map(l => (
