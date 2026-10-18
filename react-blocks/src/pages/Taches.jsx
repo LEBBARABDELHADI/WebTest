@@ -48,6 +48,48 @@ function formatDateCourte(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
+// « mar. 21 oct. » (+ l'année si ce n'est pas l'année en cours).
+function formatDateClaire(iso) {
+  const d = new Date(`${iso}T00:00`)
+  const options = { weekday: 'short', day: 'numeric', month: 'short' }
+  if (d.getFullYear() !== new Date().getFullYear()) options.year = 'numeric'
+  return d.toLocaleDateString('fr-FR', options)
+}
+
+// Écart en jours avec aujourd'hui (date locale) : « aujourd'hui », « demain »,
+// « dans 3 j », « hier », « il y a 2 j ».
+function écartJours(iso) {
+  const auj = new Date()
+  auj.setHours(0, 0, 0, 0)
+  const n = Math.round((new Date(`${iso}T00:00`) - auj) / 86400000)
+  if (n === 0) return { n, texte: "aujourd'hui" }
+  if (n === 1) return { n, texte: 'demain' }
+  if (n === -1) return { n, texte: 'hier' }
+  return { n, texte: n > 0 ? `dans ${n} j` : `il y a ${-n} j` }
+}
+
+// Échéance et date de livraison, en clair et en gras sur la carte.
+function DatesCarte({ T, carte, vert }) {
+  if (!carte.échéance && !carte.livraison) return null
+  const ligne = (icône, libellé, iso, couleur, fond, détail) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', padding: '4px 8px', borderRadius: '8px', background: fond, fontFamily: grotesk }}>
+      <span aria-hidden="true" style={{ fontSize: '13px' }}>{icône}</span>
+      <span style={{ fontSize: '12.5px', fontWeight: 600, color: T.textMuted }}>{libellé}</span>
+      <strong style={{ fontSize: '13.5px', fontWeight: 800, color: couleur }}>{formatDateClaire(iso)}</strong>
+      <span style={{ fontSize: '11.5px', fontWeight: 700, color: couleur, opacity: 0.85 }}>· {détail}</span>
+    </div>
+  )
+  const éch = carte.échéance && écartJours(carte.échéance)
+  const couleurÉch = !éch ? null : éch.n < 0 ? T.danger : éch.n <= 1 ? T.accent : T.text
+  const fondÉch = !éch ? null : éch.n < 0 ? T.dangerSoft : éch.n <= 1 ? T.accentSoft : T.bg
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '0 0 8px' }}>
+      {éch && ligne('⏰', 'Échéance', carte.échéance, couleurÉch, fondÉch, éch.n < 0 ? `en retard de ${-éch.n} j` : éch.texte)}
+      {carte.livraison && ligne('📦', 'Livraison', carte.livraison, vert, `${vert}1f`, écartJours(carte.livraison).texte)}
+    </div>
+  )
+}
+
 export default function Taches() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES[espaceParam] || ESPACES.perso
@@ -410,14 +452,15 @@ export default function Taches() {
     }))
   }
 
-  const définirÉchéance = (carteId, date) => {
+  // champ : 'échéance' ou 'livraison'
+  const définirÉchéance = (carteId, date, champ = 'échéance') => {
     setData(d => ({
       ...d,
       cartes: d.cartes.map(c => {
         if (c.id !== carteId) return c
         const copie = { ...c }
-        if (date) copie.échéance = date
-        else delete copie.échéance
+        if (date) copie[champ] = date
+        else delete copie[champ]
         return copie
       }),
     }))
@@ -515,6 +558,7 @@ export default function Taches() {
   }
 
   const aujourdhuiISO = new Date().toISOString().slice(0, 10)
+  const vertLivraison = mode === 'light' ? '#15803d' : '#4ade80'
   const jours = Array.from({ length: 14 }, (_, i) => {
     const d = new Date()
     d.setDate(d.getDate() + i)
@@ -979,7 +1023,7 @@ export default function Taches() {
                 {cartes.map(carte => {
                   const checklist = carte.checklist || []
                   const étiquettesCarte = carte.étiquettes || []
-                  const aBadges = étiquettesCarte.length > 0 || carte.échéance || checklist.length > 0 || carte.récurrence
+                  const aBadges = étiquettesCarte.length > 0 || checklist.length > 0 || carte.récurrence
                   return (
                     <div
                       key={carte.id}
@@ -1030,16 +1074,6 @@ export default function Taches() {
                                   </span>
                                 )
                               })}
-                              {carte.échéance && (
-                                <span style={{
-                                  fontSize: '10px', display: 'flex', alignItems: 'center', gap: '3px', fontFamily: grotesk,
-                                  color: carte.échéance < aujourdhuiISO ? T.danger : carte.échéance === aujourdhuiISO ? T.accent : T.textMuted,
-                                  background: carte.échéance < aujourdhuiISO ? T.dangerSoft : carte.échéance === aujourdhuiISO ? T.accentSoft : T.bg,
-                                  padding: '2px 7px', borderRadius: '20px',
-                                }}>
-                                  <Icon nom="horloge" taille={10} /> {formatDateCourte(carte.échéance)}
-                                </span>
-                              )}
                               {checklist.length > 0 && (
                                 <span style={{
                                   fontSize: '10px', color: T.textMuted, background: T.bg, padding: '2px 7px',
@@ -1061,6 +1095,7 @@ export default function Taches() {
                           <p style={{ color: T.text, fontSize: '13.5px', margin: '0 0 8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                             {carte.texte}
                           </p>
+                          <DatesCarte T={T} carte={carte} vert={vertLivraison} />
                           {(carte.liens || []).length > 0 && détailsId !== carte.id && (
                             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', margin: '-2px 0 8px' }}>
                               {carte.liens.map(l => (
@@ -1091,7 +1126,7 @@ export default function Taches() {
                               <LiensÉlément T={T} liens={carte.liens || []} foyer={FOYERS[config.foyer]}
                                 onChange={liens => setData(d => ({ ...d, cartes: d.cartes.map(c => (c.id === carte.id ? { ...c, liens } : c)) }))} />
                               <div>
-                                <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk }}>Échéance</p>
+                                <p style={{ fontSize: '10px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk, fontWeight: 700 }}>⏰ Échéance</p>
                                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                   <input
                                     type="date"
@@ -1101,6 +1136,21 @@ export default function Taches() {
                                   />
                                   {carte.échéance && (
                                     <BoutonIcone icon="x" title="Retirer l'échéance" taille={13} onClick={() => définirÉchéance(carte.id, null)} />
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <p style={{ fontSize: '10px', color: vertLivraison, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 5px', fontFamily: grotesk, fontWeight: 700 }}>📦 Date de livraison</p>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                  <input
+                                    type="date"
+                                    aria-label="Date de livraison"
+                                    value={carte.livraison || ''}
+                                    onChange={e => définirÉchéance(carte.id, e.target.value, 'livraison')}
+                                    style={{ flex: 1, background: T.bg, color: T.text, border: `1px solid ${carte.livraison ? vertLivraison : T.border}`, borderRadius: '6px', padding: '6px 8px', fontSize: '12px', colorScheme: mode }}
+                                  />
+                                  {carte.livraison && (
+                                    <BoutonIcone icon="x" title="Retirer la date de livraison" taille={13} onClick={() => définirÉchéance(carte.id, null, 'livraison')} />
                                   )}
                                 </div>
                               </div>
