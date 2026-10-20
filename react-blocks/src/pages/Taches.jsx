@@ -188,44 +188,61 @@ function PanneauQuotidiennes({ T, cartes, colonnes, vert, onBasculer, onAjouter,
 // En haut de la page : toutes les échéances et dates de livraison, de toutes
 // les sections, par ordre de date. Les tâches faites, archivées ou dans
 // « Terminé » n'y sont pas.
-function PanneauDates({ T, cartes, colonnes, colonneTerminée, vert, onAller }) {
+// Chaque ligne a sa case : cochée, la tâche est faite (comme la case de la
+// carte) ; elle reste affichée barrée jusqu'au soir pour pouvoir décocher.
+function PanneauDates({ T, cartes, colonnes, colonneTerminée, vert, onAller, onBasculer }) {
   const [toutVoir, setToutVoir] = useState(false)
   const nomColonne = new Map(colonnes.map(c => [c.id, c]))
+  const auj = jourLocal()
   const entrées = cartes
-    .filter(c => !c.archivé && !c.fait && c.colonneId !== colonneTerminée?.id)
+    .filter(c => !c.archivé && c.colonneId !== colonneTerminée?.id && (!estBarrée(c) || c.récurrence || c.faitLe === auj))
     .flatMap(c => [
       c.échéance && { carte: c, type: 'échéance', date: c.échéance },
       c.livraison && { carte: c, type: 'livraison', date: c.livraison },
     ].filter(Boolean))
-    .sort((a, b) => a.date.localeCompare(b.date) || (a.type === 'échéance' ? -1 : 1))
+    .sort((a, b) => Number(estBarrée(a.carte)) - Number(estBarrée(b.carte)) || a.date.localeCompare(b.date) || (a.type === 'échéance' ? -1 : 1))
   if (entrées.length === 0) return null
   const LIMITE = 6
   const visibles = toutVoir ? entrées : entrées.slice(0, LIMITE)
-  const nbRetard = entrées.filter(e => e.type === 'échéance' && écartJours(e.date).n < 0).length
+  const àFaire = entrées.filter(e => !estBarrée(e.carte))
+  const nbRetard = àFaire.filter(e => e.type === 'échéance' && écartJours(e.date).n < 0).length
   return (
     <section aria-label="Échéances et livraisons" style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 14px 10px', marginBottom: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
         <span aria-hidden="true">📅</span>
         <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>Échéances et livraisons</strong>
         <span style={{ marginLeft: 'auto', fontSize: '11.5px', fontFamily: grotesk, fontWeight: 700, color: nbRetard ? T.danger : T.textMuted }}>
-          {nbRetard ? `${nbRetard} en retard · ` : ''}{entrées.length} date{entrées.length > 1 ? 's' : ''}
+          {nbRetard ? `${nbRetard} en retard · ` : ''}{àFaire.length} à faire{entrées.length > àFaire.length ? ` · ${entrées.length - àFaire.length} ✓` : ''}
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {visibles.map(({ carte, type, date }) => {
           const écart = écartJours(date)
           const livraison = type === 'livraison'
-          const couleur = livraison ? vert : écart.n < 0 ? T.danger : écart.n <= 1 ? T.accent : T.text
-          const fond = livraison ? `${vert}1a` : écart.n < 0 ? T.dangerSoft : écart.n <= 1 ? T.accentSoft : T.bg
+          const fait = estBarrée(carte)
+          const couleur = fait ? T.textMuted : livraison ? vert : écart.n < 0 ? T.danger : écart.n <= 1 ? T.accent : T.text
+          const fond = fait ? T.bg : livraison ? `${vert}1a` : écart.n < 0 ? T.dangerSoft : écart.n <= 1 ? T.accentSoft : T.bg
           const col = nomColonne.get(carte.colonneId)
           return (
-            <button key={`${carte.id}-${type}`} onClick={() => onAller(carte.id)} style={{
-              display: 'flex', alignItems: 'center', gap: '10px', width: '100%', textAlign: 'left', cursor: 'pointer',
-              background: fond, border: 'none', borderLeft: `4px solid ${couleur}`, borderRadius: '8px', padding: '7px 10px', fontFamily: grotesk,
+            <div key={`${carte.id}-${type}`} style={{
+              display: 'flex', alignItems: 'center', gap: '10px', background: fond, borderLeft: `4px solid ${couleur}`, borderRadius: '8px', padding: '7px 10px',
+              opacity: fait ? 0.7 : 1,
+            }}>
+              <input
+                type="checkbox"
+                checked={fait}
+                onChange={() => onBasculer(carte.id)}
+                aria-label={fait ? `Décocher « ${carte.texte} »` : `Cocher « ${carte.texte} » : faite`}
+                style={{ width: '22px', height: '22px', margin: 0, flexShrink: 0, cursor: 'pointer', accentColor: vert }}
+              />
+            <button onClick={() => onAller(carte.id)} title="Voir la tâche" style={{
+              flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left', cursor: 'pointer',
+              background: 'none', border: 'none', padding: 0, fontFamily: grotesk,
+              textDecoration: fait ? 'line-through' : 'none', textDecorationThickness: '2px',
             }}>
               <span style={{ flexShrink: 0, minWidth: '92px', display: 'flex', flexDirection: 'column' }}>
                 <strong style={{ fontSize: '13px', fontWeight: 800, color: couleur }}>{formatDateClaire(date)}</strong>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: couleur, opacity: 0.85 }}>{!livraison && écart.n < 0 ? `retard ${-écart.n} j` : écart.texte}</span>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: couleur, opacity: 0.85 }}>{fait ? '✓ faite' : !livraison && écart.n < 0 ? `retard ${-écart.n} j` : écart.texte}</span>
               </span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{carte.texte}</span>
@@ -234,6 +251,7 @@ function PanneauDates({ T, cartes, colonnes, colonneTerminée, vert, onAller }) 
                 </span>
               </span>
             </button>
+            </div>
           )
         })}
       </div>
@@ -734,8 +752,8 @@ export default function Taches() {
           const jours = (c.validées || []).filter(j => j !== auj)
           copie.validées = (jours.length === (c.validées || []).length ? [...jours, auj].sort() : jours).slice(-90)
           if (!copie.validées.length) delete copie.validées
-        } else if (c.fait) delete copie.fait
-        else copie.fait = true
+        } else if (c.fait) { delete copie.fait; delete copie.faitLe }
+        else { copie.fait = true; copie.faitLe = auj }
         return copie
       }),
     }))
@@ -972,7 +990,7 @@ export default function Taches() {
           <p style={{ fontSize: '12px', color: T.accent, margin: '-14px 0 14px' }}>{messageImport}</p>
         )}
 
-        <PanneauDates T={T} cartes={data.cartes} colonnes={data.colonnes} colonneTerminée={colonneTerminée} vert={vertLivraison}
+        <PanneauDates T={T} cartes={data.cartes} colonnes={data.colonnes} colonneTerminée={colonneTerminée} vert={vertLivraison} onBasculer={basculerFait}
           onAller={id => {
             setCarteRepérée(id)
             document.querySelector(`[data-carte="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
