@@ -85,7 +85,8 @@ function depuisÉdition(bloc, édition) {
 }
 const blocVide = (bloc, édition) => (bloc.type === 'liste' || bloc.type === 'tableau' ? !édition.texte.trim() : !édition.texte.trim())
 
-// Ordinateur (écran large) : 4 colonnes côte à côte ; téléphone : à la suite.
+// Ordinateur (écran large) : 4 colonnes côte à côte ; téléphone : côte à
+// côte aussi, dans une rangée qui défile horizontalement (une section par écran).
 function useÉcranLarge() {
   const requête = '(min-width: 900px)'
   const [large, setLarge] = useState(() => typeof window !== 'undefined' && window.matchMedia(requête).matches)
@@ -253,13 +254,31 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
     setOuvertes(o => new Set([...o, sousSectionId || id]))
     setRepérée(id)
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      zoneRef.current?.querySelector(`[data-repere="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: id.startsWith?.('col-') ? 'start' : 'center' })
+      const estColonne = colonnes.some(c => c.id === id)
+      zoneRef.current?.querySelector(`[data-repere="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: estColonne ? 'start' : 'center', inline: 'start' })
     }))
     clearTimeout(minuteurRepère.current)
     minuteurRepère.current = setTimeout(() => setRepérée(null), 2400)
   }
   const minuteurRepère = useRef(null)
   const zoneRef = useRef(null)
+  // Téléphone : rangée horizontale, onglets des sections au-dessus.
+  const rangéeRef = useRef(null)
+  const [colonneVisible, setColonneVisible] = useState(0)
+  const surDéfilement = () => {
+    const r = rangéeRef.current
+    if (!r || large) return
+    const enfants = [...r.querySelectorAll(':scope > section')]
+    const gauche = r.getBoundingClientRect().left
+    let meilleure = 0
+    enfants.forEach((el, k) => { if (Math.abs(el.getBoundingClientRect().left - gauche) < Math.abs(enfants[meilleure].getBoundingClientRect().left - gauche)) meilleure = k })
+    setColonneVisible(meilleure)
+  }
+  const allerÀColonne = k => {
+    const r = rangéeRef.current
+    const el = r?.querySelectorAll(':scope > section')[k]
+    if (el) r.scrollTo({ left: el.offsetLeft - r.offsetLeft - 16, behavior: 'smooth' })
+  }
 
   const sousSectionsParId = new Map(colonnes.flatMap(c => c.sousSections.map(s => [s.id, s])))
   const bullesParId = new Map(bulles.map(b => [b.id, b]))
@@ -396,15 +415,29 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
           </nav>
         )}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: large ? `repeat(${NB_COLONNES}, minmax(0, 1fr))` : '1fr', gap: large ? '14px' : '22px', alignItems: 'start' }}>
+      {!large && (
+        <div role="tablist" aria-label="Sections" style={{ display: 'flex', gap: '6px', overflowX: 'auto', margin: '0 0 10px', paddingBottom: '2px' }}>
+          {colonnes.map((c, k) => (
+            <button key={c.id} role="tab" aria-selected={colonneVisible === k} onClick={() => allerÀColonne(k)} style={{
+              flexShrink: 0, padding: '7px 12px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk, fontSize: '13px', fontWeight: 700,
+              background: colonneVisible === k ? T.accent : T.surface, color: colonneVisible === k ? T.accentText : T.text,
+              border: `1px solid ${colonneVisible === k ? T.accent : T.border}`,
+            }}>{c.titre} <span style={{ opacity: 0.7, fontWeight: 500 }}>{c.sousSections.length}</span></button>
+          ))}
+        </div>
+      )}
+      <div ref={rangéeRef} onScroll={surDéfilement} style={large
+        ? { display: 'grid', gridTemplateColumns: `repeat(${NB_COLONNES}, minmax(0, 1fr))`, gap: '14px', alignItems: 'start' }
+        : { display: 'flex', gap: '12px', alignItems: 'flex-start', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', margin: '0 -16px', padding: '0 16px 12px', scrollPaddingLeft: '16px' }}>
         {colonnes.map(colonne => {
           const nbBlocs = colonne.sousSections.reduce((n, s) => n + s.blocs.length, 0)
           const colonneEnLecture = enLecture.has(colonne.id)
           return (
             <section key={colonne.id} aria-label={colonne.titre} data-repere={colonne.id} className={repérée === colonne.id ? 'repere-section' : undefined} style={{
               scrollMarginTop: '70px',
-              background: large ? `${T.surface}88` : 'transparent', border: large ? `1px solid ${T.border}` : 'none',
-              borderRadius: '16px', padding: large ? '12px' : 0, minWidth: 0,
+              background: `${T.surface}88`, border: `1px solid ${T.border}`,
+              borderRadius: '16px', padding: '12px', minWidth: 0,
+              ...(large ? {} : { flex: '0 0 86%', maxWidth: '420px', scrollSnapAlign: 'start', boxSizing: 'border-box' }),
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', borderBottom: `2px solid ${T.accent}`, paddingBottom: '8px' }}>
                 {titreÉdité?.id === colonne.id ? champTitre(colonne.id, '18px') : (
