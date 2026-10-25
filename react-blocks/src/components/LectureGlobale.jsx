@@ -69,7 +69,104 @@ function texteDePage(p) {
   return `${p.type === 'bulle' ? `${texteBrut(p.n.texte)} ${p.n.code || ''}` : ''} ${blocs}`
 }
 
-export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], colonnes, départ, onFermer, onVoirBulle, onChangerColonnes }) {
+// Le graphe à côté de la lecture : en lecture seule, la bulle lue est mise en
+// évidence et la vue se cadre sur elle, son parent et ses sous-idées (ou sur
+// tout le graphe). Toucher une bulle ouvre sa page.
+const TAILLE_DÉFAUT = { l: 160, h: 48 }
+function VueGraphe({ T, noeuds, liens, tailleDe, actuelId, vues, avecFiche, onChoisir }) {
+  const [toutVoir, setToutVoir] = useState(false)
+  const taille = id => tailleDe?.(id) || TAILLE_DÉFAUT
+  const parId = useMemo(() => new Map(noeuds.map(n => [n.id, n])), [noeuds])
+  const boîte = liste => {
+    const xs = liste.flatMap(n => { const t = taille(n.id); return [n.x - t.l / 2, n.x + t.l / 2] })
+    const ys = liste.flatMap(n => { const t = taille(n.id); return [n.y - t.h / 2, n.y + t.h / 2] })
+    return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) }
+  }
+  const cible = useMemo(() => {
+    if (!noeuds.length) return { x: 0, y: 0, l: 100, h: 100 }
+    const actuel = actuelId && parId.get(actuelId)
+    const liste = toutVoir || !actuel ? noeuds : [actuel, parId.get(actuel.parentId), ...noeuds.filter(n => n.parentId === actuel.id)].filter(Boolean)
+    const b = boîte(liste)
+    const marge = toutVoir || !actuel ? 40 : 90
+    let l = b.x1 - b.x0 + 2 * marge
+    let h = b.y1 - b.y0 + 2 * marge
+    const minL = toutVoir || !actuel ? 0 : 520
+    const minH = toutVoir || !actuel ? 0 : 340
+    const cx = (b.x0 + b.x1) / 2
+    const cy = (b.y0 + b.y1) / 2
+    l = Math.max(l, minL); h = Math.max(h, minH)
+    return { x: cx - l / 2, y: cy - h / 2, l, h }
+  }, [noeuds, actuelId, toutVoir]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Glissement doux de la vue vers la nouvelle cible.
+  const [vue, setVue] = useState(cible)
+  const vueRef = useRef(cible)
+  useEffect(() => {
+    const départ = vueRef.current
+    const t0 = performance.now()
+    let raf
+    const pas = t => {
+      const k = Math.min(1, (t - t0) / 380)
+      const e = 1 - (1 - k) ** 3
+      const v = { x: départ.x + (cible.x - départ.x) * e, y: départ.y + (cible.y - départ.y) * e, l: départ.l + (cible.l - départ.l) * e, h: départ.h + (cible.h - départ.h) * e }
+      vueRef.current = v
+      setVue(v)
+      if (k < 1) raf = requestAnimationFrame(pas)
+    }
+    raf = requestAnimationFrame(pas)
+    return () => cancelAnimationFrame(raf)
+  }, [cible])
+
+  const ids = new Set(noeuds.map(n => n.id))
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: T.bg, overflow: 'hidden' }}>
+      <svg viewBox={`${vue.x} ${vue.y} ${vue.l} ${vue.h}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', display: 'block' }}
+        role="img" aria-label="Graphe : toucher une bulle pour lire sa page">
+        {noeuds.filter(n => n.parentId && ids.has(n.parentId)).map(n => {
+          const p = parId.get(n.parentId)
+          const mx = (p.x + n.x) / 2
+          return <path key={`b${n.id}`} d={`M${p.x},${p.y} C${mx},${p.y} ${mx},${n.y} ${n.x},${n.y}`} fill="none" stroke={n.couleur || p.couleur || T.textMuted} strokeOpacity={0.55} strokeWidth={2} />
+        })}
+        {liens.filter(l => parId.has(l.de) && parId.has(l.vers)).map(l => {
+          const a = parId.get(l.de), z = parId.get(l.vers)
+          return <line key={`l${l.id}`} x1={a.x} y1={a.y} x2={z.x} y2={z.y} stroke={T.accent} strokeOpacity={0.6} strokeWidth={2} strokeDasharray="6 6" />
+        })}
+        {noeuds.map(n => {
+          const t = taille(n.id)
+          const racine = !n.parentId || !ids.has(n.parentId)
+          const actuel = n.id === actuelId
+          const couleur = n.couleur || (racine ? T.accent : T.border)
+          return (
+            <g key={n.id} onClick={() => onChoisir(n.id)} style={{ cursor: 'pointer' }}>
+              {actuel && <rect x={n.x - t.l / 2 - 8} y={n.y - t.h / 2 - 8} width={t.l + 16} height={t.h + 16} rx={18} fill={T.accent} opacity={0.25} />}
+              <rect x={n.x - t.l / 2} y={n.y - t.h / 2} width={t.l} height={t.h} rx={12}
+                fill={racine ? couleur : T.surface} stroke={actuel ? T.accent : couleur} strokeWidth={actuel ? 4 : 2}
+                opacity={actuelId && !actuel && !vues.has(`b:${n.id}`) ? 0.85 : 1} />
+              <foreignObject x={n.x - t.l / 2 + 6} y={n.y - t.h / 2 + 4} width={Math.max(10, t.l - 12)} height={Math.max(10, t.h - 8)} style={{ pointerEvents: 'none' }}>
+                <div style={{
+                  height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+                  fontFamily: grotesk, fontSize: racine ? '15px' : '13px', fontWeight: racine || actuel ? 700 : 500, lineHeight: 1.25,
+                  color: racine ? '#1b1b1b' : T.text, overflow: 'hidden', wordBreak: 'break-word',
+                }}>
+                  <span style={{ display: '-webkit-box', WebkitLineClamp: Math.max(1, Math.floor((t.h - 8) / 17)), WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {n.icone ? `${n.icone} ` : ''}{texteBrut(n.texte)}
+                  </span>
+                </div>
+              </foreignObject>
+              {avecFiche.has(n.id) && <text x={n.x + t.l / 2 - 4} y={n.y - t.h / 2 + 4} fontSize="16" textAnchor="middle">📑</text>}
+              {vues.has(`b:${n.id}`) && !actuel && <circle cx={n.x - t.l / 2 + 2} cy={n.y - t.h / 2 + 2} r={5} fill={T.accent} />}
+            </g>
+          )
+        })}
+      </svg>
+      <button onClick={() => setToutVoir(v => !v)} aria-pressed={toutVoir} style={{
+        position: 'absolute', right: '10px', bottom: '10px', padding: '7px 12px', borderRadius: '20px', border: `1px solid ${T.border}`,
+        background: T.surface, color: T.text, fontFamily: grotesk, fontSize: '12.5px', fontWeight: 700, cursor: 'pointer',
+      }}>{toutVoir ? '🎯 Centrer sur la bulle' : '🗺️ Tout le graphe'}</button>
+    </div>
+  )
+}
+
+export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], colonnes, départ, onFermer, onVoirBulle, onChangerColonnes, tailleDe }) {
   const large = useLarge()
   const { pages, enfants } = useMemo(() => construirePages(noeuds, colonnes), [noeuds, colonnes])
   const indexDe = useMemo(() => new Map(pages.map((p, i) => [p.clé, i])), [pages])
@@ -81,6 +178,11 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
   const page = pages[Math.min(i, pages.length - 1)]
   const [vues, setVues] = useState(() => new Set())
   const [planOuvert, setPlanOuvert] = useState(false)
+  const [grapheVisible, setGrapheVisible] = useState(() => noeuds.length > 0 && lire('react-blocs-lecture-graphe', 'oui') === 'oui')
+  const basculerGraphe = () => setGrapheVisible(v => { écrire('react-blocs-lecture-graphe', v ? 'non' : 'oui'); return !v })
+  // Sur ordinateur : le plan est une colonne, sauf quand le graphe occupe la
+  // place (il passe alors dans un tiroir ☰, comme sur téléphone).
+  const planEnColonne = large && !grapheVisible
   const [recherche, setRecherche] = useState('')
   const [échelle, setÉchelle] = useState(() => Number(lire(CLÉ_TAILLE, '1')) || 1)
   const fenêtreRef = useRef(null)
@@ -104,7 +206,7 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
     const k = indexDe.get(clé)
     if (k == null) return
     setI(k)
-    if (!large) setPlanOuvert(false)
+    if (!planEnColonne) setPlanOuvert(false)
   }
   const précédente = pages[i - 1]
   const suivante = pages[i + 1]
@@ -125,7 +227,7 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
     if (e.key === 'Escape') {
       e.preventDefault()
       if (dansChamp && recherche) { setRecherche(''); return }
-      if (planOuvert && !large) { setPlanOuvert(false); return }
+      if (planOuvert && !planEnColonne) { setPlanOuvert(false); return }
       onFermer()
       return
     }
@@ -174,6 +276,7 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
     return `${k > 30 ? '…' : ''}${brut.slice(Math.max(0, k - 30), k + q.length + 50)}…`
   }
 
+  const avecFiche = useMemo(() => new Set(pages.filter(p => p.fiche).map(p => p.n.id)), [pages])
   const nbBulles = pages.filter(p => p.type === 'bulle').length
   const nbFiches = pages.filter(p => p.fiche || p.type === 'fiche').length
   const fs = n => `${n * échelle}px`
@@ -195,7 +298,7 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
   const plan = (
     <nav ref={planRef} aria-label="Plan de lecture" style={{
       display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%', background: T.surface,
-      borderRight: `1px solid ${T.border}`, width: large ? '300px' : 'min(86vw, 340px)', flexShrink: 0,
+      borderRight: `1px solid ${T.border}`, width: planEnColonne ? '300px' : 'min(86vw, 340px)', flexShrink: 0,
     }}>
       <div style={{ padding: '12px', borderBottom: `1px solid ${T.border}` }}>
         <input
@@ -423,7 +526,7 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
       {/* Barre du haut */}
       <div style={{ flexShrink: 0, borderBottom: `1px solid ${T.border}`, background: T.bg, padding: 'max(8px, env(safe-area-inset-top)) 10px 8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {!large && <button onClick={() => setPlanOuvert(o => !o)} aria-expanded={planOuvert} aria-label="Plan et recherche" style={bouton()}>☰</button>}
+          {!planEnColonne && <button onClick={() => setPlanOuvert(o => !o)} aria-expanded={planOuvert} aria-label="Plan et recherche" style={bouton()}>☰</button>}
           <span style={{ flex: 1, minWidth: 0, fontFamily: grotesk, fontSize: '13px', color: T.textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             <strong style={{ color: T.text }}>{nom}</strong> · {i + 1}/{pages.length}
           </span>
@@ -431,6 +534,10 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
           <button onClick={() => suivante && setI(i + 1)} disabled={!suivante} aria-label="Page suivante" style={bouton(!!suivante)}>›</button>
           {large && <button onClick={() => changerTaille(-0.1)} aria-label="Texte plus petit" style={bouton(échelle > 0.8)}>A−</button>}
           {large && <button onClick={() => changerTaille(0.1)} aria-label="Texte plus grand" style={bouton(échelle < 2)}>A+</button>}
+          {noeuds.length > 0 && (
+            <button onClick={basculerGraphe} aria-pressed={grapheVisible} aria-label={grapheVisible ? 'Masquer le graphe' : 'Afficher le graphe à côté'} title={grapheVisible ? 'Masquer le graphe' : 'Graphe et lecture ensemble'}
+              style={{ ...bouton(), ...(grapheVisible ? { background: `${T.accent}26`, borderColor: T.accent } : {}) }}>🗺️</button>
+          )}
           <button onClick={onFermer} aria-label="Fermer la lecture" style={bouton()}>✕</button>
         </div>
         <div aria-hidden="true" style={{ height: '3px', borderRadius: '2px', background: T.surface, marginTop: '8px', overflow: 'hidden' }}>
@@ -438,9 +545,17 @@ export default function LectureGlobale({ T, nom, grapheId, noeuds, liens = [], c
         </div>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', position: 'relative' }}>
-        {large && plan}
-        {!large && planOuvert && (
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: large ? 'row' : 'column', position: 'relative' }}>
+        {planEnColonne && plan}
+        {grapheVisible && (
+          <div style={{
+            flexShrink: 0, ...(large ? { width: '50%', borderRight: `1px solid ${T.border}` } : { height: '36vh', borderBottom: `1px solid ${T.border}` }),
+          }}>
+            <VueGraphe T={T} noeuds={noeuds} liens={liens} tailleDe={tailleDe} actuelId={page.type === 'bulle' ? page.n.id : null}
+              vues={vues} avecFiche={avecFiche} onChoisir={id => aller(`b:${id}`)} />
+          </div>
+        )}
+        {!planEnColonne && planOuvert && (
           <>
             <div onClick={() => setPlanOuvert(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 2 }} />
             <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, zIndex: 3, display: 'flex', boxShadow: '0 0 40px rgba(0,0,0,.5)' }}>{plan}</div>

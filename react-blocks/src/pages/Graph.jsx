@@ -2023,6 +2023,7 @@ export default function Graph() {
           onFermer={() => setLectureGlobale(null)}
           onVoirBulle={id => { setLectureGlobale(null); allerÀBulle(id) }}
           onChangerColonnes={majColonnes}
+          tailleDe={tailleDe}
         />
       )}
       {dialoguePlan && graphe && (
