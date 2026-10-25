@@ -5,6 +5,7 @@ import { uid } from '../lib/graphe'
 import BlocCode from './BlocCode'
 import OutilsTexte from './OutilsTexte'
 import VersCartes from './VersCartes'
+import { ImageCarte } from './ImageCarte'
 
 // Sous le graphe : 4 grandes sections (colonnes sur ordinateur, à la suite
 // sur téléphone), chacune avec ses sous-sections, qui contiennent des blocs.
@@ -553,6 +554,8 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
           onAller={setPleinÉcran}
           onFermer={() => { const id = pleinÉcran; setPleinÉcran(null); montrer(id) }}
           majBloc={majBloc}
+          bullesParId={bullesParId}
+          onVoirBulle={onAllerÀBulle ? id => { setPleinÉcran(null); onAllerÀBulle(id) } : null}
         />
       )}
     </div>
@@ -568,7 +571,58 @@ function lireTaille() {
 
 // Lecture d'une sous-section en plein écran : grand texte, rien d'autre ;
 // ‹ › (ou flèches) passent à la sous-section précédente / suivante.
-function LecturePleinÉcran({ T, colonnes, id, onAller, onFermer, majBloc }) {
+// En lecture plein écran : la bulle du graphe reliée à la sous-section
+// (texte, image, code), avec le chemin de ses parents et ses sous-bulles.
+function BulleLiée({ T, bulle, bullesParId, échelle, onVoir }) {
+  const parents = []
+  for (let p = bullesParId.get(bulle.parentId); p && parents.length < 4 && !parents.includes(p); p = bullesParId.get(p.parentId)) parents.unshift(p)
+  const enfants = [...bullesParId.values()].filter(b => b.parentId === bulle.id)
+  const couleur = bulle.couleur || T.accent
+  return (
+    <aside aria-label="Bulle liée du graphe" style={{
+      margin: `0 0 ${20 * échelle}px`, background: T.surface, border: `1px solid ${T.border}`, borderLeft: `5px solid ${couleur}`,
+      borderRadius: '14px', padding: `${12 * échelle}px ${14 * échelle}px`,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+        <span style={{ fontSize: `${11 * échelle}px`, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: T.textMuted, fontFamily: grotesk }}>🫧 Bulle liée</span>
+        {parents.length > 0 && (
+          <span style={{ fontSize: `${12 * échelle}px`, color: T.textMuted, fontFamily: grotesk, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {parents.map(p => texteBrut(p.texte)).join(' › ')} ›
+          </span>
+        )}
+        {onVoir && (
+          <button onClick={() => onVoir(bulle.id)} style={{
+            marginLeft: 'auto', padding: '5px 10px', borderRadius: '20px', cursor: 'pointer', fontFamily: grotesk, fontWeight: 700,
+            fontSize: `${12 * échelle}px`, background: `${T.accent}22`, border: `1px solid ${T.accent}`, color: T.text,
+          }}>Voir dans le graphe ↗</button>
+        )}
+      </div>
+      <div style={{ fontSize: `${18 * échelle}px`, fontWeight: 700, lineHeight: 1.4, color: T.text, fontFamily: grotesk, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+        {bulle.icone && <span style={{ marginRight: '6px' }}>{bulle.icone}</span>}
+        <TexteFormaté texte={bulle.texte || ''} couleurDéfaut={T.text} />
+      </div>
+      {bulle.image && <ImageCarte image={bulle.image} hauteurMax={Math.round(320 * échelle)} style={{ marginTop: '10px' }} />}
+      {bulle.code && (
+        <div style={{ marginTop: '10px' }}>
+          <BlocCode code={bulle.code} langage={bulle.langage} taille={12.5 * échelle} />
+        </div>
+      )}
+      {enfants.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px', alignItems: 'center' }}>
+          <span style={{ fontSize: `${11.5 * échelle}px`, color: T.textMuted, fontFamily: grotesk }}>Sous-bulles :</span>
+          {enfants.map(e => (
+            <span key={e.id} style={{
+              fontSize: `${12.5 * échelle}px`, padding: '3px 10px', borderRadius: '20px', fontFamily: grotesk, color: T.text,
+              background: T.bg, border: `1px solid ${e.couleur || T.border}`, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>{e.icone ? `${e.icone} ` : ''}{texteBrut(e.texte)}</span>
+          ))}
+        </div>
+      )}
+    </aside>
+  )
+}
+
+function LecturePleinÉcran({ T, colonnes, id, onAller, onFermer, majBloc, bullesParId = new Map(), onVoirBulle }) {
   const [échelle, setÉchelle] = useState(lireTaille)
   const fenêtreRef = useRef(null)
   const toutes = colonnes.flatMap(c => c.sousSections.map(ss => ({ ss, colonne: c })))
@@ -609,6 +663,9 @@ function LecturePleinÉcran({ T, colonnes, id, onAller, onFermer, majBloc }) {
       <article style={{ maxWidth: '820px', margin: '0 auto', padding: '22px 18px max(40px, env(safe-area-inset-bottom))' }}>
         <p style={{ margin: '0 0 4px', fontFamily: serif, fontStyle: 'italic', fontSize: `${15 * échelle}px`, color: T.accent }}>{colonne.titre}</p>
         <h1 style={{ margin: '0 0 18px', fontFamily: grotesk, fontSize: `${26 * échelle}px`, lineHeight: 1.2, color: T.text }}>{ss.titre}</h1>
+        {ss.bulleId && bullesParId.get(ss.bulleId) && (
+          <BulleLiée T={T} bulle={bullesParId.get(ss.bulleId)} bullesParId={bullesParId} échelle={échelle} onVoir={onVoirBulle} />
+        )}
         {ss.blocs.length === 0 && <p style={{ color: T.textMuted, fontStyle: 'italic' }}>Sous-section vide.</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: `${14 * échelle}px` }}>
           {ss.blocs.map(b => <VueBloc key={b.id} T={T} bloc={b} lecture échelle={échelle} majBloc={fn => majBloc(ss.id, b.id, fn)} />)}
