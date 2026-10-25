@@ -726,7 +726,7 @@ function BlocsSection({ T, section, lecture, glisser, repérée, édition, setÉ
 
 // Affichage d'un bloc (hors édition). Les cases des listes et les numéros
 // de ligne du code se touchent directement.
-function VueBloc({ T, bloc, lecture, majBloc, échelle = 1 }) {
+export function VueBloc({ T, bloc, lecture, majBloc, échelle = 1 }) {
   if (bloc.type === 'code') {
     return (
       <BlocCode

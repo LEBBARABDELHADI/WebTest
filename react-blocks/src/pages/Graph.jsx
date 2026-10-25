@@ -6,6 +6,7 @@ import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
 import { ImageCarte, ChampImage, adresseImage, urlImage, useUrlImage } from '../components/ImageCarte'
 import SectionsGraphe, { colonnesDe, texteDuBloc } from '../components/SectionsGraphe'
+import LectureGlobale from '../components/LectureGlobale'
 import LiensÉlément from '../components/LiensElement'
 import Dictée from '../components/Dictee'
 import BlocCode from '../components/BlocCode'
@@ -93,6 +94,7 @@ export default function Graph() {
   const [exportÉtat, setExportÉtat] = useState(null) // { enCours } | { url, blob, nom }
   const [tailles, setTailles] = useState({})
   const [présentation, setPrésentation] = useState(null) // { étape } (null = mode édition)
+  const [lectureGlobale, setLectureGlobale] = useState(null) // { départ } : mode lecture de tout le graphe
   const [transitionVue, setTransitionVue] = useState(false)
   const [multi, setMulti] = useState([]) // sélection de plusieurs bulles (ids)
   const [cadre, setCadre] = useState(null) // rectangle de sélection en cours { x0, y0, x1, y1 } (écran)
@@ -1978,6 +1980,11 @@ export default function Graph() {
               />
               <BoutonIcone icon="crayon" title="Renommer le graphe" onClick={renommerGraphe} />
               <BoutonIcone icon="corbeille" title="Supprimer le graphe" couleur={T.danger} onClick={supprimerGraphe} />
+              <button onClick={() => setLectureGlobale({ départ: sélection })} disabled={noeuds.length === 0 && !colonnesGraphe.some(c => c.sousSections.length)}
+                title="Lire tout le graphe et ses sections comme un livre (plan, recherche, navigation)" style={{
+                flexShrink: 0, background: T.surface, color: T.text, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '9px 11px',
+                fontSize: '12.5px', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer',
+              }}>📖 Lire</button>
               <button onClick={démarrerPrésentation} disabled={noeuds.length === 0} title="Présenter le graphe bulle par bulle" style={{
                 flexShrink: 0, background: T.accent, color: T.accentText, border: 'none', borderRadius: '10px', padding: '9px 11px',
                 fontSize: '12.5px', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer', opacity: noeuds.length === 0 ? 0.4 : 1,
@@ -2004,6 +2011,20 @@ export default function Graph() {
       </div>
 
       {création && <DialogueCréation T={T} modèles={tousModèles} onSupprimerModèle={supprimerModèle} onCréer={créerGraphe} onFermer={() => setCréation(false)} />}
+      {lectureGlobale && graphe && (
+        <LectureGlobale
+          T={T}
+          nom={graphe.nom}
+          grapheId={graphe.id}
+          noeuds={noeudsBruts}
+          liens={liens}
+          colonnes={colonnesGraphe}
+          départ={lectureGlobale.départ}
+          onFermer={() => setLectureGlobale(null)}
+          onVoirBulle={id => { setLectureGlobale(null); allerÀBulle(id) }}
+          onChangerColonnes={majColonnes}
+        />
+      )}
       {dialoguePlan && graphe && (
         <DialoguePlan
           T={T}
