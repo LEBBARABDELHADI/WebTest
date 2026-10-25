@@ -85,8 +85,9 @@ function depuisÉdition(bloc, édition) {
 }
 const blocVide = (bloc, édition) => (bloc.type === 'liste' || bloc.type === 'tableau' ? !édition.texte.trim() : !édition.texte.trim())
 
-// Ordinateur (écran large) : 4 colonnes côte à côte ; téléphone : côte à
-// côte aussi, dans une rangée qui défile horizontalement (une section par écran).
+// Ordinateur (écran large) : chaque section est une bande sur toute la
+// largeur, ses sous-sections côte à côte (en rangées) ; téléphone : les
+// sections côte à côte dans une rangée qui défile horizontalement.
 function useÉcranLarge() {
   const requête = '(min-width: 900px)'
   const [large, setLarge] = useState(() => typeof window !== 'undefined' && window.matchMedia(requête).matches)
@@ -127,11 +128,16 @@ function useGlisserEntreListes(onDéposer) {
           if (d < distance) { distance = d; meilleure = { id, el } }
         })
         if (!meilleure) return vers
+        // Listes verticales (un élément par ligne) ou en rangées (plusieurs
+        // éléments côte à côte) : avant = sur une ligne au-dessus, ou sur la
+        // même ligne et à gauche du pointeur.
         let i = 0
+        const largeurListe = meilleure.el.getBoundingClientRect().width
         meilleure.el.querySelectorAll(':scope > [data-element]').forEach(el => {
           if (el.dataset.element === `${liste}:${index}`) return
           const r = el.getBoundingClientRect()
-          if (r.top + r.height / 2 < y) i += 1
+          if (r.width > largeurListe * 0.7) { if (r.top + r.height / 2 < y) i += 1 }
+          else if (r.bottom < y || (r.top <= y && r.left + r.width / 2 < x)) i += 1
         })
         return { liste: meilleure.id, index: i }
       }
@@ -370,6 +376,8 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
     />
   )
   const ligneRepère = <div style={{ height: '4px', borderRadius: '2px', background: T.accent, margin: '-2px 0' }} />
+  // Ordinateur : les sous-sections sont côte à côte, le repère est vertical.
+  const repèreSous = large ? <div style={{ width: '4px', alignSelf: 'stretch', borderRadius: '2px', background: T.accent, margin: '0 -8px', minHeight: '60px' }} /> : ligneRepère
 
   return (
     <div data-sections ref={zoneRef} style={{ marginTop: '18px' }}>
@@ -427,7 +435,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
         </div>
       )}
       <div ref={rangéeRef} onScroll={surDéfilement} style={large
-        ? { display: 'grid', gridTemplateColumns: `repeat(${NB_COLONNES}, minmax(0, 1fr))`, gap: '14px', alignItems: 'start' }
+        ? { display: 'flex', flexDirection: 'column', gap: '16px' }
         : { display: 'flex', gap: '12px', alignItems: 'flex-start', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', margin: '0 -16px', padding: '0 16px 12px', scrollPaddingLeft: '16px' }}>
         {colonnes.map(colonne => {
           const nbBlocs = colonne.sousSections.reduce((n, s) => n + s.blocs.length, 0)
@@ -464,14 +472,14 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                   style={{ ...icône, ...(colonneEnLecture ? { background: `${T.accent}26`, color: T.accent } : {}) }}>{colonneEnLecture ? '✏️' : '📖'}</button>
               </div>
 
-              <div ref={glisserSections.refListe(colonne.id)} style={{ display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '24px' }}>
+              <div ref={glisserSections.refListe(colonne.id)} style={{ display: 'flex', flexDirection: large ? 'row' : 'column', flexWrap: large ? 'wrap' : 'nowrap', alignItems: large ? 'flex-start' : 'stretch', gap: large ? '12px' : '10px', minHeight: '24px' }}>
                 {colonne.sousSections.map((section, i) => {
                   const bulle = section.bulleId && bullesParId.get(section.bulleId)
                   const visible = !section.replié || ouvertes.has(section.id)
                   const lecture = enLecture.has(section.id) || colonneEnLecture
                   return (
                     <Fragment key={section.id}>
-                      {glisserSections.repère(colonne.id, i) && ligneRepère}
+                      {glisserSections.repère(colonne.id, i) && repèreSous}
                       <div
                         data-element={`${colonne.id}:${i}`}
                         data-repere={section.id}
@@ -480,7 +488,9 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                         style={{
                           scrollMarginTop: '70px',
                           background: T.surface, border: `1px solid ${lecture ? `${T.accent}66` : T.border}`, borderRadius: '14px',
-                          padding: lecture ? '8px 14px 12px' : '8px 10px 10px', minWidth: 0, ...glisserSections.style(colonne.id, i),
+                          padding: lecture ? '8px 14px 12px' : '8px 10px 10px', minWidth: 0,
+                          ...(large ? { flex: '1 1 380px', maxWidth: '100%', boxSizing: 'border-box' } : {}),
+                          ...glisserSections.style(colonne.id, i),
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
@@ -559,9 +569,9 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                     </Fragment>
                   )
                 })}
-                {glisserSections.repère(colonne.id, colonne.sousSections.length) && ligneRepère}
+                {glisserSections.repère(colonne.id, colonne.sousSections.length) && repèreSous}
                 {colonne.sousSections.length === 0 && !glisserSections.glisse && (
-                  <p style={{ margin: 0, padding: '12px', textAlign: 'center', fontSize: '12px', color: T.textMuted, border: `1px dashed ${T.border}`, borderRadius: '12px', lineHeight: 1.5 }}>
+                  <p style={{ margin: 0, padding: '12px', textAlign: 'center', fontSize: '12px', color: T.textMuted, border: `1px dashed ${T.border}`, borderRadius: '12px', lineHeight: 1.5, flex: 1 }}>
                     Aucune sous-section
                   </p>
                 )}
