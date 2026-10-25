@@ -86,8 +86,9 @@ function depuisÉdition(bloc, édition) {
 const blocVide = (bloc, édition) => (bloc.type === 'liste' || bloc.type === 'tableau' ? !édition.texte.trim() : !édition.texte.trim())
 
 // Ordinateur (écran large) : chaque section est une bande sur toute la
-// largeur, ses sous-sections côte à côte (en rangées) ; téléphone : les
-// sections côte à côte dans une rangée qui défile horizontalement.
+// largeur, ses sous-sections les unes sous les autres, chacune sur toute la
+// largeur ; téléphone : les sections côte à côte dans une rangée qui défile
+// horizontalement.
 function useÉcranLarge() {
   const requête = '(min-width: 900px)'
   const [large, setLarge] = useState(() => typeof window !== 'undefined' && window.matchMedia(requête).matches)
@@ -376,8 +377,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
     />
   )
   const ligneRepère = <div style={{ height: '4px', borderRadius: '2px', background: T.accent, margin: '-2px 0' }} />
-  // Ordinateur : les sous-sections sont côte à côte, le repère est vertical.
-  const repèreSous = large ? <div style={{ width: '4px', alignSelf: 'stretch', borderRadius: '2px', background: T.accent, margin: '0 -8px', minHeight: '60px' }} /> : ligneRepère
+  const repèreSous = ligneRepère
 
   return (
     <div data-sections ref={zoneRef} style={{ marginTop: '18px' }}>
@@ -472,7 +472,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                   style={{ ...icône, ...(colonneEnLecture ? { background: `${T.accent}26`, color: T.accent } : {}) }}>{colonneEnLecture ? '✏️' : '📖'}</button>
               </div>
 
-              <div ref={glisserSections.refListe(colonne.id)} style={{ display: 'flex', flexDirection: large ? 'row' : 'column', flexWrap: large ? 'wrap' : 'nowrap', alignItems: large ? 'flex-start' : 'stretch', gap: large ? '12px' : '10px', minHeight: '24px' }}>
+              <div ref={glisserSections.refListe(colonne.id)} style={{ display: 'flex', flexDirection: 'column', gap: large ? '12px' : '10px', minHeight: '24px' }}>
                 {colonne.sousSections.map((section, i) => {
                   const bulle = section.bulleId && bullesParId.get(section.bulleId)
                   const visible = !section.replié || ouvertes.has(section.id)
@@ -489,7 +489,6 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                           scrollMarginTop: '70px',
                           background: T.surface, border: `1px solid ${lecture ? `${T.accent}66` : T.border}`, borderRadius: '14px',
                           padding: lecture ? '8px 14px 12px' : '8px 10px 10px', minWidth: 0,
-                          ...(large ? { flex: '1 1 380px', maxWidth: '100%', boxSizing: 'border-box' } : {}),
                           ...glisserSections.style(colonne.id, i),
                         }}
                       >
