@@ -902,7 +902,17 @@ export default function Graph() {
       const imagesBulles = new Map(await Promise.all(noeuds.filter(n => n.image).map(async n => {
         try { return [n.id, await enDonnées(await (await fetch(adresseImage(n.image))).blob())] } catch { return [n.id, null] }
       })))
-      const html = pageImprimable({ nom: graphe.nom, image, proportion, colonnes: colonnesGraphe, noeuds, liens, imageDe: n => imagesBulles.get(n.id) || (n.image ? adresseImage(n.image) : null) })
+      // Photos des sous-sections, intégrées de la même façon.
+      const blocsPhoto = colonnesGraphe.flatMap(c => c.sousSections.flatMap(ss => ss.blocs)).filter(b => b.type === 'image' && b.image)
+      await Promise.all(blocsPhoto.map(b => urlImage(b.image)))
+      const imagesBlocs = new Map(await Promise.all(blocsPhoto.map(async b => {
+        try { return [b.id, await enDonnées(await (await fetch(adresseImage(b.image))).blob())] } catch { return [b.id, null] }
+      })))
+      const html = pageImprimable({
+        nom: graphe.nom, image, proportion, colonnes: colonnesGraphe, noeuds, liens,
+        imageDe: n => imagesBulles.get(n.id) || (n.image ? adresseImage(n.image) : null),
+        imageDeBloc: b => imagesBlocs.get(b.id) || adresseImage(b.image),
+      })
         .replace('</body>', '<script>window.onload = () => setTimeout(() => window.print(), 300)</script></body>')
       fenêtre.document.open()
       fenêtre.document.write(html)

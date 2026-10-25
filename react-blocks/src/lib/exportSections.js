@@ -9,6 +9,7 @@ const échapper = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt
 const cellule = t => sansCouleurs(t).replace(/\|/g, '\\|')
 
 function blocEnMarkdown(b) {
+  if (b.type === 'image') return `🖼️ ${sansCouleurs(b.texte) || 'Photo'}`
   if (b.type === 'code') return `\`\`\`${(b.langage || '').toLowerCase()}\n${b.texte}\n\`\`\``
   if (b.type === 'encadré') {
     const v = VARIANTES[b.variante] || VARIANTES.astuce
@@ -48,7 +49,11 @@ export function texteEnHTML(texte) {
   }).join('')
 }
 
-function blocEnHTML(b) {
+function blocEnHTML(b, imageDeBloc = () => null) {
+  if (b.type === 'image') {
+    const src = b.image && imageDeBloc(b)
+    return `<figure class="photo">${src ? `<img src="${échapper(src)}" alt="">` : '<p class="vide">(photo)</p>'}${b.texte ? `<figcaption>${texteEnHTML(b.texte)}</figcaption>` : ''}</figure>`
+  }
   if (b.type === 'code') {
     const surlignées = new Set(b.surlignées || [])
     const lignes = codeEnHTML(b.texte || '', b.langage).split('\n')
@@ -90,7 +95,7 @@ function arbre(noeuds) {
 // numérotée du graphe sur deux colonnes, puis les sections à la suite —
 // aucun saut de page forcé, seuls les blocs courts (code, tableaux,
 // encadrés) ne sont pas coupés.
-export function pageImprimable({ nom, image, proportion = 0, colonnes, noeuds = [], liens = [], imageDe = () => null }) {
+export function pageImprimable({ nom, image, proportion = 0, colonnes, noeuds = [], liens = [], imageDe = () => null, imageDeBloc = () => null }) {
   const chapitres = colonnes.filter(c => c.sousSections.length)
   // Numéros : 1 vue d'ensemble, 2 structure, 3… sections.
   const numéroSection = new Map()
@@ -138,7 +143,7 @@ export function pageImprimable({ nom, image, proportion = 0, colonnes, noeuds = 
         const lié = ss.bulleId && parId.get(ss.bulleId)
         return `<section class="sous" id="ss-${ss.id}">
           <h3>${numéroSection.get(ss.id)} ${échapper(ss.titre)}${lié ? ` <span class="lie">🫧 ${texteEnHTML(lié.texte)}</span>` : ''}</h3>
-          ${ss.blocs.map(blocEnHTML).join('') || '<p class="vide">(vide)</p>'}
+          ${ss.blocs.map(b => blocEnHTML(b, imageDeBloc)).join('') || '<p class="vide">(vide)</p>'}
         </section>`
       }).join('')}
     </section>`).join('')
@@ -176,6 +181,8 @@ export function pageImprimable({ nom, image, proportion = 0, colonnes, noeuds = 
   .img-bulle { display: block; max-width: calc(100% - 12px); max-height: 55mm; margin: 3px 0 3px 12px; border-radius: 5px; break-inside: avoid }
   .structure .code { margin-left: 12px }
   .structure pre { font-size: 7.5pt }
+  figure.photo { margin: 6px 0; break-inside: avoid } figure.photo img { display: block; max-width: 100%; max-height: 120mm; border-radius: 6px }
+  figure.photo figcaption { font-size: 8.5pt; color: #666; margin-top: 3px }
   .relations { columns: 2; column-gap: 7mm; font-size: 8.5pt; padding-left: 16px; margin: 4px 0 } .relations li { break-inside: avoid; margin: 1px 0 }
   .relations i { color: #777 }
   p { margin: 4px 0 }

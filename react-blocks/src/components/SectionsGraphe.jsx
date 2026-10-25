@@ -5,7 +5,8 @@ import { uid } from '../lib/graphe'
 import BlocCode from './BlocCode'
 import OutilsTexte from './OutilsTexte'
 import VersCartes from './VersCartes'
-import { ImageCarte } from './ImageCarte'
+import { ImageCarte, ChampImage } from './ImageCarte'
+import { TOKEN_KEY } from '../lib/githubSync'
 
 // Sous le graphe : 4 grandes sections (colonnes sur ordinateur, à la suite
 // sur téléphone), chacune avec ses sous-sections, qui contiennent des blocs.
@@ -29,7 +30,7 @@ export const VARIANTES = {
   info: { emoji: 'ℹ️', nom: 'Info', couleur: '#5b8dc9' },
 }
 const TYPES_BLOCS = [
-  ['texte', '＋ Texte'], ['code', '＋ </> Code'], ['encadré', '＋ 💡 Encadré'], ['liste', '＋ ☑️ Liste'], ['tableau', '＋ ▦ Tableau'],
+  ['texte', '＋ Texte'], ['code', '＋ </> Code'], ['encadré', '＋ 💡 Encadré'], ['liste', '＋ ☑️ Liste'], ['tableau', '＋ ▦ Tableau'], ['image', '＋ 🖼️ Photo'],
 ]
 
 // Les 4 grandes sections d'un graphe. Les anciennes « sections » (avant
@@ -48,7 +49,7 @@ export function colonnesDe(graphe) {
 export function texteDuBloc(bloc) {
   if (bloc.type === 'liste') return (bloc.éléments || []).map(e => e.texte).join(' ')
   if (bloc.type === 'tableau') return (bloc.lignes || []).map(l => l.join(' ')).join(' ')
-  return texteBrut(bloc.texte || '')
+  return texteBrut(bloc.texte || '') // texte, code, encadré, légende d'une photo
 }
 
 // Bloc ↔ texte éditable (une ligne par élément / rangée).
@@ -73,6 +74,7 @@ function depuisÉdition(bloc, édition) {
     return { ...bloc, lignes: texte.split('\n').filter(l => l.trim()).map(l => l.replace(/^\||\|$/g, '').split('|').map(c => c.trim())) }
   }
   const maj = { ...bloc, texte }
+  if (bloc.type === 'image') maj.image = édition.image || null
   if (bloc.type === 'code') {
     maj.langage = édition.langage
     // Les lignes surlignées qui n'existent plus sont oubliées.
@@ -83,7 +85,7 @@ function depuisÉdition(bloc, édition) {
   if (bloc.type === 'encadré') maj.variante = édition.variante || 'astuce'
   return maj
 }
-const blocVide = (bloc, édition) => (bloc.type === 'liste' || bloc.type === 'tableau' ? !édition.texte.trim() : !édition.texte.trim())
+const blocVide = (bloc, édition) => (bloc.type === 'image' ? !édition.image : !édition.texte.trim())
 
 // Ordinateur (écran large) : chaque section est une bande sur toute la
 // largeur, ses sous-sections les unes sous les autres, chacune sur toute la
@@ -114,10 +116,23 @@ function useGlisserEntreListes(onDéposer) {
       if (e.button !== undefined && e.button !== 0) return
       e.preventDefault()
       e.stopPropagation()
-      const départ = { x: e.clientX, y: e.clientY, défilement: window.scrollY }
       const poignéeEl = e.currentTarget
+      // Rangée qui défile horizontalement (sections sur téléphone), s'il y en a une.
+      let défileur = poignéeEl.parentElement
+      while (défileur && défileur !== document.body) {
+        const st = getComputedStyle(défileur)
+        if (/(auto|scroll)/.test(st.overflowX) && défileur.scrollWidth > défileur.clientWidth + 4) break
+        défileur = défileur.parentElement
+      }
+      if (défileur === document.body) défileur = null
+      // Le calage (scroll-snap) ramènerait la rangée en arrière à chaque pas.
+      const calage = défileur?.style.scrollSnapType
+      if (défileur) défileur.style.scrollSnapType = 'none'
+      const départ = { x: e.clientX, y: e.clientY, défilement: window.scrollY, gauche: défileur?.scrollLeft || 0 }
       poignéeEl.setPointerCapture?.(e.pointerId)
       let vers = { liste, index }
+      let pointeur = { x: e.clientX, y: e.clientY }
+      let raf = null
       const cible = (x, y) => {
         let meilleure = null
         let distance = Infinity
@@ -142,13 +157,38 @@ function useGlisserEntreListes(onDéposer) {
         })
         return { liste: meilleure.id, index: i }
       }
+      const actualiser = () => {
+        vers = cible(pointeur.x, pointeur.y)
+        setGlisse({
+          de: { liste, index }, vers,
+          dx: pointeur.x - départ.x + ((défileur?.scrollLeft || 0) - départ.gauche),
+          dy: pointeur.y - départ.y + (window.scrollY - départ.défilement),
+        })
+      }
+      // Près d'un bord, la page (ou la rangée) défile toute seule, même si le
+      // pointeur ne bouge plus : on peut amener une sous-section loin.
+      const défiler = () => {
+        const { x, y } = pointeur
+        let bougé = false
+        const vitesse = d => Math.ceil((80 - d) / 5)
+        if (y < 80) { window.scrollBy(0, -vitesse(y)); bougé = true }
+        else if (y > window.innerHeight - 80) { window.scrollBy(0, vitesse(window.innerHeight - y)); bougé = true }
+        if (défileur) {
+          const r = défileur.getBoundingClientRect()
+          if (x < r.left + 50) { défileur.scrollLeft -= vitesse(Math.max(0, x - r.left) + 30); bougé = true }
+          else if (x > r.right - 50) { défileur.scrollLeft += vitesse(Math.max(0, r.right - x) + 30); bougé = true }
+        }
+        if (bougé) actualiser()
+        raf = requestAnimationFrame(défiler)
+      }
+      raf = requestAnimationFrame(défiler)
       const bouger = ev => {
-        if (ev.clientY < 70) window.scrollBy(0, -14)
-        else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 14)
-        vers = cible(ev.clientX, ev.clientY)
-        setGlisse({ de: { liste, index }, dx: ev.clientX - départ.x, dy: ev.clientY - départ.y + (window.scrollY - départ.défilement), vers })
+        pointeur = { x: ev.clientX, y: ev.clientY }
+        actualiser()
       }
       const finir = () => {
+        cancelAnimationFrame(raf)
+        if (défileur) défileur.style.scrollSnapType = calage
         poignéeEl.removeEventListener('pointermove', bouger)
         poignéeEl.removeEventListener('pointerup', finir)
         poignéeEl.removeEventListener('pointercancel', finir)
@@ -219,6 +259,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
   const [édition, setÉdition] = useState(null) // { sectionId, blocId, texte, langage, variante, nouveau }
   const [titreÉdité, setTitreÉdité] = useState(null) // { id, valeur }
   const [liaisonOuverte, setLiaisonOuverte] = useState(null) // id de sous-section
+  const [déplacementOuvert, setDéplacementOuvert] = useState(null) // id de sous-section à déplacer
   const [repérée, setRepérée] = useState(null)
   const [ouvertes, setOuvertes] = useState(() => new Set()) // dépliées le temps d'une recherche
   // Ensemble des sous-sections ET des sections (colonnes) en mode lecture.
@@ -312,6 +353,19 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
     majColonne(colonne.id, c => ({ ...c, sousSections: [...c.sousSections, section] }))
     setTitreÉdité({ id: section.id, valeur: section.titre })
   }
+  // Envoie une sous-section à la fin d'une autre section (sans glisser).
+  const déplacerSousSection = (sectionId, colonneId) => {
+    onChanger(cols => {
+      const ss = cols.flatMap(c => c.sousSections).find(x => x.id === sectionId)
+      if (!ss) return cols
+      return cols.map(c => {
+        const sans = c.sousSections.filter(x => x.id !== sectionId)
+        return { ...c, sousSections: c.id === colonneId ? [...sans, ss] : sans }
+      })
+    })
+    setDéplacementOuvert(null)
+    setTimeout(() => montrer(sectionId), 60)
+  }
   const supprimerSousSection = section => {
     if (section.blocs.length && !window.confirm(`Supprimer la sous-section « ${section.titre} » et ses ${section.blocs.length} bloc(s) ?`)) return
     onChanger(cols => cols.map(c => ({ ...c, sousSections: c.sousSections.filter(s => s.id !== section.id) })))
@@ -323,11 +377,12 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
       ...(type === 'liste' ? { éléments: [] } : type === 'tableau' ? { lignes: [] } : { texte: '' }),
       ...(type === 'code' ? { langage: '' } : {}),
       ...(type === 'encadré' ? { variante: 'astuce' } : {}),
+      ...(type === 'image' ? { image: null } : {}),
     }
     majSection(sectionId, s => ({ ...s, replié: false, blocs: [...s.blocs, bloc] }))
-    setÉdition({ sectionId, blocId: bloc.id, texte: type === 'tableau' ? 'Colonne 1 | Colonne 2\n | ' : '', langage: '', variante: 'astuce', nouveau: true })
+    setÉdition({ sectionId, blocId: bloc.id, texte: type === 'tableau' ? 'Colonne 1 | Colonne 2\n | ' : '', langage: '', variante: 'astuce', image: null, nouveau: true })
   }
-  const éditer = (sectionId, bloc) => setÉdition({ sectionId, blocId: bloc.id, texte: versÉdition(bloc), langage: bloc.langage || '', variante: bloc.variante || 'astuce', nouveau: false })
+  const éditer = (sectionId, bloc) => setÉdition({ sectionId, blocId: bloc.id, texte: versÉdition(bloc), langage: bloc.langage || '', variante: bloc.variante || 'astuce', image: bloc.image || null, nouveau: false })
   // Valider un bloc vide le retire ; annuler un bloc qu'on vient d'ajouter aussi.
   const validerBloc = () => {
     const { sectionId, blocId } = édition
@@ -516,12 +571,29 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                               {foyer && section.blocs.length > 0 && (
                                 <button onClick={() => setVersCartes(section.id)} aria-label="Créer des cartes Mémoriser" title="Créer des cartes Mémoriser" style={icône}>🧠</button>
                               )}
+                              {colonnes.length > 1 && (
+                                <button onClick={() => setDéplacementOuvert(o => (o === section.id ? null : section.id))} aria-expanded={déplacementOuvert === section.id}
+                                  aria-label="Déplacer vers une autre section" title="Déplacer vers une autre section"
+                                  style={{ ...icône, color: déplacementOuvert === section.id ? T.accent : T.textMuted, fontWeight: 700 }}>↪</button>
+                              )}
                               <button onClick={() => setLiaisonOuverte(o => (o === section.id ? null : section.id))} aria-label="Relier à une bulle du graphe" title="Relier à une bulle du graphe"
                                 style={{ ...icône, color: bulle ? T.accent : T.textMuted }}>🔗</button>
                               <button onClick={() => supprimerSousSection(section)} aria-label={`Supprimer la sous-section ${section.titre}`} title="Supprimer la sous-section" style={{ ...icône, color: T.danger }}>🗑️</button>
                             </>
                           )}
                         </div>
+                        {déplacementOuvert === section.id && !lecture && (
+                          <div role="group" aria-label="Déplacer vers la section" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', margin: '4px 0 6px 30px' }}>
+                            <span style={{ fontSize: '12px', color: T.textMuted, fontFamily: grotesk }}>Déplacer vers :</span>
+                            {colonnes.filter(c => c.id !== colonne.id).map(c => (
+                              <button key={c.id} onClick={() => déplacerSousSection(section.id, c.id)} style={{
+                                padding: '5px 11px', borderRadius: '20px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 700, fontFamily: grotesk,
+                                background: `${T.accent}1f`, border: `1px solid ${T.accent}`, color: T.text,
+                              }}>{c.titre}</button>
+                            ))}
+                            <button onClick={() => setDéplacementOuvert(null)} aria-label="Annuler le déplacement" style={{ ...icône, fontSize: '12px' }}>✕</button>
+                          </div>
+                        )}
                         {(bulle || liaisonOuverte === section.id) && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: lecture ? '4px 0 6px' : '2px 0 4px 30px', flexWrap: 'wrap' }}>
                             {bulle && liaisonOuverte !== section.id && (
@@ -768,7 +840,27 @@ function BlocsSection({ T, section, lecture, glisser, repérée, édition, setÉ
 
 // Affichage d'un bloc (hors édition). Les cases des listes et les numéros
 // de ligne du code se touchent directement.
+// Photo d'une sous-section : toucher pour l'agrandir (taille réelle, sur toute
+// la largeur), la légende en dessous.
+function BlocImage({ T, bloc, échelle }) {
+  const [grande, setGrande] = useState(false)
+  if (!bloc.image) return <p style={{ margin: 0, color: T.textMuted, fontStyle: 'italic', fontSize: '13px' }}>(photo manquante)</p>
+  return (
+    <figure style={{ margin: 0 }}>
+      <div onClick={() => setGrande(g => !g)} title={grande ? 'Réduire' : 'Agrandir'} style={{ cursor: grande ? 'zoom-out' : 'zoom-in' }}>
+        <ImageCarte image={bloc.image} hauteurMax={grande ? 4000 : Math.round(320 * échelle)} style={{ margin: 0 }} />
+      </div>
+      {bloc.texte && (
+        <figcaption style={{ marginTop: '6px', fontSize: `${13 * échelle}px`, color: T.textMuted, lineHeight: 1.45 }}>
+          <TexteFormaté texte={bloc.texte} couleurDéfaut={T.textMuted} />
+        </figcaption>
+      )}
+    </figure>
+  )
+}
+
 export function VueBloc({ T, bloc, lecture, majBloc, échelle = 1 }) {
+  if (bloc.type === 'image') return <BlocImage T={T} bloc={bloc} échelle={échelle} />
   if (bloc.type === 'code') {
     return (
       <BlocCode
@@ -872,6 +964,28 @@ function ÉditeurBloc({ T, bloc, édition, setÉdition, valider, annuler, petitB
       el.selectionStart = el.selectionEnd = début + 2
       setÉdition(é => ({ ...é, texte: el.value }))
     }
+  }
+  if (bloc.type === 'image') {
+    let token = ''
+    try { token = localStorage.getItem(TOKEN_KEY) || '' } catch { /* ignore */ }
+    return (
+      <div style={{ padding: '4px 0' }}>
+        <ChampImage image={édition.image} onChange={image => setÉdition(é => ({ ...é, image }))} token={token} libellé="Choisir une photo" />
+        {édition.image && <div style={{ marginTop: '8px' }}><ImageCarte image={édition.image} hauteurMax={260} /></div>}
+        <input
+          value={édition.texte}
+          onChange={e => setÉdition(é => ({ ...é, texte: e.target.value }))}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); valider() } if (e.key === 'Escape') { e.preventDefault(); annuler() } }}
+          placeholder="Légende (facultatif)"
+          aria-label="Légende de la photo"
+          style={{ width: '100%', boxSizing: 'border-box', marginTop: '8px', background: T.bg, color: T.text, border: `1px solid ${T.border}`, borderRadius: '8px', padding: '8px 10px', fontSize: '14px' }}
+        />
+        <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+          <button onClick={annuler} style={petitBouton()}>Annuler</button>
+          <button onClick={valider} disabled={!édition.image} style={{ ...petitBouton(), background: T.accent, color: T.accentText, border: 'none', fontWeight: 700, opacity: édition.image ? 1 : 0.5 }}>Valider</button>
+        </div>
+      </div>
+    )
   }
   const placeholder = {
     code: 'Colle ou écris ton code…',

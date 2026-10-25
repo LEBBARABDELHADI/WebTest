@@ -19,6 +19,7 @@ export function proposerCartes(titre, blocs) {
   }
   blocs.forEach(b => {
     if (b.type === 'tache') { if (b.texte?.trim()) tâches.push(b.texte.trim()); return }
+    if (b.type === 'image') return // une photo ne devient pas une carte
     viderTâches()
     const texte = (b.texte ?? b.contenu ?? '').trim()
     if (b.type === 'liste') {
