@@ -531,6 +531,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                 {colonne.sousSections.map((section, i) => {
                   const bulle = section.bulleId && bullesParId.get(section.bulleId)
                   const visible = !section.replié || ouvertes.has(section.id)
+                  const basculerPli = () => { majSection(section.id, s => ({ ...s, replié: visible })); setOuvertes(o => { const n = new Set(o); n.delete(section.id); return n }) }
                   const lecture = enLecture.has(section.id) || colonneEnLecture
                   return (
                     <Fragment key={section.id}>
@@ -549,15 +550,15 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                           {!lecture && <Poignée T={T} props={glisserSections.poignée(colonne.id, i)} libellé={`Déplacer la sous-section ${section.titre}`} />}
-                          <button onClick={() => { majSection(section.id, s => ({ ...s, replié: !visible })); setOuvertes(o => { const n = new Set(o); n.delete(section.id); return n }) }}
+                          <button onClick={basculerPli}
                             aria-label={visible ? 'Replier la sous-section' : 'Déplier la sous-section'} aria-expanded={visible}
                             title={visible ? 'Replier la sous-section' : 'Déplier la sous-section'}
                             style={{ ...icône, width: '26px', height: '26px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: T.text, background: T.surface2, border: `1px solid ${T.border}` }}>
                             <span style={{ display: 'inline-block', transform: visible ? 'none' : 'rotate(-90deg)', transition: 'transform .15s' }}>▼</span>
                           </button>
                           {titreÉdité?.id === section.id ? champTitre(section.id, '15px') : (
-                            <h3 onClick={lecture ? undefined : () => setTitreÉdité({ id: section.id, valeur: section.titre })} title={lecture ? undefined : 'Toucher pour renommer'}
-                              style={{ flex: 1, minWidth: 0, margin: 0, fontSize: lecture ? '16px' : '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: lecture ? 'default' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <h3 onClick={lecture ? basculerPli : () => setTitreÉdité({ id: section.id, valeur: section.titre })} title={lecture ? (visible ? 'Replier' : 'Déplier') : 'Toucher pour renommer'}
+                              style={{ flex: 1, minWidth: 0, margin: 0, fontSize: lecture ? '16px' : '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: lecture ? 'pointer' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {section.titre}
                               {!lecture && <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length}</span>}
                             </h3>
