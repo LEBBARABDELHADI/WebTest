@@ -833,7 +833,11 @@ export default function Graph() {
       afficher(`Export impossible : ${err.message}`, true)
     }
   }
-  const créerImageGraphe = async () => {
+  // impression : couleurs claires (lisibles sur papier, moins d'encre).
+  const créerImageGraphe = async (impression = false) => {
+    const P = impression
+      ? { fond: '#ffffff', surface: '#fbf8f3', texte: '#1b1b1b', accent: '#f0a839', bord: '#cfc5b4', branche: '#9a8f80' }
+      : { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent, bord: T.border, branche: T.textMuted }
     // Images du dépôt (privé) chargées avant de dessiner.
     await Promise.all(visibles.filter(n => n.image).map(n => urlImage(n.image)))
     {
@@ -842,7 +846,7 @@ export default function Graph() {
         const racine = estRacine(n)
         return {
           x: n.x, y: n.y, l: t.l, h: t.h, texte: `${n.icone ? `${n.icone} ` : ''}${texteBrut(n.texte)}`, racine, forme: n.forme || 'arrondi', facteur: facteurTaille(n),
-          couleur: n.couleur || (racine ? T.accent : T.border),
+          couleur: n.couleur || (racine ? P.accent : P.bord),
           image: n.image ? adresseImage(n.image) : null,
           badge: n.replié ? `+${descendants(noeuds, n.id).size}` : null,
           code: blocCode(n),
@@ -850,7 +854,7 @@ export default function Graph() {
       })
       const branches = visibles.filter(n => n.parentId && idsVisibles.has(n.parentId)).map(n => {
         const p = parId.get(n.parentId)
-        return { de: { x: p.x, y: p.y }, vers: { x: n.x, y: n.y }, couleur: n.couleur || p.couleur || T.textMuted }
+        return { de: { x: p.x, y: p.y }, vers: { x: n.x, y: n.y }, couleur: n.couleur || p.couleur || P.branche }
       })
       const blob = await exporterGraphePNG({
         bulles,
@@ -859,7 +863,7 @@ export default function Graph() {
         séparateurs: graphe.séparer ? séparateursArbres(visibles, tailleDe) : [],
         lignes,
         zones,
-        couleurs: { fond: T.bg, surface: T.surface, texte: T.text, accent: T.accent },
+        couleurs: { fond: P.fond, surface: P.surface, texte: P.texte, accent: P.accent },
         polices: { serif, sans: getComputedStyle(document.body).fontFamily, mono: POLICE_CODE },
       })
       return blob
@@ -886,9 +890,17 @@ export default function Graph() {
     fenêtre.document.write('<p style="font-family:sans-serif;padding:20px">Préparation du document…</p>')
     try {
       await Promise.all(noeuds.filter(n => n.image).map(n => urlImage(n.image)))
-      const blob = noeuds.length ? await créerImageGraphe() : null
-      const image = blob ? await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob) }) : null
-      const html = pageImprimable({ nom: graphe.nom, image, colonnes: colonnesGraphe, noeuds, liens, imageDe: n => (n.image ? adresseImage(n.image) : null) })
+      const blob = noeuds.length ? await créerImageGraphe(true) : null
+      const enDonnées = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.onerror = () => r(null); f.readAsDataURL(b) })
+      const image = blob ? await enDonnées(blob) : null
+      // Proportions de l'image : décide si la structure tient sous elle.
+      const proportion = image ? await new Promise(r => { const i = new Image(); i.onload = () => r(i.height / i.width); i.onerror = () => r(1); i.src = image }) : 0
+      // Images des bulles intégrées au document (elles s'affichent même si
+      // l'onglet d'impression ne peut pas relire les adresses temporaires).
+      const imagesBulles = new Map(await Promise.all(noeuds.filter(n => n.image).map(async n => {
+        try { return [n.id, await enDonnées(await (await fetch(adresseImage(n.image))).blob())] } catch { return [n.id, null] }
+      })))
+      const html = pageImprimable({ nom: graphe.nom, image, proportion, colonnes: colonnesGraphe, noeuds, liens, imageDe: n => imagesBulles.get(n.id) || (n.image ? adresseImage(n.image) : null) })
         .replace('</body>', '<script>window.onload = () => setTimeout(() => window.print(), 300)</script></body>')
       fenêtre.document.open()
       fenêtre.document.write(html)
