@@ -1439,6 +1439,15 @@ export default function Memoriser() {
           couleur={data.paquets.find(p => p.id === modeVocal.paquetId)?.couleur || T.accent}
           onFermer={() => setModeVocal(null)}
           onBulles={setCarteBullesId}
+          onImage={(id, image) => setData(d => ({
+            ...d,
+            cartes: d.cartes.map(c => {
+              if (c.id !== id) return c
+              const maj = { ...c, imageMémoire: image }
+              if (!image) delete maj.imageMémoire
+              return maj
+            }),
+          }))}
         />
       )}
       {pdfPaquet && (

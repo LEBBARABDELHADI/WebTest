@@ -4,6 +4,7 @@ import { TexteFormaté, lireTexte } from '../lib/texteFormate'
 import { découperRéponse, aDesPuces } from './CarteBulles'
 import { ImageCarte } from './ImageCarte'
 import Icon from './Icon'
+import { VueImageMémoire, ChoixImageMémoire } from './ImageMemoire'
 
 const CLÉ_TAILLE = 'react-blocs-lecture-taille'
 const TAILLE_MIN = 13
@@ -14,8 +15,10 @@ function tailleMémorisée() {
 }
 
 // Toutes les cartes d'un paquet à lire comme une fiche de cours.
-export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles }) {
+// onImage(carteId, image|null) : enregistre l'image « mémoire visuelle ».
+export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles, onImage }) {
   const T = useTheme()
+  const [choixImage, setChoixImage] = useState(null) // id de la carte
   const [taille, setTaille] = useState(tailleMémorisée)
   const [masquer, setMasquer] = useState(false)
   const [révélées, setRévélées] = useState(() => new Set())
@@ -98,6 +101,11 @@ export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles
                 </h3>
               </div>
               {carte.imageRecto && <ImageCarte image={carte.imageRecto} hauteurMax={240} style={{ marginTop: '10px' }} />}
+              {carte.imageMémoire && !cachée && (
+                <div style={{ marginTop: '10px', paddingLeft: '34px' }}>
+                  <VueImageMémoire T={T} image={carte.imageMémoire} couleur={couleur} hauteur={Math.round(taille * 13)} />
+                </div>
+              )}
 
               {cachée ? (
                 <button onClick={() => révéler(carte.id)} style={{
@@ -125,6 +133,10 @@ export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles
                 {!cachée && (
                   <button onClick={() => lireTexte(carte.verso, { réponse: true })} title="Écouter la réponse" aria-label="Écouter la réponse" style={{ ...petitBouton, height: '28px', fontSize: '11px' }}>🔊 Réponse</button>
                 )}
+                {onImage && (
+                  <button onClick={() => setChoixImage(carte.id)} title="Ajouter une image pour mémoriser (photo ou pictogramme)" aria-label="Image pour mémoriser"
+                    style={{ ...petitBouton, height: '28px', fontSize: '11px', ...(carte.imageMémoire ? { borderColor: couleur } : {}) }}>🖼️ Image</button>
+                )}
                 <button onClick={() => onBulles(carte.id)} title="Voir en bulles" aria-label="Voir en bulles" style={{ ...petitBouton, height: '28px', padding: '0 9px' }}>
                   <Icon nom="bulles" taille={13} />
                 </button>
@@ -133,6 +145,12 @@ export default function ModeLecture({ cartes, titre, couleur, onFermer, onBulles
           )
         })}
       </div>
+      {choixImage && cartes.find(c => c.id === choixImage) && (
+        <ChoixImageMémoire T={T} carte={cartes.find(c => c.id === choixImage)} couleur={couleur}
+          onChoisir={image => { onImage(choixImage, image); setChoixImage(null) }}
+          onRetirer={() => { onImage(choixImage, null); setChoixImage(null) }}
+          onFermer={() => setChoixImage(null)} />
+      )}
     </div>
   )
 }
