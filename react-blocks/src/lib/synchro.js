@@ -68,8 +68,11 @@ export function useDonnéesSynchronisées(config, compléter) {
     let annulé = false
     setStatut(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
     lireDepuisGitHub(token, config.chemin)
-      .then(({ data: distant, sha }) => {
+      .then(({ data: distant, sha, périmé }) => {
         if (annulé) return
+        // Ancienne version servie en retard par GitHub (juste après un de
+        // nos enregistrements) : on garde ce qu'on a.
+        if (périmé && shaRef.current) { setStatut(token ? 'connecté' : 'lecture-seule'); return }
         shaRef.current = sha
         const distantComplet = compléter(distant)
         // Modifications pas encore envoyées : fusionnées, pas écrasées.

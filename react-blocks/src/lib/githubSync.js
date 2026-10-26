@@ -44,6 +44,23 @@ function décoderBase64Utf8(b64) {
 // Lecture publique : fonctionne même sans token (dépôt public), avec un
 // meilleur quota de requêtes si un token est fourni. `chemin` est le chemin
 // du fichier dans le dépôt (un par espace : perso, pro, ...).
+// Versions dépassées d'un fichier : les sha remplacés par nos propres
+// écritures. Juste après un enregistrement, GitHub renvoie parfois encore
+// l'ancienne version quelques secondes ; une lecture qui tombe sur un de ces
+// sha est « périmée » et ne doit pas remplacer ce qu'on vient d'écrire.
+// Gardé sur l'appareil (les 30 derniers par fichier), même après rechargement.
+const CLÉ_DÉPASSÉS = 'react-blocs-shas-depasses'
+function lireDépassés() {
+  try { return JSON.parse(localStorage.getItem(CLÉ_DÉPASSÉS) || '{}') } catch { return {} }
+}
+function marquerDépassé(chemin, sha) {
+  if (!sha) return
+  const tous = lireDépassés()
+  tous[chemin] = [...(tous[chemin] || []).filter(s => s !== sha), sha].slice(-30)
+  try { localStorage.setItem(CLÉ_DÉPASSÉS, JSON.stringify(tous)) } catch { /* ignore */ }
+}
+const estDépassé = (chemin, sha) => (lireDépassés()[chemin] || []).includes(sha)
+
 export async function lireDepuisGitHub(token, chemin) {
   const headers = { Accept: 'application/vnd.github+json' }
   if (token) headers.Authorization = `Bearer ${token}`
@@ -65,7 +82,7 @@ export async function lireDepuisGitHub(token, chemin) {
   }
   const json = await res.json()
   const contenu = décoderBase64Utf8(json.content.replace(/\n/g, ''))
-  return { data: JSON.parse(contenu), sha: json.sha }
+  return { data: JSON.parse(contenu), sha: json.sha, périmé: estDépassé(chemin, json.sha) }
 }
 
 // Écriture : nécessite un token avec la permission Contents (lecture/écriture)
@@ -93,6 +110,9 @@ async function écrireAvecEssais(data, token, shaConnu, chemin, base) {
     if (!sha || essai > 0) {
       try {
         const lu = await lireDepuisGitHub(token, chemin)
+        // Ancienne version servie en retard : la fusionner ferait perdre nos
+        // derniers changements. On attend et on relit.
+        if (lu.périmé) { dernièreErreur = erreurPassagère('GitHub renvoie une ancienne version, nouvel essai…'); continue }
         sha = lu.sha
         if (base !== undefined && base !== null) àÉcrire = fusionner(base, data, lu.data)
       } catch (err) {
@@ -113,7 +133,12 @@ async function écrireAvecEssais(data, token, shaConnu, chemin, base) {
       dernièreErreur = erreurPassagère('Connexion à GitHub impossible (hors ligne ?)')
       continue
     }
-    if (res.ok) return { sha: (await res.json()).content.sha, données: àÉcrire, fusionné: !égal(àÉcrire, data) }
+    if (res.ok) {
+      const nouveau = (await res.json()).content.sha
+      marquerDépassé(chemin, sha)
+      marquerDépassé(chemin, shaConnu)
+      return { sha: nouveau, données: àÉcrire, fusionné: !égal(àÉcrire, data) }
+    }
     const err = await res.json().catch(() => ({}))
     if (res.status === 401) throw new Error('Token invalide ou expiré')
     if (res.status === 403) throw new Error('Le token n\'a pas le droit d\'écrire sur ce dépôt')

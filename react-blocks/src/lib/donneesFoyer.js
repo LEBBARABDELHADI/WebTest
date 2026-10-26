@@ -43,7 +43,7 @@ export function useDonnéesFoyer(foyer) {
     const lus = await Promise.allSettled(paires.map(([o, e]) => lireDepuisGitHub(token, chemin(o, e))))
     setDonnées(avant => {
       const après = { ...avant }
-      lus.forEach((r, i) => { if (r.status === 'fulfilled') après[`${paires[i][0]}:${paires[i][1]}`] = r.value.data })
+      lus.forEach((r, i) => { if (r.status === 'fulfilled' && !r.value.périmé) après[`${paires[i][0]}:${paires[i][1]}`] = r.value.data })
       return après
     })
     if (lus.some(r => r.status === 'fulfilled')) setÀJourÀ(new Date())
@@ -235,7 +235,7 @@ export async function créerSauvegarde(foyer) {
   const depuisAppareil = []
   lus.forEach((r, i) => {
     const [o, e] = paires[i]
-    if (r.status === 'fulfilled') fichiers[`${o}-${e}.json`] = r.value.data
+    if (r.status === 'fulfilled' && !r.value.périmé) fichiers[`${o}-${e}.json`] = r.value.data
     else { fichiers[`${o}-${e}.json`] = lireLocal(o, e); depuisAppareil.push(`${o}-${e}.json`) }
   })
   return { app: 'react-blocs', version: 1, foyer: foyer.id, date: new Date().toISOString(), fichiers, depuisAppareil }

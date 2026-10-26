@@ -256,8 +256,11 @@ export default function Memoriser() {
     let annulé = false
     setStatutSync(s => (s === 'erreur' ? s : token ? 'chargement' : 'lecture'))
     lireDepuisGitHub(token, config.chemin)
-      .then(({ data: distant, sha }) => {
+      .then(({ data: distant, sha, périmé }) => {
         if (annulé) return
+        // Ancienne version servie en retard par GitHub (juste après un de
+        // nos enregistrements) : on garde ce qu'on a.
+        if (périmé && shaRef.current) { setStatutSync(token ? 'connecté' : 'lecture-seule'); return }
         shaRef.current = sha
         const distantComplet = complète(distant)
         // Modifications pas encore envoyées (hors ligne, erreur…) : fusionnées
