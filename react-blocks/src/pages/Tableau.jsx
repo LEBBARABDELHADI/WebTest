@@ -6,6 +6,7 @@ import { useDonnéesSynchronisées } from '../lib/synchro'
 import { normaliser } from '../lib/motsCles'
 import { useUrlImage, envoyerImage } from '../components/ImageCarte'
 import PanneauSync from '../components/PanneauSync'
+import { MODÈLES_TABLEAU, instancierÉléments } from '../lib/modelesTableau'
 
 // « Graphe amélioré » : un tableau blanc façon Miro. Canevas infini à grille
 // (glisser le fond pour se déplacer, pincer / Ctrl + molette pour zoomer),
@@ -94,6 +95,29 @@ const I = {
   image: 'M4 5h16v14H4Z M4 16l5-5 4 4 3-3 4 4', plus: 'M12 5v14 M5 12h14', annuler: 'M9 14 4 9l5-5 M4 9h10.5a5.5 5.5 0 0 1 0 11H11', rétablir: 'M15 14l5-5-5-5 M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
   maison: 'M4 10l8-6 8 6v10h-5v-6H9v6H4Z', loupe: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z M20 20l-4-4', points: 'M12 5h.01 M12 12h.01 M12 19h.01', corbeille: 'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13',
   dupliquer: 'M9 9h11v11H9Z M5 15H4V4h11v1', ajuster: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
+  modèles: 'M4 4h7v7H4Z M13 4h7v7h-7Z M4 13h7v7H4Z M13 13h7v7h-7Z',
+}
+
+// Petit aperçu d'un modèle : ses blocs et ses liens, à l'échelle.
+function AperçuModèle({ éléments }) {
+  const parId = new Map(éléments.map(e => [e.id, e]))
+  const placés = éléments.filter(e => !(e.type === 'ligne' && (e.de || e.vers)))
+  const bs = placés.map(boîte)
+  if (!bs.length) return <div style={{ height: 96 }} />
+  const x0 = Math.min(...bs.map(b => b.x)), y0 = Math.min(...bs.map(b => b.y))
+  const l = Math.max(1, Math.max(...bs.map(b => b.x + b.l)) - x0), h = Math.max(1, Math.max(...bs.map(b => b.y + b.h)) - y0)
+  return (
+    <svg viewBox={`${x0 - 20} ${y0 - 20} ${l + 40} ${h + 40}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: 96, display: 'block', background: '#f6f6f4', borderRadius: 10 }} aria-hidden="true">
+      {éléments.filter(e => e.type === 'cadre').map(e => <rect key={e.id} x={e.x} y={e.y} width={e.l} height={e.h} rx={8} fill={e.couleur || '#fff'} stroke="#bbb" strokeWidth={Math.max(2, l / 200)} />)}
+      {éléments.filter(e => e.type === 'ligne').map(e => { const { a, b } = bouts(e, parId); return <line key={e.id} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#555" strokeWidth={Math.max(2, l / 180)} /> })}
+      {éléments.filter(e => ['note', 'forme', 'texte'].includes(e.type)).map(e => (
+        e.type === 'forme'
+          ? <svg key={e.id} x={e.x} y={e.y} width={e.l} height={e.h} viewBox="0 0 100 100" preserveAspectRatio="none"><path d={cheminForme(e.forme)} fill={e.couleur} stroke="#333" strokeWidth={3} /></svg>
+          : e.type === 'texte' ? <rect key={e.id} x={e.x} y={e.y + e.h * 0.3} width={Math.min(e.l, 260)} height={e.h * 0.35} rx={4} fill="#9a9a9a" />
+            : <rect key={e.id} x={e.x} y={e.y} width={e.l} height={e.h} fill={e.couleur} />
+      ))}
+    </svg>
+  )
 }
 const Ic = ({ n, t = 22 }) => (
   <svg width={t} height={t} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={I[n]} /></svg>
@@ -121,6 +145,7 @@ export default function Tableau() {
   const [recherche, setRecherche] = useState(null)
   const [message, setMessage] = useState('')
   const [syncOuvert, setSyncOuvert] = useState(false)
+  const [modèlesOuvert, setModèlesOuvert] = useState(false)
   const zoneRef = useRef(null)
   const fichierRef = useRef(null)
   const geste = useRef(null)
@@ -415,9 +440,46 @@ export default function Tableau() {
       afficher('Image ajoutée')
     } catch (err) { afficher(`Image : ${err.message}`) }
   }
+  // Modèles : posés au centre de l'écran, puis la vue se cadre dessus.
+  const insérerModèle = modèleÉléments => {
+    if (brouillon.current) terminerÉdition()
+    const r = zoneRef.current.getBoundingClientRect()
+    const c = versMonde(r.left + r.width / 2, r.top + r.height / 2)
+    let nouveaux = instancierÉléments(modèleÉléments, c.x, c.y, uid, boîte)
+    // Tableau déjà rempli : le modèle se pose à droite du contenu, sur une
+    // place libre, au lieu de tout recouvrir.
+    const existants = éléments.filter(e => !(e.type === 'ligne' && (e.de || e.vers)))
+    if (existants.length) {
+      const placés = nouveaux.filter(e => !(e.type === 'ligne' && (e.de || e.vers))).map(boîte)
+      const bx = Math.min(...placés.map(b => b.x)), by = Math.min(...placés.map(b => b.y))
+      const eb = existants.map(boîte)
+      const dx = Math.max(...eb.map(b => b.x + b.l)) + 240 - bx
+      const dy = Math.min(...eb.map(b => b.y)) - by
+      nouveaux = nouveaux.map(e => e.type === 'ligne' ? { ...e, x1: e.x1 + dx, y1: e.y1 + dy, x2: e.x2 + dx, y2: e.y2 + dy }
+        : e.type === 'trait' ? { ...e, points: e.points.map(([x, y]) => [x + dx, y + dy]) } : { ...e, x: e.x + dx, y: e.y + dy })
+    }
+    majÉléments(l => [...l, ...nouveaux])
+    setSélection([]); setOutil('sélection'); setModèlesOuvert(false); setMenu(false)
+    setTimeout(() => ajusterVue(nouveaux), 30)
+    afficher('Modèle ajouté — touche deux fois un élément pour écrire')
+  }
+  const enregistrerModèle = () => {
+    const source = sélection.length ? sélection.map(id => parId.get(id)).filter(Boolean) : éléments
+    if (!source.length) { afficher('Le tableau est vide'); return }
+    const nom = window.prompt(sélection.length ? `Nom du modèle (${source.length} élément(s) choisi(s))` : 'Nom du modèle (tout le tableau)', tableau.nom)
+    if (nom === null || !nom.trim()) return
+    setData(d => ({ ...d, modèles: [...(d.modèles || []), { id: uid(), nom: nom.trim(), éléments: source }] }))
+    afficher('Modèle enregistré'); setMenu(false)
+  }
+  const supprimerModèle = m => {
+    if (!window.confirm(`Supprimer le modèle « ${m.nom} » ?`)) return
+    setData(d => ({ ...d, modèles: (d.modèles || []).filter(x => x.id !== m.id) }))
+  }
+
   const choisirOutil = o => {
     setFeuille(false); terminerÉdition()
     if (o === 'image') { fichierRef.current?.click(); return }
+    if (o === 'modèles') { setModèlesOuvert(true); return }
     setOutil(o); if (o !== 'sélection') setSélection([])
   }
 
@@ -729,6 +791,8 @@ export default function Tableau() {
             </button>
           ))}
           <div style={{ borderTop: `1px solid ${UI.bord}`, margin: '6px 0', paddingTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {btn('📋 Modèles', () => { setMenu(false); setModèlesOuvert(true) }, 'Modèles')}
+            {btn('⭐ Enregistrer comme modèle', enregistrerModèle, 'Enregistrer comme modèle')}
             {btn('＋ Nouveau tableau', nouveauTableau, 'Nouveau tableau')}
             {btn('✎ Renommer', renommer, 'Renommer')}
             {btn(<span style={{ color: '#d33' }}>Supprimer</span>, supprimerTableau, 'Supprimer le tableau')}
@@ -796,7 +860,7 @@ export default function Tableau() {
           <div role="dialog" aria-label="Ajouter" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 41, background: '#fff', borderRadius: '22px 22px 0 0', padding: '10px 14px max(18px, env(safe-area-inset-bottom))', maxWidth: 640, margin: '0 auto' }}>
             <div style={{ width: 40, height: 5, borderRadius: 3, background: '#ddd', margin: '0 auto 12px' }} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {[['texte', 'texte', 'Texte'], ['note', 'note', 'Pense-bête'], ['forme', 'forme', 'Formes'], ['ligne', 'ligne', 'Lignes et flèches'], ['stylo', 'stylo', 'Stylo'], ['cadre', 'cadre', 'Cadre'], ['commentaire', 'commentaire', 'Commentaire'], ['image', 'image', 'Charger']].map(([o, ic, n]) => (
+              {[['modèles', 'modèles', 'Modèles'], ['texte', 'texte', 'Texte'], ['note', 'note', 'Pense-bête'], ['forme', 'forme', 'Formes'], ['ligne', 'ligne', 'Lignes et flèches'], ['stylo', 'stylo', 'Stylo'], ['cadre', 'cadre', 'Cadre'], ['commentaire', 'commentaire', 'Commentaire'], ['image', 'image', 'Charger']].map(([o, ic, n]) => (
                 <button key={o} onClick={() => choisirOutil(o)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '14px 4px', border: 'none', background: 'transparent', borderRadius: 14, cursor: 'pointer', color: UI.texte, fontFamily: grotesk, fontSize: 14 }}>
                   <Ic n={ic} t={30} /> {n}
                 </button>
@@ -804,6 +868,42 @@ export default function Tableau() {
             </div>
           </div>
         </>
+      )}
+
+      {modèlesOuvert && (
+        <div role="dialog" aria-label="Modèles" onPointerDown={e => { e.stopPropagation(); if (e.target === e.currentTarget) setModèlesOuvert(false) }} style={{ position: 'absolute', inset: 0, zIndex: 45, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: 900, maxHeight: '88dvh', overflowY: 'auto', background: '#fff', borderRadius: '22px 22px 0 0', padding: '14px 16px max(20px, env(safe-area-inset-bottom))' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <strong style={{ flex: 1, fontSize: 20 }}>📋 Modèles</strong>
+              {btn('⭐ Enregistrer le mien', enregistrerModèle, 'Enregistrer ce tableau (ou la sélection) comme modèle')}
+              {btn('✕', () => setModèlesOuvert(false), 'Fermer')}
+            </div>
+            <p style={{ margin: '0 0 10px', fontSize: 13, color: UI.doux }}>Touche un modèle : il est posé au centre de l'écran, prêt à remplir (touche deux fois un élément pour écrire).</p>
+            {[...(data.modèles?.length ? [['⭐ Mes modèles', data.modèles.map(m => ({ ...m, perso: true, emoji: '⭐', description: `${m.éléments.length} éléments` }))]] : []),
+              ...[...new Set(MODÈLES_TABLEAU.map(m => m.catégorie))].map(c => [c, MODÈLES_TABLEAU.filter(m => m.catégorie === c)])].map(([cat, liste]) => (
+              <section key={cat} style={{ marginBottom: 14 }}>
+                <p style={{ margin: '6px 0 8px', fontSize: 12, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: UI.doux }}>{cat}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
+                  {liste.map(m => {
+                    const els = m.perso ? m.éléments : m.créer()
+                    return (
+                      <div key={m.id} style={{ position: 'relative' }}>
+                        <button onClick={() => insérerModèle(els)} style={{ width: '100%', textAlign: 'left', border: `1px solid ${UI.bord}`, borderRadius: 14, background: '#fff', padding: 8, cursor: 'pointer', fontFamily: grotesk, color: UI.texte }}>
+                          <AperçuModèle éléments={els} />
+                          <span style={{ display: 'block', marginTop: 6, fontSize: 14, fontWeight: 700 }}>{m.emoji} {m.nom}</span>
+                          <span style={{ display: 'block', fontSize: 12, color: UI.doux, lineHeight: 1.3 }}>{m.description}</span>
+                        </button>
+                        {m.perso && (
+                          <button onClick={() => supprimerModèle(m)} aria-label={`Supprimer le modèle ${m.nom}`} style={{ position: 'absolute', top: 6, right: 6, width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,.9)', color: '#d33', cursor: 'pointer' }}>✕</button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
       )}
 
       {message && <div role="status" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: 'calc(max(12px, env(safe-area-inset-top)) + 70px)', zIndex: 50, background: '#1b1b1b', color: '#fff', padding: '8px 14px', borderRadius: 20, fontSize: 14 }}>{message}</div>}
