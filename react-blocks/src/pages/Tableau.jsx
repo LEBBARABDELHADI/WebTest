@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { grotesk } from '../lib/theme'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import { useDonnéesSynchronisées } from '../lib/synchro'
@@ -11,6 +11,11 @@ import { exporterTableauPNG } from '../lib/exportTableau'
 import { urlImage } from '../components/ImageCarte'
 import { créerTâche, lireTâches } from '../lib/donneesFoyer'
 import { analyserAujourdhui } from '../lib/aujourdhui'
+import { FORMES_PLUS, NOMS_FORMES_PLUS, rangerArbre, analyserLignes, basculerCase, morceauxGras } from '../lib/tableauOutils'
+import { DialogueListe, DialogueIcônes, DialogueCarte, DialogueImport, DialogueVersions, ChoixMinuteur, useMinuteur, MiniCarte } from '../components/DialoguesTableau'
+import BlocCode from '../components/BlocCode'
+import Dictée from '../components/Dictee'
+import { LANGAGES } from '../components/SectionsGraphe'
 
 // « Graphe amélioré » : un tableau blanc façon Miro. Canevas infini à grille
 // (glisser le fond pour se déplacer, pincer / Ctrl + molette pour zoomer),
@@ -37,8 +42,9 @@ const compléter = d => ({
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 const NOTES = ['#fff59d', '#ffcc80', '#f8bbd0', '#b3e5fc', '#c8e6c9', '#e1bee7', '#ffffff', '#cfd8dc']
 const TRAITS = ['#1b1b1b', '#e2574c', '#f0a839', '#2e9e6b', '#3b6fd8', '#8b5cf6', '#9aa0a6', '#ffffff']
-const FORMES = [['rect', '▭', 'Rectangle'], ['rond', '◯', 'Ellipse'], ['losange', '◇', 'Losange'], ['triangle', '△', 'Triangle'], ['bulle', '💬', 'Bulle']]
-const UI = { fond: '#f2f2f0', grille: '#e3e3e0', barre: '#ffffff', texte: '#1b1b1b', doux: '#6b6b6b', bord: '#e2e2e2', accent: '#3b5bdb' }
+const FORMES = [['rect', '▭', 'Rectangle'], ['rond', '◯', 'Ellipse'], ['losange', '◇', 'Losange'], ['triangle', '△', 'Triangle'], ['bulle', '💬', 'Bulle'], ...NOMS_FORMES_PLUS]
+const UI_CLAIR = { fond: '#f2f2f0', grille: '#e3e3e0', barre: '#ffffff', texte: '#1b1b1b', doux: '#6b6b6b', bord: '#e2e2e2', accent: '#3b5bdb', survol: '#e8edff' }
+const UI_SOMBRE = { fond: '#1c1d21', grille: '#2a2c31', barre: '#2b2d33', texte: '#ececec', doux: '#a0a4ab', bord: '#3a3d44', accent: '#7c93ff', survol: '#3a4170' }
 const TAILLES = { note: [200, 200], texte: [240, 60], forme: [170, 120], cadre: [640, 420], commentaire: [34, 34] }
 
 // ---------- Géométrie ----------
@@ -59,12 +65,20 @@ function bord(el, vers) {
   const k = Math.min(dx ? (b.l / 2 + 4) / Math.abs(dx) : Infinity, dy ? (b.h / 2 + 4) / Math.abs(dy) : Infinity)
   return { x: c.x + dx * k, y: c.y + dy * k }
 }
+// Points d'accroche : milieu d'un côté (n, s, e, w).
+function milieuCôté(el, c) {
+  const b = boîte(el)
+  return { n: { x: b.x + b.l / 2, y: b.y - 4 }, s: { x: b.x + b.l / 2, y: b.y + b.h + 4 }, e: { x: b.x + b.l + 4, y: b.y + b.h / 2 }, w: { x: b.x - 4, y: b.y + b.h / 2 } }[c]
+}
+function côtéLePlusProche(el, p) {
+  return ['n', 's', 'e', 'w'].map(c => [c, milieuCôté(el, c)]).sort((a, b) => Math.hypot(a[1].x - p.x, a[1].y - p.y) - Math.hypot(b[1].x - p.x, b[1].y - p.y))[0][0]
+}
 // Extrémités réelles d'une ligne (suivent les éléments auxquels elle est reliée).
 function bouts(l, parId) {
   const de = l.de && parId.get(l.de), vers = l.vers && parId.get(l.vers)
   const p1 = { x: l.x1, y: l.y1 }, p2 = { x: l.x2, y: l.y2 }
-  const a = de ? bord(de, vers ? centre(vers) : p2) : p1
-  const b = vers ? bord(vers, de ? centre(de) : p1) : p2
+  const a = de ? (l.côtéDe ? milieuCôté(de, l.côtéDe) : bord(de, vers ? centre(vers) : p2)) : p1
+  const b = vers ? (l.côtéVers ? milieuCôté(vers, l.côtéVers) : bord(vers, de ? centre(de) : p1)) : p2
   return { a, b }
 }
 // Tracé d'une ligne : droit, coudé (angles droits) ou courbe. Reliée à des
@@ -80,8 +94,8 @@ function cheminLigne(l, parId) {
   const de = l.de && parId.get(l.de), vers = l.vers && parId.get(l.vers)
   const ca = de ? centre(de) : a, cb = vers ? centre(vers) : b
   const horizontal = Math.abs(cb.x - ca.x) >= Math.abs(cb.y - ca.y)
-  if (de) a = côté(de, cb, horizontal)
-  if (vers) b = côté(vers, ca, horizontal)
+  if (de && !l.côtéDe) a = côté(de, cb, horizontal)
+  if (vers && !l.côtéVers) b = côté(vers, ca, horizontal)
   if (tracé === 'coude') {
     if (horizontal) { const mx = (a.x + b.x) / 2; return { d: `M${a.x} ${a.y} H${mx} V${b.y} H${b.x}`, a, b, avantFin: { x: mx, y: b.y }, aprèsDébut: { x: mx, y: a.y }, milieu: { x: mx, y: (a.y + b.y) / 2 } } }
     const my = (a.y + b.y) / 2
@@ -111,12 +125,13 @@ function taillePolice(el) {
   const largeurMot = (el.l * 0.8) / (motLePlusLong * 0.62) // un mot ne doit pas être coupé
   return Math.max(10, Math.min(el.type === 'texte' ? 40 : 46, base, el.type === 'texte' ? Infinity : largeurMot))
 }
-const avecTexte = el => ['note', 'texte', 'forme', 'cadre', 'commentaire'].includes(el.type)
+const avecTexte = el => ['note', 'texte', 'forme', 'cadre', 'commentaire', 'grille', 'code'].includes(el.type)
 
 function cheminForme(forme) {
   if (forme === 'rond') return 'M50 1 A49 49 0 1 1 49.9 1 Z'
   if (forme === 'losange') return 'M50 1 L99 50 L50 99 L1 50 Z'
   if (forme === 'triangle') return 'M50 2 L98 98 L2 98 Z'
+  if (FORMES_PLUS[forme]) return FORMES_PLUS[forme]
   if (forme === 'bulle') return 'M8 2 H92 Q98 2 98 8 V68 Q98 74 92 74 H40 L22 96 L26 74 H8 Q2 74 2 68 V8 Q2 2 8 2 Z'
   return 'M6 1 H94 Q99 1 99 6 V94 Q99 99 94 99 H6 Q1 99 1 94 V6 Q1 1 6 1 Z'
 }
@@ -136,6 +151,8 @@ const I = {
   maison: 'M4 10l8-6 8 6v10h-5v-6H9v6H4Z', loupe: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z M20 20l-4-4', points: 'M12 5h.01 M12 12h.01 M12 19h.01', corbeille: 'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13',
   dupliquer: 'M9 9h11v11H9Z M5 15H4V4h11v1', ajuster: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
   modèles: 'M4 4h7v7H4Z M13 4h7v7h-7Z M4 13h7v7H4Z M13 13h7v7h-7Z',
+  icônes: 'M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.5-.8Z', grille: 'M3 5h18v14H3Z M3 10h18 M3 15h18 M9 5v14 M15 5v14',
+  code: 'M8 7l-5 5 5 5 M16 7l5 5-5 5 M14 4l-4 16', liste: 'M9 6h11 M9 12h11 M9 18h11 M4 6h.01 M4 12h.01 M4 18h.01',
 }
 
 // Petit aperçu d'un modèle : ses blocs et ses liens, à l'échelle.
@@ -191,6 +208,16 @@ export default function Tableau() {
   const [présentation, setPrésentation] = useState(null) // index du cadre montré
   const [dialogueTâche, setDialogueTâche] = useState(null) // { id, texte, colonneId, échéance }
   const [programme, setProgramme] = useState(null) // données du Programme de l'espace
+  const [sombre, setSombre] = useState(() => { try { return localStorage.getItem('react-blocs-tableau-sombre') === 'oui' } catch { return false } })
+  const UI = sombre ? UI_SOMBRE : UI_CLAIR
+  // Couleurs « par défaut » adaptées au thème sombre (encre noire → claire, fond blanc → gris).
+  const encre = c => (sombre && (!c || c === '#1b1b1b') ? '#ececec' : c || '#1b1b1b')
+  const fondNeutre = c => (sombre && (!c || c === '#ffffff') ? '#2f3137' : c || '#ffffff')
+  const [dialogue, setDialogue] = useState(null) // 'liste' | 'icônes' | 'carte' | 'graphe' | 'insérer' | 'versions' | 'minuteur'
+  const [miniCarte, setMiniCarte] = useState(() => { try { return (localStorage.getItem('react-blocs-tableau-minicarte') ?? (window.innerWidth > 700 ? 'oui' : 'non')) === 'oui' } catch { return false } })
+  const [pp, setPp] = useState(() => { try { return JSON.parse(localStorage.getItem('react-blocs-tableau-pp') || 'null') } catch { return null } })
+  const navigate = useNavigate()
+  const garderÉdition = useRef(false)
   const [aimant, setAimant] = useState(() => { try { return localStorage.getItem('react-blocs-tableau-aimant') === 'oui' } catch { return false } })
   const zoneRef = useRef(null)
   const fichierRef = useRef(null)
@@ -269,7 +296,9 @@ export default function Tableau() {
     if (éditer) setTimeout(() => setÉdition(el.id), 30)
     return el
   }
-  const supprimer = ids => {
+  const supprimer = idsDemandés => {
+    const ids = idsDemandés.filter(id => !réf.current.parId.get(id)?.verrou)
+    if (ids.length < idsDemandés.length) afficher('Les éléments verrouillés 🔒 ne sont pas supprimés')
     const s = new Set(ids)
     majÉléments(l => l.filter(e => !s.has(e.id)).map(e => {
       if (e.type !== 'ligne' || (!s.has(e.de) && !s.has(e.vers))) return e
@@ -388,7 +417,15 @@ export default function Tableau() {
       return
     }
     if (réf.current.édition && !e.target.closest('textarea')) terminerÉdition()
-    if (e.target.closest('textarea, button, input')) return
+    if (e.target.closest('textarea, button, input, select')) return
+    const caseÀCocher = e.target.closest('[data-case]')?.dataset.case
+    if (caseÀCocher && réf.current.outil === 'sélection') {
+      const [id, i] = caseÀCocher.split(':'); const el = parId.get(id)
+      if (el && !el.verrou) majÉlément(id, { texte: basculerCase(el.texte, Number(i)) })
+      pointeurs.current.delete(e.pointerId); return
+    }
+    const lien = e.target.closest('[data-lien]')?.dataset.lien
+    if (lien) { ouvrirLien(lien); pointeurs.current.delete(e.pointerId); return }
     const p = versMonde(e.clientX, e.clientY)
     const poignée = e.target.closest('[data-poignee]')?.dataset.poignee
     const idEl = e.target.closest('[data-el]')?.dataset.el
@@ -417,15 +454,17 @@ export default function Tableau() {
       if (dernierToucher.current.id === idEl && maintenant - dernierToucher.current.t < 350 && avecTexte(el)) { setSélection([idEl]); setÉdition(idEl); geste.current = null; return }
       dernierToucher.current = { id: idEl, t: maintenant }
       let sel = réf.current.sélection
-      if (e.shiftKey) sel = sel.includes(idEl) ? sel.filter(x => x !== idEl) : [...sel, idEl]
-      else if (!sel.includes(idEl)) sel = [idEl]
+      // Un élément groupé se choisit avec tout son groupe.
+      const groupe = el?.groupe ? réf.current.éléments.filter(x => x.groupe === el.groupe).map(x => x.id) : [idEl]
+      if (e.shiftKey) sel = sel.includes(idEl) ? sel.filter(x => !groupe.includes(x)) : [...new Set([...sel, ...groupe])]
+      else if (!sel.includes(idEl)) sel = groupe
       setSélection(sel)
       // Un cadre emporte ce qui est dedans.
       const ids = new Set(sel)
       sel.map(id => parId.get(id)).filter(x => x?.type === 'cadre').forEach(c => {
         réf.current.éléments.forEach(x => { const m = centre(x); if (x.id !== c.id && m.x > c.x && m.x < c.x + c.l && m.y > c.y && m.y < c.y + c.h) ids.add(x.id) })
       })
-      const départs = new Map([...ids].map(id => [id, parId.get(id)]))
+      const départs = new Map([...ids].map(id => [id, parId.get(id)]).filter(([, x]) => x && !x.verrou)) // verrouillés : ne bougent pas
       const mobiles = [...départs.values()].filter(placé)
       geste.current = {
         type: 'déplacer', p0: p, départs, tracé: false,
@@ -502,7 +541,8 @@ export default function Tableau() {
     } else if (g.type === 'redim') {
       if (!g.tracé) { g.tracé = true; historique.current.passé.push(réf.current.éléments); historique.current.futur = [] }
       const d = g.départ
-      if (d.type === 'ligne') { majÉlément(d.id, g.coin === 'a' ? { x1: p.x, y1: p.y, de: undefined } : { x2: p.x, y2: p.y, vers: undefined }, false); return }
+      if (d.type === 'ligne') { majÉlément(d.id, g.coin === 'a' ? { x1: p.x, y1: p.y, de: undefined, côtéDe: undefined } : { x2: p.x, y2: p.y, vers: undefined, côtéVers: undefined }, false); return }
+      if (d.verrou) return
       const min = d.type === 'commentaire' ? 20 : 24
       let { x, y, l, h } = d
       if (g.coin.includes('e')) l = Math.max(min, d.l + dx)
@@ -530,6 +570,13 @@ export default function Tableau() {
     if (g.type === 'pince') { if (pointeurs.current.size === 0) geste.current = null; return }
     geste.current = null
     const p = versMonde(e.clientX, e.clientY)
+    // Bout d'une ligne lâché sur un élément : il s'y accroche (côté le plus proche).
+    if (g.type === 'redim' && g.départ.type === 'ligne' && g.tracé) {
+      const cible = élémentSous(e.clientX, e.clientY, g.départ.id)
+      const el = cible && parId.get(cible)
+      if (el && el.type !== 'ligne' && el.type !== 'trait') majÉlément(g.départ.id, g.coin === 'a' ? { de: cible, côtéDe: côtéLePlusProche(el, p) } : { vers: cible, côtéVers: côtéLePlusProche(el, p) }, false)
+      return
+    }
     if (g.type === 'pan') { clearTimeout(g.minuteur); if (!g.bougé && réf.current.outil === 'sélection') { setSélection([]); terminerÉdition() } return }
     if (g.type === 'cadreSel') {
       const b = cadreSel; setCadreSel(null)
@@ -547,7 +594,11 @@ export default function Tableau() {
       setAperçu(null)
       const vers = élémentSous(e.clientX, e.clientY, g.de)
       if (Math.hypot(p.x - g.p0.x, p.y - g.p0.y) < 8 && !vers) return
-      ajouter({ id: uid(), type: 'ligne', x1: g.p0.x, y1: g.p0.y, x2: p.x, y2: p.y, ...(g.de ? { de: g.de } : {}), ...(vers ? { vers } : {}), couleur: '#1b1b1b', épaisseur: 2, flèche: 'fin', style: 'plein' })
+      const deEl = g.de && parId.get(g.de), versEl = vers && parId.get(vers)
+      ajouter({
+        id: uid(), type: 'ligne', x1: g.p0.x, y1: g.p0.y, x2: p.x, y2: p.y, couleur: '#1b1b1b', épaisseur: 2, flèche: 'fin', style: 'plein',
+        ...(deEl ? { de: g.de, côtéDe: côtéLePlusProche(deEl, g.p0) } : {}), ...(versEl ? { vers, côtéVers: côtéLePlusProche(versEl, p) } : {}),
+      })
       return
     }
     if (g.type === 'créer') {
@@ -564,6 +615,75 @@ export default function Tableau() {
   }
 
   // ---------- Actions ----------
+  const ouvrirLien = l => {
+    if (/^https?:\/\//.test(l)) window.open(l, '_blank', 'noopener')
+    else navigate(l.replace(/^#/, ''))
+  }
+  const centreÉcran = () => { const r = zoneRef.current.getBoundingClientRect(); return versMonde(r.left + r.width / 2, r.top + r.height / 2) }
+  // Pose des éléments (copiés, liste…) au centre de l'écran et les choisit.
+  const poser = (els, message) => {
+    if (brouillon.current) terminerÉdition()
+    const c = centreÉcran()
+    const nouveaux = instancierÉléments(els, c.x, c.y, uid, boîte)
+    majÉléments(l => [...l, ...nouveaux]); setSélection(nouveaux.filter(placé).map(e => e.id)); setOutil('sélection')
+    if (message) afficher(message)
+    return nouveaux
+  }
+  const copier = (ids, couper = false) => {
+    const s = new Set(ids)
+    const els = éléments.filter(e => s.has(e.id) || (e.type === 'ligne' && e.de && e.vers && s.has(e.de) && s.has(e.vers)))
+    if (!els.length) return
+    const texte = els.filter(e => e.texte).map(e => e.texte).join('\n')
+    const p = { éléments: els, texte, t: Date.now() }
+    setPp(p); try { localStorage.setItem('react-blocs-tableau-pp', JSON.stringify(p)) } catch { /* ignore */ }
+    navigator.clipboard?.writeText(texte || ' ').catch(() => {})
+    if (couper) supprimer(ids)
+    afficher(`${els.filter(placé).length} élément(s) ${couper ? 'coupé(s)' : 'copié(s)'}`)
+  }
+  const coller = () => { if (pp?.éléments?.length) poser(pp.éléments, 'Collé') }
+  const collerListe = texte => {
+    const lignes = texte.split('\n').map(l => l.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, '').trim()).filter(Boolean)
+    if (!lignes.length) return
+    const parLigne = Math.min(4, Math.ceil(Math.sqrt(lignes.length)))
+    poser(lignes.map((t, i) => ({ id: `l${i}`, type: 'note', x: (i % parLigne) * 210, y: Math.floor(i / parLigne) * 210, l: 180, h: 180, texte: t, couleur: NOTES[i % 6], taille: 'auto' })), `${lignes.length} pense-bête(s) créés`)
+    setDialogue(null)
+  }
+  const grouper = () => { const g = uid(); majÉléments(l => l.map(e => (sel.has(e.id) ? { ...e, groupe: g } : e))); afficher('Groupé') }
+  const dégrouper = () => { majÉléments(l => l.map(e => { if (!sel.has(e.id)) return e; const c = { ...e }; delete c.groupe; return c })); afficher('Dégroupé') }
+  const basculerVerrou = () => { const tous = choisis.every(e => e.verrou); majÉléments(l => l.map(e => { if (!sel.has(e.id)) return e; const c = { ...e }; if (tous) delete c.verrou; else c.verrou = true; return c })); afficher(tous ? '🔓 Déverrouillé' : '🔒 Verrouillé') }
+  const ranger = ids => {
+    const positions = rangerArbre(éléments, ids && ids.size > 1 ? ids : null)
+    if (!positions.size) { afficher('Relie des éléments par des flèches pour les ranger en arbre'); return }
+    majÉléments(l => l.map(e => (positions.has(e.id) && !e.verrou ? { ...e, ...positions.get(e.id) } : e)))
+    afficher(`${positions.size} éléments rangés`)
+    setTimeout(() => ajusterVue(), 50)
+  }
+  const ajouterIcône = (emoji, nom) => {
+    const c = centreÉcran(); setDialogue(null)
+    ajouter({ id: uid(), type: 'forme', forme: 'rect', x: c.x - 75, y: c.y - 55, l: 150, h: 110, texte: `${emoji}\n${nom}`, couleur: '#ffffff', bord: '#9aa0a6', taille: 'auto' })
+  }
+  const ajouterBloc = genre => {
+    const c = centreÉcran()
+    if (genre === 'grille') ajouter({ id: uid(), type: 'grille', x: c.x - 190, y: c.y - 90, l: 380, h: 180, texte: 'Colonne 1 | Colonne 2 | Colonne 3\n | | \n | | ' })
+    else ajouter({ id: uid(), type: 'code', x: c.x - 200, y: c.y - 110, l: 400, h: 220, texte: '// ton code ici', langage: '' }, true)
+  }
+  const minuteur = useMinuteur(() => afficher('⏰ Temps écoulé !'))
+
+  // Coller (Ctrl/⌘ + V) : image du presse-papiers, éléments copiés, ou liste
+  // de lignes → pense-bêtes.
+  useEffect(() => {
+    const f = e => {
+      if (e.target.closest?.('textarea, input')) return
+      const fichier = [...(e.clipboardData?.files || [])].find(x => x.type.startsWith('image/'))
+      if (fichier) { e.preventDefault(); choisirImage({ target: { files: [fichier], value: '' } }); return }
+      const texte = e.clipboardData?.getData('text/plain') || ''
+      e.preventDefault()
+      if (pp?.éléments?.length && (!texte.trim() || texte === pp.texte || texte === ' ')) coller()
+      else if (texte.trim()) collerListe(texte)
+    }
+    window.addEventListener('paste', f)
+    return () => window.removeEventListener('paste', f)
+  })
   const ajouterRelié = id => {
     if (brouillon.current) terminerÉdition()
     const s = parId.get(id)
@@ -626,6 +746,8 @@ export default function Tableau() {
     setFeuille(false); terminerÉdition()
     if (o === 'image') { fichierRef.current?.click(); return }
     if (o === 'modèles') { setModèlesOuvert(true); return }
+    if (o === 'icônes' || o === 'liste') { setDialogue({ type: o }); return }
+    if (o === 'grille' || o === 'code') { ajouterBloc(o); return }
     setOutil(o); if (o !== 'sélection') setSélection([])
   }
 
@@ -639,6 +761,10 @@ export default function Tableau() {
       if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); rétablir(); return }
       if ((e.ctrlKey || e.metaKey) && k === 'd' && sel.length) { e.preventDefault(); dupliquer(sel); return }
       if ((e.ctrlKey || e.metaKey) && k === 'a') { e.preventDefault(); setSélection(réf.current.éléments.map(x => x.id)); return }
+      if ((e.ctrlKey || e.metaKey) && k === 'c' && sel.length) { e.preventDefault(); copier(sel); return }
+      if ((e.ctrlKey || e.metaKey) && k === 'x' && sel.length) { e.preventDefault(); copier(sel, true); return }
+      if ((e.ctrlKey || e.metaKey) && k === 'g' && sel.length > 1) { e.preventDefault(); if (e.shiftKey) dégrouper(); else grouper(); return }
+      if ((e.ctrlKey || e.metaKey) && k === 'l' && sel.length) { e.preventDefault(); basculerVerrou(); return }
       if ((e.key === 'Delete' || e.key === 'Backspace') && sel.length) { e.preventDefault(); supprimer(sel); return }
       if (e.key === 'Escape') { setSélection([]); setOutil('sélection'); setFeuille(false); return }
       if (e.key === 'Enter' && sel.length === 1 && avecTexte(réf.current.parId.get(sel[0]))) { e.preventDefault(); setÉdition(sel[0]); return }
@@ -689,7 +815,12 @@ export default function Tableau() {
       defaultValue={el.texte || ''}
       onFocus={e => { const t = e.target; t.selectionStart = t.selectionEnd = t.value.length; brouillon.current = { id: el.id, valeur: t.value } }}
       onChange={e => { brouillon.current = { id: el.id, valeur: e.target.value } }}
-      onBlur={() => terminerÉdition()}
+      onBlur={e => {
+        // Toucher la barre d'écriture (dictée…) ne termine pas l'écriture.
+        if (garderÉdition.current) { const t = e.target; setTimeout(() => t.isConnected && t.focus(), 0); return }
+        terminerÉdition()
+      }}
+      data-champ-tableau=""
       onKeyDown={e => { if (e.key === 'Escape') e.target.blur(); e.stopPropagation() }}
       aria-label="Texte"
       style={{
@@ -698,11 +829,28 @@ export default function Tableau() {
       }}
     />
   )
-  const contenuTexte = el => (
-    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: el.type === 'texte' ? 'flex-start' : 'center', justifyContent: el.align === 'left' ? 'flex-start' : el.align === 'right' ? 'flex-end' : 'center', overflow: 'hidden' }}>
-      <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', width: '100%', textAlign: el.align || (el.type === 'texte' ? 'left' : 'center') }}>{el.texte}</div>
-    </div>
-  )
+  // Texte avec puces (« - »), cases à cocher (« [ ] » / « [x] ») et **gras**.
+  const enLigne = t => morceauxGras(t).map((m, k) => (m.gras ? <strong key={k}>{m.t}</strong> : <span key={k}>{m.t}</span>))
+  const contenuTexte = el => {
+    const lignes = analyserLignes(el.texte)
+    const riche = lignes.some(l => l.type !== 'texte')
+    const aligné = el.align || (el.type === 'texte' || riche ? 'left' : 'center')
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: el.type === 'texte' ? 'flex-start' : 'center', justifyContent: aligné === 'left' ? 'flex-start' : aligné === 'right' ? 'flex-end' : 'center', overflow: 'hidden' }}>
+        <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', width: '100%', textAlign: aligné }}>
+          {lignes.map(l => (
+            <div key={l.i} style={{ display: l.type === 'texte' ? 'block' : 'flex', alignItems: 'flex-start', gap: '0.35em', minHeight: '1.2em' }}>
+              {l.type === 'puce' && <span aria-hidden="true">•</span>}
+              {l.type === 'case' && (
+                <span data-case={`${el.id}:${l.i}`} role="checkbox" aria-checked={l.fait} style={{ flexShrink: 0, width: '0.95em', height: '0.95em', marginTop: '0.12em', border: '0.09em solid currentColor', borderRadius: '0.18em', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '1em', lineHeight: 1, cursor: 'pointer', background: l.fait ? '#2e9e6b' : 'transparent', color: l.fait ? '#fff' : 'inherit' }}>{l.fait ? '✓' : ''}</span>
+              )}
+              <span style={l.type === 'case' && l.fait ? { textDecoration: 'line-through', opacity: 0.6 } : undefined}>{enLigne(l.texte)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   const rendreBloc = el => {
     const choisi = sel.has(el.id) && el.id !== '__aperçu'
@@ -724,23 +872,23 @@ export default function Tableau() {
       )
     } else if (el.type === 'texte') {
       corps = (
-        <div style={{ ...commun, fontSize: fs, lineHeight: 1.3, color: el.couleur || '#1b1b1b', fontWeight: el.gras ? 700 : 400, fontFamily: grotesk, textAlign: el.align || 'left', padding: 4, ...(el.texte || édition === el.id ? {} : { outline: '1px dashed #aaa' }) }}>
+        <div style={{ ...commun, fontSize: fs, lineHeight: 1.3, color: encre(el.couleur), fontWeight: el.gras ? 700 : 400, fontFamily: grotesk, textAlign: el.align || 'left', padding: 4, ...(el.texte || édition === el.id ? {} : { outline: '1px dashed #aaa' }) }}>
           {édition === el.id ? champTexte(el) : (el.texte ? contenuTexte(el) : <span style={{ color: '#aaa' }}>Texte</span>)}
         </div>
       )
     } else if (el.type === 'forme') {
       corps = (
-        <div style={{ ...commun, fontSize: fs, lineHeight: 1.25, color: el.couleurTexte || '#1b1b1b', fontWeight: el.gras ? 700 : 400, fontFamily: grotesk, textAlign: el.align || 'center', padding: el.forme === 'bulle' ? '8% 10% 30%' : '12%' }}>
+        <div style={{ ...commun, fontSize: fs, lineHeight: 1.25, color: fondNeutre(el.couleur) !== el.couleur ? UI.texte : el.couleurTexte || '#1b1b1b', fontWeight: el.gras ? 700 : 400, fontFamily: grotesk, textAlign: el.align || 'center', padding: el.forme === 'bulle' ? '8% 10% 30%' : '12%' }}>
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
-            <path d={cheminForme(el.forme)} fill={el.couleur} stroke={el.bord || '#1b1b1b'} strokeWidth={2} vectorEffect="non-scaling-stroke" />
+            <path d={cheminForme(el.forme)} fill={fondNeutre(el.couleur)} stroke={encre(el.bord)} strokeWidth={2} vectorEffect="non-scaling-stroke" />
           </svg>
           <div style={{ position: 'relative', width: '100%', height: '100%' }}>{édition === el.id ? champTexte(el) : contenuTexte(el)}</div>
         </div>
       )
     } else if (el.type === 'cadre') {
       corps = (
-        <div style={{ ...commun, background: el.couleur || '#ffffff', border: `${1.5 / z}px solid ${choisi ? UI.accent : '#c9c9c9'}`, borderRadius: 4 }}>
-          <div style={{ position: 'absolute', left: 0, bottom: '100%', marginBottom: 6 / z, fontSize: 14 / z, color: '#555', fontFamily: grotesk, whiteSpace: 'nowrap', minWidth: 120 / z, height: 22 / z }}>
+        <div style={{ ...commun, background: fondNeutre(el.couleur), border: `${1.5 / z}px solid ${choisi ? UI.accent : sombre ? '#4a4d55' : '#c9c9c9'}`, borderRadius: 4 }}>
+          <div style={{ position: 'absolute', left: 0, bottom: '100%', marginBottom: 6 / z, fontSize: 14 / z, color: UI.doux, fontFamily: grotesk, whiteSpace: 'nowrap', minWidth: 120 / z, height: 22 / z }}>
             {édition === el.id ? champTexte(el) : (el.texte || 'Cadre')}
           </div>
         </div>
@@ -758,14 +906,52 @@ export default function Tableau() {
       )
     } else if (el.type === 'image') {
       corps = <div style={{ ...commun, boxShadow: '0 4px 12px rgba(0,0,0,.12)' }}><ImageÉlément image={el.image} /></div>
+    } else if (el.type === 'grille') {
+      const rangées = (el.texte || '').split('\n').map(l => l.replace(/^\||\|$/g, '').split('|').map(c => c.trim()))
+      const n = Math.max(1, ...rangées.map(r => r.length))
+      corps = (
+        <div style={{ ...commun, background: sombre ? '#26282d' : '#fff', border: `1px solid ${sombre ? '#4a4d55' : '#c9c9c9'}`, borderRadius: 6, overflow: 'hidden', fontFamily: grotesk, fontSize: el.taille === 'auto' || !el.taille ? 15 : el.taille, color: UI.texte }}>
+          {édition === el.id ? <div style={{ position: 'absolute', inset: 0, padding: 8, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 14 }}>{champTexte(el)}</div> : (
+            <table style={{ width: '100%', height: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+              <tbody>
+                {rangées.map((r, i) => (
+                  <tr key={i}>{Array.from({ length: n }, (_, j) => (
+                    <td key={j} style={{ border: `1px solid ${sombre ? '#3a3d44' : '#e0e0e0'}`, padding: '4px 8px', fontWeight: i === 0 ? 700 : 400, background: i === 0 ? (sombre ? '#33363d' : '#f3f3f1') : 'transparent', overflow: 'hidden', wordBreak: 'break-word' }}>{enLigne(r[j] || '')}</td>
+                  ))}</tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )
+    } else if (el.type === 'code') {
+      corps = (
+        <div style={{ ...commun, background: '#0d0f14', borderRadius: 8, overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,.2)' }}>
+          {édition === el.id
+            ? <div style={{ position: 'absolute', inset: 0, padding: 10, fontFamily: 'ui-monospace, Menlo, Consolas, monospace', fontSize: 13, lineHeight: 1.5, color: '#e2e8f0', whiteSpace: 'pre' }}>{champTexte(el)}</div>
+            : <div style={{ pointerEvents: 'none', height: '100%' }}><BlocCode code={el.texte || ''} langage={el.langage} taille={13} /></div>}
+        </div>
+      )
     }
+    // Badges : verrou, lien, votes, carte Mémoriser.
+    const badge = { position: 'absolute', fontSize: 13 / Math.max(0.6, z), lineHeight: 1, padding: `${3 / Math.max(0.6, z)}px ${6 / Math.max(0.6, z)}px`, borderRadius: 20, background: 'rgba(27,27,27,.78)', color: '#fff', fontFamily: grotesk, fontWeight: 700, whiteSpace: 'nowrap' }
+    const badges = el.id !== '__aperçu' && el.type !== 'commentaire' && (
+      <>
+        {el.verrou && <span title="Verrouillé" style={{ ...badge, left: el.x - 6 / z, top: el.y - 10 / z, transform: 'translateY(-100%)' }}>🔒</span>}
+        {el.lien && <span data-lien={el.lien} role="link" title={`Ouvrir ${el.lien}`} style={{ ...badge, left: el.x + (el.verrou ? 34 / z : 0), top: el.y - 10 / z, transform: 'translateY(-100%)', background: UI.accent, cursor: 'pointer' }}>🔗 {el.lien.replace(/^https?:\/\//, '').slice(0, 24)}</span>}
+        {el.votes > 0 && <span title={`${el.votes} vote(s)`} style={{ ...badge, right: undefined, left: el.x + el.l, top: el.y + el.h, transform: 'translate(-80%, -60%)', background: '#e2574c' }}>👍 {el.votes}</span>}
+        {el.carte && <span title="Carte Mémoriser créée" style={{ ...badge, left: el.x, top: el.y + el.h, transform: 'translate(-20%, -60%)', background: '#8b5cf6' }}>🧠</span>}
+      </>
+    )
     return (
       <div key={el.id} data-el={el.id === '__aperçu' ? undefined : el.id} style={{ position: 'absolute', left: 0, top: 0, opacity: el.id === '__aperçu' ? 0.6 : 1, cursor: outil === 'sélection' ? 'move' : 'crosshair' }}>
         {corps}
+        {badges}
+        {outil === 'ligne' && el.id !== '__aperçu' && el.type !== 'commentaire' && ['n', 's', 'e', 'w'].map(c => { const m = milieuCôté(el, c); return <span key={c} style={{ position: 'absolute', left: m.x - 5 / z, top: m.y - 5 / z, width: 10 / z, height: 10 / z, borderRadius: '50%', background: UI.accent, border: `${2 / z}px solid #fff`, pointerEvents: 'none' }} /> })}
         {choisi && el.type !== 'commentaire' && (
           <>
             <div style={{ position: 'absolute', left: el.x - 4 / z, top: el.y - 4 / z, width: el.l + 8 / z, height: el.h + 8 / z, border: `${1.6 / z}px solid ${UI.accent}`, pointerEvents: 'none' }} />
-            {sélection.length === 1 && [['nw', el.x, el.y], ['ne', el.x + el.l, el.y], ['sw', el.x, el.y + el.h], ['se', el.x + el.l, el.y + el.h]].map(([c, x, y]) => poignée(el.id, c, x, y))}
+            {sélection.length === 1 && !el.verrou && [['nw', el.x, el.y], ['ne', el.x + el.l, el.y], ['sw', el.x, el.y + el.h], ['se', el.x + el.l, el.y + el.h]].map(([c, x, y]) => poignée(el.id, c, x, y))}
           </>
         )}
       </div>
@@ -779,7 +965,7 @@ export default function Tableau() {
       return (
         <g key={el.id} data-el={el.id === '__aperçu' ? undefined : el.id} style={{ cursor: 'move' }}>
           <path d={d} fill="none" stroke="transparent" strokeWidth={Math.max(16 / z, el.épaisseur + 10)} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'stroke' }} />
-          <path d={d} fill="none" stroke={choisi ? UI.accent : el.couleur} strokeWidth={el.épaisseur} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />
+          <path d={d} fill="none" stroke={choisi ? UI.accent : encre(el.couleur)} strokeWidth={el.épaisseur} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />
         </g>
       )
     }
@@ -788,16 +974,16 @@ export default function Tableau() {
     return (
       <g key={el.id} data-el={el.id === '__aperçu' ? undefined : el.id} style={{ cursor: 'move' }}>
         <path d={d} fill="none" stroke="transparent" strokeWidth={Math.max(18 / z, el.épaisseur + 12)} style={{ pointerEvents: 'stroke' }} />
-        <path d={d} fill="none" stroke={choisi ? UI.accent : el.couleur} strokeWidth={el.épaisseur} strokeDasharray={tirets} strokeLinejoin="round"
-          markerEnd={el.flèche === 'fin' || el.flèche === 'deux' ? `url(#fl-${choisi ? 'sel' : el.couleur.slice(1)})` : undefined}
-          markerStart={el.flèche === 'deux' ? `url(#fl-${choisi ? 'sel' : el.couleur.slice(1)})` : undefined} style={{ pointerEvents: 'none' }} />
+        <path d={d} fill="none" stroke={choisi ? UI.accent : encre(el.couleur)} strokeWidth={el.épaisseur} strokeDasharray={tirets} strokeLinejoin="round"
+          markerEnd={el.flèche === 'fin' || el.flèche === 'deux' ? `url(#fl-${choisi ? 'sel' : encre(el.couleur).slice(1)})` : undefined}
+          markerStart={el.flèche === 'deux' ? `url(#fl-${choisi ? 'sel' : encre(el.couleur).slice(1)})` : undefined} style={{ pointerEvents: 'none' }} />
         {el.texte && (
-          <text x={milieu.x} y={milieu.y - 6} textAnchor="middle" fontSize={14} fontFamily="system-ui" fill="#1b1b1b" paintOrder="stroke" stroke={UI.fond} strokeWidth={4} style={{ pointerEvents: 'none' }}>{el.texte}</text>
+          <text x={milieu.x} y={milieu.y - 6} textAnchor="middle" fontSize={14} fontFamily="system-ui" fill={UI.texte} paintOrder="stroke" stroke={UI.fond} strokeWidth={4} style={{ pointerEvents: 'none' }}>{el.texte}</text>
         )}
       </g>
     )
   }
-  const couleursFlèches = [...new Set(lignes.filter(l => l.type === 'ligne').map(l => l.couleur))]
+  const couleursFlèches = [...new Set(lignes.filter(l => l.type === 'ligne').map(l => encre(l.couleur)))]
 
   // ---------- Barre contextuelle ----------
   const choisis = sélection.map(id => parId.get(id)).filter(Boolean)
@@ -808,7 +994,7 @@ export default function Tableau() {
   )
   const btn = (contenu, onClick, titre, actif = false) => (
     <button type="button" onClick={onClick} title={titre} aria-label={titre} aria-pressed={actif} style={{
-      minWidth: 40, height: 40, padding: '0 8px', border: 'none', borderRadius: 10, background: actif ? '#e8edff' : 'transparent', color: actif ? UI.accent : UI.texte,
+      minWidth: 40, height: 40, padding: '0 8px', border: 'none', borderRadius: 10, background: actif ? UI.survol : 'transparent', color: actif ? UI.accent : UI.texte,
       cursor: 'pointer', fontFamily: grotesk, fontWeight: 700, fontSize: 14, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
     }}>{contenu}</button>
   )
@@ -874,7 +1060,28 @@ export default function Tableau() {
           <span style={{ fontSize: 12, color: UI.doux, padding: '0 6px', whiteSpace: 'nowrap' }}>{choisis.length} choisis</span>
         </>
       )}
+      {seul?.type === 'code' && (
+        <select value={seul.langage || ''} onChange={e => majChoisis({ langage: e.target.value })} aria-label="Langage du code"
+          style={{ height: 36, borderRadius: 8, border: `1px solid ${UI.bord}`, background: UI.barre, color: UI.texte, fontFamily: grotesk, margin: '0 4px' }}>
+          <option value="">Langage…</option>{LANGAGES.map(l => <option key={l} value={l}>{l}</option>)}
+        </select>
+      )}
+      {seul?.type === 'grille' && btn('✎ Modifier', () => setÉdition(seul.id), 'Modifier le tableau (une ligne par rangée, « | » entre les colonnes)')}
+      {seul && ['note', 'forme', 'texte'].includes(seul.type) && btn('🧠 Carte', () => setDialogue({ type: 'carte', id: seul.id }), 'Créer une carte Mémoriser')}
+      {seul && seul.type !== 'trait' && btn(seul.lien ? '🔗✓' : '🔗', () => {
+        const l = window.prompt('Lien : adresse web (https://…) ou page de l\'appli (/taches/perso, /notes/perso…). Vide = retirer.', seul.lien || 'https://')
+        if (l === null) return
+        majChoisis(e => { const c = { ...e }; if (l.trim() && l.trim() !== 'https://') c.lien = l.trim(); else delete c.lien; return c })
+      }, 'Lien cliquable', !!seul.lien)}
       {sép}
+      {btn('👍', () => majChoisis(e => ({ votes: (e.votes || 0) + 1 })), 'Voter (+1)')}
+      {choisis.some(e => e.votes) && btn('👎', () => majChoisis(e => { const c = { ...e, votes: Math.max(0, (e.votes || 0) - 1) }; if (!c.votes) delete c.votes; return c }), 'Retirer un vote')}
+      {choisis.length >= 2 && !choisis.every(e => e.groupe && e.groupe === choisis[0].groupe) && btn('⛓ Grouper', grouper, 'Grouper (Ctrl+G)')}
+      {choisis.some(e => e.groupe) && btn('Dégrouper', dégrouper, 'Dégrouper (Ctrl+Maj+G)')}
+      {btn(choisis.every(e => e.verrou) ? '🔓' : '🔒', basculerVerrou, choisis.every(e => e.verrou) ? 'Déverrouiller (Ctrl+L)' : 'Verrouiller (Ctrl+L)', choisis.every(e => e.verrou))}
+      {choisis.some(e => e.type === 'ligne') || choisis.length > 1 ? btn('🌳', () => ranger(new Set(sélection)), 'Ranger en arbre') : null}
+      {sép}
+      {btn('📋', () => copier(sélection), 'Copier (Ctrl+C)')}
       {btn(<Ic n="dupliquer" t={20} />, () => dupliquer(sélection), 'Dupliquer')}
       {btn('⤒', () => premierPlan(sélection), 'Premier plan')}
       {btn(<span style={{ color: '#d33' }}><Ic n="corbeille" t={20} /></span>, () => supprimer(sélection), 'Supprimer')}
@@ -885,7 +1092,7 @@ export default function Tableau() {
   const boutonPlus = seul && ['note', 'forme'].includes(seul.type) && !édition && (
     <button data-chrome onPointerDown={e => e.stopPropagation()} onClick={() => ajouterRelié(seul.id)} aria-label="Ajouter une idée reliée" title="Ajouter une idée reliée" style={{
       position: 'absolute', left: vue.x + (seul.x + seul.l) * z + 14, top: vue.y + (seul.y + seul.h / 2) * z - 24, width: 48, height: 48, borderRadius: '50%',
-      border: 'none', background: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,.18)', color: UI.texte, cursor: 'pointer', zIndex: 15, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      border: 'none', background: UI.barre, boxShadow: '0 4px 16px rgba(0,0,0,.18)', color: UI.texte, cursor: 'pointer', zIndex: 15, display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}><Ic n="plus" t={24} /></button>
   )
 
@@ -983,7 +1190,7 @@ export default function Tableau() {
           {blocs.filter(b => b.type === 'cadre').map(rendreBloc)}
           <svg width="1" height="1" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
             <defs>
-              {[...couleursFlèches, '1b1b1b'].map(c => c.replace('#', '')).concat('sel').map(c => (
+              {[...couleursFlèches, '#1b1b1b', '#ececec'].map(c => c.replace('#', '')).concat('sel').map(c => (
                 <marker key={c} id={`fl-${c}`} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                   <path d="M0 0 L10 5 L0 10 Z" fill={c === 'sel' ? UI.accent : `#${c}`} />
                 </marker>
@@ -1018,21 +1225,44 @@ export default function Tableau() {
         <span style={{ fontSize: 12, color: UI.doux, flexShrink: 0 }}>{Math.round(z * 100)}%</span>
         {btn(<Ic n="ajuster" />, () => ajusterVue(), 'Tout voir')}
         {cadres.length > 0 && btn('▶', présenter, 'Présenter les cadres')}
+        {minuteur.actif && (
+          <button onClick={() => { if (window.confirm('Arrêter le minuteur ?')) minuteur.arrêter() }} title="Minuteur (toucher pour arrêter)" style={{ height: 34, padding: '0 10px', borderRadius: 17, border: 'none', background: minuteur.reste <= 10 ? '#e2574c' : UI.accent, color: '#fff', fontWeight: 800, fontFamily: grotesk, cursor: 'pointer', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+            ⏱ {String(Math.floor(minuteur.reste / 60)).padStart(2, '0')}:{String(minuteur.reste % 60).padStart(2, '0')}
+          </button>
+        )}
         {btn(<Ic n="loupe" />, () => setRecherche(r => (r ? null : { q: '' })), 'Rechercher', !!recherche)}
-        <button onClick={() => setSyncOuvert(o => !o)} title={statut === 'connecté' ? 'Synchronisé' : statut} aria-label="Synchronisation" style={{ width: 34, height: 34, minWidth: 34, borderRadius: '50%', border: 'none', cursor: 'pointer', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <button onClick={() => setSyncOuvert(o => !o)} title={statut === 'connecté' ? 'Synchronisé' : statut} aria-label="Synchronisation" style={{ width: 34, height: 34, minWidth: 34, borderRadius: '50%', border: 'none', cursor: 'pointer', background: UI.barre, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <span style={{ width: 12, height: 12, borderRadius: '50%', background: statut === 'connecté' ? '#2e9e6b' : statut === 'synchronisation' || statut === 'chargement' ? '#f0a839' : statut === 'erreur' ? '#d33' : '#aaa' }} />
         </button>
       </div>
 
       {menu && (
         <div onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'calc(max(12px, env(safe-area-inset-top)) + 62px)', left: 12, width: 'min(320px, calc(100% - 24px))', zIndex: 30, padding: 8, ...pill, borderRadius: 16 }}>
+          {cadres.length > 0 && (
+            <div style={{ borderBottom: `1px solid ${UI.bord}`, marginBottom: 6, paddingBottom: 6 }}>
+              <p style={{ margin: '2px 8px 4px', fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: UI.doux }}>Cadres</p>
+              {cadres.map((c, i) => (
+                <button key={c.id} onClick={() => { setMenu(false); ajusterVue([c]); setSélection([c.id]) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', border: 'none', borderRadius: 10, background: 'transparent', color: UI.texte, cursor: 'pointer', fontFamily: grotesk, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>▢ {i + 1}. {c.texte || 'Cadre'}</button>
+              ))}
+            </div>
+          )}
+          <p style={{ margin: '2px 8px 4px', fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: UI.doux }}>Tableaux</p>
           {data.tableaux.map(t => (
-            <button key={t.id} onClick={() => { setTableauId(t.id); setMenu(false) }} style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 8, padding: '10px 12px', border: 'none', borderRadius: 10, background: t.id === tableau.id ? '#e8edff' : 'transparent', cursor: 'pointer', fontFamily: grotesk, fontSize: 15, color: UI.texte, textAlign: 'left' }}>
+            <button key={t.id} onClick={() => { setTableauId(t.id); setMenu(false) }} style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 8, padding: '10px 12px', border: 'none', borderRadius: 10, background: t.id === tableau.id ? UI.survol : 'transparent', cursor: 'pointer', fontFamily: grotesk, fontSize: 15, color: UI.texte, textAlign: 'left' }}>
               <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.nom}</span>
               <span style={{ fontSize: 12, color: UI.doux }}>{t.éléments.length}</span>
             </button>
           ))}
           <div style={{ borderTop: `1px solid ${UI.bord}`, margin: '6px 0', paddingTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {pp?.éléments?.length > 0 && btn(`📋 Coller (${pp.éléments.filter(placé).length})`, () => { setMenu(false); coller() }, 'Coller les éléments copiés')}
+            {btn('📝 Coller une liste', () => { setMenu(false); setDialogue({ type: 'liste' }) }, 'Une ligne = un pense-bête')}
+            {btn('⬇️ Importer un graphe', () => { setMenu(false); setDialogue({ type: 'graphe' }) }, 'Importer un graphe existant')}
+            {btn('📥 Insérer note / fiche', () => { setMenu(false); setDialogue({ type: 'insérer' }) }, 'Insérer une note ou une sous-section')}
+            {btn('🌳 Ranger les arbres', () => { setMenu(false); ranger(null) }, 'Ranger tout ce qui est relié')}
+            {btn('🕓 Versions', () => { setMenu(false); setDialogue({ type: 'versions' }) }, 'Versions précédentes')}
+            {btn('⏱️ Minuteur', () => { setMenu(false); setDialogue({ type: 'minuteur' }) }, 'Minuteur')}
+            {btn(`🗺️ Mini-carte${miniCarte ? ' ✓' : ''}`, () => setMiniCarte(m => { try { localStorage.setItem('react-blocs-tableau-minicarte', m ? 'non' : 'oui') } catch { /* ignore */ } return !m }), 'Mini-carte', miniCarte)}
+            {btn(`🌙 Thème sombre${sombre ? ' ✓' : ''}`, () => setSombre(v => { try { localStorage.setItem('react-blocs-tableau-sombre', v ? 'non' : 'oui') } catch { /* ignore */ } return !v }), 'Thème sombre', sombre)}
             {btn('▶ Présenter', présenter, 'Présenter les cadres comme des diapositives')}
             {btn('🖼️ PNG', () => exporter('png'), seul?.type === 'cadre' ? 'Exporter le cadre en image' : 'Exporter le tableau en image')}
             {btn('📄 PDF', () => exporter('pdf'), seul?.type === 'cadre' ? 'Exporter le cadre en PDF' : 'Exporter le tableau en PDF')}
@@ -1081,12 +1311,12 @@ export default function Tableau() {
       }}>
         {OUTILS.filter(([o]) => ['sélection', 'note', 'texte', 'forme', 'ligne', 'stylo'].includes(o)).map(([o, ic, titre]) => (
           <button key={o} onClick={() => choisirOutil(o)} aria-label={titre} title={titre} aria-pressed={outil === o} style={{
-            width: 44, height: 44, minWidth: 44, border: 'none', borderRadius: 12, cursor: 'pointer', background: outil === o ? '#e8edff' : 'transparent', color: outil === o ? UI.accent : UI.texte,
+            width: 44, height: 44, minWidth: 44, border: 'none', borderRadius: 12, cursor: 'pointer', background: outil === o ? UI.survol : 'transparent', color: outil === o ? UI.accent : UI.texte,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}><Ic n={ic} /></button>
         ))}
         <span style={{ width: 1, height: 26, background: UI.bord, margin: '0 2px' }} />
-        <button onClick={() => setFeuille(f => !f)} aria-label="Plus d'outils" aria-expanded={feuille} style={{ width: 44, height: 44, minWidth: 44, border: 'none', borderRadius: 12, cursor: 'pointer', background: feuille ? '#e8edff' : 'transparent', color: UI.texte, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic n="plus" t={26} /></button>
+        <button onClick={() => setFeuille(f => !f)} aria-label="Plus d'outils" aria-expanded={feuille} style={{ width: 44, height: 44, minWidth: 44, border: 'none', borderRadius: 12, cursor: 'pointer', background: feuille ? UI.survol : 'transparent', color: UI.texte, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic n="plus" t={26} /></button>
       </div>
       {outil === 'forme' && !feuille && (
         <div onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'calc(76px + env(safe-area-inset-bottom))', zIndex: 21, display: 'flex', gap: 2, padding: 6, ...pill }}>
@@ -1103,10 +1333,10 @@ export default function Tableau() {
       {feuille && (
         <>
           <div onPointerDown={() => setFeuille(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 40 }} />
-          <div role="dialog" aria-label="Ajouter" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 41, background: '#fff', borderRadius: '22px 22px 0 0', padding: '10px 14px max(18px, env(safe-area-inset-bottom))', maxWidth: 640, margin: '0 auto' }}>
+          <div role="dialog" aria-label="Ajouter" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 41, background: UI.barre, borderRadius: '22px 22px 0 0', padding: '10px 14px max(18px, env(safe-area-inset-bottom))', maxWidth: 640, margin: '0 auto' }}>
             <div style={{ width: 40, height: 5, borderRadius: 3, background: '#ddd', margin: '0 auto 12px' }} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {[['modèles', 'modèles', 'Modèles'], ['texte', 'texte', 'Texte'], ['note', 'note', 'Pense-bête'], ['forme', 'forme', 'Formes'], ['ligne', 'ligne', 'Lignes et flèches'], ['stylo', 'stylo', 'Stylo'], ['cadre', 'cadre', 'Cadre'], ['commentaire', 'commentaire', 'Commentaire'], ['image', 'image', 'Charger']].map(([o, ic, n]) => (
+              {[['modèles', 'modèles', 'Modèles'], ['icônes', 'icônes', 'Icônes'], ['grille', 'grille', 'Tableau'], ['code', 'code', 'Code'], ['liste', 'liste', 'Coller une liste'], ['texte', 'texte', 'Texte'], ['note', 'note', 'Pense-bête'], ['forme', 'forme', 'Formes'], ['ligne', 'ligne', 'Lignes et flèches'], ['stylo', 'stylo', 'Stylo'], ['cadre', 'cadre', 'Cadre'], ['commentaire', 'commentaire', 'Commentaire'], ['image', 'image', 'Charger']].map(([o, ic, n]) => (
                 <button key={o} onClick={() => choisirOutil(o)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '14px 4px', border: 'none', background: 'transparent', borderRadius: 14, cursor: 'pointer', color: UI.texte, fontFamily: grotesk, fontSize: 14 }}>
                   <Ic n={ic} t={30} /> {n}
                 </button>
@@ -1118,7 +1348,7 @@ export default function Tableau() {
 
       {dialogueTâche && (
         <div role="dialog" aria-label="Envoyer dans le Programme" onPointerDown={e => { e.stopPropagation(); if (e.target === e.currentTarget) setDialogueTâche(null) }} style={{ position: 'absolute', inset: 0, zIndex: 46, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 18, padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ width: '100%', maxWidth: 400, background: UI.barre, color: UI.texte, borderRadius: 18, padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <strong style={{ fontSize: 18 }}>✓ Envoyer dans le Programme</strong>
             <textarea value={dialogueTâche.texte} onChange={e => setDialogueTâche(d => ({ ...d, texte: e.target.value }))} rows={2} aria-label="Texte de la tâche"
               style={{ border: `1px solid ${UI.bord}`, borderRadius: 10, padding: 10, fontSize: 15, fontFamily: grotesk, resize: 'vertical' }} />
@@ -1163,7 +1393,7 @@ export default function Tableau() {
 
       {modèlesOuvert && (
         <div role="dialog" aria-label="Modèles" onPointerDown={e => { e.stopPropagation(); if (e.target === e.currentTarget) setModèlesOuvert(false) }} style={{ position: 'absolute', inset: 0, zIndex: 45, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: 900, maxHeight: '88dvh', overflowY: 'auto', background: '#fff', borderRadius: '22px 22px 0 0', padding: '14px 16px max(20px, env(safe-area-inset-bottom))' }}>
+          <div style={{ width: '100%', maxWidth: 900, maxHeight: '88dvh', overflowY: 'auto', background: UI.barre, borderRadius: '22px 22px 0 0', padding: '14px 16px max(20px, env(safe-area-inset-bottom))' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <strong style={{ flex: 1, fontSize: 20 }}>📋 Modèles</strong>
               {btn('⭐ Enregistrer le mien', enregistrerModèle, 'Enregistrer ce tableau (ou la sélection) comme modèle')}
@@ -1179,7 +1409,7 @@ export default function Tableau() {
                     const els = m.perso ? m.éléments : m.créer()
                     return (
                       <div key={m.id} style={{ position: 'relative' }}>
-                        <button onClick={() => insérerModèle(els)} style={{ width: '100%', textAlign: 'left', border: `1px solid ${UI.bord}`, borderRadius: 14, background: '#fff', padding: 8, cursor: 'pointer', fontFamily: grotesk, color: UI.texte }}>
+                        <button onClick={() => insérerModèle(els)} style={{ width: '100%', textAlign: 'left', border: `1px solid ${UI.bord}`, borderRadius: 14, background: UI.barre, padding: 8, cursor: 'pointer', fontFamily: grotesk, color: UI.texte }}>
                           <AperçuModèle éléments={els} />
                           <span style={{ display: 'block', marginTop: 6, fontSize: 14, fontWeight: 700 }}>{m.emoji} {m.nom}</span>
                           <span style={{ display: 'block', fontSize: 12, color: UI.doux, lineHeight: 1.3 }}>{m.description}</span>
@@ -1194,6 +1424,44 @@ export default function Tableau() {
               </section>
             ))}
           </div>
+        </div>
+      )}
+
+      {dialogue?.type === 'liste' && <DialogueListe UI={UI} onValider={collerListe} onFermer={() => setDialogue(null)} />}
+      {dialogue?.type === 'icônes' && <DialogueIcônes UI={UI} onChoisir={ajouterIcône} onFermer={() => setDialogue(null)} />}
+      {dialogue?.type === 'carte' && parId.get(dialogue.id) && (
+        <DialogueCarte UI={UI} espace={espaceId} texte={parId.get(dialogue.id).texte} onFermer={() => setDialogue(null)}
+          onFait={() => { majÉlément(dialogue.id, { carte: true }); setDialogue(null); afficher('🧠 Carte ajoutée dans Mémoriser') }} />
+      )}
+      {(dialogue?.type === 'graphe' || dialogue?.type === 'insérer') && (
+        <DialogueImport UI={UI} espace={espaceId} mode={dialogue.type} onFermer={() => setDialogue(null)} onInsérer={(els, msg) => { setDialogue(null); insérerModèle(els); afficher(msg) }} />
+      )}
+      {dialogue?.type === 'versions' && (
+        <DialogueVersions UI={UI} token={token} chemin={config.chemin} tableauId={tableau.id} onFermer={() => setDialogue(null)}
+          onRestaurer={els => { majÉléments(() => els); setDialogue(null); setSélection([]); setTimeout(() => ajusterVue(els), 30); afficher('Version restaurée (↶ pour annuler)') }} />
+      )}
+      {dialogue?.type === 'minuteur' && <ChoixMinuteur UI={UI} onFermer={() => setDialogue(null)} onChoisir={m => { minuteur.lancer(m); setDialogue(null); afficher(`⏱ Minuteur : ${m} min`) }} />}
+
+      {miniCarte && présentation === null && (
+        <MiniCarte UI={UI} vue={vue} taille={{ l: window.innerWidth, h: window.innerHeight }}
+          boîtes={éléments.filter(placé).map(e => ({ ...boîte(e), couleur: e.type === 'note' ? e.couleur : e.type === 'cadre' ? (sombre ? '#3a3d44' : '#e4e4e0') : e.type === 'trait' || e.type === 'ligne' ? '#9aa0a6' : '#b8bcc4' }))}
+          onAller={(x, y) => setVue(v => ({ ...v, x: window.innerWidth / 2 - x * v.z, y: window.innerHeight / 2 - y * v.z }))} />
+      )}
+
+      {édition && (
+        <div data-chrome data-barre-edition onPointerDown={() => {
+          garderÉdition.current = true; setTimeout(() => { garderÉdition.current = false }, 600)
+          // Le double toucher sélectionne souvent un mot : la dictée l'aurait
+          // remplacé. On place le curseur à la fin du texte.
+          const t = document.querySelector('textarea[data-champ-tableau]')
+          if (t && t.selectionStart !== t.selectionEnd) t.selectionStart = t.selectionEnd = t.value.length
+        }}
+          style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'calc(84px + env(safe-area-inset-bottom))', zIndex: 25, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', maxWidth: 'calc(100% - 20px)', ...pill }}>
+          <Dictée T={{ border: UI.bord, danger: '#d33', text: UI.texte, textMuted: UI.doux }} grand
+            obtenirInput={() => document.querySelector('textarea[data-champ-tableau]')}
+            setValeur={v => { const t = document.querySelector('textarea[data-champ-tableau]'); if (t) { t.value = v; brouillon.current = { id: édition, valeur: v } } }} />
+          <span style={{ fontSize: 12, color: UI.doux, whiteSpace: 'nowrap' }}>« - » puce · « [ ] » case · **gras**</span>
+          <button onClick={() => { garderÉdition.current = false; terminerÉdition() }} style={{ height: 34, padding: '0 12px', borderRadius: 10, border: 'none', background: UI.accent, color: '#fff', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer', flexShrink: 0 }}>✓ Terminé</button>
         </div>
       )}
 

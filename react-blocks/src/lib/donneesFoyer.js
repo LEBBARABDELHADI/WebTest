@@ -217,6 +217,11 @@ export async function créerTâche({ espace, texte, colonneId, échéance }) {
   try { localStorage.setItem(clé('taches', espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
   return { carte, colonne, données: écrit.données }
 }
+// Données d'un outil d'un espace (GitHub, sinon la copie de l'appareil).
+export async function lireOutil(outil, espace) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  try { return (await lireDepuisGitHub(token, chemin(outil, espace))).data } catch { return lireLocal(outil, espace) }
+}
 // Programme d'un espace (GitHub, sinon la copie de l'appareil).
 export async function lireTâches(espace) {
   const token = localStorage.getItem(TOKEN_KEY) || ''

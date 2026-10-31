@@ -127,6 +127,23 @@ export async function exporterTableauPNG({ éléments, région, outils, urlImage
     } else if (e.type === 'commentaire') {
       ctx.fillStyle = '#3b5bdb'; ctx.beginPath(); ctx.arc(e.x + e.l / 2, e.y + e.h / 2, e.l / 2, 0, Math.PI * 2); ctx.fill()
       ctx.font = `${e.h * 0.5}px ${police}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('💬', e.x + e.l / 2, e.y + e.h / 2)
+    } else if (e.type === 'grille') {
+      const rangées = (e.texte || '').split('\n').map(l => l.replace(/^\||\|$/g, '').split('|').map(c => c.trim()))
+      const n = Math.max(1, ...rangées.map(r => r.length)); const hl = e.h / Math.max(1, rangées.length); const lc = e.l / n
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(e.x, e.y, e.l, e.h)
+      rangées.forEach((r, i) => {
+        if (i === 0) { ctx.fillStyle = '#f3f3f1'; ctx.fillRect(e.x, e.y, e.l, hl) }
+        for (let j = 0; j < n; j++) écrire(ctx, (r[j] || '').replace(/\*\*/g, ''), { x: e.x + j * lc + 6, y: e.y + i * hl + 2, l: lc - 12, h: hl - 4 }, { taille: 14, gras: i === 0, align: 'left', police })
+      })
+      ctx.strokeStyle = '#d0d0d0'; ctx.lineWidth = 1
+      for (let i = 0; i <= rangées.length; i++) { ctx.beginPath(); ctx.moveTo(e.x, e.y + i * hl); ctx.lineTo(e.x + e.l, e.y + i * hl); ctx.stroke() }
+      for (let j = 0; j <= n; j++) { ctx.beginPath(); ctx.moveTo(e.x + j * lc, e.y); ctx.lineTo(e.x + j * lc, e.y + e.h); ctx.stroke() }
+    } else if (e.type === 'code') {
+      ctx.fillStyle = '#0d0f14'; ctx.fillRect(e.x, e.y, e.l, e.h)
+      ctx.save(); ctx.beginPath(); ctx.rect(e.x, e.y, e.l, e.h); ctx.clip()
+      ctx.fillStyle = '#e2e8f0'; ctx.font = '13px ui-monospace, Menlo, Consolas, monospace'; ctx.textBaseline = 'top'; ctx.textAlign = 'left'
+      ;(e.texte || '').split('\n').forEach((l, i) => ctx.fillText(l, e.x + 12, e.y + 12 + i * 19))
+      ctx.restore()
     } else if (e.type === 'image') {
       const img = images.get(e.id)
       if (img) ctx.drawImage(img, e.x, e.y, e.l, e.h)
