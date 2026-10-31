@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { Fragment, useState, useEffect, useRef } from 'react'
 import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
@@ -43,6 +43,10 @@ function chargerDonnées(config) {
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 }
+
+// Écran tactile : pas de sélection de texte sur les cartes (l'appui long
+// sert à les déplacer). À la souris, le texte reste sélectionnable.
+const TACTILE = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches
 
 function formatDateCourte(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
@@ -610,6 +614,82 @@ export default function Taches() {
       cartes: d.cartes.map(c => c.id === carteId ? { ...c, colonneId } : c),
     }))
   }
+
+  // Pose une carte dans une section, avant la carte `avantId` (ou à la fin).
+  const placerCarte = (carteId, colonneId, avantId) => setData(d => {
+    const carte = d.cartes.find(c => c.id === carteId)
+    if (!carte) return d
+    const reste = d.cartes.filter(c => c.id !== carteId)
+    let k = avantId ? reste.findIndex(c => c.id === avantId) : -1
+    if (k < 0) {
+      const dernière = reste.reduce((m, c, j) => (c.colonneId === colonneId ? j : m), -1)
+      k = dernière >= 0 ? dernière + 1 : reste.length
+    }
+    reste.splice(k, 0, { ...carte, colonneId })
+    return { ...d, cartes: reste }
+  })
+
+  // Glisser une tâche au doigt : appui long (0,45 s) sur la carte, puis on
+  // la promène jusqu'à une autre section (la rangée défile près des bords,
+  // la page aussi en haut / en bas) ; un trait montre où elle sera posée.
+  const [glisseCarte, setGlisseCarte] = useState(null) // { id, dx, dy, cible, avant }
+  const appuiRef = useRef(null)
+  const débutAppui = (e, carteId) => {
+    if (e.pointerType !== 'touch' || e.target.closest('button, input, textarea, select, a, label')) return
+    const rangée = rangéeRef.current
+    const a = { id: carteId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, actif: false, gauche0: rangée?.scrollLeft || 0, haut0: window.scrollY, cible: null, avant: null }
+    appuiRef.current = a
+    const calculer = () => {
+      const sous = document.elementFromPoint(a.x, a.y)
+      const col = sous?.closest('[data-colonne]')
+      a.cible = col?.dataset.colonne || null
+      a.avant = null
+      if (col) {
+        const autres = [...col.querySelectorAll('[data-carte]')].filter(c => c.dataset.carte !== a.id)
+        a.avant = autres.find(c => { const r = c.getBoundingClientRect(); return a.y < r.top + r.height / 2 })?.dataset.carte || null
+      }
+      setGlisseCarte({ id: a.id, cible: a.cible, avant: a.avant, dx: a.x - a.x0 + ((rangée?.scrollLeft || 0) - a.gauche0), dy: a.y - a.y0 + (window.scrollY - a.haut0) })
+    }
+    const boucle = () => {
+      if (!a.actif) return
+      let bougé = false
+      if (rangée && a.x < 40) { rangée.scrollLeft -= 12; bougé = true } else if (rangée && a.x > window.innerWidth - 40) { rangée.scrollLeft += 12; bougé = true }
+      if (a.y < 80) { window.scrollBy(0, -12); bougé = true } else if (a.y > window.innerHeight - 80) { window.scrollBy(0, 12); bougé = true }
+      if (bougé) calculer()
+      a.raf = requestAnimationFrame(boucle)
+    }
+    const bouger = ev => {
+      a.x = ev.clientX; a.y = ev.clientY
+      if (!a.actif) { if (Math.hypot(a.x - a.x0, a.y - a.y0) > 10) fin(false); return }
+      calculer()
+    }
+    const bloquer = ev => { if (a.actif) ev.preventDefault() } // pas de défilement pendant le glisser
+    const fin = poser => {
+      clearTimeout(a.minuteur); cancelAnimationFrame(a.raf)
+      window.removeEventListener('pointermove', bouger)
+      window.removeEventListener('pointerup', finOk)
+      window.removeEventListener('pointercancel', finAnnulé)
+      window.removeEventListener('touchmove', bloquer)
+      if (rangée) rangée.style.scrollSnapType = ''
+      if (poser && a.actif && a.cible) placerCarte(a.id, a.cible, a.avant)
+      appuiRef.current = null
+      setGlisseCarte(null)
+    }
+    const finOk = () => fin(true)
+    const finAnnulé = () => fin(false)
+    a.minuteur = setTimeout(() => {
+      a.actif = true
+      navigator.vibrate?.(25)
+      if (rangée) rangée.style.scrollSnapType = 'none'
+      calculer()
+      a.raf = requestAnimationFrame(boucle)
+    }, 450)
+    window.addEventListener('pointermove', bouger)
+    window.addEventListener('pointerup', finOk)
+    window.addEventListener('pointercancel', finAnnulé)
+    window.addEventListener('touchmove', bloquer, { passive: false })
+  }
+  useEffect(() => () => { const a = appuiRef.current; if (a) { clearTimeout(a.minuteur); cancelAnimationFrame(a.raf) } }, [])
 
   const onDrop = colonneId => {
     if (dragCarte.current) {
@@ -1325,6 +1405,7 @@ export default function Taches() {
                 border: `1px solid ${T.border}`, padding: '14px',
                 display: 'flex', flexDirection: 'column', gap: '12px',
                 scrollSnapAlign: 'start',
+                ...(glisseCarte && glisseCarte.cible === col.id ? { borderColor: T.accent, boxShadow: `0 0 0 2px ${T.accent}66` } : {}),
                 ...(attrapée ? {
                   position: 'relative', zIndex: 5, transform: `translateX(${glisseCol.dx}px) rotate(1deg)`,
                   boxShadow: `0 18px 40px rgba(0,0,0,.45)`, borderColor: T.accent,
@@ -1385,16 +1466,25 @@ export default function Taches() {
                   const checklist = carte.checklist || []
                   const étiquettesCarte = carte.étiquettes || []
                   const aBadges = étiquettesCarte.length > 0 || checklist.length > 0 || carte.récurrence
+                  const tenue = glisseCarte?.id === carte.id
                   return (
+                    <Fragment key={carte.id}>
+                    {glisseCarte && !tenue && glisseCarte.cible === col.id && glisseCarte.avant === carte.id && (
+                      <div aria-hidden="true" style={{ height: '4px', borderRadius: '2px', background: T.accent, margin: '-6px 0 -2px' }} />
+                    )}
                     <div
-                      key={carte.id}
                       data-carte={carte.id}
                       draggable
                       onDragStart={() => { dragCarte.current = carte.id }}
+                      onPointerDown={e => débutAppui(e, carte.id)}
+                      onContextMenu={e => { if (appuiRef.current) e.preventDefault() }}
                       style={{
                         background: T.surface2, borderRadius: '10px', padding: '10px 10px 6px',
-                        border: `1px solid ${carteRepérée === carte.id ? T.accent : T.border}`,
-                        boxShadow: carteRepérée === carte.id ? `0 0 0 3px ${T.accent}55` : 'none', transition: 'box-shadow .3s, border-color .3s',
+                        border: `1px solid ${carteRepérée === carte.id || tenue ? T.accent : T.border}`,
+                        boxShadow: tenue ? '0 16px 36px rgba(0,0,0,.45)' : carteRepérée === carte.id ? `0 0 0 3px ${T.accent}55` : 'none',
+                        transition: tenue ? 'none' : 'box-shadow .3s, border-color .3s',
+                        ...(TACTILE ? { WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' } : {}),
+                        ...(tenue ? { position: 'relative', zIndex: 60, transform: `translate(${glisseCarte.dx}px, ${glisseCarte.dy}px) rotate(2deg)`, pointerEvents: 'none', opacity: 0.95 } : {}),
                       }}
                     >
                       {éditionId === carte.id ? (
@@ -1613,8 +1703,12 @@ export default function Taches() {
                         </div>
                       )}
                     </div>
+                    </Fragment>
                   )
                 })}
+                {glisseCarte && glisseCarte.cible === col.id && !glisseCarte.avant && (
+                  <div aria-hidden="true" style={{ height: '4px', borderRadius: '2px', background: T.accent }} />
+                )}
               </div>
 
               <form

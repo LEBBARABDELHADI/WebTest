@@ -502,10 +502,10 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
               borderRadius: '16px', padding: '12px', minWidth: 0,
               ...(large ? {} : { flex: '0 0 86%', maxWidth: '420px', scrollSnapAlign: 'start', boxSizing: 'border-box' }),
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', borderBottom: `2px solid ${T.accent}`, paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', rowGap: '4px', marginBottom: '10px', borderBottom: `2px solid ${T.accent}`, paddingBottom: '8px' }}>
                 {titreÉdité?.id === colonne.id ? champTitre(colonne.id, '18px') : (
                   <h2 onClick={colonneEnLecture ? undefined : () => setTitreÉdité({ id: colonne.id, valeur: colonne.titre })} title={colonneEnLecture ? undefined : 'Toucher pour renommer'}
-                    style={{ flex: 1, minWidth: 0, margin: 0, fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '21px', color: T.text, cursor: colonneEnLecture ? 'default' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    style={{ flex: '1 1 140px', minWidth: 0, margin: 0, fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '21px', color: T.text, cursor: colonneEnLecture ? 'default' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {colonne.titre}
                   </h2>
                 )}
@@ -548,7 +548,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                           ...glisserSections.style(colonne.id, i),
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexWrap: 'wrap', rowGap: '2px' }}>
                           {!lecture && <Poignée T={T} props={glisserSections.poignée(colonne.id, i)} libellé={`Déplacer la sous-section ${section.titre}`} />}
                           <button onClick={basculerPli}
                             aria-label={visible ? 'Replier la sous-section' : 'Déplier la sous-section'} aria-expanded={visible}
@@ -558,7 +558,7 @@ function SectionsGraphe({ T, colonnes, onChanger, bulles = [], onAllerÀBulle, s
                           </button>
                           {titreÉdité?.id === section.id ? champTitre(section.id, '15px') : (
                             <h3 onClick={lecture ? basculerPli : () => setTitreÉdité({ id: section.id, valeur: section.titre })} title={lecture ? (visible ? 'Replier' : 'Déplier') : 'Toucher pour renommer'}
-                              style={{ flex: 1, minWidth: 0, margin: 0, fontSize: lecture ? '16px' : '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: lecture ? 'pointer' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              style={{ flex: '1 1 130px', minWidth: 0, margin: 0, fontSize: lecture ? '16px' : '15px', fontWeight: 700, color: T.text, fontFamily: grotesk, cursor: lecture ? 'pointer' : 'text', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {section.titre}
                               {!lecture && <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: T.textMuted }}>{section.blocs.length}</span>}
                             </h3>

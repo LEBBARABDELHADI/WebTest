@@ -9,10 +9,11 @@ import { analyserAujourdhui } from '../lib/aujourdhui'
 import { prévue, faite, actives, aujourdhuiLocal, décaler, dateDe, iso } from '../lib/habitudes'
 
 const JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
-const COULEUR = { tâche: '#f0a839', retard: '#e2574c', planifiée: '#5b8dc9', habitude: '#4a9d94' }
+const COULEUR = { tâche: '#f0a839', retard: '#e2574c', planifiée: '#5b8dc9', habitude: '#4a9d94', livraison: '#22a55e', quotidienne: '#8b7ab8' }
 
-// Tout ce qui a une date dans le foyer (perso + pro) : échéances et tâches
-// planifiées du Programme, révisions de Mémoriser, habitudes du jour.
+// Tout ce qui a une date dans le foyer (perso + pro) : échéances, dates de
+// livraison et tâches planifiées du Programme, tâches quotidiennes du jour,
+// révisions de Mémoriser, habitudes du jour.
 function construireIndex(lire, foyer, auj) {
   const parJour = new Map()
   const ajouter = (jour, e) => { if (!parJour.has(jour)) parJour.set(jour, []); parJour.get(jour).push(e) }
@@ -28,10 +29,26 @@ function construireIndex(lire, foyer, auj) {
       // Une tâche en retard réapparaît aussi aujourd'hui.
       if (e.retard) ajouter(auj, { ...e, détail: `prévue le ${dateDe(c.échéance).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` })
     })
+    ;(t.cartes || []).filter(c => !c.archivé && c.livraison).forEach(c => {
+      const finie = c.fait || c.colonneId === colonneTerminée?.id
+      ajouter(c.livraison, { type: 'livraison', espace: étiquette, titre: `📦 ${c.texte.split('\n')[0]}`, fait: finie, lien: `/taches/${espace}?carte=${c.id}` })
+    })
+    // Une tâche récurrente se valide jour par jour (case des « Tâches
+    // quotidiennes ») : faite ce jour-là si ce jour est dans ses validations.
+    const faiteLe = (c, jour) => (c?.récurrence ? (c.validées || []).includes(jour) : !!c?.fait || c?.colonneId === colonneTerminée?.id)
+    const quotidiennesDuJour = new Set()
     ;(t.timeline || []).forEach(ev => {
       const c = (t.cartes || []).find(x => x.id === ev.carteId)
       if (c?.archivé) return
-      ajouter(ev.date, { type: 'planifiée', espace: étiquette, titre: ev.texte || c?.texte || 'Tâche', fait: !!c?.fait || c?.colonneId === colonneTerminée?.id, lien: `/taches/${espace}${ev.carteId ? `?carte=${ev.carteId}` : ''}` })
+      if (c?.récurrence && ev.date === auj) quotidiennesDuJour.add(c.id)
+      ajouter(ev.date, { type: c?.récurrence ? 'quotidienne' : 'planifiée', espace: étiquette, titre: ev.texte || c?.texte || 'Tâche', fait: faiteLe(c, ev.date), lien: `/taches/${espace}${ev.carteId ? `?carte=${ev.carteId}` : ''}` })
+    })
+    // Tâches quotidiennes (et hebdomadaires du jour) pas encore recopiées
+    // dans la timeline : elles comptent aussi pour aujourd'hui.
+    const jourSemaine = dateDe(auj).getDay()
+    ;(t.cartes || []).filter(c => !c.archivé && !quotidiennesDuJour.has(c.id)
+      && (c.récurrence === 'quotidienne' || (c.récurrence === 'hebdomadaire' && c.récurrenceJour === jourSemaine))).forEach(c => {
+      ajouter(auj, { type: 'quotidienne', espace: étiquette, titre: c.texte.split('\n')[0], fait: faiteLe(c, auj), lien: `/taches/${espace}?carte=${c.id}` })
     })
     const m = lire('memoriser', espace)
     const révisions = new Map()
@@ -188,7 +205,7 @@ function JourDétail({ T, jour, auj, évènements, foyer, naviguer, onAjouté })
       setTimeout(() => setMessage(''), 2000)
     } catch (err) { setMessage(err.message) }
   }
-  const groupes = [['tâches', évènements.filter(e => e.type === 'tâche' || e.type === 'planifiée')], ['révisions', évènements.filter(e => e.type === 'révision')], ['habitudes', évènements.filter(e => e.type === 'habitude')]]
+  const groupes = [['tâches', évènements.filter(e => ['tâche', 'planifiée', 'livraison', 'quotidienne'].includes(e.type))], ['révisions', évènements.filter(e => e.type === 'révision')], ['habitudes', évènements.filter(e => e.type === 'habitude')]]
   return (
     <section style={{ background: T.surface, border: `1px solid ${jour === auj ? T.accent : T.border}`, borderRadius: '14px', padding: '12px 14px', marginBottom: '10px' }}>
       <h2 style={{ margin: '0 0 8px', fontSize: '15px', fontFamily: grotesk, color: jour === auj ? T.accent : T.text, textTransform: 'capitalize' }}>
@@ -207,7 +224,7 @@ function JourDétail({ T, jour, auj, évènements, foyer, naviguer, onAjouté })
                 {e.détail && <span style={{ color: T.textMuted, fontSize: '12px' }}> · {e.détail}</span>}
               </span>
               <span style={{ fontSize: '11px', color: e.retard ? COULEUR.retard : T.textMuted, fontFamily: grotesk, flexShrink: 0 }}>
-                {e.retard ? 'en retard · ' : e.type === 'planifiée' ? 'planifiée · ' : ''}{e.espace}
+                {e.retard ? 'en retard · ' : e.type === 'planifiée' ? 'planifiée · ' : e.type === 'livraison' ? 'livraison · ' : e.type === 'quotidienne' ? 'chaque jour · ' : ''}{e.espace}
               </span>
             </button>
           ))}

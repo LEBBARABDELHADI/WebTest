@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { notions } from '../notions'
+import { notionsListe as notions } from '../notions/liste'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import { TexteFormaté } from '../lib/texteFormate'

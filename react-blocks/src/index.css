@@ -53,3 +53,11 @@ pre, code {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Écrans tactiles : zones à toucher assez grandes pour le doigt (au moins
+   32 px, cases à cocher 26 px). Sans effet à la souris. */
+@media (pointer: coarse) {
+  button, [role="button"], select { min-height: 32px; min-width: 32px; }
+  a[href] { min-height: 32px; }
+  input[type="checkbox"], input[type="radio"] { min-width: 26px; min-height: 26px; }
+}
