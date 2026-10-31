@@ -251,6 +251,18 @@ export async function ajouterTempsHabitude({ espace, habitudeId, minutes, jour }
   return { enLigne: true }
 }
 
+// Modifie les données d'un outil depuis une autre page : la copie de
+// l'appareil tout de suite, puis GitHub si un token est connecté (fusion).
+export async function modifierOutil(outil, espace, fn) {
+  const local = fn(lireLocal(outil, espace))
+  try { localStorage.setItem(clé(outil, espace), JSON.stringify(local)) } catch { /* ignore */ }
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  if (!token) return { données: local, enLigne: false }
+  const { data, sha } = await lireDepuisGitHub(token, chemin(outil, espace))
+  await écrireVersGitHub(fn(data), token, sha, chemin(outil, espace), data)
+  return { données: local, enLigne: true }
+}
+
 // Plusieurs tâches d'un coup (plan de révision) : une seule écriture.
 export async function créerTâches({ espace, colonneId, tâches }) {
   const token = localStorage.getItem(TOKEN_KEY) || ''

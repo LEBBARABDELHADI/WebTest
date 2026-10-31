@@ -38,6 +38,17 @@ export const PRÉSETS = [
     ],
   },
   {
+    id: 'aws-cloudops', nom: '☁️ AWS CloudOps Engineer – Associate', questions: 65, minutes: 130, seuil: 0.72,
+    note: 'Nouveau nom de l\'examen SysOps Administrator (SOA-C03) : 65 questions, 130 min, 720/1000.',
+    domaines: [
+      { nom: 'Surveillance, journalisation, remédiation, performance', poids: 22, modèles: ['aws-surveillance', 'aws-pannes'] },
+      { nom: 'Fiabilité et continuité d\'activité', poids: 22, modèles: ['aws-fiabilite'] },
+      { nom: 'Déploiement, provisionnement, automatisation', poids: 22, modèles: ['aws-deploiement', 'aws-cli'] },
+      { nom: 'Sécurité et conformité', poids: 16, modèles: ['aws-securite'] },
+      { nom: 'Réseau et diffusion de contenu', poids: 18, modèles: ['aws-reseau'] },
+    ],
+  },
+  {
     id: 'aws-saa', nom: '☁️ AWS Solutions Architect Associate', questions: 65, minutes: 130, seuil: 0.72,
     note: '65 questions, 130 min, score de 720/1000.',
     domaines: [

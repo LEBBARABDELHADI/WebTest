@@ -24,6 +24,7 @@ import ModePodcast from '../components/ModePodcast'
 import ModeLecture from '../components/ModeLecture'
 import EntretienSimule from '../components/EntretienSimule'
 import PaquetsPrêts from '../components/PaquetsPrets'
+import { ajouterPaquetsPrêts } from '../lib/paquetsPrets'
 import ExamenBlanc from '../components/ExamenBlanc'
 import OralChrono from '../components/OralChrono'
 import Objectifs, { compteÀRebours } from '../components/Objectifs'
@@ -198,6 +199,35 @@ export default function Memoriser() {
     if (!carte) return
     setPaquetOuvertId(carte.paquetId)
     setRechercheCarte(texteBrut(carte.recto || '').slice(0, 40))
+  }, [paramètres, data, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Liens des pages « Prépa » : ?action=reviser|examen|carnet|objectifs|
+  // labo|oral|entretien|jeux|prets|import|ouvrir (&modeles=… / &objectif=…).
+  useEffect(() => {
+    const action = paramètres.get('action')
+    if (!action) return
+    const ids = (paramètres.get('modeles') || paramètres.get('modele') || '').split(',').filter(Boolean)
+    const cibles = data.paquets.filter(p => ids.includes(p.modèle))
+    if (ids.length && cibles.length < ids.length && ['chargement', 'lecture'].includes(statutSync)) return // attendre GitHub
+    const objectifId = paramètres.get('objectif')
+    setParamètres({}, { replace: true })
+    const pid = cibles[0]?.id
+    if (action === 'reviser') {
+      const toutes = data.cartes.filter(c => cibles.some(p => p.id === c.paquetId))
+      const dues = toutes.filter(c => !c.prochaineRevision || c.prochaineRevision <= aujourdhuiISO())
+      if (!toutes.length) { setOutilMémo({ type: 'prêts' }); return }
+      démarrerRévision(null, { cartesIds: (dues.length ? dues : toutes).map(c => c.id), titre: cibles.length === 1 ? cibles[0].nom : (dues.length ? 'Révision du jour' : 'Révision complète') })
+    } else if (action === 'examen') {
+      const o = (data.objectifs || []).find(x => x.id === objectifId)
+      setOutilMémo(o ? { type: 'examen', objectif: o } : { type: 'objectifs' })
+    } else if (action === 'carnet') {
+      const l = data.cartes.filter(c => c.carnet && c.carnet.prochaine <= aujourdhuiLocal())
+      if (l.length) démarrerRévision(null, { cartesIds: l.map(c => c.id), titre: 'Carnet d\'erreurs', qcm: data.cartes.length >= 4 })
+      else annoncer('Rien à refaire aujourd\'hui dans le carnet d\'erreurs 🎉')
+    } else if (['objectifs', 'import', 'jeux'].includes(action)) setOutilMémo({ type: action })
+    else if (action === 'prets') setOutilMémo({ type: 'prêts' })
+    else if ((action === 'labo' || action === 'oral') && pid) setOutilMémo({ type: action, paquetId: pid })
+    else if (action === 'entretien' && pid) setModeVocal({ type: 'entretien', paquetId: pid })
+    else if (action === 'ouvrir' && pid) { setPaquetOuvertId(pid); setTimeout(() => document.querySelector(`[data-paquet="${pid}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 100) }
   }, [paramètres, data, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
   const [nouvelleCarte, setNouvelleCarte] = useState({})
   const [éditionCarteId, setÉditionCarteId] = useState(null)
@@ -493,16 +523,7 @@ export default function Memoriser() {
 
   // Paquet prêt (commandes DevOps, naturalisation, français) : créé, ou
   // complété avec les cartes qui manquent.
-  const ajouterPaquetPrêt = m => {
-    const auj = aujourdhuiISO()
-    setData(d => {
-      let paquet = d.paquets.find(p => p.modèle === m.id)
-      const paquets = paquet ? d.paquets : [...d.paquets, (paquet = { id: uid(), nom: m.nom, couleur: m.couleur, modèle: m.id, ...(m.oral ? { oral: true } : {}), ...(m.labo ? { labo: true } : {}) })]
-      const rectos = new Set(d.cartes.filter(c => c.paquetId === paquet.id).map(c => c.recto))
-      const nouvelles = m.cartes.filter(([r]) => !rectos.has(r)).map(([recto, verso, extra]) => ({ id: uid(), paquetId: paquet.id, recto, verso, niveau: 0, prochaineRevision: auj, ...(extra || {}) }))
-      return { ...d, paquets, cartes: [...d.cartes, ...nouvelles] }
-    })
-  }
+  const ajouterPaquetPrêt = m => setData(d => ajouterPaquetsPrêts(d, [m.id], uid, aujourdhuiISO()))
   const erreursEnRévision = ids => {
     const auj = aujourdhuiISO()
     setData(d => ({ ...d, cartes: d.cartes.map(c => (ids.includes(c.id) ? { ...c, niveau: 0, prochaineRevision: auj, fautesConsécutives: (c.fautesConsécutives || 0) + 1 } : c)) }))
@@ -896,7 +917,7 @@ export default function Memoriser() {
                   const dues = cartesDues(paquet.id).length
                   const ouvert = paquetOuvertId === paquet.id
                   return (
-                    <div key={paquet.id} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px' }}>
+                    <div key={paquet.id} data-paquet={paquet.id} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px', scrollMarginTop: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: paquet.couleur, flexShrink: 0 }} />
                         {paquetÉditionId === paquet.id ? (

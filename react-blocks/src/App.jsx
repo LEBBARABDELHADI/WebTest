@@ -31,6 +31,7 @@ const PAGES = {
   Habitudes: () => import('./pages/Habitudes'),
   Agenda: () => import('./pages/Agenda'),
   Tableau: () => import('./pages/Tableau'),
+  Prepa: () => import('./pages/Prepa'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -41,6 +42,7 @@ const Graph = charger(PAGES.Graph)
 const Habitudes = charger(PAGES.Habitudes)
 const Agenda = charger(PAGES.Agenda)
 const Tableau = charger(PAGES.Tableau)
+const Prepa = charger(PAGES.Prepa)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -71,6 +73,11 @@ function Chargement() {
 // en passant d'un foyer à l'autre, et l'autre mot de passe serait sauté.
 function Protégé({ foyers, children }) {
   return <Verrou key={foyers.join(',')} foyers={foyers}>{children}</Verrou>
+}
+
+function VersPrépa() {
+  const { examen } = useParams()
+  return <Navigate to={`/prepa/${examen}/perso`} replace />
 }
 
 function EspaceRoute({ Page }) {
@@ -136,6 +143,8 @@ function App() {
       <Route path="/agenda/:espace" element={<EspaceRoute Page={Agenda} />} />
       <Route path="/tableau" element={<Navigate to="/tableau/perso" replace />} />
       <Route path="/tableau/:espace" element={<EspaceRoute Page={Tableau} />} />
+      <Route path="/prepa/:examen" element={<VersPrépa />} />
+      <Route path="/prepa/:examen/:espace" element={<EspaceRoute Page={Prepa} />} />
     </Routes>
     </Suspense>
     </>

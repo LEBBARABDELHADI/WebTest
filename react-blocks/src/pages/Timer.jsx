@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { grotesk } from '../lib/theme'
 import { déverrouillerAudio, bip } from '../lib/texteFormate'
 import { useÉcranAllumé } from '../lib/ecoute'
@@ -225,6 +225,16 @@ export default function Timer() {
   useEffect(() => {
     try { localStorage.setItem(CLÉ, JSON.stringify(t)) } catch { /* ignore */ }
   }, [t])
+  // Lien « Session de N min » (pages Prépa) : minuteur réglé, prêt à démarrer.
+  const [paramètres, setParamètres] = useSearchParams()
+  useEffect(() => {
+    const n = Number(paramètres.get('minutes'))
+    if (!n) return
+    setParamètres({}, { replace: true })
+    if (t.état === 'en cours' || t.état === 'pause') return
+    setT({ ...ÉTAT_INITIAL, mode: 'rebours', durée: Math.min(DURÉE_MAX, n * 60e3) })
+    choisirVue('minuteur')
+  }, [paramètres]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!enCours && !modeHeure) return

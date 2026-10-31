@@ -314,6 +314,25 @@ export default function Home({ foyerId = 'lebbar' }) {
           ))}
         </div>
 
+        {/* Préparer un examen */}
+        <h2 style={titreBloc}>Préparer un examen</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '10px', marginBottom: '26px' }}>
+          {[['aws', '☁️', 'Prépa AWS CloudOps', 'CloudOps Engineer – Associate', 'aws-cloudops'], ['naturalisation', '🇫🇷', 'Prépa naturalisation', 'Entretien et examen civique', 'civique']].map(([id, emoji, nom, sous, préset]) => {
+            const o = (lire('memoriser', espace).objectifs || []).find(x => x.préset === préset)
+            return (
+              <Link key={id} to={`/prepa/${id}/${espace}`} className="tuile" style={{ ...carteStyle, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: T.text }}>
+                <span style={{ fontSize: '28px', lineHeight: 1 }}>{emoji}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', fontWeight: 700, fontSize: '15px', fontFamily: grotesk }}>{nom}</span>
+                  <span style={{ fontSize: '12.5px', color: T.textMuted }}>{sous}</span>
+                </span>
+                {o && <span style={{ fontFamily: grotesk, fontWeight: 800, color: T.accent, fontSize: '15px' }}>{compteÀRebours(o.date)}</span>}
+                <Icon nom="fleche" taille={14} style={{ color: T.textMuted }} />
+              </Link>
+            )
+          })}
+        </div>
+
         {/* Reprendre + carte du jour */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '18px', marginBottom: '26px', alignItems: 'start' }}>
           <section>

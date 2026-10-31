@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { videsParEspace } from '../lib/donneesVides'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
 import PanneauSync from '../components/PanneauSync'
@@ -44,6 +44,15 @@ export default function Habitudes() {
   const liste = actives(data)
   const { prévues, faites } = bilanJour(data, auj)
 
+  // Lien « Habitude quotidienne » (pages Prépa) : ?idee=nom&emoji=…&couleur=…
+  const [paramètres, setParamètres] = useSearchParams()
+  useEffect(() => {
+    const nom = paramètres.get('idee')
+    if (!nom || statut === 'chargement' || statut === 'lecture') return // attendre GitHub
+    setParamètres({}, { replace: true })
+    setData(d => (d.habitudes.some(h => h.nom === nom && !h.archivée) ? d
+      : { ...d, habitudes: [...d.habitudes, { id: uid(), nom, emoji: paramètres.get('emoji') || '⭐', couleur: paramètres.get('couleur') || COULEURS[0], jours: [], créée: aujourdhuiLocal() }] }))
+  }, [paramètres, statut]) // eslint-disable-line react-hooks/exhaustive-deps
   const cocher = (h, jour) => setData(d => {
     const duJour = { ...(d.coches[jour] || {}) }
     if (duJour[h.id]) delete duJour[h.id]; else duJour[h.id] = true

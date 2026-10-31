@@ -12,6 +12,7 @@ import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import BlocCode from '../components/BlocCode'
+import { PRÉPAS } from '../lib/prepas'
 
 // Espaces de tâches auxquels une note peut être liée (filtrés par foyer).
 const ESPACES_TÂCHES = Object.values(espacesPourTousLesFoyers((foyer, type, id) => ({
@@ -74,6 +75,32 @@ const MODÈLES = [
       t('**Outil :** \n**Doc :** '),
       code('# commande — ce qu\'elle fait\n'),
       code('# extrait de configuration\n', 'yaml'),
+    ],
+  },
+  {
+    nom: '☁️ Fiche AWS perso', titre: 'Ma fiche AWS CloudOps', groupe: 'prépa',
+    blocs: () => [
+      t('**Mon point faible n°1 :** '),
+      t('**Services à revoir :** '),
+      code('# commandes AWS CLI utiles\naws sts get-caller-identity\n'),
+      t('**Pièges rencontrés en examen blanc :**\n- '),
+      t('**Questions à me reposer** (une ligne « question :: réponse » = une carte avec 🃏) :\n'),
+    ],
+  },
+  {
+    nom: '🇫🇷 Mon parcours', titre: 'Mon parcours (naturalisation)', groupe: 'prépa',
+    blocs: () => [
+      t('**Ma présentation en 30 secondes :** '),
+      t('**Arrivée en France :** date, ville, raison\n'),
+      t('**Titres de séjour :** types et dates\n'),
+      t('**Études et diplômes :** '),
+      t('**Emplois :** dates, employeurs, postes\n'),
+      t('**Adresses successives :** '),
+      t('**Famille :** '),
+      t('**Engagement et vie locale :** associations, bénévolat, sport…'),
+      t('**Pourquoi je veux devenir français(e) :** '),
+      tâche('Relire mon dossier pour vérifier que les dates sont les mêmes'),
+      tâche('Préparer les originaux des documents demandés'),
     ],
   },
   {
@@ -532,6 +559,29 @@ export default function Notes() {
     setParamètres({}, { replace: true })
     if (trouvée) setNoteEnPleinÉcran(id)
   }, [paramètres, data, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Liens des pages « Prépa » : ?modele=<nom du modèle> ou ?fiche=<examen>
+  // crée la note (une seule fois) et l'ouvre en grand.
+  useEffect(() => {
+    const nomModèle = paramètres.get('modele'), fiche = paramètres.get('fiche')
+    if (!nomModèle && !fiche) return
+    if (['chargement', 'lecture'].includes(statutSync)) return // attendre GitHub (sinon la note serait écrasée)
+    setParamètres({}, { replace: true })
+    const id = uid()
+    let note = null
+    if (nomModèle) {
+      const m = MODÈLES.find(x => x.nom === nomModèle)
+      if (!m) return
+      const existante = data.notes.find(n => n.titre === m.titre && !n.archivé)
+      if (existante && m.groupe === 'prépa') { setNoteEnPleinÉcran(existante.id); return }
+      note = { id, titre: m.titre, blocs: m.blocs() }
+    } else {
+      const p = PRÉPAS[fiche]
+      if (!p) return
+      note = { id, titre: `Fiche ${p.titre.replace('Prépa ', '')}`, blocs: p.fiche.map(sec => t(`**${sec.titre}**\n${sec.points.map(x => `- ${x}`).join('\n')}`)) }
+    }
+    setData(d => ({ notes: [{ ...note, couleur: PALETTE[d.notes.length % PALETTE.length], catégorie: 'importantes' }, ...d.notes] }))
+    setTimeout(() => setNoteEnPleinÉcran(id), 50)
+  }, [paramètres, statutSync]) // eslint-disable-line react-hooks/exhaustive-deps
   const [archivesOuvertes, setArchivesOuvertes] = useState(false)
   const fichierRef = useRef(null)
   const shaRef = useRef(null)
@@ -1001,7 +1051,7 @@ export default function Notes() {
           ))}
         </div>
 
-        {[[undefined, null], ['devops', 'Modèles DevOps'], ['runbook', 'Runbooks prêts']].map(([groupe, libellé]) => (
+        {[[undefined, null], ['devops', 'Modèles DevOps'], ['prépa', 'Préparer un examen'], ['runbook', 'Runbooks prêts']].map(([groupe, libellé]) => (
           <div key={groupe || 'base'} style={{ marginBottom: groupe === 'runbook' ? '16px' : '8px' }}>
             {libellé && <p style={{ fontSize: '10.5px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px', fontFamily: grotesk }}>{libellé}</p>}
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>

@@ -278,6 +278,116 @@ const ACTUALITÉ = [
   ['Quand aura lieu la prochaine élection présidentielle ?', 'En 2027'],
 ].map(c => [...c, { aVérifier: true }])
 
+// ---------- AWS Certified CloudOps Engineer – Associate (SOA-C03) ----------
+const AWS_SURVEILLANCE = [
+  ['Quelles métriques EC2 ne sont PAS dans CloudWatch par défaut ?', 'La **mémoire** et l\'**espace disque** : il faut installer l\'agent CloudWatch sur l\'instance.'],
+  ['Métriques EC2 : surveillance de base ou détaillée ?', 'De base : toutes les **5 min** (gratuit). Détaillée : toutes les **1 min** (payant).'],
+  ['Que peut déclencher une alarme CloudWatch ?', 'Une notification SNS, une action Auto Scaling, une action EC2 (arrêter, redémarrer, récupérer) ou un OpsItem Systems Manager.'],
+  ['Qui a supprimé ce bucket S3 ? Quel service répond ?', '**AWS CloudTrail** : journal des appels d\'API (90 jours dans l\'historique des événements, plus avec un trail).'],
+  ['Vérifier en continu que tous les volumes EBS sont chiffrés, et corriger', '**AWS Config** : règles de conformité + remédiation automatique (documents SSM Automation).'],
+  ['Interroger des logs avec un langage de requête', '**CloudWatch Logs Insights**'],
+  ['Compter les lignes « ERROR » d\'un log pour créer une alarme', 'Un **filtre de métrique** (metric filter) sur le groupe de logs, puis une alarme sur cette métrique.'],
+  ['Réagir à un événement AWS (instance arrêtée, appel d\'API…)', '**Amazon EventBridge** : règle → cible (Lambda, SNS, SSM Automation…).'],
+  ['Recommandations de taille d\'instances (rightsizing)', '**AWS Compute Optimizer** (et Trusted Advisor pour coûts, limites, sécurité).'],
+  ['Réduire le bruit de plusieurs alarmes liées', 'Une **alarme composite** (combinaison ET / OU d\'alarmes).'],
+  ['EBS gp3 ou gp2 : la différence ?', 'gp3 : IOPS et débit réglés **indépendamment** de la taille (base 3 000 IOPS, 125 Mo/s). gp2 : IOPS liées à la taille (3 IOPS par Go).'],
+  ['Accélérer les lectures d\'une base RDS', 'Des **réplicas en lecture** et/ou un cache (ElastiCache). Multi-AZ sert la disponibilité, pas la performance.'],
+]
+const AWS_FIABILITÉ = [
+  ['RDS Multi-AZ ou réplica en lecture ?', 'Multi-AZ : copie **synchrone** en attente, bascule automatique (haute disponibilité). Réplica : copie **asynchrone** pour répartir les lectures (peut être promu).'],
+  ['Remplacer automatiquement une instance défaillante derrière un load balancer', 'Un **groupe Auto Scaling** avec des contrôles de santé de type **ELB**.'],
+  ['RTO et RPO ?', 'RTO : durée maximale d\'interruption acceptable. RPO : perte de données maximale acceptable (en temps).'],
+  ['Stratégies de reprise, de la moins chère à la plus rapide', 'Sauvegarde et restauration → Pilot light → Warm standby → Multi-site actif/actif.'],
+  ['Centraliser et planifier les sauvegardes (EBS, RDS, EFS, DynamoDB…)', '**AWS Backup** : plans de sauvegarde, copies inter-régions et inter-comptes.'],
+  ['Protéger des objets S3 contre la suppression accidentelle', 'Le **versioning** (+ MFA Delete) ; **Object Lock** pour rendre les objets non modifiables.'],
+  ['Copier automatiquement des objets S3 dans une autre région', 'La **réplication inter-régions (CRR)** : versioning obligatoire sur les deux buckets.'],
+  ['Basculer vers un site de secours si le site principal tombe', '**Route 53**, routage de **basculement** (failover) avec contrôles de santé.'],
+  ['Automatiser les instantanés EBS', '**Amazon Data Lifecycle Manager** (ou AWS Backup).'],
+  ['Le stockage d\'une base RDS se remplit', 'Activer l\'**autoscaling du stockage** RDS.'],
+  ['La règle de scaling la plus simple à configurer', 'Le **suivi de cible** (target tracking), par exemple CPU moyen à 50 %.'],
+  ['Laisser finir les requêtes avant de retirer une instance de l\'ELB', 'Le **délai de désinscription** (deregistration delay, ex-connection draining).'],
+]
+const AWS_DÉPLOIEMENT = [
+  ['Voir l\'effet d\'une modification CloudFormation avant de l\'appliquer', 'Un **change set** (jeu de modifications).'],
+  ['Repérer les modifications faites à la main hors CloudFormation', 'La **détection de dérive** (drift detection).'],
+  ['Déployer une même pile dans plusieurs comptes et régions', '**CloudFormation StackSets**'],
+  ['Que se passe-t-il si la création d\'une pile échoue ?', '**Retour arrière** automatique (rollback), désactivable pour déboguer.'],
+  ['Garder une base de données quand on supprime la pile', '**DeletionPolicy: Retain** (ou Snapshot) sur la ressource.'],
+  ['Lancer une commande sur 100 instances sans SSH', '**Systems Manager Run Command** (agent SSM + rôle IAM).'],
+  ['Appliquer les correctifs de sécurité aux instances', '**Systems Manager Patch Manager** (baselines, fenêtres de maintenance).'],
+  ['Se connecter à une instance sans port 22 ni bastion', '**Systems Manager Session Manager**'],
+  ['Parameter Store ou Secrets Manager ?', 'Parameter Store : configuration et secrets simples (SecureString, KMS). Secrets Manager : **rotation automatique** des secrets (bases RDS…).'],
+  ['Produire automatiquement des AMI à jour', '**EC2 Image Builder**'],
+  ['Déployer sans interruption avec retour arrière rapide', 'Le **blue/green** (deux environnements, bascule du trafic : CodeDeploy, groupes cibles, Elastic Beanstalk).'],
+  ['Lancer un script au premier démarrage d\'une instance', 'Les **user data** (exécutées au premier démarrage, en root).'],
+]
+const AWS_SÉCURITÉ = [
+  ['Comment AWS évalue-t-il les politiques IAM ?', 'Un **refus explicite** l\'emporte toujours. Sinon il faut une autorisation. Par défaut, tout est refusé.'],
+  ['Donner à une instance EC2 l\'accès à S3', 'Un **rôle IAM** (profil d\'instance), jamais de clés d\'accès stockées sur l\'instance.'],
+  ['Interdire une action à tous les comptes d\'une organisation, même root', 'Une **SCP** (Service Control Policy) d\'AWS Organizations.'],
+  ['Chiffrer avec des clés gérées, tournées et auditées', '**AWS KMS** (clés gérées par le client, rotation, traces dans CloudTrail).'],
+  ['Détecter des menaces (activité suspecte, minage de cryptomonnaie…)', '**Amazon GuardDuty**'],
+  ['Scanner les vulnérabilités des instances et des images de conteneurs', '**Amazon Inspector**'],
+  ['Vue centralisée des alertes de sécurité et des bonnes pratiques', '**AWS Security Hub**'],
+  ['Empêcher toute exposition publique des buckets S3', '**S3 Block Public Access** (au niveau du compte et du bucket).'],
+  ['Certificats TLS gratuits et renouvelés pour ALB et CloudFront', '**AWS Certificate Manager (ACM)**'],
+  ['Bloquer injections SQL et XSS devant un site', '**AWS WAF** (sur ALB, CloudFront, API Gateway).'],
+  ['Exiger le MFA pour une action', 'Une politique IAM avec la condition **aws:MultiFactorAuthPresent**.'],
+  ['Trouver les ressources partagées avec l\'extérieur du compte', '**IAM Access Analyzer**'],
+]
+const AWS_RÉSEAU = [
+  ['Qu\'est-ce qui rend un sous-réseau « public » ?', 'Sa table de routage envoie **0.0.0.0/0 vers une Internet Gateway**.'],
+  ['Accès Internet sortant pour un sous-réseau privé', 'Une **NAT Gateway** dans un sous-réseau public (une par AZ pour la haute disponibilité).'],
+  ['Security Group ou NACL ?', 'SG : instance, **avec état**, règles d\'autorisation seulement. NACL : sous-réseau, **sans état**, autoriser et refuser, règles numérotées (penser aux ports éphémères).'],
+  ['Accéder à S3 depuis un sous-réseau privé sans NAT', 'Un **VPC endpoint de type gateway** (S3 et DynamoDB, gratuit).'],
+  ['Accès privé à SSM, Secrets Manager, etc.', 'Des **VPC endpoints de type interface** (PrivateLink).'],
+  ['Relier de nombreux VPC et le réseau sur site', '**AWS Transit Gateway** (le peering de VPC n\'est pas transitif).'],
+  ['Voir le trafic accepté ou refusé dans un VPC', 'Les **VPC Flow Logs** (vers CloudWatch Logs ou S3).'],
+  ['Envoyer chaque utilisateur vers la région la plus rapide', 'Route 53, routage **par latence** (géolocalisation : selon le pays).'],
+  ['Pointer le domaine racine (exemple.com) vers un ALB', 'Un enregistrement **Alias** Route 53 (un CNAME est impossible à la racine).'],
+  ['Diffuser du contenu statique rapidement dans le monde', '**Amazon CloudFront**, origine S3 protégée par OAC.'],
+  ['Connexion privée et dédiée vers AWS', '**Direct Connect**. Le VPN site-à-site est chiffré sur Internet et plus rapide à mettre en place.'],
+  ['ALB ou NLB ?', 'ALB : couche 7 (HTTP, routage par chemin ou hôte). NLB : couche 4 (TCP/UDP), très performant, IP fixe.'],
+]
+const AWS_CLI = [
+  ['Quel compte et quel rôle j\'utilise ?', cmd('aws sts get-caller-identity')],
+  ['Lister les ID des instances en cours d\'exécution', cmd('aws ec2 describe-instances \\\n  --filters Name=instance-state-name,Values=running \\\n  --query \'Reservations[].Instances[].InstanceId\' --output text')],
+  ['Synchroniser un dossier local vers S3', cmd('aws s3 sync ./site s3://mon-bucket/')],
+  ['Suivre les logs d\'une fonction Lambda en direct', cmd('aws logs tail /aws/lambda/ma-fonction --follow')],
+  ['Exécuter « uptime » sur les instances taguées Env=prod (SSM)', cmd('aws ssm send-command --document-name AWS-RunShellScript \\\n  --targets Key=tag:Env,Values=prod --parameters commands=uptime')],
+  ['Ouvrir une session sur une instance sans SSH', cmd('aws ssm start-session --target i-0123456789abcdef0')],
+  ['Lire un paramètre chiffré de Parameter Store', cmd('aws ssm get-parameter --name /app/db/password --with-decryption')],
+  ['Créer ou mettre à jour une pile CloudFormation', cmd('aws cloudformation deploy --template-file modele.yaml \\\n  --stack-name ma-pile --capabilities CAPABILITY_IAM')],
+  ['Voir pourquoi une pile a échoué', cmd('aws cloudformation describe-stack-events --stack-name ma-pile')],
+  ['Passer un groupe Auto Scaling à 4 instances', cmd('aws autoscaling set-desired-capacity \\\n  --auto-scaling-group-name mon-asg --desired-capacity 4')],
+  ['Qui a supprimé un bucket ? (CloudTrail)', cmd('aws cloudtrail lookup-events \\\n  --lookup-attributes AttributeKey=EventName,AttributeValue=DeleteBucket')],
+]
+const AWS_PANNES = [
+  ['Une instance échoue au **contrôle d\'état système** : que faire ?', 'Problème côté matériel AWS : **arrêter puis démarrer** l\'instance (elle change d\'hôte) ou utiliser la récupération automatique. (Contrôle d\'état **instance** : problème dans l\'OS → redémarrer, logs, disque, mémoire.)'],
+  ['Impossible de se connecter en SSH : que vérifies-tu ?', '1. Security group : port 22 depuis ton IP\n2. NACL : entrée ET sortie (ports éphémères)\n3. IP publique et route vers l\'Internet Gateway\n4. Paire de clés et utilisateur\nAlternative : Session Manager'],
+  ['Une instance privée n\'accède pas à Internet', '1. Route 0.0.0.0/0 vers la NAT Gateway\n2. NAT Gateway dans un sous-réseau **public** (route vers l\'IGW)\n3. NACL'],
+  ['L\'ALB renvoie 502, 503 ou 504', '503 : aucune cible saine (contrôles de santé). 502 : réponse invalide de la cible. 504 : délai dépassé.\nVérifier le chemin et le port du contrôle de santé, et que le security group des cibles autorise l\'ALB.'],
+  ['AccessDenied sur S3 depuis une instance', '1. Politique du rôle de l\'instance\n2. Politique du bucket (un Deny ?)\n3. Objet chiffré par KMS : droit kms:Decrypt\n4. Politique du VPC endpoint'],
+  ['Auto Scaling lance puis termine des instances en boucle', 'Contrôle de santé ELB qui échoue (chemin, délai de grâce trop court), user data en erreur, mauvaise AMI ou quota atteint.'],
+  ['Pile CloudFormation en UPDATE_ROLLBACK_FAILED', 'Une ressource n\'a pas pu revenir en arrière (souvent modifiée à la main) : corriger la cause puis **Continue update rollback** (en ignorant la ressource si besoin).'],
+  ['Une instance n\'apparaît pas dans Systems Manager', '1. Agent SSM installé et démarré\n2. Rôle IAM avec AmazonSSMManagedInstanceCore\n3. Accès réseau aux points de terminaison SSM (NAT ou VPC endpoints)'],
+  ['Une instance T3 devient très lente', 'Crédits CPU épuisés (métrique CPUCreditBalance) : mode **unlimited**, type plus grand ou instance non « burstable ».'],
+  ['Erreur InsufficientInstanceCapacity au lancement', 'Réessayer plus tard, changer d\'AZ ou de type d\'instance ; réserver de la capacité à l\'avance (capacity reservation).'],
+  ['Une fonction Lambda est limitée (throttling)', 'La concurrence maximale est atteinte : réserver ou augmenter la concurrence, lisser avec une file SQS.'],
+]
+const AWS_LABOS = [
+  ['Crée un bucket S3 avec le versioning activé (région eu-west-3).', cmd('aws s3api create-bucket --bucket mon-bucket-unique --region eu-west-3 \\\n  --create-bucket-configuration LocationConstraint=eu-west-3\naws s3api put-bucket-versioning --bucket mon-bucket-unique \\\n  --versioning-configuration Status=Enabled'), { vérif: 'aws s3api get-bucket-versioning --bucket mon-bucket-unique' }],
+  ['Bloque tout accès public à ce bucket.', cmd('aws s3api put-public-access-block --bucket mon-bucket-unique \\\n  --public-access-block-configuration \\\n  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true'), { vérif: 'aws s3api get-public-access-block --bucket mon-bucket-unique' }],
+  ['Crée un topic SNS « alertes » et abonne ton adresse e-mail.', cmd('aws sns create-topic --name alertes\naws sns subscribe --topic-arn <arn-du-topic> \\\n  --protocol email --notification-endpoint toi@exemple.com'), { vérif: 'aws sns list-subscriptions-by-topic --topic-arn <arn-du-topic>' }],
+  ['Crée une alarme : CPU moyen > 80 % pendant 2 × 5 min sur une instance, qui notifie « alertes ».', cmd('aws cloudwatch put-metric-alarm --alarm-name cpu-haut \\\n  --namespace AWS/EC2 --metric-name CPUUtilization \\\n  --dimensions Name=InstanceId,Value=<id-instance> \\\n  --statistic Average --period 300 --evaluation-periods 2 \\\n  --threshold 80 --comparison-operator GreaterThanThreshold \\\n  --alarm-actions <arn-du-topic>'), { vérif: 'aws cloudwatch describe-alarms --alarm-names cpu-haut' }],
+  ['Enregistre un mot de passe chiffré /app/db/password dans Parameter Store.', cmd('aws ssm put-parameter --name /app/db/password --type SecureString --value \'S3cret!\''), { vérif: 'aws ssm get-parameter --name /app/db/password --with-decryption' }],
+  ['Exécute « uptime » sur les instances taguées Env=dev avec Systems Manager.', cmd('aws ssm send-command --document-name AWS-RunShellScript \\\n  --targets Key=tag:Env,Values=dev --parameters commands=uptime'), { vérif: 'aws ssm list-command-invocations --command-id <id-commande> --details' }],
+  ['Déploie une pile CloudFormation qui crée un bucket S3.', cmd('# bucket.yaml\nResources:\n  MonBucket:\n    Type: AWS::S3::Bucket\n\naws cloudformation deploy --template-file bucket.yaml --stack-name labo-bucket'), { vérif: 'aws cloudformation describe-stacks --stack-name labo-bucket' }],
+  ['Fais un instantané d\'un volume EBS avec le tag Projet=labo.', cmd('aws ec2 create-snapshot --volume-id <id-volume> --description "avant mise à jour" \\\n  --tag-specifications \'ResourceType=snapshot,Tags=[{Key=Projet,Value=labo}]\''), { vérif: 'aws ec2 describe-snapshots --owner-ids self --filters Name=tag:Projet,Values=labo' }],
+  ['Active les VPC Flow Logs d\'un VPC vers CloudWatch Logs.', cmd('aws ec2 create-flow-logs --resource-type VPC --resource-ids <id-vpc> \\\n  --traffic-type ALL --log-destination-type cloud-watch-logs \\\n  --log-group-name flowlogs --deliver-logs-permission-arn <arn-role>'), { vérif: 'aws ec2 describe-flow-logs' }],
+  ['Passe un groupe Auto Scaling à 3 instances et regarde-les arriver.', cmd('aws autoscaling set-desired-capacity --auto-scaling-group-name mon-asg --desired-capacity 3'), { vérif: 'aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names mon-asg --query \'AutoScalingGroups[0].Instances\'' }],
+]
+
 // Frise : événements datés (jeux « remettre dans l'ordre » et « avant ou après »).
 export const ÉVÉNEMENTS = [
   [496, 'Baptême de Clovis (vers 496)'], [800, 'Charlemagne couronné empereur'], [1429, 'Jeanne d\'Arc délivre Orléans'],
@@ -317,6 +427,18 @@ export const PAQUETS_PRÊTS = [
     ],
   },
   {
+    catégorie: 'AWS CloudOps Engineer – Associate', paquets: [
+      { id: 'aws-surveillance', nom: '📈 AWS · Surveillance et performance', couleur: '#ff9900', cartes: AWS_SURVEILLANCE },
+      { id: 'aws-fiabilite', nom: '🛟 AWS · Fiabilité et continuité', couleur: '#e07b00', cartes: AWS_FIABILITÉ },
+      { id: 'aws-deploiement', nom: '🚀 AWS · Déploiement et automatisation', couleur: '#c45500', cartes: AWS_DÉPLOIEMENT },
+      { id: 'aws-securite', nom: '🔐 AWS · Sécurité et conformité', couleur: '#d13212', cartes: AWS_SÉCURITÉ },
+      { id: 'aws-reseau', nom: '🌐 AWS · Réseau et diffusion', couleur: '#1f6feb', cartes: AWS_RÉSEAU },
+      { id: 'aws-cli', nom: '⌨️ AWS CLI', couleur: '#232f3e', cartes: AWS_CLI },
+      { id: 'aws-pannes', nom: '🚑 AWS · Scénarios de panne', couleur: '#b71c1c', cartes: AWS_PANNES },
+      { id: 'aws-labos', nom: '🧪 Labos AWS (pratique)', couleur: '#0b7a75', cartes: AWS_LABOS, labo: true },
+    ],
+  },
+  {
     catégorie: 'Naturalisation — un paquet par thème', paquets: [
       { id: 'nat-valeurs', nom: '🇫🇷 Valeurs et symboles', couleur: '#1f4fa3', cartes: VALEURS },
       { id: 'nat-institutions', nom: '🏛️ Institutions', couleur: '#5a6b8c', cartes: INSTITUTIONS },
@@ -337,3 +459,19 @@ export const PAQUETS_PRÊTS = [
 
 // Connecteurs repérés dans une réponse orale (pour le bilan de l'oral).
 export const CONNECTEURS_ORAL = ['tout d\'abord', 'd\'abord', 'ensuite', 'puis', 'enfin', 'de plus', 'en outre', 'par ailleurs', 'cependant', 'pourtant', 'néanmoins', 'en revanche', 'alors que', 'bien que', 'parce que', 'puisque', 'étant donné', 'grâce à', 'donc', 'c\'est pourquoi', 'par conséquent', 'afin de', 'afin que', 'pour que', 'à mon avis', 'selon moi', 'il me semble', 'en somme', 'pour conclure', 'en conclusion', 'd\'un côté', 'de l\'autre', 'certes', 'par exemple', 'notamment']
+
+// Ajoute (ou complète) des paquets prêts dans des données Mémoriser.
+// `uid` : fonction, ou préfixe (identifiants stables, pour appliquer le même
+// changement à la copie de l'appareil et à GitHub sans doublons).
+export function ajouterPaquetsPrêts(d, ids, uid, auj) {
+  const modèles = PAQUETS_PRÊTS.flatMap(c => c.paquets).filter(m => ids.includes(m.id))
+  const stable = typeof uid === 'string'
+  let paquets = d.paquets || [], cartes = d.cartes || []
+  modèles.forEach(m => {
+    let paquet = paquets.find(p => p.modèle === m.id)
+    if (!paquet) { paquet = { id: stable ? `${uid}${m.id}` : uid(), nom: m.nom, couleur: m.couleur, modèle: m.id, ...(m.oral ? { oral: true } : {}), ...(m.labo ? { labo: true } : {}) }; paquets = [...paquets, paquet] }
+    const rectos = new Set(cartes.filter(c => c.paquetId === paquet.id).map(c => c.recto))
+    cartes = [...cartes, ...m.cartes.map((c, k) => [c, k]).filter(([[r]]) => !rectos.has(r)).map(([[recto, verso, extra], k]) => ({ id: stable ? `${paquet.id}-${k}` : uid(), paquetId: paquet.id, recto, verso, niveau: 0, prochaineRevision: auj, ...(extra || {}) }))]
+  })
+  return { ...d, paquets, cartes }
+}

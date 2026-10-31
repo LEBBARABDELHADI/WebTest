@@ -144,6 +144,38 @@ export const MODÈLES_TABLEAU = [
     créer: () => colonnes('Fiche incident', [['🩺 Symptôme', ['Ce qu\'on observe'], '#fde2e1'], ['🔍 Cause', ['Cause racine'], '#fff8e1'], ['💥 Impact', ['Qui / combien de temps'], '#f3e5f5'], ['🛠️ Correctif', ['Ce qui a été fait'], '#e3f2fd'], ['🛡️ Prévention', ['Pour que ça ne revienne pas'], '#e8f5e9']], { l: 280, h: 420, couleursNotes: [R, O, M, B, V] }),
   },
   {
+    id: 'aws-vpc', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '☁️', nom: 'Architecture AWS multi-AZ', description: 'VPC, 2 AZ, sous-réseaux publics/privés, ALB, Auto Scaling, RDS Multi-AZ',
+    créer: () => {
+      const [f, els] = fabrique()
+      f.texte(0, -330, 'Architecture AWS multi-AZ', 34)
+      f.cadre(-40, -80, 1520, 1020, '🌍 Région AWS (ex. eu-west-3)', '#fafafa')
+      f.cadre(200, 40, 1000, 880, '🔒 VPC 10.0.0.0/16', '#f3f8ff')
+      const az = [230, 720].map((x, i) => {
+        f.cadre(x, 200, 460, 700, `Zone de disponibilité ${'ab'[i]}`, '#ffffff')
+        f.cadre(x + 20, 260, 420, 190, 'Sous-réseau public', '#e8f5e9')
+        f.cadre(x + 20, 490, 420, 180, 'Sous-réseau privé (application)', '#fff8e1')
+        f.cadre(x + 20, 710, 420, 175, 'Sous-réseau privé (base)', '#fde2e1')
+        return {
+          nat: f.forme(x + 40, 320, 170, 80, 'rect', '🔁 NAT Gateway', BL),
+          alb: f.forme(x + 240, 320, 180, 80, 'rect', '⚖️ ALB', BL),
+          ec2: f.forme(x + 140, 540, 190, 90, 'rect', '🖥️ EC2 (Auto Scaling)', BL),
+          rds: f.forme(x + 120, 745, 220, 110, 'cylindre', i === 0 ? '🗄️ RDS principale' : '🗄️ RDS de secours (Multi-AZ)', BL),
+        }
+      })
+      const igw = f.forme(30, 330, 150, 90, 'rect', '🚪 Internet Gateway', '#eeeeee')
+      const users = f.forme(-380, 330, 180, 100, 'rond', '👤 Utilisateurs', '#e3f2fd')
+      const r53 = f.forme(-380, 160, 180, 90, 'rect', '🧭 Route 53', '#eeeeee')
+      const cf = f.forme(-380, 510, 180, 90, 'rect', '🌐 CloudFront + WAF', '#eeeeee')
+      const s3 = f.forme(1240, 620, 210, 90, 'rect', '🪣 S3 (endpoint gateway)', '#eeeeee')
+      ;[['📈 CloudWatch', 220], ['📜 CloudTrail', 330], ['✅ AWS Config', 440]].forEach(([t, y]) => f.forme(1240, y, 210, 80, 'rect', t, '#f3e5f5'))
+      f.lier(users, r53, 'DNS'); f.lier(users, cf, 'HTTPS'); f.lier(cf, igw); f.lier(igw, az[0].alb)
+      az.forEach(a => { f.lier(az[0].alb, a.ec2); f.lier(a.ec2, az[0].rds, 'SQL'); f.lier(a.ec2, a.nat, 'sortie', 'fin', 'tirets') })
+      f.lier(az[0].rds, az[1].rds, 'réplication synchrone', 'fin', 'tirets'); f.lier(az[1].ec2, s3, '', 'fin', 'tirets')
+      f.note(200, 1000, 'Si l\'AZ a tombe : RDS bascule vers son secours, l\'Auto Scaling relance des instances en AZ b, l\'ALB envoie le trafic aux cibles saines.', V, 640, 170)
+      return els
+    },
+  },
+  {
     id: 'k8s', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '☸️', nom: 'Cluster Kubernetes', description: 'Control plane, Ingress → Service → Pods, config, base',
     créer: () => {
       const [f, els] = fabrique()

@@ -415,7 +415,9 @@ export default function Tableau() {
     if (statut === 'chargement') return
     ouvertRef.current = tableau.id
     const cible = tableau.éléments.find(e => e.id === paramètres.get('el'))
-    if (cible) { ajusterVue([cible]); setSélection([cible.id]); setParamètres({}, { replace: true }) } else ajusterVue(tableau.éléments)
+    const modèle = MODÈLES_TABLEAU.find(m => m.id === paramètres.get('modele'))
+    if (modèle) { setParamètres({}, { replace: true }); insérerModèle(modèle.créer()) }
+    else if (cible) { ajusterVue([cible]); setSélection([cible.id]); setParamètres({}, { replace: true }) } else ajusterVue(tableau.éléments)
   }, [tableau.id, statut]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Molette : défilement ; Ctrl/⌘ + molette (ou pincement du pavé) : zoom.
