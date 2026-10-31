@@ -204,6 +204,25 @@ export async function ajouterRapidement({ type, espace, saisie }) {
   return { outil, données: écrit.données, résumé }
 }
 
+// Graphe amélioré → Programme : crée une tâche dans une section choisie.
+export async function créerTâche({ espace, texte, colonneId, échéance }) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  if (!token) throw new Error('Connecte le token GitHub pour créer une tâche.')
+  const { data, sha } = await lireDepuisGitHub(token, chemin('taches', espace))
+  const colonne = (data.colonnes || []).find(c => c.id === colonneId) || (data.colonnes || [])[0]
+  if (!colonne) throw new Error('Le programme n\'a aucune section.')
+  const carte = { id: uid(), colonneId: colonne.id, texte: texte.trim() || 'Tâche', étiquettes: [], ...(échéance ? { échéance } : {}) }
+  const nouveau = { ...data, cartes: [...(data.cartes || []), carte] }
+  const écrit = await écrireVersGitHub(nouveau, token, sha, chemin('taches', espace), data)
+  try { localStorage.setItem(clé('taches', espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
+  return { carte, colonne, données: écrit.données }
+}
+// Programme d'un espace (GitHub, sinon la copie de l'appareil).
+export async function lireTâches(espace) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  try { return (await lireDepuisGitHub(token, chemin('taches', espace))).data } catch { return lireLocal('taches', espace) }
+}
+
 // Ajoute plusieurs cartes dans un paquet (existant ou nouveau) de Mémoriser,
 // directement dans le fichier GitHub (fusion si le fichier a changé).
 export async function ajouterCartes({ espace, paquetId, nouveauPaquet, cartes }) {

@@ -7,6 +7,10 @@ import { normaliser } from '../lib/motsCles'
 import { useUrlImage, envoyerImage } from '../components/ImageCarte'
 import PanneauSync from '../components/PanneauSync'
 import { MODÈLES_TABLEAU, instancierÉléments } from '../lib/modelesTableau'
+import { exporterTableauPNG } from '../lib/exportTableau'
+import { urlImage } from '../components/ImageCarte'
+import { créerTâche, lireTâches } from '../lib/donneesFoyer'
+import { analyserAujourdhui } from '../lib/aujourdhui'
 
 // « Graphe amélioré » : un tableau blanc façon Miro. Canevas infini à grille
 // (glisser le fond pour se déplacer, pincer / Ctrl + molette pour zoomer),
@@ -63,6 +67,42 @@ function bouts(l, parId) {
   const b = vers ? bord(vers, de ? centre(de) : p1) : p2
   return { a, b }
 }
+// Tracé d'une ligne : droit, coudé (angles droits) ou courbe. Reliée à des
+// éléments, une ligne coudée ou courbe part du milieu d'un côté.
+function côté(el, vers, horizontal) {
+  const b = boîte(el); const c = centre(el)
+  return horizontal ? { x: vers.x >= c.x ? b.x + b.l + 4 : b.x - 4, y: c.y } : { x: c.x, y: vers.y >= c.y ? b.y + b.h + 4 : b.y - 4 }
+}
+function cheminLigne(l, parId) {
+  const tracé = l.tracé || 'droit'
+  let { a, b } = bouts(l, parId)
+  if (tracé === 'droit') return { d: `M${a.x} ${a.y} L${b.x} ${b.y}`, a, b, avantFin: a, aprèsDébut: b, milieu: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } }
+  const de = l.de && parId.get(l.de), vers = l.vers && parId.get(l.vers)
+  const ca = de ? centre(de) : a, cb = vers ? centre(vers) : b
+  const horizontal = Math.abs(cb.x - ca.x) >= Math.abs(cb.y - ca.y)
+  if (de) a = côté(de, cb, horizontal)
+  if (vers) b = côté(vers, ca, horizontal)
+  if (tracé === 'coude') {
+    if (horizontal) { const mx = (a.x + b.x) / 2; return { d: `M${a.x} ${a.y} H${mx} V${b.y} H${b.x}`, a, b, avantFin: { x: mx, y: b.y }, aprèsDébut: { x: mx, y: a.y }, milieu: { x: mx, y: (a.y + b.y) / 2 } } }
+    const my = (a.y + b.y) / 2
+    return { d: `M${a.x} ${a.y} V${my} H${b.x} V${b.y}`, a, b, avantFin: { x: b.x, y: my }, aprèsDébut: { x: a.x, y: my }, milieu: { x: (a.x + b.x) / 2, y: my } }
+  }
+  const c1 = horizontal ? { x: (a.x + b.x) / 2, y: a.y } : { x: a.x, y: (a.y + b.y) / 2 }
+  const c2 = horizontal ? { x: (a.x + b.x) / 2, y: b.y } : { x: b.x, y: (a.y + b.y) / 2 }
+  return { d: `M${a.x} ${a.y} C${c1.x} ${c1.y} ${c2.x} ${c2.y} ${b.x} ${b.y}`, a, b, avantFin: c2, aprèsDébut: c1, milieu: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } }
+}
+// Déplace un élément (formes, lignes libres, traits de stylo).
+function décaler(e, dx, dy) {
+  if (e.type === 'ligne') return { ...e, x1: e.x1 + dx, y1: e.y1 + dy, x2: e.x2 + dx, y2: e.y2 + dy }
+  if (e.type === 'trait') return { ...e, points: e.points.map(([x, y]) => [x + dx, y + dy]) }
+  return { ...e, x: e.x + dx, y: e.y + dy }
+}
+const boîteUnion = bs => {
+  const x = Math.min(...bs.map(b => b.x)), y = Math.min(...bs.map(b => b.y))
+  return { x, y, l: Math.max(...bs.map(b => b.x + b.l)) - x, h: Math.max(...bs.map(b => b.y + b.h)) - y }
+}
+const placé = e => !(e.type === 'ligne' && (e.de || e.vers))
+
 function taillePolice(el) {
   if (typeof el.taille === 'number') return el.taille
   const n = Math.max(1, (el.texte || '').length)
@@ -126,6 +166,7 @@ const Ic = ({ n, t = 22 }) => (
 export default function Tableau() {
   const { espace: espaceParam } = useParams()
   const config = ESPACES[espaceParam] || ESPACES.perso
+  const espaceId = ESPACES[espaceParam] ? espaceParam : 'perso'
   const foyer = FOYERS[config.foyer]
   const { data, setData, token, statut, erreur, connecter, déconnecter } = useDonnéesSynchronisées(config, compléter)
   const [tableauId, setTableauId] = useState(() => { try { return localStorage.getItem(`${config.stockage}:actif`) || '' } catch { return '' } })
@@ -146,6 +187,11 @@ export default function Tableau() {
   const [message, setMessage] = useState('')
   const [syncOuvert, setSyncOuvert] = useState(false)
   const [modèlesOuvert, setModèlesOuvert] = useState(false)
+  const [guides, setGuides] = useState([]) // traits d'alignement pendant un déplacement
+  const [présentation, setPrésentation] = useState(null) // index du cadre montré
+  const [dialogueTâche, setDialogueTâche] = useState(null) // { id, texte, colonneId, échéance }
+  const [programme, setProgramme] = useState(null) // données du Programme de l'espace
+  const [aimant, setAimant] = useState(() => { try { return localStorage.getItem('react-blocs-tableau-aimant') === 'oui' } catch { return false } })
   const zoneRef = useRef(null)
   const fichierRef = useRef(null)
   const geste = useRef(null)
@@ -157,7 +203,7 @@ export default function Tableau() {
   // la façon (toucher ailleurs, Échap, autre outil…).
   const brouillon = useRef(null) // { id, valeur }
   const réf = useRef({})
-  réf.current = { éléments, vue, outil, sélection, parId, forme, édition }
+  réf.current = { éléments, vue, outil, sélection, parId, forme, édition, aimant }
 
   useEffect(() => { try { localStorage.setItem(`${config.stockage}:actif`, tableau.id) } catch { /* ignore */ } }, [tableau.id, config.stockage])
   const terminerÉdition = () => {
@@ -170,6 +216,33 @@ export default function Tableau() {
     setÉdition(null)
   }
   const afficher = t => { setMessage(t); clearTimeout(afficher.m); afficher.m = setTimeout(() => setMessage(''), 2200) }
+
+  // Programme de l'espace : sections (pour créer une tâche) et état des
+  // tâches liées aux pense-bêtes (barrés quand elles sont faites).
+  useEffect(() => {
+    let actif = true
+    const charger = () => lireTâches(espaceId).then(d => { if (actif) setProgramme(d) })
+    charger()
+    const auRetour = () => { if (document.visibilityState === 'visible') charger() }
+    document.addEventListener('visibilitychange', auRetour)
+    return () => { actif = false; document.removeEventListener('visibilitychange', auRetour) }
+  }, [espaceId])
+  const étatTâche = el => {
+    if (!el.tâche || !programme) return null
+    const c = (programme.cartes || []).find(x => x.id === el.tâche.id)
+    if (!c) return 'disparue'
+    const { colonneTerminée } = analyserAujourdhui(programme)
+    return c.fait || c.archivé || c.colonneId === colonneTerminée?.id ? 'faite' : 'à faire'
+  }
+  const envoyerTâche = async () => {
+    const d = dialogueTâche
+    try {
+      const { carte, colonne, données } = await créerTâche({ espace: espaceId, texte: d.texte, colonneId: d.colonneId, échéance: d.échéance })
+      majÉlément(d.id, { tâche: { id: carte.id, espace: espaceId } })
+      setProgramme(données); setDialogueTâche(null)
+      afficher(`Tâche ajoutée dans « ${colonne.titre} »`)
+    } catch (err) { afficher(err.message) }
+  }
 
   // ---------- Données ----------
   const majÉléments = (fn, trace = true) => {
@@ -217,6 +290,41 @@ export default function Tableau() {
       return c
     })
     majÉléments(l => [...l, ...copies]); setSélection(copies.map(c => c.id))
+  }
+  // Aligner ou répartir plusieurs éléments (sur la boîte de la sélection).
+  const aligner = mode => {
+    const ids = new Set(sélection)
+    const objets = éléments.filter(e => ids.has(e.id) && placé(e))
+    if (objets.length < 2) return
+    const bs = new Map(objets.map(e => [e.id, boîte(e)]))
+    const u = boîteUnion([...bs.values()])
+    const décalages = new Map()
+    if (mode.startsWith('répartir')) {
+      const h = mode === 'répartirH'
+      const tri = [...objets].sort((a, b) => (h ? bs.get(a.id).x - bs.get(b.id).x : bs.get(a.id).y - bs.get(b.id).y))
+      const somme = tri.reduce((n, e) => n + (h ? bs.get(e.id).l : bs.get(e.id).h), 0)
+      const écart = ((h ? u.l : u.h) - somme) / (tri.length - 1)
+      let pos = h ? u.x : u.y
+      tri.forEach(e => { const b = bs.get(e.id); décalages.set(e.id, h ? [pos - b.x, 0] : [0, pos - b.y]); pos += (h ? b.l : b.h) + écart })
+    } else {
+      objets.forEach(e => {
+        const b = bs.get(e.id)
+        décalages.set(e.id, {
+          gauche: [u.x - b.x, 0], centreH: [u.x + u.l / 2 - (b.x + b.l / 2), 0], droite: [u.x + u.l - (b.x + b.l), 0],
+          haut: [0, u.y - b.y], milieuV: [0, u.y + u.h / 2 - (b.y + b.h / 2)], bas: [0, u.y + u.h - (b.y + b.h)],
+        }[mode])
+      })
+    }
+    // Un cadre emporte ce qu'il contient (sauf ce qui est déjà choisi).
+    objets.filter(e => e.type === 'cadre').forEach(c => {
+      const dd = décalages.get(c.id)
+      éléments.forEach(x => {
+        if (ids.has(x.id) || décalages.has(x.id) || x.id === c.id) return
+        const m = centre(x)
+        if (m.x > c.x && m.x < c.x + c.l && m.y > c.y && m.y < c.y + c.h) décalages.set(x.id, dd)
+      })
+    })
+    majÉléments(l => l.map(e => (décalages.has(e.id) ? décaler(e, ...décalages.get(e.id)) : e)))
   }
   const premierPlan = ids => { const s = new Set(ids); majÉléments(l => [...l.filter(e => !s.has(e.id)), ...l.filter(e => s.has(e.id))]) }
 
@@ -273,6 +381,7 @@ export default function Tableau() {
     pointeurs.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     zoneRef.current.setPointerCapture?.(e.pointerId)
     if (pointeurs.current.size === 2) {
+      clearTimeout(geste.current?.minuteur)
       const [a, b] = [...pointeurs.current.values()]
       geste.current = { type: 'pince', d0: Math.hypot(a.x - b.x, a.y - b.y), vue0: réf.current.vue, m0: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } }
       setAperçu(null); setCadreSel(null)
@@ -290,7 +399,15 @@ export default function Tableau() {
       return
     }
     if (o === 'main' || (o === 'sélection' && !idEl && !(e.shiftKey && e.pointerType === 'mouse'))) {
-      geste.current = { type: 'pan', s0: { x: e.clientX, y: e.clientY }, vue0: réf.current.vue, bougé: false }
+      const g = { type: 'pan', s0: { x: e.clientX, y: e.clientY }, vue0: réf.current.vue, bougé: false, p0: p }
+      geste.current = g
+      // Appui long sur le fond (sans bouger) : on entoure plusieurs éléments.
+      if (o === 'sélection') g.minuteur = setTimeout(() => {
+        if (geste.current !== g || g.bougé || pointeurs.current.size !== 1) return
+        geste.current = { type: 'cadreSel', p0: g.p0 }
+        navigator.vibrate?.(20)
+        setCadreSel({ x: g.p0.x, y: g.p0.y, l: 0, h: 0 })
+      }, 450)
       return
     }
     if (o === 'sélection' && !idEl) { geste.current = { type: 'cadreSel', p0: p }; return }
@@ -308,7 +425,13 @@ export default function Tableau() {
       sel.map(id => parId.get(id)).filter(x => x?.type === 'cadre').forEach(c => {
         réf.current.éléments.forEach(x => { const m = centre(x); if (x.id !== c.id && m.x > c.x && m.x < c.x + c.l && m.y > c.y && m.y < c.y + c.h) ids.add(x.id) })
       })
-      geste.current = { type: 'déplacer', p0: p, départs: new Map([...ids].map(id => [id, parId.get(id)])), tracé: false }
+      const départs = new Map([...ids].map(id => [id, parId.get(id)]))
+      const mobiles = [...départs.values()].filter(placé)
+      geste.current = {
+        type: 'déplacer', p0: p, départs, tracé: false,
+        boîte0: mobiles.length ? boîteUnion(mobiles.map(boîte)) : null,
+        cibles: réf.current.éléments.filter(x => !ids.has(x.id) && x.type !== 'ligne' && x.type !== 'trait').map(boîte),
+      }
       return
     }
     // Outils de création
@@ -339,7 +462,7 @@ export default function Tableau() {
     }
     if (g.type === 'pan') {
       const dx = e.clientX - g.s0.x, dy = e.clientY - g.s0.y
-      if (Math.hypot(dx, dy) > 4) g.bougé = true
+      if (Math.hypot(dx, dy) > 4) { g.bougé = true; clearTimeout(g.minuteur) }
       setVue({ ...g.vue0, x: g.vue0.x + dx, y: g.vue0.y + dy })
       return
     }
@@ -347,12 +470,34 @@ export default function Tableau() {
     const dx = p.x - g.p0?.x, dy = p.y - g.p0?.y
     if (g.type === 'déplacer') {
       if (!g.tracé) { if (Math.hypot(dx, dy) * réf.current.vue.z < 4) return; g.tracé = true; historique.current.passé.push(réf.current.éléments); historique.current.futur = [] }
+      // Guides d'alignement : bords et centres qui tombent sur ceux d'un
+      // autre élément (à 8 px près à l'écran) ; sinon grille aimantée.
+      let ddx = dx, ddy = dy
+      const traits = []
+      const b0 = g.boîte0
+      if (b0) {
+        const seuil = 8 / réf.current.vue.z
+        const caler = (axe, d) => {
+          const [pos, taille] = axe === 'x' ? ['x', 'l'] : ['y', 'h']
+          const mobiles = [b0[pos] + d, b0[pos] + b0[taille] / 2 + d, b0[pos] + b0[taille] + d]
+          let meilleur = null
+          g.cibles.forEach(c => [c[pos], c[pos] + c[taille] / 2, c[pos] + c[taille]].forEach(t => mobiles.forEach(m => {
+            if (Math.abs(t - m) < seuil && (!meilleur || Math.abs(t - m) < Math.abs(meilleur.écart))) meilleur = { écart: t - m, t, c }
+          })))
+          if (meilleur) return { d: d + meilleur.écart, guide: meilleur }
+          if (réf.current.aimant) return { d: Math.round((b0[pos] + d) / 20) * 20 - b0[pos] }
+          return { d }
+        }
+        const rx = caler('x', dx), ry = caler('y', dy)
+        ddx = rx.d; ddy = ry.d
+        const b = { x: b0.x + ddx, y: b0.y + ddy, l: b0.l, h: b0.h }
+        if (rx.guide) { const c = rx.guide.c; traits.push({ x: rx.guide.t, y1: Math.min(b.y, c.y) - 30, y2: Math.max(b.y + b.h, c.y + c.h) + 30 }) }
+        if (ry.guide) { const c = ry.guide.c; traits.push({ y: ry.guide.t, x1: Math.min(b.x, c.x) - 30, x2: Math.max(b.x + b.l, c.x + c.l) + 30 }) }
+      }
+      setGuides(traits)
       majÉléments(l => l.map(x => {
         const d = g.départs.get(x.id)
-        if (!d) return x
-        if (d.type === 'ligne') return { ...x, x1: d.x1 + dx, y1: d.y1 + dy, x2: d.x2 + dx, y2: d.y2 + dy }
-        if (d.type === 'trait') return { ...x, points: d.points.map(([px, py]) => [px + dx, py + dy]) }
-        return { ...x, x: d.x + dx, y: d.y + dy }
+        return d ? { ...décaler(d, ddx, ddy), ...(d.type === 'ligne' || d.type === 'trait' ? {} : {}) } : x
       }), false)
     } else if (g.type === 'redim') {
       if (!g.tracé) { g.tracé = true; historique.current.passé.push(réf.current.éléments); historique.current.futur = [] }
@@ -380,11 +525,12 @@ export default function Tableau() {
   const surHaut = e => {
     pointeurs.current.delete(e.pointerId)
     const g = geste.current
+    setGuides([])
     if (!g) return
     if (g.type === 'pince') { if (pointeurs.current.size === 0) geste.current = null; return }
     geste.current = null
     const p = versMonde(e.clientX, e.clientY)
-    if (g.type === 'pan') { if (!g.bougé && réf.current.outil === 'sélection') { setSélection([]); terminerÉdition() } return }
+    if (g.type === 'pan') { clearTimeout(g.minuteur); if (!g.bougé && réf.current.outil === 'sélection') { setSélection([]); terminerÉdition() } return }
     if (g.type === 'cadreSel') {
       const b = cadreSel; setCadreSel(null)
       if (!b) { setSélection([]); return }
@@ -564,9 +710,16 @@ export default function Tableau() {
     const commun = { position: 'absolute', left: el.x, top: el.y, width: el.l, height: el.h, boxSizing: 'border-box' }
     let corps
     if (el.type === 'note') {
+      const état = étatTâche(el)
       corps = (
-        <div style={{ ...commun, background: el.couleur, boxShadow: '0 6px 14px rgba(0,0,0,.14)', padding: Math.max(8, el.l * 0.07), fontSize: fs, lineHeight: 1.25, color: '#1b1b1b', fontWeight: el.gras ? 700 : 400, fontFamily: grotesk, textAlign: el.align || 'center' }}>
+        <div style={{ ...commun, background: el.couleur, boxShadow: '0 6px 14px rgba(0,0,0,.14)', padding: Math.max(8, el.l * 0.07), fontSize: fs, lineHeight: 1.25, color: état === 'faite' ? '#777' : '#1b1b1b', fontWeight: el.gras ? 700 : 400, fontFamily: grotesk, textAlign: el.align || 'center', textDecoration: état === 'faite' ? 'line-through' : 'none' }}>
           {édition === el.id ? champTexte(el) : contenuTexte(el)}
+          {el.tâche && (
+            <span title={état === 'faite' ? 'Tâche faite dans le Programme' : état === 'disparue' ? 'Tâche supprimée du Programme' : 'Tâche dans le Programme'} style={{
+              position: 'absolute', top: Math.max(4, el.l * 0.025), right: Math.max(4, el.l * 0.025), fontSize: Math.max(11, el.l * 0.07), lineHeight: 1,
+              background: état === 'faite' ? '#2e9e6b' : 'rgba(0,0,0,.65)', color: '#fff', borderRadius: 20, padding: '3px 7px', textDecoration: 'none', fontWeight: 700,
+            }}>{état === 'faite' ? '✓ faite' : état === 'disparue' ? '✕' : '📋 tâche'}</span>
+          )}
         </div>
       )
     } else if (el.type === 'texte') {
@@ -630,16 +783,16 @@ export default function Tableau() {
         </g>
       )
     }
-    const { a, b } = bouts(el, parId)
+    const { d, milieu } = cheminLigne(el, parId)
     const tirets = el.style === 'tirets' ? `${8 + el.épaisseur * 2} ${6 + el.épaisseur * 2}` : undefined
     return (
       <g key={el.id} data-el={el.id === '__aperçu' ? undefined : el.id} style={{ cursor: 'move' }}>
-        <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth={Math.max(18 / z, el.épaisseur + 12)} style={{ pointerEvents: 'stroke' }} />
-        <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={choisi ? UI.accent : el.couleur} strokeWidth={el.épaisseur} strokeDasharray={tirets}
+        <path d={d} fill="none" stroke="transparent" strokeWidth={Math.max(18 / z, el.épaisseur + 12)} style={{ pointerEvents: 'stroke' }} />
+        <path d={d} fill="none" stroke={choisi ? UI.accent : el.couleur} strokeWidth={el.épaisseur} strokeDasharray={tirets} strokeLinejoin="round"
           markerEnd={el.flèche === 'fin' || el.flèche === 'deux' ? `url(#fl-${choisi ? 'sel' : el.couleur.slice(1)})` : undefined}
           markerStart={el.flèche === 'deux' ? `url(#fl-${choisi ? 'sel' : el.couleur.slice(1)})` : undefined} style={{ pointerEvents: 'none' }} />
         {el.texte && (
-          <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - 6} textAnchor="middle" fontSize={14} fontFamily="system-ui" fill="#1b1b1b" paintOrder="stroke" stroke={UI.fond} strokeWidth={4} style={{ pointerEvents: 'none' }}>{el.texte}</text>
+          <text x={milieu.x} y={milieu.y - 6} textAnchor="middle" fontSize={14} fontFamily="system-ui" fill="#1b1b1b" paintOrder="stroke" stroke={UI.fond} strokeWidth={4} style={{ pointerEvents: 'none' }}>{el.texte}</text>
         )}
       </g>
     )
@@ -661,7 +814,7 @@ export default function Tableau() {
   )
   const sép = <span style={{ width: 1, alignSelf: 'stretch', background: UI.bord, margin: '6px 4px', flexShrink: 0 }} />
   const barreContexte = choisis.length > 0 && !édition && (
-    <div role="toolbar" aria-label="Élément choisi" onPointerDown={e => e.stopPropagation()} style={{
+    <div data-chrome role="toolbar" aria-label="Élément choisi" onPointerDown={e => e.stopPropagation()} style={{
       position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'calc(84px + env(safe-area-inset-bottom))', zIndex: 20, maxWidth: 'calc(100% - 20px)',
       background: UI.barre, borderRadius: 14, boxShadow: '0 6px 24px rgba(0,0,0,.16)', display: 'flex', alignItems: 'center', gap: 2, padding: '4px 6px', overflowX: 'auto',
     }}>
@@ -676,6 +829,9 @@ export default function Tableau() {
           {btn('✎', () => setÉdition(seul.id), 'Écrire')}
           {sép}
         </>
+      )}
+      {seul && ['note', 'forme', 'texte'].includes(seul.type) && !seul.tâche && (
+        <>{btn('✓ Tâche', () => setDialogueTâche({ id: seul.id, texte: seul.texte || '', colonneId: programme?.colonnes?.[0]?.id || '', échéance: '' }), 'Envoyer dans le Programme comme tâche')}{sép}</>
       )}
       {seul?.type === 'note' && NOTES.map(c => pastille(c, seul.couleur === c, () => majChoisis({ couleur: c }), `Couleur ${c}`))}
       {seul?.type === 'forme' && (
@@ -692,6 +848,10 @@ export default function Tableau() {
           {btn('↔', () => majChoisis({ flèche: 'deux' }), 'Double flèche', seul.flèche === 'deux')}
           {btn('—', () => majChoisis({ flèche: 'aucune' }), 'Sans flèche', seul.flèche === 'aucune')}
           {btn('┅', () => majChoisis(e => ({ style: e.style === 'tirets' ? 'plein' : 'tirets' })), 'Pointillés', seul.style === 'tirets')}
+          {sép}
+          {btn('╱', () => majChoisis({ tracé: 'droit' }), 'Ligne droite', !seul.tracé || seul.tracé === 'droit')}
+          {btn('⌐', () => majChoisis({ tracé: 'coude' }), 'Ligne coudée', seul.tracé === 'coude')}
+          {btn('∿', () => majChoisis({ tracé: 'courbe' }), 'Ligne courbe', seul.tracé === 'courbe')}
           {btn('T', () => { const t = window.prompt('Texte sur la ligne', seul.texte || ''); if (t !== null) majChoisis({ texte: t }) }, 'Texte sur la ligne', !!seul.texte)}
           {sép}
           {[1, 2, 4, 6].map(ep => btn(<span style={{ width: 18, height: ep, background: UI.texte, borderRadius: 2 }} />, () => majChoisis({ épaisseur: ep }), `Épaisseur ${ep}`, seul.épaisseur === ep))}
@@ -701,6 +861,19 @@ export default function Tableau() {
       )}
       {seul?.type === 'trait' && [2, 3, 6, 10].map(ep => btn(<span style={{ width: 18, height: Math.min(8, ep), background: UI.texte, borderRadius: 2 }} />, () => majChoisis({ épaisseur: ep }), `Épaisseur ${ep}`, seul.épaisseur === ep))}
       {seul?.type === 'cadre' && ['#ffffff', '#fff8e1', '#e3f2fd', '#e8f5e9', '#fce4ec', '#f3e5f5'].map(c => pastille(c, (seul.couleur || '#ffffff') === c, () => majChoisis({ couleur: c }), `Fond ${c}`))}
+      {choisis.filter(placé).length >= 2 && (
+        <>
+          {btn('⫷', () => aligner('gauche'), 'Aligner à gauche')}
+          {btn('⫼', () => aligner('centreH'), 'Centrer horizontalement')}
+          {btn('⫸', () => aligner('droite'), 'Aligner à droite')}
+          {btn('⊤', () => aligner('haut'), 'Aligner en haut')}
+          {btn('⊝', () => aligner('milieuV'), 'Centrer verticalement')}
+          {btn('⊥', () => aligner('bas'), 'Aligner en bas')}
+          {choisis.filter(placé).length >= 3 && btn('↔︎', () => aligner('répartirH'), 'Répartir horizontalement')}
+          {choisis.filter(placé).length >= 3 && btn('↕︎', () => aligner('répartirV'), 'Répartir verticalement')}
+          <span style={{ fontSize: 12, color: UI.doux, padding: '0 6px', whiteSpace: 'nowrap' }}>{choisis.length} choisis</span>
+        </>
+      )}
       {sép}
       {btn(<Ic n="dupliquer" t={20} />, () => dupliquer(sélection), 'Dupliquer')}
       {btn('⤒', () => premierPlan(sélection), 'Premier plan')}
@@ -710,11 +883,72 @@ export default function Tableau() {
 
   // « + » à côté d'un pense-bête ou d'une forme : enchaîner une idée reliée.
   const boutonPlus = seul && ['note', 'forme'].includes(seul.type) && !édition && (
-    <button onPointerDown={e => e.stopPropagation()} onClick={() => ajouterRelié(seul.id)} aria-label="Ajouter une idée reliée" title="Ajouter une idée reliée" style={{
+    <button data-chrome onPointerDown={e => e.stopPropagation()} onClick={() => ajouterRelié(seul.id)} aria-label="Ajouter une idée reliée" title="Ajouter une idée reliée" style={{
       position: 'absolute', left: vue.x + (seul.x + seul.l) * z + 14, top: vue.y + (seul.y + seul.h / 2) * z - 24, width: 48, height: 48, borderRadius: '50%',
       border: 'none', background: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,.18)', color: UI.texte, cursor: 'pointer', zIndex: 15, display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}><Ic n="plus" t={24} /></button>
   )
+
+  // ---------- Présentation par cadres ----------
+  const cadres = éléments.filter(e => e.type === 'cadre').sort((a, b) => (Math.abs(a.y - b.y) > 120 ? a.y - b.y : a.x - b.x))
+  const montrerCadre = i => {
+    const c = cadres[i]; const r = zoneRef.current?.getBoundingClientRect()
+    if (!c || !r) return
+    const zz = Math.min(4, Math.max(0.1, Math.min((r.width - 40) / c.l, (r.height - 110) / (c.h + 40))))
+    setVue({ z: zz, x: r.width / 2 - (c.x + c.l / 2) * zz, y: r.height / 2 + 10 - (c.y + c.h / 2) * zz })
+    setPrésentation(i)
+  }
+  const présenter = () => {
+    if (!cadres.length) { afficher('Ajoute des cadres pour présenter (chaque cadre = une diapositive)'); return }
+    terminerÉdition(); setSélection([]); setMenu(false)
+    document.documentElement.requestFullscreen?.().catch(() => {})
+    montrerCadre(0)
+  }
+  const quitterPrésentation = () => { setPrésentation(null); if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {}) }
+  useEffect(() => {
+    if (présentation === null) return
+    const f = e => {
+      if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); if (présentation < cadres.length - 1) montrerCadre(présentation + 1) }
+      else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); if (présentation > 0) montrerCadre(présentation - 1) }
+      else if (e.key === 'Escape') { e.stopPropagation(); quitterPrésentation() }
+    }
+    window.addEventListener('keydown', f, true)
+    return () => window.removeEventListener('keydown', f, true)
+  })
+
+  // ---------- Export (PNG / PDF) ----------
+  const exporter = async format => {
+    setMenu(false)
+    const cadreChoisi = seul?.type === 'cadre' ? seul : null
+    afficher('Préparation de l\'export…')
+    try {
+      const blob = await exporterTableauPNG({
+        éléments: éléments.map(e => (étatTâche(e) === 'faite' ? { ...e, tâcheFaite: true } : e)),
+        région: cadreChoisi ? { x: cadreChoisi.x - 20, y: cadreChoisi.y - 40, l: cadreChoisi.l + 40, h: cadreChoisi.h + 60 } : null,
+        outils: { boîte, bouts, cheminLigne, taillePolice, cheminForme }, urlImage, police: getComputedStyle(document.body).fontFamily,
+      })
+      const nom = `${(cadreChoisi?.texte || tableau.nom).replace(/[\\/:*?"<>|]/g, '')}`
+      if (format === 'png') {
+        const fichier = new File([blob], `${nom}.png`, { type: 'image/png' })
+        if (navigator.canShare?.({ files: [fichier] })) { await navigator.share({ files: [fichier], title: nom }).catch(() => {}); return }
+        const url = URL.createObjectURL(blob); const a = document.createElement('a')
+        a.href = url; a.download = `${nom}.png`; document.body.appendChild(a); a.click(); a.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 4000)
+        afficher('Image téléchargée')
+      } else {
+        const dataUrl = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob) })
+        const img = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = dataUrl })
+        const paysage = img.width >= img.height
+        const fenêtre = window.open('', '_blank')
+        if (!fenêtre) { afficher('Autorise les fenêtres pour ce site pour le PDF'); return }
+        fenêtre.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${nom}</title><style>
+          @page { size: A4 ${paysage ? 'landscape' : 'portrait'}; margin: 10mm } * { margin: 0 } body { font-family: system-ui, sans-serif }
+          h1 { font-size: 14pt; margin: 0 0 6mm } img { display: block; max-width: 100%; max-height: ${paysage ? '170mm' : '255mm'}; margin: 0 auto }
+        </style></head><body><h1>${nom}</h1><img src="${dataUrl}" alt=""><script>window.onload = () => setTimeout(() => window.print(), 300)</script></body></html>`)
+        fenêtre.document.close()
+      }
+    } catch (err) { afficher(`Export impossible : ${err.message}`) }
+  }
 
   // ---------- Recherche ----------
   const résultats = recherche?.q ? éléments.filter(e => e.texte && normaliser(e.texte).includes(normaliser(recherche.q))) : []
@@ -733,16 +967,19 @@ export default function Tableau() {
   const passéVide = !historique.current.passé.length, futurVide = !historique.current.futur.length
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: UI.fond, overflow: 'hidden', color: UI.texte, fontFamily: grotesk, userSelect: 'none', WebkitUserSelect: 'none' }}>
+    // overflow « clip » (et remise à zéro au cas où) : le navigateur ne doit
+    // jamais faire défiler la page elle-même pour montrer un élément.
+    <div onScroll={e => { e.currentTarget.scrollLeft = 0; e.currentTarget.scrollTop = 0 }} style={{ position: 'fixed', inset: 0, background: UI.fond, overflow: 'clip', color: UI.texte, fontFamily: grotesk, userSelect: 'none', WebkitUserSelect: 'none' }}>
       {/* Canevas */}
       <div ref={zoneRef} onPointerDown={surBas} onPointerMove={surMouvement} onPointerUp={surHaut} onPointerCancel={surHaut} onContextMenu={e => e.preventDefault()}
+        onScroll={e => { e.currentTarget.scrollLeft = 0; e.currentTarget.scrollTop = 0 }}
         aria-label="Tableau blanc" style={{
-          position: 'absolute', inset: 0, touchAction: 'none', cursor: outil === 'main' || outil === 'sélection' ? 'default' : 'crosshair',
-          backgroundColor: UI.fond,
-          backgroundImage: `linear-gradient(${UI.grille} 1px, transparent 1px), linear-gradient(90deg, ${UI.grille} 1px, transparent 1px)`,
+          position: 'absolute', inset: 0, touchAction: 'none', overflow: 'clip', cursor: outil === 'main' || outil === 'sélection' ? 'default' : 'crosshair',
+          backgroundColor: présentation !== null ? '#e9e9e6' : UI.fond,
+          backgroundImage: présentation !== null ? 'none' : `linear-gradient(${UI.grille} 1px, transparent 1px), linear-gradient(90deg, ${UI.grille} 1px, transparent 1px)`,
           backgroundSize: `${40 * z}px ${40 * z}px`, backgroundPosition: `${vue.x}px ${vue.y}px`,
         }}>
-        <div style={{ position: 'absolute', left: 0, top: 0, transform: `translate(${vue.x}px, ${vue.y}px) scale(${z})`, transformOrigin: '0 0' }}>
+        <div style={{ position: 'absolute', left: 0, top: 0, transform: `translate(${vue.x}px, ${vue.y}px) scale(${z})`, transformOrigin: '0 0', transition: présentation !== null ? 'transform .6s cubic-bezier(.45,0,.2,1)' : 'none' }}>
           {blocs.filter(b => b.type === 'cadre').map(rendreBloc)}
           <svg width="1" height="1" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
             <defs>
@@ -755,7 +992,11 @@ export default function Tableau() {
             <g style={{ pointerEvents: 'auto' }}>{lignes.map(rendreLigne)}</g>
           </svg>
           {blocs.filter(b => b.type !== 'cadre').map(rendreBloc)}
-          {sélection.length === 1 && seul?.type === 'ligne' && (() => { const { a, b } = bouts(seul, parId); return <>{poignée(seul.id, 'a', a.x, a.y)}{poignée(seul.id, 'b', b.x, b.y)}</> })()}
+          {sélection.length === 1 && seul?.type === 'ligne' && (() => { const { a, b } = cheminLigne(seul, parId); return <>{poignée(seul.id, 'a', a.x, a.y)}{poignée(seul.id, 'b', b.x, b.y)}</> })()}
+          {sélection.length > 1 && choisis.length > 1 && (() => { const u = boîteUnion(choisis.map(e => (e.type === 'ligne' ? (() => { const { a, b } = cheminLigne(e, parId); return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), l: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) } })() : boîte(e)))); return <div style={{ position: 'absolute', left: u.x - 8 / z, top: u.y - 8 / z, width: u.l + 16 / z, height: u.h + 16 / z, border: `${1.5 / z}px dashed ${UI.accent}`, borderRadius: 6 / z, pointerEvents: 'none' }} /> })()}
+          {guides.map((t, i) => (t.x !== undefined
+            ? <div key={i} style={{ position: 'absolute', left: t.x - 0.75 / z, top: t.y1, width: 1.5 / z, height: t.y2 - t.y1, background: '#ff3d8b', pointerEvents: 'none' }} />
+            : <div key={i} style={{ position: 'absolute', top: t.y - 0.75 / z, left: t.x1, height: 1.5 / z, width: t.x2 - t.x1, background: '#ff3d8b', pointerEvents: 'none' }} />))}
           {cadreSel && <div style={{ position: 'absolute', left: cadreSel.x, top: cadreSel.y, width: cadreSel.l, height: cadreSel.h, background: 'rgba(59,91,219,.08)', border: `${1 / z}px solid ${UI.accent}` }} />}
         </div>
         {éléments.length === 0 && !aperçu && (
@@ -769,13 +1010,14 @@ export default function Tableau() {
       {boutonPlus}
 
       {/* Barre du haut */}
-      <div onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', left: 12, right: 12, display: 'flex', alignItems: 'center', gap: 4, padding: '6px 8px', zIndex: 20, ...pill }}>
+      <div data-chrome onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', left: 12, right: 12, display: 'flex', alignItems: 'center', gap: 4, padding: '6px 8px', zIndex: 20, ...pill }}>
         <Link to={foyer.accueil} aria-label="Accueil" title="Accueil" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', color: UI.texte, flexShrink: 0 }}><Ic n="maison" /></Link>
         <button onClick={() => setMenu(m => !m)} aria-expanded={menu} title="Tableaux" style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', fontFamily: grotesk, fontSize: 17, fontWeight: 700, color: UI.texte, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 4px' }}>
           {tableau.nom} <span style={{ fontSize: 12, color: UI.doux }}>▾</span>
         </button>
         <span style={{ fontSize: 12, color: UI.doux, flexShrink: 0 }}>{Math.round(z * 100)}%</span>
         {btn(<Ic n="ajuster" />, () => ajusterVue(), 'Tout voir')}
+        {cadres.length > 0 && btn('▶', présenter, 'Présenter les cadres')}
         {btn(<Ic n="loupe" />, () => setRecherche(r => (r ? null : { q: '' })), 'Rechercher', !!recherche)}
         <button onClick={() => setSyncOuvert(o => !o)} title={statut === 'connecté' ? 'Synchronisé' : statut} aria-label="Synchronisation" style={{ width: 34, height: 34, minWidth: 34, borderRadius: '50%', border: 'none', cursor: 'pointer', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <span style={{ width: 12, height: 12, borderRadius: '50%', background: statut === 'connecté' ? '#2e9e6b' : statut === 'synchronisation' || statut === 'chargement' ? '#f0a839' : statut === 'erreur' ? '#d33' : '#aaa' }} />
@@ -791,6 +1033,10 @@ export default function Tableau() {
             </button>
           ))}
           <div style={{ borderTop: `1px solid ${UI.bord}`, margin: '6px 0', paddingTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {btn('▶ Présenter', présenter, 'Présenter les cadres comme des diapositives')}
+            {btn('🖼️ PNG', () => exporter('png'), seul?.type === 'cadre' ? 'Exporter le cadre en image' : 'Exporter le tableau en image')}
+            {btn('📄 PDF', () => exporter('pdf'), seul?.type === 'cadre' ? 'Exporter le cadre en PDF' : 'Exporter le tableau en PDF')}
+            {btn(`🧲 Grille aimantée${aimant ? ' ✓' : ''}`, () => setAimant(a => { try { localStorage.setItem('react-blocs-tableau-aimant', a ? 'non' : 'oui') } catch { /* ignore */ } return !a }), 'Grille aimantée', aimant)}
             {btn('📋 Modèles', () => { setMenu(false); setModèlesOuvert(true) }, 'Modèles')}
             {btn('⭐ Enregistrer comme modèle', enregistrerModèle, 'Enregistrer comme modèle')}
             {btn('＋ Nouveau tableau', nouveauTableau, 'Nouveau tableau')}
@@ -821,7 +1067,7 @@ export default function Tableau() {
       )}
 
       {/* Annuler / rétablir */}
-      <div onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', left: 12, top: 'calc(max(12px, env(safe-area-inset-top)) + 74px)', display: 'flex', flexDirection: 'column', gap: 2, padding: 6, zIndex: 20, ...pill }}>
+      <div data-chrome onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', left: 12, top: 'calc(max(12px, env(safe-area-inset-top)) + 74px)', display: 'flex', flexDirection: 'column', gap: 2, padding: 6, zIndex: 20, ...pill }}>
         <button onClick={annuler} disabled={passéVide} aria-label="Annuler" title="Annuler (Ctrl+Z)" style={{ width: 44, height: 44, border: 'none', background: 'none', cursor: 'pointer', color: passéVide ? '#bbb' : UI.texte }}><Ic n="annuler" /></button>
         <button onClick={rétablir} disabled={futurVide} aria-label="Rétablir" title="Rétablir (Ctrl+Y)" style={{ width: 44, height: 44, border: 'none', background: 'none', cursor: 'pointer', color: futurVide ? '#bbb' : UI.texte }}><Ic n="rétablir" /></button>
       </div>
@@ -829,7 +1075,7 @@ export default function Tableau() {
       {barreContexte}
 
       {/* Barre d'outils du bas */}
-      <div onPointerDown={e => e.stopPropagation()} role="toolbar" aria-label="Outils" style={{
+      <div data-chrome onPointerDown={e => e.stopPropagation()} role="toolbar" aria-label="Outils" style={{
         position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'max(14px, env(safe-area-inset-bottom))', zIndex: 20, display: 'flex', alignItems: 'center', gap: 2, padding: 6,
         maxWidth: 'calc(100% - 20px)', overflowX: 'auto', ...pill,
       }}>
@@ -868,6 +1114,51 @@ export default function Tableau() {
             </div>
           </div>
         </>
+      )}
+
+      {dialogueTâche && (
+        <div role="dialog" aria-label="Envoyer dans le Programme" onPointerDown={e => { e.stopPropagation(); if (e.target === e.currentTarget) setDialogueTâche(null) }} style={{ position: 'absolute', inset: 0, zIndex: 46, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 18, padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <strong style={{ fontSize: 18 }}>✓ Envoyer dans le Programme</strong>
+            <textarea value={dialogueTâche.texte} onChange={e => setDialogueTâche(d => ({ ...d, texte: e.target.value }))} rows={2} aria-label="Texte de la tâche"
+              style={{ border: `1px solid ${UI.bord}`, borderRadius: 10, padding: 10, fontSize: 15, fontFamily: grotesk, resize: 'vertical' }} />
+            <label style={{ fontSize: 13, color: UI.doux }}>Section
+              <select value={dialogueTâche.colonneId} onChange={e => setDialogueTâche(d => ({ ...d, colonneId: e.target.value }))} aria-label="Section du Programme"
+                style={{ display: 'block', width: '100%', marginTop: 4, border: `1px solid ${UI.bord}`, borderRadius: 10, padding: 9, fontSize: 15, background: '#fff' }}>
+                {(programme?.colonnes || []).map(c => <option key={c.id} value={c.id}>{c.titre}</option>)}
+              </select>
+            </label>
+            <label style={{ fontSize: 13, color: UI.doux }}>Échéance (facultatif)
+              <input type="date" value={dialogueTâche.échéance} onChange={e => setDialogueTâche(d => ({ ...d, échéance: e.target.value }))} aria-label="Échéance"
+                style={{ display: 'block', width: '100%', boxSizing: 'border-box', marginTop: 4, border: `1px solid ${UI.bord}`, borderRadius: 10, padding: 9, fontSize: 15 }} />
+            </label>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              {btn('Annuler', () => setDialogueTâche(null), 'Annuler')}
+              <button onClick={envoyerTâche} disabled={!programme?.colonnes?.length} style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: UI.accent, color: '#fff', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer' }}>Créer la tâche</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {présentation !== null && <style>{'[data-chrome] { display: none !important }'}</style>}
+      {présentation !== null && cadres[présentation] && (
+        <div role="dialog" aria-label="Présentation" style={{ position: 'absolute', inset: 0, zIndex: 60, touchAction: 'none' }}
+          onPointerDown={e => { e.currentTarget.dataset.x = e.clientX }}
+          onPointerUp={e => {
+            if (e.target.closest('button')) return
+            const dx = e.clientX - Number(e.currentTarget.dataset.x || e.clientX)
+            const suivant = Math.abs(dx) > 50 ? dx < 0 : e.clientX > window.innerWidth / 2
+            if (suivant && présentation < cadres.length - 1) montrerCadre(présentation + 1)
+            else if (!suivant && présentation > 0) montrerCadre(présentation - 1)
+          }}>
+          <div style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', left: 12, right: 12, display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', ...pill }}>
+            <strong style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 16 }}>{cadres[présentation].texte || `Cadre ${présentation + 1}`}</strong>
+            <span style={{ fontSize: 13, color: UI.doux }}>{présentation + 1} / {cadres.length}</span>
+            {btn('‹', () => présentation > 0 && montrerCadre(présentation - 1), 'Précédent')}
+            {btn('›', () => présentation < cadres.length - 1 && montrerCadre(présentation + 1), 'Suivant')}
+            {btn('✕', quitterPrésentation, 'Quitter la présentation')}
+          </div>
+        </div>
       )}
 
       {modèlesOuvert && (
