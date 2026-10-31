@@ -201,6 +201,107 @@ const ORAL = [
   ['Comment protéger l\'environnement au quotidien ?', 'Plan : constat → gestes individuels (tri, transports, consommation) → rôle de l\'État et des entreprises → conclusion.'],
 ]
 
+// Labos pratiques (CKA) : [énoncé, solution, { vérif }] — à faire dans un
+// cluster de test (kind, minikube, killercoda…).
+const LABOS_CKA = [
+  ['Crée le namespace « app », puis un Deployment « web » (image nginx, 3 réplicas) dedans.', cmd('kubectl create namespace app\nkubectl create deployment web --image=nginx --replicas=3 -n app'), { vérif: 'kubectl get deploy web -n app' }],
+  ['Expose le Deployment « web » (namespace app) sur le port 80 avec un Service ClusterIP.', cmd('kubectl expose deployment web --port=80 -n app'), { vérif: 'kubectl get svc,endpoints web -n app' }],
+  ['Passe l\'image de « web » en nginx:1.27, attends la fin du déploiement, puis reviens à la version précédente.', cmd('kubectl set image deployment/web nginx=nginx:1.27 -n app\nkubectl rollout status deployment/web -n app\nkubectl rollout undo deployment/web -n app'), { vérif: 'kubectl rollout history deployment/web -n app' }],
+  ['Lance un pod « busy » (busybox) qui exécute « sleep 3600 », puis teste la résolution DNS depuis ce pod.', cmd('kubectl run busy --image=busybox --restart=Never -- sleep 3600\nkubectl exec busy -- nslookup kubernetes.default'), { vérif: 'kubectl get pod busy' }],
+  ['Crée la ConfigMap « config » (MODE=prod) et un pod « lecteur » (nginx) qui la reçoit en variables d\'environnement.', cmd('kubectl create configmap config --from-literal=MODE=prod\nkubectl run lecteur --image=nginx --dry-run=client -o yaml > lecteur.yaml\n# dans lecteur.yaml, sous le conteneur :\n#   envFrom:\n#   - configMapRef:\n#       name: config\nkubectl apply -f lecteur.yaml'), { vérif: 'kubectl exec lecteur -- env | grep MODE' }],
+  ['Crée le Secret « db » (PASSWORD=s3cret) et affiche sa valeur décodée.', cmd('kubectl create secret generic db --from-literal=PASSWORD=s3cret\nkubectl get secret db -o jsonpath=\'{.data.PASSWORD}\' | base64 -d'), { vérif: 'kubectl get secret db' }],
+  ['Mets le nœud « node01 » en maintenance (plus de nouveaux pods, pods existants déplacés), puis remets-le en service.', cmd('kubectl cordon node01\nkubectl drain node01 --ignore-daemonsets --delete-emptydir-data\n# … maintenance …\nkubectl uncordon node01'), { vérif: 'kubectl get nodes' }],
+  ['Crée un PVC « donnees » de 1 Gi (ReadWriteOnce) et monte-le sur /data dans un pod « stockage ».', cmd('apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: donnees\nspec:\n  accessModes: ["ReadWriteOnce"]\n  resources:\n    requests:\n      storage: 1Gi\n---\napiVersion: v1\nkind: Pod\nmetadata:\n  name: stockage\nspec:\n  containers:\n  - name: app\n    image: nginx\n    volumeMounts:\n    - name: d\n      mountPath: /data\n  volumes:\n  - name: d\n    persistentVolumeClaim:\n      claimName: donnees', '', 'yaml'), { vérif: 'kubectl get pvc donnees && kubectl exec stockage -- ls /data' }],
+  ['Donne au ServiceAccount « lecteur » (namespace app) le droit de lister les pods de ce namespace.', cmd('kubectl create serviceaccount lecteur -n app\nkubectl create role lire-pods --verb=get,list,watch --resource=pods -n app\nkubectl create rolebinding lecteur-pods --role=lire-pods --serviceaccount=app:lecteur -n app'), { vérif: 'kubectl auth can-i list pods -n app --as=system:serviceaccount:app:lecteur' }],
+  ['NetworkPolicy « db-depuis-web » : les pods app=db n\'acceptent que le trafic des pods app=web, sur le port 5432.', cmd('apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: db-depuis-web\nspec:\n  podSelector:\n    matchLabels:\n      app: db\n  policyTypes: ["Ingress"]\n  ingress:\n  - from:\n    - podSelector:\n        matchLabels:\n          app: web\n    ports:\n    - protocol: TCP\n      port: 5432', '', 'yaml'), { vérif: 'kubectl describe networkpolicy db-depuis-web' }],
+  ['Sauvegarde etcd dans /opt/etcd.db (certificats dans /etc/kubernetes/pki/etcd).', cmd('ETCDCTL_API=3 etcdctl snapshot save /opt/etcd.db \\\n  --endpoints=https://127.0.0.1:2379 \\\n  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n  --cert=/etc/kubernetes/pki/etcd/server.crt \\\n  --key=/etc/kubernetes/pki/etcd/server.key'), { vérif: 'ls -lh /opt/etcd.db' }],
+  ['Ajoute un autoscaler à « web » (namespace app) : CPU 50 %, de 2 à 5 pods.', cmd('kubectl autoscale deployment web --cpu-percent=50 --min=2 --max=5 -n app'), { vérif: 'kubectl get hpa -n app' }],
+]
+
+// Scénarios de panne : la réponse est une démarche, dans l'ordre.
+const PANNES = [
+  ['Un pod reste en **Pending** : que vérifies-tu ?', `1. Les événements : ${'`kubectl describe pod <pod>`'}\n2. Ressources insuffisantes (requests trop hautes) ?\n3. Taints / tolérances, nodeSelector, affinité ?\n4. PVC pas encore lié ?`],
+  ['Un pod est en **ImagePullBackOff** : que vérifies-tu ?', `1. Nom et tag de l'image (faute de frappe ?)\n2. Registre privé : imagePullSecrets\n3. Accès réseau du nœud au registre\n${'`kubectl describe pod <pod>`'} → Events`],
+  ['Un pod est en **CrashLoopBackOff** : que vérifies-tu ?', `1. ${'`kubectl logs <pod> --previous`'}\n2. Exit code et raison (OOMKilled ?) dans ${'`describe`'}\n3. Probes trop strictes ?\n4. Variable, Secret ou ConfigMap manquant ?`],
+  ['Un conteneur est **OOMKilled** : que fais-tu ?', `Il a dépassé sa limite mémoire.\n1. Confirmer : ${'`kubectl describe pod`'} (Last State: OOMKilled)\n2. Mesurer : ${'`kubectl top pod`'}\n3. Augmenter limits.memory ou corriger la fuite`],
+  ['Un **Service** ne répond pas (aucun endpoint) : que vérifies-tu ?', `1. ${'`kubectl get endpoints <svc>`'} : vide ?\n2. Le selector du Service correspond-il aux labels des pods ? (${'`kubectl get pods --show-labels`'})\n3. targetPort = port du conteneur ?\n4. Pods prêts (readiness) ?`],
+  ['Un **Ingress** renvoie 502 / 503 : que vérifies-tu ?', `1. ${'`kubectl describe ingress`'} : bon Service et bon port ?\n2. Le Service a-t-il des endpoints ?\n3. Pods prêts (readiness probe) ?\n4. Bonne ingressClass ?`],
+  ['La **résolution DNS** ne marche pas dans un pod : que vérifies-tu ?', `1. Test : ${'`kubectl exec <pod> -- nslookup kubernetes.default`'}\n2. Pods CoreDNS : ${'`kubectl get pods -n kube-system -l k8s-app=kube-dns`'}\n3. Leurs logs\n4. Une NetworkPolicy bloque-t-elle le port 53 ?`],
+  ['Un nœud est **NotReady** : que vérifies-tu ?', `1. ${'`kubectl describe node <nœud>`'} → Conditions\n2. Sur le nœud : ${'`systemctl status kubelet`'} et ${'`journalctl -u kubelet`'}\n3. Disque ou mémoire saturés ?\n4. Runtime de conteneurs (containerd) actif ?`],
+  ['Un **PVC** reste en Pending : que vérifies-tu ?', `1. ${'`kubectl describe pvc <pvc>`'}\n2. La StorageClass existe-t-elle ? Y en a-t-il une par défaut ?\n3. Le provisioner fonctionne-t-il ?\n4. Taille / accessMode compatibles avec un PV ?`],
+  ['Un **déploiement** reste bloqué à mi-chemin : que vérifies-tu ?', `1. ${'`kubectl rollout status deployment/<nom>`'}\n2. Nouveaux pods : prêts ? (readiness)\n3. Quotas du namespace\n4. Si besoin : ${'`kubectl rollout undo deployment/<nom>`'}`],
+  ['Terraform : **Error acquiring the state lock** : que fais-tu ?', `1. Une autre exécution est-elle en cours ? Attendre.\n2. Sinon, vérifier qui détient le verrou (ID dans le message)\n3. Seulement si c'est sûr : ${'`terraform force-unlock <ID>`'}`],
+  ['Des pods sont **Evicted** : que vérifies-tu ?', `Le nœud manquait de ressources (souvent disque ou mémoire).\n1. ${'`kubectl describe pod`'} → raison\n2. ${'`kubectl describe node`'} → pressions\n3. Nettoyer, ajuster requests/limits`],
+]
+
+const DROITS = [
+  ['Le vote est-il obligatoire en France ?', 'Non. Voter est un droit et un **devoir civique**, mais pas une obligation légale.'],
+  ['Qui peut voter aux élections nationales ?', 'Les citoyens français majeurs, inscrits sur les listes électorales.'],
+  ['La liberté d\'expression a-t-elle des limites ?', 'Oui : l\'injure, la diffamation et l\'appel à la haine ou à la violence sont interdits par la loi.'],
+  ['Jusqu\'à quel âge l\'instruction est-elle obligatoire ?', 'De **3 à 16 ans** ; puis obligation de formation jusqu\'à 18 ans.'],
+  ['Quel mariage a une valeur légale ?', 'Le **mariage civil**, à la mairie. Il doit avoir lieu avant toute cérémonie religieuse.'],
+  ['À quel âge peut-on se marier ?', '**18 ans**, pour les femmes comme pour les hommes, avec le libre consentement des deux.'],
+  ['La polygamie est-elle autorisée ?', 'Non, elle est interdite en France.'],
+  ['Quels numéros d\'urgence connaître ?', '15 SAMU · 17 police · 18 pompiers · **112** numéro européen · 114 par SMS'],
+  ['Payer ses impôts : droit ou devoir ?', 'Un devoir : chacun contribue selon ses moyens (article 13 de la Déclaration de 1789).'],
+  ['Peut-on se faire justice soi-même ?', 'Non. Seule la justice peut juger et sanctionner.'],
+  ['Qu\'est-ce que la présomption d\'innocence ?', 'Toute personne est considérée innocente tant que sa culpabilité n\'a pas été établie par un jugement.'],
+  ['La discrimination est-elle punie ?', 'Oui : origine, sexe, religion, handicap, orientation sexuelle… On peut saisir le **Défenseur des droits** ou porter plainte.'],
+  ['Que garantit la liberté de religion ?', 'Le droit de croire, de ne pas croire ou de changer de religion, et de pratiquer dans le respect de l\'ordre public.'],
+  ['Que protège la Sécurité sociale ?', 'La santé, la famille, la retraite… financée par les cotisations de tous : c\'est la solidarité.'],
+]
+
+const SITUATIONS = [
+  ['Un collègue refuse de travailler sous la direction d\'une femme. Qu\'en pensez-vous ?', 'C\'est contraire à l\'**égalité entre les femmes et les hommes**. Son attitude n\'est pas acceptable et l\'employeur peut le sanctionner.'],
+  ['À la mairie, l\'agent au guichet porte un signe religieux visible. Est-ce permis ?', 'Non : les **agents publics** doivent rester neutres (laïcité). Les usagers, eux, peuvent en porter.'],
+  ['Des parents veulent dispenser leur fille du cours de natation pour des raisons religieuses.', 'Ce n\'est pas possible : les enseignements sont obligatoires pour tous, filles et garçons. L\'école publique est laïque.'],
+  ['Votre voisin annonce qu\'il ne paiera plus d\'impôts car il désapprouve le gouvernement.', 'Payer l\'impôt est une obligation. On exprime son désaccord par le vote, une pétition ou une manifestation déclarée.'],
+  ['Un employeur écarte un candidat à cause de son nom à consonance étrangère.', 'C\'est une **discrimination à l\'embauche**, punie par la loi. Le candidat peut saisir le Défenseur des droits ou porter plainte.'],
+  ['Vous êtes témoin de violences conjugales chez des voisins.', 'Appeler le **17** (ou le 112). Le **3919** écoute et oriente les victimes. Ne pas rester indifférent.'],
+  ['Un ami veut marier sa fille de 16 ans.', 'Interdit : il faut avoir **18 ans** et donner son libre consentement. Le mariage forcé est puni.'],
+  ['Une personne porte un voile intégral dans la rue.', 'La loi de **2010** interdit de dissimuler son visage dans l\'espace public.'],
+  ['Quelqu\'un insulte une personne à cause de sa religion sur les réseaux sociaux.', 'L\'injure à caractère religieux ou raciste est un délit. On peut le signaler (plateforme Pharos) et porter plainte.'],
+  ['Au travail, un collègue critique une religion. En a-t-il le droit ?', 'Oui : critiquer une religion ou une idée est permis (le blasphème n\'est pas un délit). Insulter des personnes ou appeler à la haine est interdit.'],
+  ['Vous recevez une convocation pour être juré d\'assises.', 'C\'est une **obligation civique** : il faut s\'y rendre, sauf motif grave reconnu.'],
+  ['Aux urgences, votre conjoint refuse que vous soyez examiné(e) par un médecin de l\'autre sexe.', 'Dans un service public, on ne choisit pas le soignant selon son sexe, surtout en urgence. Les soins priment.'],
+  ['Une association veut organiser une manifestation.', 'Manifester est une liberté. Il faut la **déclarer** à l\'avance (mairie ou préfecture).'],
+]
+
+const ACTUALITÉ = [
+  ['Qui est le président de la République ?', 'Emmanuel Macron (réélu en 2022, mandat jusqu\'en 2027)'],
+  ['Qui est le Premier ministre ?', 'À compléter (vérifier sur gouvernement.fr)'],
+  ['Qui préside l\'Assemblée nationale ?', 'À compléter'],
+  ['Qui préside le Sénat ?', 'À compléter'],
+  ['Qui est le maire de ma commune ?', 'À compléter'],
+  ['Qui est mon député ?', 'À compléter'],
+  ['Combien de pays compte l\'Union européenne ?', '27 (depuis le départ du Royaume-Uni en 2020)'],
+  ['Quand aura lieu la prochaine élection présidentielle ?', 'En 2027'],
+].map(c => [...c, { aVérifier: true }])
+
+// Frise : événements datés (jeux « remettre dans l'ordre » et « avant ou après »).
+export const ÉVÉNEMENTS = [
+  [496, 'Baptême de Clovis (vers 496)'], [800, 'Charlemagne couronné empereur'], [1429, 'Jeanne d\'Arc délivre Orléans'],
+  [1515, 'Bataille de Marignan'], [1539, 'Ordonnance de Villers-Cotterêts : le français pour les actes officiels'], [1598, 'Édit de Nantes'],
+  [1682, 'Louis XIV s\'installe à Versailles'], [1789, 'Prise de la Bastille, Déclaration des droits de l\'homme'], [1792, 'Proclamation de la Première République'],
+  [1804, 'Napoléon sacré empereur'], [1848, 'Suffrage universel masculin, abolition de l\'esclavage'], [1870, 'Proclamation de la IIIe République'],
+  [1882, 'École gratuite, laïque et obligatoire (lois Ferry)'], [1905, 'Loi de séparation des Églises et de l\'État'], [1914, 'Début de la Première Guerre mondiale'],
+  [1918, 'Armistice du 11 novembre'], [1936, 'Front populaire : congés payés'], [1940, 'Appel du 18 juin du général de Gaulle'],
+  [1944, 'Droit de vote des femmes'], [1945, 'Fin de la Seconde Guerre mondiale en Europe (8 mai)'], [1957, 'Traité de Rome'],
+  [1958, 'Naissance de la Ve République'], [1962, 'Indépendance de l\'Algérie'], [1968, 'Mai 68'], [1974, 'Majorité à 18 ans'],
+  [1981, 'Abolition de la peine de mort'], [1992, 'Traité de Maastricht'], [2002, 'L\'euro en pièces et billets'],
+].map(([année, texte]) => ({ année, texte }))
+
+// Carte : villes (latitude, longitude) et région dont elles sont le chef-lieu.
+export const LIEUX = [
+  ['Paris', 48.86, 2.35, 'Île-de-France'], ['Lyon', 45.76, 4.84, 'Auvergne-Rhône-Alpes'], ['Marseille', 43.30, 5.37, 'Provence-Alpes-Côte d\'Azur'],
+  ['Toulouse', 43.60, 1.44, 'Occitanie'], ['Bordeaux', 44.84, -0.58, 'Nouvelle-Aquitaine'], ['Lille', 50.63, 3.06, 'Hauts-de-France'],
+  ['Nantes', 47.22, -1.55, 'Pays de la Loire'], ['Strasbourg', 48.57, 7.75, 'Grand Est'], ['Rennes', 48.11, -1.68, 'Bretagne'],
+  ['Dijon', 47.32, 5.04, 'Bourgogne-Franche-Comté'], ['Orléans', 47.90, 1.90, 'Centre-Val de Loire'], ['Rouen', 49.44, 1.10, 'Normandie'],
+  ['Ajaccio', 41.93, 8.74, 'Corse'], ['Nice', 43.70, 7.27], ['Montpellier', 43.61, 3.88], ['Brest', 48.39, -4.49],
+  ['Clermont-Ferrand', 45.78, 3.08], ['Le Havre', 49.49, 0.11], ['Grenoble', 45.19, 5.72], ['Mont-Saint-Michel', 48.64, -1.51],
+  ['Mont Blanc', 45.83, 6.86],
+].map(([nom, lat, lon, région]) => ({ nom, lat, lon, ...(région ? { région } : {}) }))
+
 // Catégories affichées dans le dialogue « Paquets prêts ».
 export const PAQUETS_PRÊTS = [
   {
@@ -211,6 +312,8 @@ export const PAQUETS_PRÊTS = [
       { id: 'terraform', nom: '🏗️ Terraform', couleur: '#7b42bc', cartes: TERRAFORM },
       { id: 'linux', nom: '🐧 Linux', couleur: '#e0a100', cartes: LINUX },
       { id: 'helm', nom: '⛵ Helm', couleur: '#0f1689', cartes: HELM },
+      { id: 'labos-cka', nom: '🧪 Labos CKA (pratique)', couleur: '#0b7a75', cartes: LABOS_CKA, labo: true },
+      { id: 'pannes-k8s', nom: '🚑 Scénarios de panne', couleur: '#c62828', cartes: PANNES },
     ],
   },
   {
@@ -219,6 +322,9 @@ export const PAQUETS_PRÊTS = [
       { id: 'nat-institutions', nom: '🏛️ Institutions', couleur: '#5a6b8c', cartes: INSTITUTIONS },
       { id: 'nat-histoire', nom: '📜 Histoire de France', couleur: '#a3541f', cartes: HISTOIRE },
       { id: 'nat-geo', nom: '🗺️ Géographie et culture', couleur: '#2e7d4f', cartes: GÉOGRAPHIE },
+      { id: 'nat-droits', nom: '⚖️ Droits et devoirs', couleur: '#6a4c93', cartes: DROITS },
+      { id: 'nat-situations', nom: '🤝 Mises en situation', couleur: '#d1495b', cartes: SITUATIONS },
+      { id: 'nat-actu', nom: '📰 Actualité (à vérifier)', couleur: '#455a64', cartes: ACTUALITÉ },
     ],
   },
   {

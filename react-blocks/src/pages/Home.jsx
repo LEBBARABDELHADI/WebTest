@@ -10,6 +10,7 @@ import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import { lireRécents, depuis } from '../lib/recents'
 import { verrouiller } from '../components/Verrou'
 import RechercheGlobale from '../components/RechercheGlobale'
+import { joursAvant, compteÀRebours } from '../lib/certifications'
 import Sauvegarde from '../components/Sauvegarde'
 import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 import { useDonnéesFoyer, ajouterRapidement, analyserSaisie } from '../lib/donneesFoyer'
@@ -180,6 +181,10 @@ export default function Home({ foyerId = 'lebbar' }) {
   if (total.enRetard) résumé.push(`${total.enRetard} en retard`)
   if (total.àRéviser) résumé.push(`${total.àRéviser} carte${total.àRéviser > 1 ? 's' : ''} à réviser`)
   if (habAujourdhui) résumé.push(`${habAujourdhui} habitude${habAujourdhui > 1 ? 's' : ''} à cocher`)
+  // Objectifs d'examen (Mémoriser perso + pro) : compte à rebours.
+  ;['perso', 'pro'].flatMap(t => lire('memoriser', `${foyer.préfixe}${t}`).objectifs || [])
+    .filter(o => joursAvant(o.date) >= 0).sort((a, b) => a.date.localeCompare(b.date))
+    .forEach(o => résumé.push(`🎯 ${o.nom} ${compteÀRebours(o.date)}`))
 
   const tuiles = [
     {

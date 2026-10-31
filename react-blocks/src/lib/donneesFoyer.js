@@ -251,6 +251,19 @@ export async function ajouterTempsHabitude({ espace, habitudeId, minutes, jour }
   return { enLigne: true }
 }
 
+// Plusieurs tâches d'un coup (plan de révision) : une seule écriture.
+export async function créerTâches({ espace, colonneId, tâches }) {
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  if (!token) throw new Error('Connecte le token GitHub pour créer les tâches.')
+  const { data, sha } = await lireDepuisGitHub(token, chemin('taches', espace))
+  const colonne = (data.colonnes || []).find(c => c.id === colonneId) || (data.colonnes || [])[0]
+  if (!colonne) throw new Error('Le programme n\'a aucune section.')
+  const cartes = tâches.map(t => ({ id: uid(), colonneId: colonne.id, texte: t.texte, étiquettes: [], ...(t.échéance ? { échéance: t.échéance } : {}) }))
+  const nouveau = { ...data, cartes: [...(data.cartes || []), ...cartes] }
+  const écrit = await écrireVersGitHub(nouveau, token, sha, chemin('taches', espace), data)
+  try { localStorage.setItem(clé('taches', espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
+  return { colonne, nombre: cartes.length }
+}
 // Données d'un outil d'un espace (GitHub, sinon la copie de l'appareil).
 export async function lireOutil(outil, espace) {
   const token = localStorage.getItem(TOKEN_KEY) || ''

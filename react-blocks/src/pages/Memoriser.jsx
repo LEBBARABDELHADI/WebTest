@@ -26,6 +26,11 @@ import EntretienSimule from '../components/EntretienSimule'
 import PaquetsPrêts from '../components/PaquetsPrets'
 import ExamenBlanc from '../components/ExamenBlanc'
 import OralChrono from '../components/OralChrono'
+import Objectifs, { compteÀRebours } from '../components/Objectifs'
+import LaboChrono from '../components/LaboChrono'
+import ImportCartes from '../components/ImportCartes'
+import JeuxNaturalisation from '../components/JeuxNaturalisation'
+import { entrerAuCarnet, avancerCarnet, aujourdhui as aujourdhuiLocal } from '../lib/certifications'
 import { vérifierMotsClés } from '../lib/motsCles'
 
 const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
@@ -105,6 +110,7 @@ function complète(objet) {
     paquets: Array.isArray(objet.paquets) ? objet.paquets : [],
     cartes: Array.isArray(objet.cartes) ? objet.cartes : [],
     ...(Array.isArray(objet.examens) ? { examens: objet.examens } : {}),
+    ...(Array.isArray(objet.objectifs) ? { objectifs: objet.objectifs } : {}),
   }
 }
 
@@ -491,9 +497,9 @@ export default function Memoriser() {
     const auj = aujourdhuiISO()
     setData(d => {
       let paquet = d.paquets.find(p => p.modèle === m.id)
-      const paquets = paquet ? d.paquets : [...d.paquets, (paquet = { id: uid(), nom: m.nom, couleur: m.couleur, modèle: m.id, ...(m.oral ? { oral: true } : {}) })]
+      const paquets = paquet ? d.paquets : [...d.paquets, (paquet = { id: uid(), nom: m.nom, couleur: m.couleur, modèle: m.id, ...(m.oral ? { oral: true } : {}), ...(m.labo ? { labo: true } : {}) })]
       const rectos = new Set(d.cartes.filter(c => c.paquetId === paquet.id).map(c => c.recto))
-      const nouvelles = m.cartes.filter(([r]) => !rectos.has(r)).map(([recto, verso]) => ({ id: uid(), paquetId: paquet.id, recto, verso, niveau: 0, prochaineRevision: auj }))
+      const nouvelles = m.cartes.filter(([r]) => !rectos.has(r)).map(([recto, verso, extra]) => ({ id: uid(), paquetId: paquet.id, recto, verso, niveau: 0, prochaineRevision: auj, ...(extra || {}) }))
       return { ...d, paquets, cartes: [...d.cartes, ...nouvelles] }
     })
   }
@@ -530,23 +536,37 @@ export default function Memoriser() {
     }
   }
 
+  // Réponse sur une carte : révision espacée + carnet d'erreurs.
+  const noterCarte = (carteId, su) => setData(d => ({
+    ...d,
+    cartes: d.cartes.map(carte => {
+      if (carte.id !== carteId) return carte
+      const c = avancerCarnet(carte, su)
+      if (su === 'hésité') {
+        const niveau = Math.max(1, c.niveau || 0)
+        return { ...c, niveau, prochaineRevision: dateDans(Math.max(1, Math.round(INTERVALLES[niveau] / 2))), fautesConsécutives: 0 }
+      }
+      const niveau = su ? Math.min((c.niveau || 0) + 1, INTERVALLES.length - 1) : 0
+      return { ...c, niveau, prochaineRevision: dateDans(INTERVALLES[niveau]), fautesConsécutives: su ? 0 : (c.fautesConsécutives || 0) + 1 }
+    }),
+  }))
+  // Infos qui changent (actualité) : revérifiées tous les 3 mois.
+  const àRevérifier = c => c.aVérifier && (!c.vérifiéLe || dateDans(-90) > c.vérifiéLe)
+  const marquerVérifiée = id => setData(d => ({ ...d, cartes: d.cartes.map(c => (c.id === id ? { ...c, aVérifier: true, vérifiéLe: aujourdhuiISO() } : c)) }))
+  const basculerActualité = id => setData(d => ({ ...d, cartes: d.cartes.map(c => { if (c.id !== id) return c; if (c.aVérifier) { const { aVérifier, vérifiéLe, ...reste } = c; return reste } return { ...c, aVérifier: true } }) }))
+  const importerCartes = ({ paquetId, nom, cartes }) => {
+    const auj = aujourdhuiISO()
+    setData(d => {
+      let paquets = d.paquets, id = paquetId
+      if (!id || !paquets.some(p => p.id === id)) { id = uid(); paquets = [...paquets, { id, nom, couleur: PALETTE[paquets.length % PALETTE.length] }] }
+      return { ...d, paquets, cartes: [...d.cartes, ...cartes.map(c => ({ id: uid(), paquetId: id, recto: c.recto, verso: c.verso, niveau: 0, prochaineRevision: auj }))] }
+    })
+  }
+
   const répondre = su => {
     const carteId = fileRévision[indexRévision]
     const indexSuivant = indexRévision + 1
-    setData(d => ({
-      ...d,
-      cartes: d.cartes.map(c => {
-        if (c.id !== carteId) return c
-        // « Hésité » : même niveau, mais retour deux fois plus tôt.
-        if (su === 'hésité') {
-          const niveau = Math.max(1, c.niveau || 0)
-          return { ...c, niveau, prochaineRevision: dateDans(Math.max(1, Math.round(INTERVALLES[niveau] / 2))), fautesConsécutives: 0 }
-        }
-        const niveau = su ? Math.min((c.niveau || 0) + 1, INTERVALLES.length - 1) : 0
-        const fautesConsécutives = su ? 0 : (c.fautesConsécutives || 0) + 1
-        return { ...c, niveau, prochaineRevision: dateDans(INTERVALLES[niveau]), fautesConsécutives }
-      }),
-    }))
+    noterCarte(carteId, su)
     if (su === true) setSues(s => s + 1)
     setEstRetournée(false)
     setIndexRévision(indexSuivant)
@@ -623,6 +643,8 @@ export default function Memoriser() {
 
   const totalDû = cartesDues(null).length
   const pointsFaibles = data.cartes.filter(c => (c.fautesConsécutives || 0) >= SEUIL_POINT_FAIBLE)
+  const carnetDû = data.cartes.filter(c => c.carnet && c.carnet.prochaine <= aujourdhuiLocal())
+  const carnetTotal = data.cartes.filter(c => c.carnet).length
   const carteActuelle = data.cartes.find(c => c.id === fileRévision[indexRévision])
   const nomPaquetRévision = paquetRévisionId ? data.paquets.find(p => p.id === paquetRévisionId)?.nom : null
   const titreRévision = titreRévisionPersonnalisé || nomPaquetRévision || 'Tous les paquets'
@@ -785,10 +807,22 @@ export default function Memoriser() {
                 }}><Icon nom="repeter" taille={14} /> Réviser tout</button>
               )}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                <button onClick={() => setOutilMémo({ type: 'objectifs' })} style={{
+                  background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
+                  borderRadius: '8px', padding: '9px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                }}>🎯 Objectifs et progrès</button>
                 <button onClick={() => setOutilMémo({ type: 'prêts' })} style={{
                   background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
                   borderRadius: '8px', padding: '9px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
                 }}>📚 Paquets prêts</button>
+                <button onClick={() => setOutilMémo({ type: 'import' })} style={{
+                  background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
+                  borderRadius: '8px', padding: '9px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                }}>📥 Importer</button>
+                <button onClick={() => setOutilMémo({ type: 'jeux' })} style={{
+                  background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
+                  borderRadius: '8px', padding: '9px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                }}>🎲 Jeux (frise, carte)</button>
                 {data.cartes.length >= 2 && (
                   <button onClick={() => setOutilMémo({ type: 'examen' })} style={{
                     background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
@@ -797,6 +831,38 @@ export default function Memoriser() {
                 )}
               </div>
             </div>
+
+            {(data.objectifs || []).length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '-10px 0 22px' }}>
+                {data.objectifs.map(o => (
+                  <button key={o.id} onClick={() => setOutilMémo({ type: 'objectifs' })} style={{
+                    display: 'flex', alignItems: 'center', gap: '6px', background: T.accentSoft, color: T.accent, border: `1px solid ${T.accent}55`,
+                    borderRadius: '20px', padding: '6px 12px', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer', fontFamily: grotesk,
+                  }}>🎯 {o.nom} · {compteÀRebours(o.date)}</button>
+                ))}
+              </div>
+            )}
+
+            {data.cartes.filter(àRevérifier).length > 0 && (
+              <div style={{ background: '#f0a83918', border: '1px solid #f0a83966', borderRadius: '12px', padding: '12px 14px', marginBottom: '22px', fontSize: '13px', color: T.text, lineHeight: 1.5 }}>
+                📰 <strong>{data.cartes.filter(àRevérifier).length} info{data.cartes.filter(àRevérifier).length > 1 ? 's' : ''} d'actualité à vérifier</strong> (président, maire, député…) : elles changent avec le temps. Ouvre le paquet et touche « ✓ Vérifiée aujourd'hui » après contrôle.
+              </div>
+            )}
+
+            {carnetDû.length > 0 && (
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '16px', marginBottom: '22px' }}>
+                <strong style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: '16px', color: T.text }}>
+                  📕 Carnet d'erreurs : {carnetDû.length} à refaire aujourd'hui
+                </strong>
+                <p style={{ fontSize: '11.5px', color: T.textMuted, margin: '6px 0 12px', lineHeight: '1.5' }}>
+                  Les erreurs d'examen reviennent le lendemain, puis 3 jours après, puis une semaine après. Trois réussites et elles sortent du carnet ({carnetTotal} dedans en tout).
+                </p>
+                <button onClick={() => démarrerRévision(null, { cartesIds: carnetDû.map(c => c.id), titre: 'Carnet d\'erreurs', qcm: data.cartes.length >= 4 })} style={{
+                  background: T.accent, color: T.accentText, border: 'none', fontWeight: 600,
+                  borderRadius: '8px', padding: '9px 16px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                }}>📕 Refaire mes erreurs</button>
+              </div>
+            )}
 
             {pointsFaibles.length > 0 && (
               <div style={{ background: T.dangerSoft, border: `1px solid ${T.danger}55`, borderRadius: '12px', padding: '16px', marginBottom: '22px' }}>
@@ -911,6 +977,13 @@ export default function Memoriser() {
                             border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
                             fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
                           }}>🎙️ Entretien</button>
+                          {(paquet.labo || cartesPaquet.some(c => c.vérif)) && (
+                            <button onClick={() => setOutilMémo({ type: 'labo', paquetId: paquet.id })} title="Tâches pratiques chronométrées" style={{
+                              display: 'flex', alignItems: 'center', gap: '5px', background: T.accentSoft, color: T.accent,
+                              border: `1px solid ${T.accent}55`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                              fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                            }}>🧪 Labo chrono</button>
+                          )}
                           <button onClick={() => setOutilMémo({ type: 'oral', paquetId: paquet.id })} title="Un sujet au hasard, parler 1 à 3 minutes, bilan" style={{
                             display: 'flex', alignItems: 'center', gap: '5px', background: paquet.oral ? T.accentSoft : T.surface2, color: paquet.oral ? T.accent : T.text,
                             border: `1px solid ${paquet.oral ? T.accent + '55' : T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
@@ -992,7 +1065,14 @@ export default function Memoriser() {
                                       <TexteFormaté texte={carte.recto} couleurDéfaut={T.text} />
                                     </p>
                                     <p style={{ margin: '2px 0 0', fontSize: '11.5px', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}><TexteFormaté texte={carte.verso} couleurDéfaut={T.textMuted} /></p>
+                                    {carte.aVérifier && (
+                                      <p style={{ margin: '4px 0 0', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', color: àRevérifier(carte) ? '#b07400' : T.textMuted }}>
+                                        {àRevérifier(carte) ? `⚠️ À vérifier${carte.vérifiéLe ? ` (dernière fois le ${new Date(`${carte.vérifiéLe}T12:00:00`).toLocaleDateString('fr-FR')})` : ''}` : `📰 Vérifiée le ${new Date(`${carte.vérifiéLe}T12:00:00`).toLocaleDateString('fr-FR')}`}
+                                        <button onClick={() => marquerVérifiée(carte.id)} style={{ minHeight: 26, padding: '0 8px', borderRadius: 13, border: `1px solid ${T.border}`, background: T.surface, color: T.text, fontSize: '11px', cursor: 'pointer', fontFamily: grotesk }}>✓ Vérifiée aujourd'hui</button>
+                                      </p>
+                                    )}
                                   </div>
+                                  <BoutonIcone icon="calendrier" title={carte.aVérifier ? 'Ne plus suivre comme info qui change' : 'Info qui change (actualité) : à revérifier régulièrement'} taille={13} onClick={() => basculerActualité(carte.id)} />
                                   <BoutonIcone icon="bulles" title="Voir en bulles" taille={13} onClick={() => setCarteBullesId(carte.id)} />
                                   {aDesPuces(carte.verso) && (
                                     <BoutonIcone icon="ciseaux" title="Découper en petites cartes" taille={13} onClick={() => setDécoupeCarteId(carte.id)} />
@@ -1473,9 +1553,26 @@ export default function Memoriser() {
       </div>
       {outilMémo?.type === 'prêts' && <PaquetsPrêts T={T} data={data} onAjouter={ajouterPaquetPrêt} onFermer={() => setOutilMémo(null)} />}
       {outilMémo?.type === 'examen' && (
-        <ExamenBlanc T={T} data={data} préchoix={outilMémo.préchoix} onFermer={() => setOutilMémo(null)}
+        <ExamenBlanc T={T} data={data} préchoix={outilMémo.préchoix} objectif={outilMémo.objectif} onFermer={() => setOutilMémo(null)}
           onErreursEnRévision={erreursEnRévision}
-          onTerminer={r => setData(d => ({ ...d, examens: [...(d.examens || []), r].slice(-40) }))} />
+          onTerminer={r => setData(d => ({
+            ...d,
+            examens: [...(d.examens || []), r].slice(-60),
+            cartes: d.cartes.map(c => (r.erreurs?.includes(c.id) ? entrerAuCarnet(c) : c)),
+          }))} />
+      )}
+      {outilMémo?.type === 'labo' && data.cartes.some(c => c.paquetId === outilMémo.paquetId) && (
+        <LaboChrono T={T} cartes={data.cartes.filter(c => c.paquetId === outilMémo.paquetId)} titre={data.paquets.find(p => p.id === outilMémo.paquetId)?.nom || ''}
+          onRésultat={(id, réussi) => noterCarte(id, réussi)} onFermer={() => setOutilMémo(null)} />
+      )}
+      {outilMémo?.type === 'import' && <ImportCartes T={T} data={data} paquetParDéfaut={paquetOuvertId} onImporter={importerCartes} onFermer={() => setOutilMémo(null)} />}
+      {outilMémo?.type === 'jeux' && <JeuxNaturalisation T={T} onFermer={() => setOutilMémo(null)} />}
+      {outilMémo?.type === 'objectifs' && (
+        <Objectifs T={T} data={data} espace={config.id} onFermer={() => setOutilMémo(null)}
+          onAjouter={o => setData(d => ({ ...d, objectifs: [...(d.objectifs || []), o] }))}
+          onModifier={(id, ch) => setData(d => ({ ...d, objectifs: (d.objectifs || []).map(o => (o.id === id ? { ...o, ...ch } : o)) }))}
+          onSupprimer={id => setData(d => ({ ...d, objectifs: (d.objectifs || []).filter(o => o.id !== id) }))}
+          onExamen={o => setOutilMémo({ type: 'examen', objectif: o })} />
       )}
       {outilMémo?.type === 'oral' && data.cartes.some(c => c.paquetId === outilMémo.paquetId) && (
         <OralChrono T={T} cartes={data.cartes.filter(c => c.paquetId === outilMémo.paquetId)} titre={data.paquets.find(p => p.id === outilMémo.paquetId)?.nom || ''} onFermer={() => setOutilMémo(null)} />
