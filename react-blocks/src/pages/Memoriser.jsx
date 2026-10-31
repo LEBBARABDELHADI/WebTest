@@ -23,6 +23,9 @@ import { ImageCarte, ChampImage } from '../components/ImageCarte'
 import ModePodcast from '../components/ModePodcast'
 import ModeLecture from '../components/ModeLecture'
 import EntretienSimule from '../components/EntretienSimule'
+import PaquetsPrêts from '../components/PaquetsPrets'
+import ExamenBlanc from '../components/ExamenBlanc'
+import OralChrono from '../components/OralChrono'
 import { vérifierMotsClés } from '../lib/motsCles'
 
 const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
@@ -101,6 +104,7 @@ function complète(objet) {
   return {
     paquets: Array.isArray(objet.paquets) ? objet.paquets : [],
     cartes: Array.isArray(objet.cartes) ? objet.cartes : [],
+    ...(Array.isArray(objet.examens) ? { examens: objet.examens } : {}),
   }
 }
 
@@ -197,6 +201,7 @@ export default function Memoriser() {
   const [éditionImageVerso, setÉditionImageVerso] = useState(null)
   const [découpeCarteId, setDécoupeCarteId] = useState(null)
   const [copiePaquetId, setCopiePaquetId] = useState(null)
+  const [outilMémo, setOutilMémo] = useState(null) // { type: 'prêts' | 'examen' | 'oral', … }
 
   const [vue, setVue] = useState('liste') // 'liste' | 'revision'
   const [paquetRévisionId, setPaquetRévisionId] = useState(null) // null = tous les paquets
@@ -480,6 +485,23 @@ export default function Memoriser() {
     return { nom }
   }
 
+  // Paquet prêt (commandes DevOps, naturalisation, français) : créé, ou
+  // complété avec les cartes qui manquent.
+  const ajouterPaquetPrêt = m => {
+    const auj = aujourdhuiISO()
+    setData(d => {
+      let paquet = d.paquets.find(p => p.modèle === m.id)
+      const paquets = paquet ? d.paquets : [...d.paquets, (paquet = { id: uid(), nom: m.nom, couleur: m.couleur, modèle: m.id, ...(m.oral ? { oral: true } : {}) })]
+      const rectos = new Set(d.cartes.filter(c => c.paquetId === paquet.id).map(c => c.recto))
+      const nouvelles = m.cartes.filter(([r]) => !rectos.has(r)).map(([recto, verso]) => ({ id: uid(), paquetId: paquet.id, recto, verso, niveau: 0, prochaineRevision: auj }))
+      return { ...d, paquets, cartes: [...d.cartes, ...nouvelles] }
+    })
+  }
+  const erreursEnRévision = ids => {
+    const auj = aujourdhuiISO()
+    setData(d => ({ ...d, cartes: d.cartes.map(c => (ids.includes(c.id) ? { ...c, niveau: 0, prochaineRevision: auj, fautesConsécutives: (c.fautesConsécutives || 0) + 1 } : c)) }))
+  }
+
   const cartesDues = paquetId => {
     const auj = aujourdhuiISO()
     return data.cartes.filter(c => (!paquetId || c.paquetId === paquetId) && (!c.prochaineRevision || c.prochaineRevision <= auj))
@@ -515,12 +537,17 @@ export default function Memoriser() {
       ...d,
       cartes: d.cartes.map(c => {
         if (c.id !== carteId) return c
+        // « Hésité » : même niveau, mais retour deux fois plus tôt.
+        if (su === 'hésité') {
+          const niveau = Math.max(1, c.niveau || 0)
+          return { ...c, niveau, prochaineRevision: dateDans(Math.max(1, Math.round(INTERVALLES[niveau] / 2))), fautesConsécutives: 0 }
+        }
         const niveau = su ? Math.min((c.niveau || 0) + 1, INTERVALLES.length - 1) : 0
         const fautesConsécutives = su ? 0 : (c.fautesConsécutives || 0) + 1
         return { ...c, niveau, prochaineRevision: dateDans(INTERVALLES[niveau]), fautesConsécutives }
       }),
     }))
-    if (su) setSues(s => s + 1)
+    if (su === true) setSues(s => s + 1)
     setEstRetournée(false)
     setIndexRévision(indexSuivant)
     if (lectureAuto && indexSuivant < fileRévision.length) {
@@ -757,6 +784,18 @@ export default function Memoriser() {
                   display: 'flex', alignItems: 'center', gap: '6px',
                 }}><Icon nom="repeter" taille={14} /> Réviser tout</button>
               )}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                <button onClick={() => setOutilMémo({ type: 'prêts' })} style={{
+                  background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
+                  borderRadius: '8px', padding: '9px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                }}>📚 Paquets prêts</button>
+                {data.cartes.length >= 2 && (
+                  <button onClick={() => setOutilMémo({ type: 'examen' })} style={{
+                    background: T.surface2, color: T.text, border: `1px solid ${T.border}`, fontWeight: 600,
+                    borderRadius: '8px', padding: '9px 14px', fontSize: '13px', cursor: 'pointer', fontFamily: grotesk,
+                  }}>📝 Examen blanc</button>
+                )}
+              </div>
             </div>
 
             {pointsFaibles.length > 0 && (
@@ -872,6 +911,18 @@ export default function Memoriser() {
                             border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
                             fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
                           }}>🎙️ Entretien</button>
+                          <button onClick={() => setOutilMémo({ type: 'oral', paquetId: paquet.id })} title="Un sujet au hasard, parler 1 à 3 minutes, bilan" style={{
+                            display: 'flex', alignItems: 'center', gap: '5px', background: paquet.oral ? T.accentSoft : T.surface2, color: paquet.oral ? T.accent : T.text,
+                            border: `1px solid ${paquet.oral ? T.accent + '55' : T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                            fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                          }}>🗣️ Oral chrono</button>
+                          {cartesPaquet.length >= 2 && (
+                            <button onClick={() => setOutilMémo({ type: 'examen', préchoix: [paquet.id] })} style={{
+                              display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
+                              border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
+                              fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                            }}>📝 Examen blanc</button>
+                          )}
                           <button onClick={() => setPdfPaquet(paquet.id)} style={{
                             display: 'flex', alignItems: 'center', gap: '5px', background: T.surface2, color: T.text,
                             border: `1px solid ${T.border}`, borderRadius: '20px', padding: '5px 12px', fontSize: '11.5px',
@@ -1404,11 +1455,15 @@ export default function Memoriser() {
                     <button onClick={() => répondre(false)} style={{
                       flex: 1, background: T.dangerSoft, color: T.danger, border: `1px solid ${T.danger}55`,
                       borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
-                    }}>Je ne savais pas</button>
+                    }}>Je ne savais pas<span style={{ display: 'block', fontSize: '10.5px', fontWeight: 400, opacity: 0.8 }}>aujourd'hui</span></button>
+                    <button onClick={() => répondre('hésité')} title="Su, mais avec hésitation : revient plus tôt" style={{
+                      flex: 1, background: '#f0a83922', color: '#b07400', border: '1px solid #f0a83988',
+                      borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
+                    }}>J'ai hésité<span style={{ display: 'block', fontSize: '10.5px', fontWeight: 400, opacity: 0.8 }}>{(() => { const n = Math.max(1, carteActuelle?.niveau || 0); const j = Math.max(1, Math.round(INTERVALLES[n] / 2)); return `dans ${j} j` })()}</span></button>
                     <button onClick={() => répondre(true)} style={{
                       flex: 1, background: T.accentSoft, color: T.accent, border: `1px solid ${T.accent}55`,
                       borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: grotesk,
-                    }}>Je savais</button>
+                    }}>Je savais<span style={{ display: 'block', fontSize: '10.5px', fontWeight: 400, opacity: 0.8 }}>{`dans ${INTERVALLES[Math.min((carteActuelle?.niveau || 0) + 1, INTERVALLES.length - 1)]} j`}</span></button>
                   </div>
                 )}
               </>
@@ -1416,6 +1471,15 @@ export default function Memoriser() {
           </div>
         )}
       </div>
+      {outilMémo?.type === 'prêts' && <PaquetsPrêts T={T} data={data} onAjouter={ajouterPaquetPrêt} onFermer={() => setOutilMémo(null)} />}
+      {outilMémo?.type === 'examen' && (
+        <ExamenBlanc T={T} data={data} préchoix={outilMémo.préchoix} onFermer={() => setOutilMémo(null)}
+          onErreursEnRévision={erreursEnRévision}
+          onTerminer={r => setData(d => ({ ...d, examens: [...(d.examens || []), r].slice(-40) }))} />
+      )}
+      {outilMémo?.type === 'oral' && data.cartes.some(c => c.paquetId === outilMémo.paquetId) && (
+        <OralChrono T={T} cartes={data.cartes.filter(c => c.paquetId === outilMémo.paquetId)} titre={data.paquets.find(p => p.id === outilMémo.paquetId)?.nom || ''} onFermer={() => setOutilMémo(null)} />
+      )}
       {découpeCarteId && data.cartes.find(c => c.id === découpeCarteId) && (
         <DecoupeCarte
           carte={data.cartes.find(c => c.id === découpeCarteId)}

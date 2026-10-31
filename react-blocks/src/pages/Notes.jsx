@@ -11,6 +11,7 @@ import Icon from '../components/Icon'
 import { BoutonIcone, Repli } from '../components/UI'
 import { T, grotesk, serif, PALETTE, useTheme, useThemeMode } from '../lib/theme'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
+import BlocCode from '../components/BlocCode'
 
 // Espaces de tâches auxquels une note peut être liée (filtrés par foyer).
 const ESPACES_TÂCHES = Object.values(espacesPourTousLesFoyers((foyer, type, id) => ({
@@ -28,6 +29,10 @@ const ESPACES_NOTES = espacesPourTousLesFoyers((foyer, type, id) => ({
   données: DONNÉES_NOTES[id],
 }))
 
+const t = contenu => ({ ...nouveauBloc('texte'), contenu })
+const tâche = texte => ({ ...nouveauBloc('tache'), texte })
+const code = (texte, langage = 'bash') => ({ ...nouveauBloc('code'), texte, langage })
+
 const MODÈLES = [
   {
     nom: 'Courses', titre: 'Courses',
@@ -35,15 +40,102 @@ const MODÈLES = [
   },
   {
     nom: 'Réunion', titre: 'Réunion',
-    blocs: () => [
-      { ...nouveauBloc('texte'), contenu: 'Ordre du jour : ' },
-      { ...nouveauBloc('texte'), contenu: 'Décisions : ' },
-      nouveauBloc('tache'),
-    ],
+    blocs: () => [t('Ordre du jour : '), t('Décisions : '), nouveauBloc('tache')],
   },
   {
     nom: 'Idée', titre: 'Idée',
-    blocs: () => [{ ...nouveauBloc('texte'), contenu: '' }],
+    blocs: () => [t('')],
+  },
+  {
+    nom: '🧪 Fiche de labo', titre: 'Labo : ', groupe: 'devops',
+    blocs: () => [
+      t('**Objectif :** '),
+      t('**Étapes :**\n1. \n2. \n3. '),
+      code('# commandes utilisées\n'),
+      t('**Erreurs rencontrées :** '),
+      t('**Solution :** '),
+      t('**Ce que j\'ai appris** (une ligne « question :: réponse » = une carte avec 🃏) :\n'),
+    ],
+  },
+  {
+    nom: '🚨 Runbook', titre: 'Runbook : ', groupe: 'devops',
+    blocs: () => [
+      t('**Symptôme :** \n**Impact :** \n**Gravité :** '),
+      tâche('Vérifier l\'état du service'),
+      code('# commande de diagnostic\n'),
+      tâche('Corriger'),
+      tâche('Vérifier que tout est revenu à la normale'),
+      t('**Escalade :** qui prévenir, et quand'),
+    ],
+  },
+  {
+    nom: '📌 Aide-mémoire', titre: 'Aide-mémoire : ', groupe: 'devops',
+    blocs: () => [
+      t('**Outil :** \n**Doc :** '),
+      code('# commande — ce qu\'elle fait\n'),
+      code('# extrait de configuration\n', 'yaml'),
+    ],
+  },
+  {
+    nom: '🔥 API en 500', titre: 'Runbook : API en erreur 500', groupe: 'runbook',
+    blocs: () => [
+      t('**Symptôme :** les appels à l\'API renvoient 500.\n**Impact :** utilisateurs bloqués.'),
+      tâche('Regarder les logs de l\'application'),
+      code('kubectl logs deploy/<api> --since=15m | grep -i error'),
+      tâche('Vérifier un déploiement récent (et revenir en arrière si besoin)'),
+      code('kubectl rollout history deployment/<api>\nkubectl rollout undo deployment/<api>'),
+      tâche('Vérifier la base de données et les dépendances (connexions, temps de réponse)'),
+      tâche('Vérifier CPU / mémoire des pods'),
+      code('kubectl top pods -l app=<api>'),
+      tâche('Confirmer le retour à la normale (taux d\'erreur, tableau de bord)'),
+      t('**Après :** écrire le post-mortem.'),
+    ],
+  },
+  {
+    nom: '💾 Disque plein', titre: 'Runbook : disque plein', groupe: 'runbook',
+    blocs: () => [
+      t('**Symptôme :** « No space left on device ».'),
+      tâche('Voir quel disque est plein'),
+      code('df -h'),
+      tâche('Trouver les dossiers les plus lourds'),
+      code('sudo du -xh / --max-depth=2 2>/dev/null | sort -h | tail -20'),
+      tâche('Nettoyer les logs anciens'),
+      code('sudo journalctl --vacuum-time=7d'),
+      tâche('Nettoyer Docker si présent'),
+      code('docker system df\ndocker system prune'),
+      tâche('Vérifier qu\'un fichier supprimé n\'est plus tenu ouvert'),
+      code('sudo lsof +L1'),
+      t('**Prévention :** rotation des logs (logrotate), alerte à 80 %.'),
+    ],
+  },
+  {
+    nom: '🔐 Certificat expiré', titre: 'Runbook : certificat expiré', groupe: 'runbook',
+    blocs: () => [
+      t('**Symptôme :** erreur TLS dans le navigateur ou les appels (« certificate has expired »).'),
+      tâche('Vérifier les dates du certificat servi'),
+      code('echo | openssl s_client -connect <domaine>:443 -servername <domaine> 2>/dev/null | openssl x509 -noout -dates -subject'),
+      tâche('Renouveler (cert-manager, Let\'s Encrypt ou autorité interne)'),
+      code('kubectl get certificate -A\nkubectl describe certificate <nom> -n <ns>'),
+      tâche('Recharger le serveur ou l\'ingress qui sert le certificat'),
+      tâche('Revérifier avec openssl'),
+      t('**Prévention :** alerte 30 jours avant l\'expiration.'),
+    ],
+  },
+  {
+    nom: '☸️ CrashLoopBackOff', titre: 'Runbook : pod en CrashLoopBackOff', groupe: 'runbook',
+    blocs: () => [
+      t('**Symptôme :** le pod redémarre en boucle.'),
+      tâche('Lire les événements du pod (OOMKilled ? probe ? image ?)'),
+      code('kubectl describe pod <pod> -n <ns>'),
+      tâche('Lire les logs du conteneur précédent'),
+      code('kubectl logs <pod> -n <ns> --previous'),
+      tâche('Vérifier variables, secrets et ConfigMaps'),
+      code('kubectl get pod <pod> -n <ns> -o yaml | grep -A20 env'),
+      tâche('Si OOMKilled : augmenter la limite mémoire'),
+      tâche('Si la probe échoue : vérifier le chemin, le port et initialDelaySeconds'),
+      tâche('Corriger, redéployer, vérifier'),
+      code('kubectl rollout status deployment/<nom> -n <ns>'),
+    ],
   },
 ]
 
@@ -90,13 +182,41 @@ const TYPES_BLOC = [
   { type: 'texte', icon: 'texte', label: 'Texte' },
   { type: 'tache', icon: 'checklist', label: 'Tâche' },
   { type: 'choix', icon: 'radio', label: 'Choix' },
+  { type: 'code', icon: 'code', label: 'Code' },
 ]
 
 function nouveauBloc(type) {
   const id = uid()
   if (type === 'texte') return { id, type, contenu: '' }
   if (type === 'tache') return { id, type, texte: '', fait: false }
+  if (type === 'code') return { id, type, texte: '', langage: 'bash' }
   return { id, type, question: '', options: [{ id: uid(), texte: '' }], sélection: null }
+}
+
+const LANGAGES_NOTE = ['bash', 'yaml', 'json', 'dockerfile', 'hcl', 'python', 'javascript', 'java', 'sql', 'groovy']
+// Bloc de code d'une note : affiché coloré avec « Copier » ; « Modifier »
+// ouvre la saisie (directement si le bloc est vide).
+function BlocCodeNote({ T, bloc, onChange, onSupprimer }) {
+  const [édition, setÉdition] = useState(() => !(bloc.texte || '').trim() || /^#[^\n]*\n?$/.test(bloc.texte || ''))
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '4px' }}>
+        <select value={bloc.langage || 'bash'} onChange={e => onChange({ langage: e.target.value })} aria-label="Langage" style={{ fontSize: '11.5px', background: T.surface2, color: T.text, border: `1px solid ${T.border}`, borderRadius: '6px', padding: '3px 6px' }}>
+          {LANGAGES_NOTE.map(l => <option key={l} value={l}>{l}</option>)}
+        </select>
+        <span style={{ flex: 1 }} />
+        <button onClick={() => setÉdition(e => !e)} style={{ fontSize: '11.5px', color: T.accent, background: 'none', border: 'none', cursor: 'pointer', fontFamily: grotesk, fontWeight: 600, minHeight: 28 }}>{édition ? '✓ Terminé' : '✎ Modifier'}</button>
+        <BoutonIcone icon="x" title="Retirer" taille={13} onClick={onSupprimer} />
+      </div>
+      {édition ? (
+        <textarea value={bloc.texte} onChange={e => onChange({ texte: e.target.value })} spellCheck={false} autoCapitalize="off" autoCorrect="off"
+          placeholder="kubectl get pods -A" rows={Math.max(3, (bloc.texte || '').split('\n').length + 1)}
+          style={{ width: '100%', boxSizing: 'border-box', background: '#0d0f14', color: '#e2e8f0', border: `1px solid ${T.border}`, borderRadius: '8px', padding: '8px 10px', fontSize: '12.5px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', resize: 'vertical' }} />
+      ) : (
+        <BlocCode code={bloc.texte || ''} langage={bloc.langage} numéros={false} />
+      )}
+    </div>
+  )
 }
 
 // Composant à part entière (jamais défini à l'intérieur de Notes) : un
@@ -192,6 +312,9 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
         <BoutonIcone icon="lien" title="Lier une tâche" couleur={note.carteLiée ? T.accent : T.textMuted} taille={14} onClick={() => setLienOuvertPour(p => p === note.id ? null : note.id)} />
         <BoutonIcone icon="dupliquer" title="Dupliquer" taille={14} onClick={() => dupliquerNote(note.id)} />
         <BoutonIcone icon="cartes" title="Créer des cartes Mémoriser" taille={14} onClick={() => setNoteVersCartes(note.id)} />
+        {note.blocs.some(b => b.type === 'tache' && b.fait) && (
+          <BoutonIcone icon="repeter" title="Tout décocher (réutiliser la checklist)" taille={14} onClick={() => note.blocs.forEach(b => { if (b.type === 'tache' && b.fait) majBloc(note.id, b.id, { fait: false }) })} />
+        )}
         <BoutonIcone icon="archive" title="Archiver" couleur={T.danger} taille={14} onClick={() => { archiverNote(note.id); if (pleinÉcran) setNoteEnPleinÉcran(null) }} />
       </div>
 
@@ -284,6 +407,8 @@ function CarteNote({ note, index, pleinÉcran = false, ctx }) {
               )}
             </div>
           )
+
+          if (bloc.type === 'code') return <BlocCodeNote key={bloc.id} T={T} bloc={bloc} onChange={ch => majBloc(note.id, bloc.id, ch)} onSupprimer={() => supprimerBloc(note.id, bloc.id)} />
 
           if (bloc.type === 'tache') return (
             <div key={bloc.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -712,6 +837,7 @@ export default function Notes() {
     return note.blocs.some(b => {
       if (b.type === 'texte') return b.contenu.toLowerCase().includes(q)
       if (b.type === 'tache') return b.texte.toLowerCase().includes(q)
+      if (b.type === 'code') return (b.texte || '').toLowerCase().includes(q)
       if (b.type === 'choix') return b.question.toLowerCase().includes(q) || b.options.some(o => o.texte.toLowerCase().includes(q))
       return false
     })
@@ -875,14 +1001,19 @@ export default function Notes() {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
-          {MODÈLES.map(m => (
-            <button key={m.nom} onClick={() => ajouterNote(m)} style={{
-              flex: 1, fontSize: '11px', color: T.textMuted, background: T.surface, border: `1px solid ${T.border}`,
-              borderRadius: '7px', padding: '8px 4px', cursor: 'pointer', fontFamily: grotesk,
-            }}>{m.nom}</button>
-          ))}
-        </div>
+        {[[undefined, null], ['devops', 'Modèles DevOps'], ['runbook', 'Runbooks prêts']].map(([groupe, libellé]) => (
+          <div key={groupe || 'base'} style={{ marginBottom: groupe === 'runbook' ? '16px' : '8px' }}>
+            {libellé && <p style={{ fontSize: '10.5px', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px', fontFamily: grotesk }}>{libellé}</p>}
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {MODÈLES.filter(m => m.groupe === groupe).map(m => (
+                <button key={m.nom} onClick={() => ajouterNote(m)} style={{
+                  flex: '1 1 90px', fontSize: '11.5px', color: T.textMuted, background: T.surface, border: `1px solid ${T.border}`,
+                  borderRadius: '7px', padding: '8px 4px', cursor: 'pointer', fontFamily: grotesk, minHeight: 34,
+                }}>{m.nom}</button>
+              ))}
+            </div>
+          </div>
+        ))}
 
         <div style={{ marginBottom: '22px' }}>
           <input

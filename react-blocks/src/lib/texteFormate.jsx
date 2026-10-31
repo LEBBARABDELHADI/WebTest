@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import BlocCode from '../components/BlocCode'
 
 // Analyse une chaîne avec mise en forme intégrée (**gras**, et
 // {{#RRGGBB|couleur}} pour une couleur), récursivement pour que les deux
@@ -28,22 +29,54 @@ export function analyserTexte(texte, style = {}) {
       ...analyserTexte(après, style),
     ]
   }
+  // `commande` : code en ligne (police à chasse fixe).
+  const mCode = !style.code && texte.match(/`([^`\n]+)`/)
+  if (mCode) {
+    return [
+      ...analyserTexte(texte.slice(0, mCode.index), style),
+      { texte: mCode[1], ...style, code: true },
+      ...analyserTexte(texte.slice(mCode.index + mCode[0].length), style),
+    ]
+  }
   return [{ texte, ...style }]
 }
 
-// Rendu d'un recto/verso avec sa mise en forme.
+// Découpe ```langage … ``` (blocs de code) du reste du texte.
+const FENCE = /```([\w+#.-]*)[ \t]*\n?([\s\S]*?)\n?```/g
+export function morceauxCode(texte) {
+  const morceaux = []
+  let dernier = 0
+  for (const m of (texte || '').matchAll(FENCE)) {
+    if (m.index > dernier) morceaux.push({ texte: texte.slice(dernier, m.index) })
+    morceaux.push({ code: m[2], langage: m[1] || '' })
+    dernier = m.index + m[0].length
+  }
+  if (dernier < (texte || '').length) morceaux.push({ texte: texte.slice(dernier) })
+  return morceaux
+}
+
+const POLICE_CODE = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+function Segments({ texte, couleurDéfaut }) {
+  return analyserTexte(texte || '').map((seg, i) => (seg.code
+    ? <code key={i} style={{ fontFamily: POLICE_CODE, fontSize: '0.88em', background: 'rgba(127,127,127,.16)', padding: '1px 5px', borderRadius: '5px', color: seg.couleur || couleurDéfaut, fontWeight: seg.gras ? 700 : 'inherit', wordBreak: 'break-word' }}>{seg.texte}</code>
+    : <span key={i} style={{ color: seg.couleur || couleurDéfaut, fontWeight: seg.gras ? 700 : 'inherit' }}>{seg.texte}</span>))
+}
+
+// Rendu d'un recto/verso avec sa mise en forme. Un bloc ```bash … ``` est
+// affiché comme du code coloré, avec un bouton Copier (le toucher ne
+// retourne pas la carte).
 export function TexteFormaté({ texte, couleurDéfaut }) {
-  return analyserTexte(texte || '').map((seg, i) => (
-    <span key={i} style={{ color: seg.couleur || couleurDéfaut, fontWeight: seg.gras ? 700 : 'inherit' }}>
-      {seg.texte}
-    </span>
-  ))
+  const morceaux = morceauxCode(texte)
+  if (!morceaux.some(m => m.code !== undefined)) return <Segments texte={texte} couleurDéfaut={couleurDéfaut} />
+  return morceaux.map((m, i) => (m.code !== undefined
+    ? <span key={i} onClick={e => e.stopPropagation()} style={{ display: 'block', margin: '8px 0', textAlign: 'left', fontFamily: 'inherit', fontStyle: 'normal', fontSize: '14px' }}><BlocCode code={m.code} langage={m.langage} numéros={false} /></span>
+    : <Segments key={i} texte={m.texte.replace(/^\n|\n$/g, '')} couleurDéfaut={couleurDéfaut} />))
 }
 
 // Texte sans le balisage **gras**/{{#hex|couleur}}, pour la lecture audio
 // et les exports en texte brut.
 export function texteBrut(texte) {
-  return analyserTexte(texte || '').map(seg => seg.texte).join('')
+  return analyserTexte((texte || '').replace(FENCE, (m, l, code) => code)).map(seg => seg.texte).join('')
 }
 
 // Préférences de lecture, propres à l'appareil puisque les voix disponibles

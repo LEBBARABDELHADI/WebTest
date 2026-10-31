@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { grotesk } from '../lib/theme'
 import { FOYERS, espacesPourTousLesFoyers } from '../lib/foyers'
 import { useDonnéesSynchronisées } from '../lib/synchro'
@@ -207,7 +207,9 @@ export default function Tableau() {
   const espaceId = ESPACES[espaceParam] ? espaceParam : 'perso'
   const foyer = FOYERS[config.foyer]
   const { data, setData, token, statut, erreur, connecter, déconnecter } = useDonnéesSynchronisées(config, compléter)
-  const [tableauId, setTableauId] = useState(() => { try { return localStorage.getItem(`${config.stockage}:actif`) || '' } catch { return '' } })
+  // Lien depuis la recherche globale : ?tableau=…&el=… (élément à montrer).
+  const [paramètres, setParamètres] = useSearchParams()
+  const [tableauId, setTableauId] = useState(() => { try { return paramètres.get('tableau') || localStorage.getItem(`${config.stockage}:actif`) || '' } catch { return '' } })
   const tableau = data.tableaux.find(t => t.id === tableauId) || data.tableaux[0]
   const éléments = tableau.éléments
   const parId = useMemo(() => new Map(éléments.map(e => [e.id, e])), [éléments])
@@ -412,7 +414,8 @@ export default function Tableau() {
     if (ouvertRef.current === tableau.id || !zoneRef.current) return
     if (statut === 'chargement') return
     ouvertRef.current = tableau.id
-    ajusterVue(tableau.éléments)
+    const cible = tableau.éléments.find(e => e.id === paramètres.get('el'))
+    if (cible) { ajusterVue([cible]); setSélection([cible.id]); setParamètres({}, { replace: true }) } else ajusterVue(tableau.éléments)
   }, [tableau.id, statut]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Molette : défilement ; Ctrl/⌘ + molette (ou pincement du pavé) : zoom.
@@ -897,6 +900,25 @@ export default function Tableau() {
   )
   // Texte avec puces (« - »), cases à cocher (« [ ] » / « [x] ») et **gras**.
   const enLigne = t => morceauxGras(t).map((m, k) => (m.gras ? <strong key={k}>{m.t}</strong> : <span key={k}>{m.t}</span>))
+  // Progression d'un cadre : cases [x] des éléments posés dedans, et
+  // tâches du Programme liées (faites ou non).
+  const progression = useMemo(() => {
+    const m = new Map()
+    const blocsPosés = éléments.filter(e => e.type !== 'cadre' && e.type !== 'ligne' && e.type !== 'trait')
+    éléments.filter(e => e.type === 'cadre').forEach(c => {
+      let faits = 0, total = 0
+      blocsPosés.forEach(e => {
+        const b = boîte(e), cx = b.x + b.l / 2, cy = b.y + b.h / 2
+        if (cx < c.x || cx > c.x + c.l || cy < c.y || cy > c.y + c.h) return
+        analyserLignes(e.texte).forEach(l => { if (l.type === 'case') { total += 1; if (l.fait) faits += 1 } })
+        const état = étatTâche(e)
+        if (état === 'faite' || état === 'à faire') { total += 1; if (état === 'faite') faits += 1 }
+      })
+      if (total) m.set(c.id, { faits, total })
+    })
+    return m
+  }, [éléments, programme]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const contenuTexte = el => {
     const lignes = analyserLignes(el.texte)
     const riche = lignes.some(l => l.type !== 'texte')
@@ -952,10 +974,25 @@ export default function Tableau() {
         </div>
       )
     } else if (el.type === 'cadre') {
+      // Titre à taille fixe à l'écran, mais jamais plus large que le cadre
+      // (sinon les titres de cadres voisins se chevauchent en vue éloignée).
+      const u = Math.min(1 / z, el.l / ((el.texte || 'Cadre').length * 7.5 + (progression.get(el.id) ? 150 : 0)))
       corps = (
         <div style={{ ...commun, background: fondNeutre(el.couleur), border: `${1.5 / z}px solid ${choisi ? UI.accent : sombre ? '#4a4d55' : '#c9c9c9'}`, borderRadius: 4 }}>
-          <div style={{ position: 'absolute', left: 0, bottom: '100%', marginBottom: 6 / z, fontSize: 14 / z, color: UI.doux, fontFamily: grotesk, whiteSpace: 'nowrap', minWidth: 120 / z, height: 22 / z }}>
+          <div style={{ position: 'absolute', left: 0, bottom: '100%', marginBottom: 6 * u, fontSize: 14 * u, color: UI.doux, fontFamily: grotesk, whiteSpace: 'nowrap', minWidth: Math.min(120 / z, el.l), height: 22 * u }}>
             {édition === el.id ? champTexte(el) : (el.texte || 'Cadre')}
+            {édition !== el.id && progression.get(el.id) && (() => {
+              const { faits, total } = progression.get(el.id)
+              const p = Math.round((faits / total) * 100)
+              return (
+                <span title={`${faits} sur ${total} fait(s)`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 * u, marginLeft: 10 * u, verticalAlign: 'middle' }}>
+                  <span style={{ display: 'inline-block', width: 90 * u, height: 8 * u, borderRadius: 4 * u, background: sombre ? '#3a3d44' : '#e4e4e0', overflow: 'hidden', verticalAlign: 'middle' }}>
+                    <span style={{ display: 'block', height: '100%', width: `${p}%`, background: p === 100 ? '#2e9e6b' : UI.accent }} />
+                  </span>
+                  <span style={{ fontWeight: 700, color: p === 100 ? '#2e9e6b' : UI.doux }}>{p === 100 ? '✓ ' : ''}{faits}/{total}</span>
+                </span>
+              )
+            })()}
           </div>
         </div>
       )
@@ -1141,6 +1178,7 @@ export default function Tableau() {
           <option value="">Langage…</option>{LANGAGES.map(l => <option key={l} value={l}>{l}</option>)}
         </select>
       )}
+      {seul?.type === 'code' && btn('📋 Copier', () => { navigator.clipboard?.writeText(seul.texte || '').then(() => afficher('Code copié'), () => afficher('Copie impossible')) }, 'Copier le code')}
       {seul?.type === 'grille' && btn('✎ Modifier', () => setÉdition(seul.id), 'Modifier le tableau (une ligne par rangée, « | » entre les colonnes)')}
       {seul && ['note', 'forme', 'texte'].includes(seul.type) && btn('🧠 Carte', () => setDialogue({ type: 'carte', id: seul.id }), 'Créer une carte Mémoriser')}
       {seul && seul.type !== 'trait' && btn(seul.lien ? '🔗✓' : '🔗', () => {
@@ -1311,7 +1349,7 @@ export default function Tableau() {
       </div>
 
       {menu && (
-        <div onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'calc(max(12px, env(safe-area-inset-top)) + 62px)', left: 12, width: 'min(320px, calc(100% - 24px))', zIndex: 30, padding: 8, ...pill, borderRadius: 16 }}>
+        <div onPointerDown={e => e.stopPropagation()} onWheel={e => e.stopPropagation()} style={{ position: 'absolute', top: 'calc(max(12px, env(safe-area-inset-top)) + 62px)', left: 12, width: 'min(320px, calc(100% - 24px))', maxHeight: 'calc(100dvh - max(12px, env(safe-area-inset-top)) - 80px)', overflowY: 'auto', overscrollBehavior: 'contain', touchAction: 'pan-y', zIndex: 30, padding: 8, ...pill, borderRadius: 16 }}>
           {cadres.length > 0 && (
             <div style={{ borderBottom: `1px solid ${UI.bord}`, marginBottom: 6, paddingBottom: 6 }}>
               <p style={{ margin: '2px 8px 4px', fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: UI.doux }}>Cadres</p>

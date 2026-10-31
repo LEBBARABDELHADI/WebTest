@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { grotesk } from '../lib/theme'
 import { déverrouillerAudio, bip } from '../lib/texteFormate'
 import { useÉcranAllumé } from '../lib/ecoute'
+import { lireLocal, ajouterTempsHabitude } from '../lib/donneesFoyer'
+import { FOYERS } from '../lib/foyers'
+import { aujourdhuiLocal } from '../lib/habitudes'
 
 // Page minuteur, toujours en noir avec des chiffres blancs « à palettes ».
 // Les temps sont calculés à partir d'horodatages (heure de fin, heure de
@@ -40,6 +43,47 @@ const ÉTAT_INITIAL = {
   début: null, // chrono en cours : heure de (re)départ
   accumulé: 0, // chrono : temps déjà écoulé avant la pause
   tours: [],
+}
+
+// Fin d'une séance : ajouter ce temps à une habitude (« 1 lab par jour »…),
+// qui est aussi cochée pour aujourd'hui.
+function TempsVersHabitude({ minutes }) {
+  const [message, setMessage] = useState('')
+  const [envoi, setEnvoi] = useState(false)
+  const plusieursFoyers = Object.values(FOYERS).filter(f => ['perso', 'pro'].some(t => (lireLocal('habitudes', `${f.préfixe}${t}`).habitudes || []).length)).length > 1
+  const liste = Object.values(FOYERS).flatMap(f => ['perso', 'pro'].flatMap(type => {
+    const espace = `${f.préfixe}${type}`
+    return (lireLocal('habitudes', espace).habitudes || []).filter(h => !h.archivée)
+      .map(h => ({ espace, h, où: `${plusieursFoyers ? `${f.nom} · ` : ''}${type === 'pro' ? 'Pro' : 'Perso'}` }))
+  }))
+  const ajouter = async ({ espace, h }) => {
+    setEnvoi(true)
+    try {
+      const { enLigne } = await ajouterTempsHabitude({ espace, habitudeId: h.id, minutes, jour: aujourdhuiLocal() })
+      setMessage(`✓ ${minutes} min ajoutées à ${h.emoji} ${h.nom}${enLigne ? '' : ' (sur cet appareil)'}`)
+    } catch (err) { setMessage(`Impossible d'enregistrer : ${err.message}`) }
+    setEnvoi(false)
+  }
+  return (
+    <div style={{ width: '100%', maxWidth: '460px', background: CARTE, borderRadius: '16px', padding: '14px', boxSizing: 'border-box' }}>
+      {message ? <p style={{ margin: 0, fontFamily: grotesk, fontSize: '15px', color: message.startsWith('✓') ? '#30d158' : ROUGE, textAlign: 'center' }}>{message}</p> : (
+        <>
+          <p style={{ margin: '0 0 10px', fontFamily: grotesk, fontSize: '14px', color: BLANC, textAlign: 'center' }}>Compter ces <strong>{minutes} min</strong> pour une habitude ?</p>
+          {liste.length === 0 ? (
+            <p style={{ margin: 0, fontSize: '13px', color: GRIS, textAlign: 'center', lineHeight: 1.5 }}>Crée une habitude (par exemple 🧪 1 lab par jour) dans Habitudes : tu pourras y ajouter ce temps.</p>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+              {liste.map(x => (
+                <button key={`${x.espace}-${x.h.id}`} disabled={envoi} onClick={() => ajouter(x)} style={{ minHeight: 40, padding: '0 14px', borderRadius: '20px', border: `1px solid ${x.h.couleur || GRIS}`, background: 'transparent', color: BLANC, fontFamily: grotesk, fontSize: '14px', cursor: 'pointer' }}>
+                  {x.h.emoji} {x.h.nom} <span style={{ color: GRIS, fontSize: '11px' }}>{x.où}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
 }
 
 function charger() {
@@ -471,6 +515,9 @@ export default function Timer() {
             </>
           )}
         </div>
+
+        {t.mode === 'rebours' && t.état === 'fini' && t.durée >= 60e3 && <TempsVersHabitude key={`r-${t.fin}`} minutes={Math.round(t.durée / 60e3)} />}
+        {t.mode === 'chrono' && t.état === 'pause' && t.accumulé >= 60e3 && <TempsVersHabitude key={`c-${t.accumulé}`} minutes={Math.round(t.accumulé / 60e3)} />}
 
         {t.mode === 'chrono' && t.tours.length > 0 && (
           <ol style={{ listStyle: 'none', margin: 0, padding: 0, width: '100%', maxWidth: '360px', fontFamily: grotesk, fontVariantNumeric: 'tabular-nums' }}>

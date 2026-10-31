@@ -143,6 +143,97 @@ export const MODÈLES_TABLEAU = [
     id: 'incident', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '🚨', nom: 'Fiche incident', description: 'Symptôme, cause, impact, correctif, prévention',
     créer: () => colonnes('Fiche incident', [['🩺 Symptôme', ['Ce qu\'on observe'], '#fde2e1'], ['🔍 Cause', ['Cause racine'], '#fff8e1'], ['💥 Impact', ['Qui / combien de temps'], '#f3e5f5'], ['🛠️ Correctif', ['Ce qui a été fait'], '#e3f2fd'], ['🛡️ Prévention', ['Pour que ça ne revienne pas'], '#e8f5e9']], { l: 280, h: 420, couleursNotes: [R, O, M, B, V] }),
   },
+  {
+    id: 'k8s', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '☸️', nom: 'Cluster Kubernetes', description: 'Control plane, Ingress → Service → Pods, config, base',
+    créer: () => {
+      const [f, els] = fabrique()
+      f.texte(0, -190, 'Cluster Kubernetes', 34)
+      f.cadre(-40, -40, 1300, 640, '☸️ Cluster', '#fafafa')
+      const cp = f.forme(0, 0, 320, 120, 'rect', '🧠 Control plane\nAPI server · etcd · scheduler · controllers', '#e3f2fd', true)
+      const dev = f.forme(-330, 10, 180, 100, 'rond', '👤 kubectl', '#eeeeee')
+      f.lier(dev, cp, 'API')
+      const web = f.forme(-330, 300, 180, 100, 'rond', '🌐 Utilisateurs', '#eeeeee')
+      const ing = f.forme(0, 300, 200, 100, 'rect', '🚪 Ingress\n(HTTPS, routes)', '#fff8e1')
+      const svc = f.forme(270, 300, 200, 100, 'rect', '⚙️ Service\nClusterIP', '#f3e5f5')
+      const dep = f.cadre(540, 220, 400, 250, 'Deployment web · 3 réplicas', '#e8f5e9')
+      const pods = [0, 1, 2].map(i => f.forme(560 + i * 125, 300, 110, 90, 'rect', `📦 Pod ${i + 1}`, '#ffffff'))
+      const db = f.forme(1010, 290, 210, 120, 'cylindre', '🗄️ PostgreSQL\nStatefulSet + PVC', '#fde2e1')
+      const cfg = f.note(560, 490, '🔧 ConfigMap + 🔑 Secret\n(variables, mots de passe)', O, 380, 80)
+      f.lier(web, ing, 'HTTPS'); f.lier(ing, svc); pods.forEach(p => f.lier(svc, p))
+      f.lier(dep, db, 'SQL'); f.lier(cfg, dep, '', 'fin', 'tirets'); f.lier(cp, dep, 'planifie', 'fin', 'tirets')
+      f.note(0, 450, 'HPA : ajoute des pods quand le CPU monte', V, 300, 90)
+      return els
+    },
+  },
+  {
+    id: 'gitops', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '🔄', nom: 'Flux GitOps', description: 'Code → CI → registre ; dépôt de config ← Argo CD → cluster',
+    créer: () => {
+      const [f, els] = fabrique()
+      f.texte(0, -190, 'Flux GitOps', 34)
+      const dev = f.forme(0, 0, 180, 100, 'rond', '👩‍💻 Développeur', '#eeeeee')
+      const code = f.forme(250, 0, 200, 100, 'rect', '🔀 Dépôt de code', B)
+      const ci = f.forme(520, 0, 220, 100, 'rect', '🚀 CI\nbuild · tests · image', O)
+      const reg = f.forme(810, 0, 210, 100, 'cylindre', '📦 Registre d\'images', '#eeeeee')
+      const conf = f.forme(520, 230, 220, 110, 'rect', '🗂️ Dépôt de config\nmanifests / Helm', J)
+      f.cadre(780, 190, 480, 300, '☸️ Cluster', '#fafafa')
+      const argo = f.forme(810, 230, 200, 100, 'rect', '🔄 Argo CD / Flux', M, true)
+      const app = f.forme(1040, 370, 190, 90, 'rect', '⚙️ Application', V)
+      f.lier(dev, code, 'git push'); f.lier(code, ci, 'déclenche'); f.lier(ci, reg, 'push image'); f.lier(ci, conf, 'nouveau tag')
+      f.lier(argo, conf, 'surveille (pull)', 'fin', 'tirets'); f.lier(argo, app, 'synchronise'); f.lier(app, reg, 'pull image', 'fin', 'tirets')
+      f.note(0, 230, 'Git = source de vérité.\nLa CI n\'a pas d\'accès au cluster : c\'est lui qui tire les changements.', R, 380, 130)
+      return els
+    },
+  },
+  {
+    id: 'trois-tiers', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '🧱', nom: 'Architecture 3 tiers', description: 'Présentation · application · données',
+    créer: () => {
+      const [f, els] = fabrique()
+      f.texte(0, -190, 'Architecture 3 tiers', 34)
+      f.cadre(0, 0, 320, 460, '1 · Présentation', '#e3f2fd')
+      f.cadre(380, 0, 360, 460, '2 · Application', '#e8f5e9')
+      f.cadre(800, 0, 340, 460, '3 · Données', '#fde2e1')
+      const nav = f.forme(60, 40, 200, 90, 'rond', '👤 Navigateur / mobile', BL)
+      const cdn = f.forme(60, 190, 200, 90, 'rect', '🌐 CDN + fichiers statiques', BL)
+      const lb = f.forme(460, 40, 200, 90, 'rect', '⚖️ Load balancer', BL)
+      const a1 = f.forme(410, 200, 140, 90, 'rect', '⚙️ API 1', BL)
+      const a2 = f.forme(570, 200, 140, 90, 'rect', '⚙️ API 2', BL)
+      const cache = f.forme(860, 40, 220, 80, 'rect', '⚡ Cache (Redis)', BL)
+      const bdd = f.forme(860, 170, 220, 110, 'cylindre', '🗄️ Base principale', BL)
+      const rep = f.forme(860, 330, 220, 100, 'cylindre', '🗄️ Réplique (lecture)', BL)
+      f.lier(nav, cdn); f.lier(nav, lb, 'HTTPS'); f.lier(lb, a1); f.lier(lb, a2)
+      f.lier(a1, bdd); f.lier(a2, bdd); f.lier(a2, cache, '', 'fin', 'tirets'); f.lier(bdd, rep, 'réplication', 'fin', 'tirets')
+      f.note(410, 330, 'Sans état : on peut ajouter des API à volonté', V, 300, 100)
+      return els
+    },
+  },
+  {
+    id: 'parcours-devops', catégorie: 'Apprendre et mémoriser', emoji: '🗺️', nom: 'Parcours DevOps', description: '8 étapes avec cases à cocher et barre de progression',
+    créer: () => {
+      const [f, els] = fabrique()
+      f.texte(0, -190, 'Mon parcours DevOps', 34)
+      const étapes = [
+        ['1 · 🐧 Linux et réseau', ['Commandes de base et droits', 'Processus et systemd', 'Réseau : IP, DNS, ports', 'SSH et clés', 'Un script bash utile']],
+        ['2 · 🔀 Git', ['Branches et merge', 'Rebase et conflits', 'Pull requests et revue', 'Stratégie de branches']],
+        ['3 · 🐳 Docker', ['Images et conteneurs', 'Dockerfile multi-étapes', 'Volumes et réseaux', 'Docker Compose']],
+        ['4 · 🚀 CI/CD', ['Pipeline build + tests', 'Artefacts et registre', 'Déploiement automatique', 'Secrets dans la CI']],
+        ['5 · ☸️ Kubernetes', ['Pods, Deployments, Services', 'ConfigMaps et Secrets', 'Ingress', 'Probes et ressources', 'Helm']],
+        ['6 · 🏗️ Terraform', ['Providers et ressources', 'Variables et outputs', 'State distant', 'Modules']],
+        ['7 · 📊 Observabilité', ['Métriques (Prometheus)', 'Tableaux (Grafana)', 'Logs centralisés', 'Alertes']],
+        ['8 · ☁️ Cloud et sécurité', ['Réseau (VPC)', 'IAM, moindre privilège', 'Stockage objet', 'Certification visée']],
+      ]
+      let avant = null
+      étapes.forEach(([titre, points], i) => {
+        // En serpentin : la 2e rangée va de droite à gauche (5 sous 4).
+        const x = (i < 4 ? i : 7 - i) * 380, y = Math.floor(i / 4) * 400
+        const c = f.cadre(x, y, 330, 320, titre, BL)
+        f.note(x + 20, y + 20, points.map(p => `[ ] ${p}`).join('\n'), [B, O, V, M][i % 4], 290, 280)
+        if (avant) f.lier(avant, c)
+        avant = c
+      })
+      f.note(1540, 0, 'Coche les cases : la barre de chaque étape avance.\n\nChoisis une note puis « ✓ Tâche » pour l\'envoyer dans le Programme : quand la tâche est faite, elle compte aussi.', J, 260, 260)
+      return els
+    },
+  },
   // ---------- Apprendre ----------
   {
     id: 'naturalisation', catégorie: 'Apprendre et mémoriser', emoji: '🇫🇷', nom: 'Révision naturalisation', description: 'Valeurs, symboles, institutions, dates',

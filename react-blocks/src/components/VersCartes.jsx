@@ -32,7 +32,7 @@ export function proposerCartes(titre, blocs) {
         cartes.push({ recto: `${titre} — ${l[0]}`, verso: l.slice(1).map((v, j) => `${entête[j + 1] ? `**${entête[j + 1]}** : ` : ''}${v}`).join('\n') })
       })
     } else if (b.type === 'code') {
-      if (texte) cartes.push({ recto: `${titre}${b.langage ? ` (${b.langage})` : ''}`, verso: texte })
+      if (texte) cartes.push({ recto: `${titre}${b.langage ? ` (${b.langage})` : ''}`, verso: `\`\`\`${b.langage || ''}\n${texte}\n\`\`\`` })
     } else if (b.type === 'encadré') {
       if (texte) cartes.push({ recto: `${titre} — ${(VARIANTES[b.variante] || VARIANTES.astuce).nom} ?`, verso: texte })
     } else if (texte) {

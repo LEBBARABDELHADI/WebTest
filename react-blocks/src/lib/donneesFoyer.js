@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from './githubSync'
 import { normaliser } from './motsCles'
-import { texteBrut } from './texteFormate'
+import { texteBrut, morceauxCode } from './texteFormate'
 import { videsParEspace } from './donneesVides'
 
 export const OUTILS = ['taches', 'notes', 'memoriser', 'graph', 'habitudes']
@@ -22,7 +22,7 @@ export function lireLocal(outil, espace) {
     const brut = localStorage.getItem(clé(outil, espace))
     if (brut) return JSON.parse(brut)
   } catch { /* ignore */ }
-  return LIVRÉES[outil][espace] || {}
+  return (LIVRÉES[outil] || {})[espace] || {}
 }
 
 const espacesDu = foyer => ['perso', 'pro'].map(t => `${foyer.préfixe}${t}`)
@@ -77,6 +77,7 @@ function extrait(texte, q) {
 function texteBlocNote(b) {
   if (b.type === 'texte') return b.contenu || ''
   if (b.type === 'tache') return b.texte || ''
+  if (b.type === 'code') return b.texte || ''
   return [b.question, ...(b.options || []).map(o => o.texte)].filter(Boolean).join(' ')
 }
 function texteBlocSection(b) {
@@ -91,6 +92,9 @@ export function rechercherPartout(lire, foyer, requête) {
   if (q.length < 2) return []
   const résultats = []
   const ok = t => normaliser(t || '').includes(q)
+  // Code trouvé (pour le bouton Copier des résultats) : le premier bloc qui
+  // contient la recherche, sinon le premier bloc.
+  const codeDe = blocs => { const l = blocs.filter(Boolean); return l.find(ok) || l[0] }
   espacesDu(foyer).forEach(espace => {
     const type = espace.endsWith('pro') ? 'Pro' : 'Perso'
     const tâches = lire('taches', espace)
@@ -100,19 +104,21 @@ export function rechercherPartout(lire, foyer, requête) {
     })
     ;(lire('notes', espace).notes || []).forEach(n => {
       const corps = (n.blocs || []).map(texteBlocNote).join(' ')
-      if (ok(n.titre) || ok(corps)) résultats.push({ type: 'note', espace: type, titre: n.titre || 'Note', extrait: extrait(ok(corps) ? corps : n.titre, q), lien: `/notes/${espace}?note=${n.id}` })
+      const code = codeDe((n.blocs || []).filter(b => b.type === 'code').map(b => b.texte))
+      if (ok(n.titre) || ok(corps)) résultats.push({ type: 'note', espace: type, titre: n.titre || 'Note', extrait: extrait(ok(corps) ? corps : n.titre, q), lien: `/notes/${espace}?note=${n.id}`, ...(code ? { code } : {}) })
     })
     const mémo = lire('memoriser', espace)
     ;(mémo.cartes || []).forEach(c => {
       const recto = texteBrut(c.recto || '')
       const verso = texteBrut(c.verso || '')
-      if (ok(recto) || ok(verso)) résultats.push({ type: 'carte', espace: type, titre: recto.slice(0, 80), extrait: `${(mémo.paquets || []).find(p => p.id === c.paquetId)?.nom || ''} · ${extrait(verso, q)}`, lien: `/memoriser/${espace}?carte=${c.id}` })
+      const code = codeDe(morceauxCode(c.verso || '').filter(m => m.code !== undefined).map(m => m.code))
+      if (ok(recto) || ok(verso)) résultats.push({ type: 'carte', espace: type, titre: recto.slice(0, 80), extrait: `${(mémo.paquets || []).find(p => p.id === c.paquetId)?.nom || ''} · ${extrait(verso, q)}`, lien: `/memoriser/${espace}?carte=${c.id}`, ...(code ? { code } : {}) })
     })
     ;(lire('graph', espace).graphes || []).forEach(g => {
       if (ok(g.nom)) résultats.push({ type: 'graphe', espace: type, titre: g.nom, extrait: `${(g.noeuds || []).length} bulles`, lien: `/graph/${espace}?graphe=${g.id}` })
       ;(g.noeuds || []).forEach(n => {
         const texte = `${texteBrut(n.texte || '')} ${n.code || ''}`
-        if (ok(texte)) résultats.push({ type: 'bulle', espace: type, titre: texteBrut(n.texte || '').split('\n')[0], extrait: `Graph « ${g.nom} »`, lien: `/graph/${espace}?graphe=${g.id}&bulle=${n.id}` })
+        if (ok(texte)) résultats.push({ type: 'bulle', espace: type, titre: texteBrut(n.texte || '').split('\n')[0] || (n.code || '').split('\n')[0], extrait: `Graph « ${g.nom} »`, lien: `/graph/${espace}?graphe=${g.id}&bulle=${n.id}`, ...(n.code ? { code: n.code } : {}) })
       })
       ;(g.colonnes || []).forEach(col => (col.sousSections || []).forEach(ss => {
         if (ok(ss.titre)) résultats.push({ type: 'section', espace: type, titre: ss.titre, extrait: `${g.nom} · ${col.titre}`, lien: `/graph/${espace}?graphe=${g.id}&section=${ss.id}` })
@@ -122,8 +128,13 @@ export function rechercherPartout(lire, foyer, requête) {
         })
       }))
     })
+    // Graphe amélioré (tableau blanc)
+    ;(lireLocal('tableau', espace).tableaux || []).forEach(t => (t.éléments || []).forEach(e => {
+      if (!e.texte || e.type === 'ligne' || !ok(e.texte)) return
+      résultats.push({ type: 'tableau', espace: type, titre: e.texte.split('\n')[0].slice(0, 80), extrait: `Graphe amélioré « ${t.nom} »`, lien: `/tableau/${espace}?tableau=${t.id}&el=${e.id}`, ...(e.type === 'code' ? { code: e.texte } : {}) })
+    }))
   })
-  return résultats.slice(0, 60)
+  return résultats.slice(0, 80)
 }
 
 // ---------- Ajout rapide ----------
@@ -217,6 +228,29 @@ export async function créerTâche({ espace, texte, colonneId, échéance }) {
   try { localStorage.setItem(clé('taches', espace), JSON.stringify(écrit.données)) } catch { /* ignore */ }
   return { carte, colonne, données: écrit.données }
 }
+// Ajoute du temps (minutes) à une habitude pour un jour, et la coche.
+// Copie de l'appareil mise à jour tout de suite ; GitHub si un token est
+// connecté (sinon la page Habitudes enverra le changement à sa prochaine
+// ouverture).
+export async function ajouterTempsHabitude({ espace, habitudeId, minutes, jour }) {
+  const appliquer = d => {
+    const temps = { ...(d.temps || {}) }
+    temps[jour] = { ...(temps[jour] || {}), [habitudeId]: ((temps[jour] || {})[habitudeId] || 0) + minutes }
+    const coches = { ...(d.coches || {}) }
+    coches[jour] = { ...(coches[jour] || {}), [habitudeId]: true }
+    return { ...d, temps, coches }
+  }
+  const local = appliquer(lireLocal('habitudes', espace))
+  try { localStorage.setItem(clé('habitudes', espace), JSON.stringify(local)) } catch { /* ignore */ }
+  const token = localStorage.getItem(TOKEN_KEY) || ''
+  if (!token) return { enLigne: false }
+  const { data, sha } = await lireDepuisGitHub(token, chemin('habitudes', espace))
+  // La copie de l'appareil (qui peut contenir d'autres changements pas
+  // encore envoyés) n'est pas remplacée : la page Habitudes fusionnera.
+  await écrireVersGitHub(appliquer(data), token, sha, chemin('habitudes', espace), data)
+  return { enLigne: true }
+}
+
 // Données d'un outil d'un espace (GitHub, sinon la copie de l'appareil).
 export async function lireOutil(outil, espace) {
   const token = localStorage.getItem(TOKEN_KEY) || ''

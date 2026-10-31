@@ -23,6 +23,14 @@ const ESPACES = espacesPourTousLesFoyers((foyer, type, id) => ({
 const EMOJIS = ['💧', '🏃', '📚', '🧘', '🛏️', '🥗', '💪', '🧠', '✍️', '🚭', '🦷', '🌿', '🎸', '☀️', '📵', '🙏']
 const COULEURS = ['#f0a839', '#4a9d94', '#5b8dc9', '#e2574c', '#8b7ab8', '#d97aa6']
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
+// Idées d'habitudes d'apprentissage (ajout en un toucher).
+const IDÉES = [
+  { nom: '1 lab par jour', emoji: '🧪', couleur: '#5b8dc9' },
+  { nom: 'Réviser mes cartes', emoji: '🧠', couleur: '#8b7ab8' },
+  { nom: '20 min de cours', emoji: '📚', couleur: '#4a9d94' },
+  { nom: '5 min d\'oral en français', emoji: '🗣️', couleur: '#d97aa6' },
+]
+const durée = min => (min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ` ${String(min % 60).padStart(2, '0')}` : ''}` : `${min} min`)
 
 export default function Habitudes() {
   const { espace: espaceParam } = useParams()
@@ -100,6 +108,16 @@ export default function Habitudes() {
           }}>＋ Habitude</button>
         </div>
 
+        {IDÉES.some(i => !liste.some(h => h.nom === i.nom)) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginBottom: '14px' }}>
+            <span style={{ fontSize: '12px', color: T.textMuted, fontFamily: grotesk }}>Idées :</span>
+            {IDÉES.filter(i => !liste.some(h => h.nom === i.nom)).map(i => (
+              <button key={i.nom} onClick={() => setData(d => ({ ...d, habitudes: [...d.habitudes, { id: uid(), nom: i.nom, emoji: i.emoji, couleur: i.couleur, jours: [], créée: aujourdhuiLocal() }] }))}
+                style={{ minHeight: 34, padding: '0 12px', borderRadius: '17px', border: `1px dashed ${T.border}`, background: T.surface, color: T.text, fontSize: '12.5px', fontFamily: grotesk, cursor: 'pointer' }}>＋ {i.emoji} {i.nom}</button>
+            ))}
+          </div>
+        )}
+
         {formulaire && <FormulaireHabitude T={T} initial={formulaire} onValider={enregistrer} onAnnuler={() => setFormulaire(null)} />}
 
         {liste.length === 0 && !formulaire && (
@@ -110,7 +128,7 @@ export default function Habitudes() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {liste.map(h => (
-            <CarteHabitude key={h.id} T={T} h={h} coches={data.coches} auj={auj} cocher={cocher}
+            <CarteHabitude key={h.id} T={T} h={h} coches={data.coches} temps={data.temps} auj={auj} cocher={cocher}
               ouvrirAnnée={() => setAnnéeOuverte(a => (a === h.id ? null : h.id))} annéeOuverte={annéeOuverte === h.id}
               modifier={() => setFormulaire({ id: h.id, nom: h.nom, emoji: h.emoji, couleur: h.couleur, jours: h.jours?.length ? [...h.jours] : [...TOUS_LES_JOURS] })}
               supprimer={() => supprimer(h)} />
@@ -134,7 +152,7 @@ function Anneau({ T, valeur }) {
   )
 }
 
-function CarteHabitude({ T, h, coches, auj, cocher, ouvrirAnnée, annéeOuverte, modifier, supprimer }) {
+function CarteHabitude({ T, h, coches, temps, auj, cocher, ouvrirAnnée, annéeOuverte, modifier, supprimer }) {
   const prévueAuj = prévue(h, auj)
   const faiteAuj = faite(coches, h, auj)
   const s = série(h, coches, auj)
@@ -157,6 +175,15 @@ function CarteHabitude({ T, h, coches, auj, cocher, ouvrirAnnée, annéeOuverte,
             {h.jours?.length ? ` · ${h.jours.slice().sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map(j => JOURS_COURTS[j]).join(' ')}` : ''}
             {!prévueAuj ? ' · pas prévue aujourd\'hui' : ''}
           </p>
+          {(() => {
+            const minAuj = temps?.[auj]?.[h.id] || 0
+            const minSemaine = semaine.reduce((t, j) => t + (temps?.[j]?.[h.id] || 0), 0)
+            return minSemaine > 0 && (
+              <p style={{ margin: '2px 0 0', fontSize: '12.5px', color: T.text, fontFamily: grotesk }}>
+                ⏱ {minAuj ? `${durée(minAuj)} aujourd'hui · ` : ''}{durée(minSemaine)} sur 7 jours
+              </p>
+            )
+          })()}
         </div>
         <BoutonIcone icon="calendrier" title="Année" onClick={ouvrirAnnée} />
         <BoutonIcone icon="crayon" title="Modifier" onClick={modifier} />
