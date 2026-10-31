@@ -125,6 +125,27 @@ function taillePolice(el) {
   const largeurMot = (el.l * 0.8) / (motLePlusLong * 0.62) // un mot ne doit pas être coupé
   return Math.max(10, Math.min(el.type === 'texte' ? 40 : 46, base, el.type === 'texte' ? Infinity : largeurMot))
 }
+// Texte trop long pour sa boîte (police auto descendue sous ~13 px, ou
+// lignes qui débordent) : la boîte grandit (jamais ne rétrécit).
+function agrandirPourTexte(el) {
+  if (!['note', 'forme', 'texte'].includes(el.type) || !el.texte) return {}
+  const n = el.texte.length
+  let { l, h } = el
+  if (typeof el.taille !== 'number' && el.type !== 'texte') {
+    const hAuto = l2 => (13 * 13 * n) / (0.4 * l2)
+    if (Math.sqrt((l * h * 0.4) / n) >= 13) return {}
+    if (el.type === 'note' && l < 360 && hAuto(l) > 1.5 * l) l = 360
+    h = Math.max(h, Math.ceil(hAuto(l)))
+  } else {
+    const fs = typeof el.taille === 'number' ? el.taille : 22
+    const utile = el.type === 'texte' ? l - 8 : l * (el.type === 'forme' ? 0.76 : 0.86)
+    const parLigne = Math.max(1, Math.floor(utile / (fs * 0.55)))
+    const lignes = el.texte.split('\n').reduce((s, p) => s + Math.max(1, Math.ceil(p.length / parLigne)), 0)
+    const texteH = lignes * fs * 1.3
+    h = Math.max(h, Math.ceil(el.type === 'texte' ? texteH + 12 : el.type === 'forme' ? texteH / 0.7 : texteH / 0.86))
+  }
+  return l !== el.l || h !== el.h ? { l, h } : {}
+}
 const avecTexte = el => ['note', 'texte', 'forme', 'cadre', 'commentaire', 'grille', 'code'].includes(el.type)
 
 function cheminForme(forme) {
@@ -214,6 +235,7 @@ export default function Tableau() {
   const encre = c => (sombre && (!c || c === '#1b1b1b') ? '#ececec' : c || '#1b1b1b')
   const fondNeutre = c => (sombre && (!c || c === '#ffffff') ? '#2f3137' : c || '#ffffff')
   const [dialogue, setDialogue] = useState(null) // 'liste' | 'icônes' | 'carte' | 'graphe' | 'insérer' | 'versions' | 'minuteur'
+  const [bandeauFermé, setBandeauFermé] = useState(() => { try { return sessionStorage.getItem('react-blocs-tableau-bandeau') === 'fermé' } catch { return false } })
   const [miniCarte, setMiniCarte] = useState(() => { try { return (localStorage.getItem('react-blocs-tableau-minicarte') ?? (window.innerWidth > 700 ? 'oui' : 'non')) === 'oui' } catch { return false } })
   const [pp, setPp] = useState(() => { try { return JSON.parse(localStorage.getItem('react-blocs-tableau-pp') || 'null') } catch { return null } })
   const navigate = useNavigate()
@@ -238,11 +260,17 @@ export default function Tableau() {
     brouillon.current = null
     if (b) {
       const el = réf.current.parId.get(b.id)
-      if (el && b.valeur !== (el.texte || '')) majÉlément(b.id, { texte: b.valeur })
+      if (el && b.valeur !== (el.texte || '')) majÉlément(b.id, { texte: b.valeur, ...(el.verrou ? {} : agrandirPourTexte({ ...el, texte: b.valeur })) })
     }
     setÉdition(null)
   }
-  const afficher = t => { setMessage(t); clearTimeout(afficher.m); afficher.m = setTimeout(() => setMessage(''), 2200) }
+  // Le champ d'écriture s'ouvre tout de suite (aucune lettre tapée perdue).
+  // Juste après, un toucher « fantôme » du navigateur (souris émulée après un
+  // tap) ne doit pas le refermer.
+  const ouvertLe = useRef(0)
+  const ouvrirÉdition = id => { ouvertLe.current = Date.now(); setÉdition(id) }
+  const minuteurMessage = useRef(null)
+  const afficher = t => { setMessage(t); clearTimeout(minuteurMessage.current); minuteurMessage.current = setTimeout(() => setMessage(''), 2200) }
 
   // Programme de l'espace : sections (pour créer une tâche) et état des
   // tâches liées aux pense-bêtes (barrés quand elles sont faites).
@@ -293,7 +321,7 @@ export default function Tableau() {
     if (brouillon.current) terminerÉdition()
     majÉléments(l => [...l, el])
     setSélection([el.id]); setOutil('sélection')
-    if (éditer) setTimeout(() => setÉdition(el.id), 30)
+    if (éditer) ouvrirÉdition(el.id)
     return el
   }
   const supprimer = idsDemandés => {
@@ -468,7 +496,7 @@ export default function Tableau() {
     if (o === 'sélection') {
       const el = parId.get(idEl)
       const maintenant = Date.now()
-      if (dernierToucher.current.id === idEl && maintenant - dernierToucher.current.t < 350 && avecTexte(el)) { setSélection([idEl]); setÉdition(idEl); geste.current = null; return }
+      if (dernierToucher.current.id === idEl && maintenant - dernierToucher.current.t < 350 && avecTexte(el)) { setSélection([idEl]); ouvrirÉdition(idEl); geste.current = null; return }
       dernierToucher.current = { id: idEl, t: maintenant }
       let sel = réf.current.sélection
       // Un élément groupé se choisit avec tout son groupe.
@@ -716,7 +744,7 @@ export default function Tableau() {
     const n = { id: uid(), type: s.type === 'forme' ? 'forme' : 'note', forme: s.forme, x: s.x + s.l + 90, y: s.y, l: s.l, h: s.h, texte: '', couleur: s.couleur, bord: s.bord, taille: 'auto' }
     const ligne = { id: uid(), type: 'ligne', x1: 0, y1: 0, x2: 0, y2: 0, de: s.id, vers: n.id, couleur: '#1b1b1b', épaisseur: 2, flèche: 'fin', style: 'plein' }
     majÉléments(l => [...l, n, ligne])
-    setSélection([n.id]); setTimeout(() => setÉdition(n.id), 30)
+    setSélection([n.id]); ouvrirÉdition(n.id)
   }
   const choisirImage = async e => {
     const fichier = e.target.files?.[0]; e.target.value = ''
@@ -780,7 +808,19 @@ export default function Tableau() {
   // Clavier (ordinateur)
   useEffect(() => {
     const f = e => {
-      if (e.target.closest?.('textarea, input')) return
+      if (e.target.closest?.('textarea, input, select, [contenteditable="true"]')) return
+      // Écriture en cours mais le champ n'a pas encore le focus : la lettre
+      // va dans le champ, jamais dans un raccourci.
+      if (réf.current.édition) {
+        const t = document.querySelector('textarea[data-champ-tableau]')
+        if (t && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault(); t.focus()
+          const p = t.value.length; t.value += e.key; t.selectionStart = t.selectionEnd = p + 1
+          brouillon.current = { id: réf.current.édition, valeur: t.value }
+        } else if (t && e.key !== 'Escape') t.focus()
+        if (e.key === 'Escape') terminerÉdition()
+        return
+      }
       const { sélection: sel } = réf.current
       const k = e.key.toLowerCase()
       if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) rétablir(); else annuler(); return }
@@ -843,7 +883,7 @@ export default function Tableau() {
       onChange={e => { brouillon.current = { id: el.id, valeur: e.target.value } }}
       onBlur={e => {
         // Toucher la barre d'écriture (dictée…) ne termine pas l'écriture.
-        if (garderÉdition.current) { const t = e.target; setTimeout(() => t.isConnected && t.focus(), 0); return }
+        if (garderÉdition.current || (!e.relatedTarget && Date.now() - ouvertLe.current < 450)) { const t = e.target; setTimeout(() => t.isConnected && t.focus(), 0); return }
         terminerÉdition()
       }}
       data-champ-tableau=""
@@ -1310,9 +1350,24 @@ export default function Tableau() {
         </div>
       )}
 
+      {/* Bandeau : le tableau ne peut pas être enregistré sur GitHub. */}
+      {(!token || statut === 'erreur') && statut !== 'chargement' && !(bandeauFermé && !token) && !syncOuvert && !menu && !recherche && présentation === null && (
+        <div data-chrome role="status" onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'calc(max(12px, env(safe-area-inset-top)) + 62px)', left: '50%', transform: 'translateX(-50%)', width: 'min(520px, calc(100% - 24px))', zIndex: 19, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 8px 8px 14px', borderRadius: 14, background: token ? '#fdecea' : '#fff4d6', color: token ? '#8a1c12' : '#6b4e00', border: `1px solid ${token ? '#f3b4ad' : '#f0d58a'}`, boxShadow: '0 4px 14px rgba(0,0,0,.12)', fontFamily: grotesk, fontSize: 14, lineHeight: 1.35 }}>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            {token && statut === 'erreur'
+              ? <><strong>Enregistrement impossible.</strong> {erreur || 'Vérifie ton token GitHub.'} Tes changements restent sur cet appareil.</>
+              : <><strong>Token GitHub non connecté.</strong> Tes changements restent sur cet appareil seulement.</>}
+          </span>
+          <button onClick={() => setSyncOuvert(true)} style={{ flexShrink: 0, minHeight: 36, padding: '0 12px', borderRadius: 10, border: 'none', background: token && statut === 'erreur' ? '#c0392b' : '#b07d00', color: '#fff', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer' }}>{token ? 'Voir' : 'Connecter'}</button>
+          {!token && (
+            <button aria-label="Masquer" title="Masquer" onClick={() => { setBandeauFermé(true); try { sessionStorage.setItem('react-blocs-tableau-bandeau', 'fermé') } catch { /* ignore */ } }} style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 10, border: 'none', background: 'transparent', color: 'inherit', fontSize: 18, cursor: 'pointer' }}>✕</button>
+          )}
+        </div>
+      )}
+
       {syncOuvert && (
         <div onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'calc(max(12px, env(safe-area-inset-top)) + 62px)', right: 12, width: 'min(360px, calc(100% - 24px))', zIndex: 30, background: '#1c1a17', borderRadius: 14, padding: 8 }}>
-          <PanneauSync statut={statut} erreur={erreur} token={token} connecter={connecter} déconnecter={déconnecter} nomFichier={config.chemin.split('/').pop()} marginBottom="0" />
+          <PanneauSync statut={statut} erreur={erreur} token={token} connecter={connecter} déconnecter={déconnecter} nomFichier={config.chemin.split('/').pop()} marginBottom="0" ouvertAuDépart={!token || statut === 'erreur'} />
         </div>
       )}
 
@@ -1482,7 +1537,7 @@ export default function Tableau() {
       )}
       {dialogue?.type === 'minuteur' && <ChoixMinuteur UI={UI} onFermer={() => setDialogue(null)} onChoisir={m => { minuteur.lancer(m); setDialogue(null); afficher(`⏱ Minuteur : ${m} min`) }} />}
 
-      {miniCarte && présentation === null && (
+      {miniCarte && présentation === null && !(window.innerWidth < 700 && (sélection.length || édition || outil === 'multi')) && (
         <MiniCarte UI={UI} vue={vue} taille={{ l: window.innerWidth, h: window.innerHeight }}
           boîtes={éléments.filter(placé).map(e => ({ ...boîte(e), couleur: e.type === 'note' ? e.couleur : e.type === 'cadre' ? (sombre ? '#3a3d44' : '#e4e4e0') : e.type === 'trait' || e.type === 'ligne' ? '#9aa0a6' : '#b8bcc4' }))}
           onAller={(x, y) => setVue(v => ({ ...v, x: window.innerWidth / 2 - x * v.z, y: window.innerHeight / 2 - y * v.z }))} />

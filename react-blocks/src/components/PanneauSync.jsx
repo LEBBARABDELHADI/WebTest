@@ -12,9 +12,9 @@ const LIBELLÉS = {
 }
 
 // Ligne d'état de synchronisation repliable, avec saisie du token GitHub.
-export default function PanneauSync({ statut, erreur, token, connecter, déconnecter, nomFichier, marginBottom = '14px' }) {
+export default function PanneauSync({ statut, erreur, token, connecter, déconnecter, nomFichier, marginBottom = '14px', ouvertAuDépart = false }) {
   const T = useTheme()
-  const [ouvert, setOuvert] = useState(false)
+  const [ouvert, setOuvert] = useState(ouvertAuDépart)
   const [saisie, setSaisie] = useState('')
   const couleur = { connecté: '#7fb069', erreur: T.danger, chargement: T.accent, synchronisation: T.accent }[statut] || T.textMuted
   return (

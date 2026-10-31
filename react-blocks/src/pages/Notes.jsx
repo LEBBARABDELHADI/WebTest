@@ -3,7 +3,7 @@ import Dictée from '../components/Dictee'
 import { videsParEspace } from '../lib/donneesVides'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
-import { useRelectureAuRetour } from '../lib/synchro'
+import { useRelectureAuRetour, useEnvoiEnPartant } from '../lib/synchro'
 import VersCartes from '../components/VersCartes'
 import LiensÉlément from '../components/LiensElement'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
@@ -423,6 +423,7 @@ export default function Notes() {
   const [relecture, setRelecture] = useState(0)
   const donnéesActuellesRef = useRef(data)
   donnéesActuellesRef.current = data
+  useEnvoiEnPartant({ donnéesRef: donnéesActuellesRef, token, prêtRef: prêtPourSyncRef, shaRef, dernierEnvoiRef, minuteurRef: syncTimeoutRef, chemin: config.chemin, stockage: config.stockage })
   useRelectureAuRetour(() => {
     if (prêtPourSyncRef.current && JSON.stringify(donnéesActuellesRef.current) === dernierEnvoiRef.current) setRelecture(r => r + 1)
   })

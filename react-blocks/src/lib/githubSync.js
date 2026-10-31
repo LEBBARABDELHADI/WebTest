@@ -124,11 +124,9 @@ async function écrireAvecEssais(data, token, shaConnu, chemin, base) {
     const contenu = encoderBase64Utf8(JSON.stringify(àÉcrire, null, 2))
     let res
     try {
-      res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ message: `chore: sync ${DONNÉES.chemin(chemin).split('/').pop()} ${new Date().toISOString()}`, content: contenu, ...(sha ? { sha } : {}), branch: DONNÉES.branche }),
-      })
+      const corps = JSON.stringify({ message: `chore: sync ${DONNÉES.chemin(chemin).split('/').pop()} ${new Date().toISOString()}`, content: contenu, ...(sha ? { sha } : {}), branch: DONNÉES.branche })
+      // keepalive : l'envoi continue même si on ferme la page (petits fichiers).
+      res = await fetch(`${API_BASE}/${DONNÉES.chemin(chemin)}`, { method: 'PUT', headers, body: corps, keepalive: corps.length < 60000 })
     } catch {
       dernièreErreur = erreurPassagère('Connexion à GitHub impossible (hors ligne ?)')
       continue
