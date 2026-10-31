@@ -30,6 +30,7 @@ const PAGES = {
   Graph: () => import('./pages/Graph'),
   Habitudes: () => import('./pages/Habitudes'),
   Agenda: () => import('./pages/Agenda'),
+  Tableau: () => import('./pages/Tableau'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -39,6 +40,7 @@ const Timer = charger(PAGES.Timer)
 const Graph = charger(PAGES.Graph)
 const Habitudes = charger(PAGES.Habitudes)
 const Agenda = charger(PAGES.Agenda)
+const Tableau = charger(PAGES.Tableau)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -132,6 +134,8 @@ function App() {
       <Route path="/habitudes/:espace" element={<EspaceRoute Page={Habitudes} />} />
       <Route path="/agenda" element={<Navigate to="/agenda/perso" replace />} />
       <Route path="/agenda/:espace" element={<EspaceRoute Page={Agenda} />} />
+      <Route path="/tableau" element={<Navigate to="/tableau/perso" replace />} />
+      <Route path="/tableau/:espace" element={<EspaceRoute Page={Tableau} />} />
     </Routes>
     </Suspense>
     </>

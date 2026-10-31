@@ -74,6 +74,7 @@ function libelléRécent(lire, chemin) {
   }
   if (outil === 'habitudes') return { titre: `Habitudes ${type.toLowerCase()}`, icône: 'checklist' }
   if (outil === 'agenda') return { titre: 'Agenda', icône: 'calendrier' }
+  if (outil === 'tableau') return { titre: `Graphe amélioré ${type.toLowerCase()}`, icône: 'reseau' }
   if (outil === 'timer') return { titre: 'Timer', icône: 'horloge' }
   if (outil === 'notion') {
     const n = notions.find(x => x.id === espace)
@@ -212,6 +213,7 @@ export default function Home({ foyerId = 'lebbar' }) {
       chiffre: dansSemaine.length, unité: `échéance${dansSemaine.length > 1 ? 's' : ''} sur 7 j`,
       détail: dansSemaine[0] ? `${dateDe(dansSemaine[0].échéance).toLocaleDateString('fr-FR', { weekday: 'short' })} : ${dansSemaine[0].texte.split('\n')[0]}` : 'Perso et Pro réunis',
     },
+    { to: `/tableau/${espace}`, icône: 'reseau', titre: 'Graphe amélioré', chiffre: '✦', unité: 'tableau blanc', détail: 'Pense-bêtes, formes, flèches…' },
     { to: '/timer', icône: 'horloge', titre: 'Timer', chiffre: heure, unité: '', détail: 'Chrono · minuteur' },
   ]
 

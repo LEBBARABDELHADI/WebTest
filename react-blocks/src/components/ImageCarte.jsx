@@ -43,6 +43,16 @@ export function useUrlImage(image) {
   return { url, échec }
 }
 
+// Réduit puis envoie une photo dans le dépôt ; renvoie { image: { chemin },
+// largeur, hauteur } (l'aperçu local s'affiche tout de suite).
+export async function envoyerImage(fichier, token) {
+  const { dataUrl, base64, largeur, hauteur } = await préparerImage(fichier)
+  const chemin = `${DOSSIER_IMAGES}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.jpg`
+  await envoyerFichier(chemin, base64, token, `chore: image ${new Date().toISOString()}`)
+  aperçus.set(chemin, dataUrl)
+  return { image: { chemin }, largeur, hauteur }
+}
+
 // Réduit la photo (900 px max, JPEG) pour qu'elle pèse ~100 Ko au lieu de
 // plusieurs Mo, puis renvoie son contenu en base64.
 function préparerImage(fichier) {
@@ -62,7 +72,7 @@ function préparerImage(fichier) {
         ctx.fillRect(0, 0, toile.width, toile.height)
         ctx.drawImage(img, 0, 0, toile.width, toile.height)
         const dataUrl = toile.toDataURL('image/jpeg', QUALITÉ)
-        resolve({ dataUrl, base64: dataUrl.split(',')[1] })
+        resolve({ dataUrl, base64: dataUrl.split(',')[1], largeur: toile.width, hauteur: toile.height })
       }
       img.src = lecteur.result
     }
