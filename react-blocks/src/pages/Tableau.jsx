@@ -144,7 +144,7 @@ function ImageÉlément({ image }) {
 
 // ---------- Icônes simples ----------
 const I = {
-  sélection: 'M5 3l14 8-6 2-2 6Z', main: 'M8 13V5a1.5 1.5 0 0 1 3 0v6 M11 11V4a1.5 1.5 0 0 1 3 0v7 M14 11V5.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-3l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 14',
+  sélection: 'M5 3l14 8-6 2-2 6Z', multi: 'M4 7V4h3 M10 4h4 M17 4h3v3 M20 10v4 M20 17v3h-3 M14 20h-4 M7 20H4v-3 M4 14v-4 M8 12l3 3 5-6', main: 'M8 13V5a1.5 1.5 0 0 1 3 0v6 M11 11V4a1.5 1.5 0 0 1 3 0v7 M14 11V5.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-3l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 14',
   note: 'M4 4h16v10l-6 6H4Z M14 20v-6h6', texte: 'M5 5h14 M12 5v14 M9 19h6', forme: 'M4 4h7v7H4Z M17.5 7.5m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0 M4 20l3.5-6 3.5 6Z M14 14l6 6 M20 14v6h-6',
   ligne: 'M5 19 19 5 M13 5h6v6', stylo: 'M4 20c2-6 6-14 9-15s1 7-2 9 6-2 8 0', cadre: 'M7 3v18 M17 3v18 M3 7h18 M3 17h18', commentaire: 'M4 5h16v11H9l-5 4Z',
   image: 'M4 5h16v14H4Z M4 16l5-5 4 4 3-3 4 4', plus: 'M12 5v14 M5 12h14', annuler: 'M9 14 4 9l5-5 M4 9h10.5a5.5 5.5 0 0 1 0 11H11', rétablir: 'M15 14l5-5-5-5 M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
@@ -448,6 +448,23 @@ export default function Tableau() {
       return
     }
     if (o === 'sélection' && !idEl) { geste.current = { type: 'cadreSel', p0: p }; return }
+    // « Choisir plusieurs » : toucher un élément le coche / décoche, glisser
+    // sur le fond entoure des éléments (ajoutés au choix), glisser un élément
+    // choisi déplace tout le choix.
+    if (o === 'multi') {
+      if (!idEl) { geste.current = { type: 'cadreSel', p0: p, union: true }; return }
+      const el = parId.get(idEl)
+      const groupe = el?.groupe ? réf.current.éléments.filter(x => x.groupe === el.groupe).map(x => x.id) : [idEl]
+      const ids = new Set([...réf.current.sélection, ...groupe])
+      const départs = new Map([...ids].map(id => [id, parId.get(id)]).filter(([, x]) => x && !x.verrou))
+      const mobiles = [...départs.values()].filter(placé)
+      geste.current = {
+        type: 'déplacer', p0: p, départs, tracé: false, basculer: groupe,
+        boîte0: mobiles.length ? boîteUnion(mobiles.map(boîte)) : null,
+        cibles: réf.current.éléments.filter(x => !ids.has(x.id) && x.type !== 'ligne' && x.type !== 'trait').map(boîte),
+      }
+      return
+    }
     if (o === 'sélection') {
       const el = parId.get(idEl)
       const maintenant = Date.now()
@@ -577,11 +594,20 @@ export default function Tableau() {
       if (el && el.type !== 'ligne' && el.type !== 'trait') majÉlément(g.départ.id, g.coin === 'a' ? { de: cible, côtéDe: côtéLePlusProche(el, p) } : { vers: cible, côtéVers: côtéLePlusProche(el, p) }, false)
       return
     }
+    // Mode « choisir plusieurs » : un toucher sans glisser coche / décoche.
+    if (g.type === 'déplacer' && g.basculer && !g.tracé) {
+      const actuels = réf.current.sélection
+      const déjà = g.basculer.every(id => actuels.includes(id))
+      setSélection(déjà ? actuels.filter(id => !g.basculer.includes(id)) : [...new Set([...actuels, ...g.basculer])])
+      return
+    }
+    if (g.type === 'déplacer' && g.basculer && g.tracé) { setSélection([...g.départs.keys()]); return }
     if (g.type === 'pan') { clearTimeout(g.minuteur); if (!g.bougé && réf.current.outil === 'sélection') { setSélection([]); terminerÉdition() } return }
     if (g.type === 'cadreSel') {
       const b = cadreSel; setCadreSel(null)
       if (!b) { setSélection([]); return }
-      setSélection(réf.current.éléments.filter(x => { const k = boîte(x); return k.x < b.x + b.l && k.x + k.l > b.x && k.y < b.y + b.h && k.y + k.h > b.y }).map(x => x.id))
+      const trouvés = réf.current.éléments.filter(x => { const k = boîte(x); return k.x < b.x + b.l && k.x + k.l > b.x && k.y < b.y + b.h && k.y + k.h > b.y }).map(x => x.id)
+      setSélection(g.union ? [...new Set([...réf.current.sélection, ...trouvés])] : trouvés)
       return
     }
     if (g.type === 'stylo') {
@@ -748,7 +774,7 @@ export default function Tableau() {
     if (o === 'modèles') { setModèlesOuvert(true); return }
     if (o === 'icônes' || o === 'liste') { setDialogue({ type: o }); return }
     if (o === 'grille' || o === 'code') { ajouterBloc(o); return }
-    setOutil(o); if (o !== 'sélection') setSélection([])
+    setOutil(o); if (o !== 'sélection' && o !== 'multi') setSélection([])
   }
 
   // Clavier (ordinateur)
@@ -769,7 +795,7 @@ export default function Tableau() {
       if (e.key === 'Escape') { setSélection([]); setOutil('sélection'); setFeuille(false); return }
       if (e.key === 'Enter' && sel.length === 1 && avecTexte(réf.current.parId.get(sel[0]))) { e.preventDefault(); setÉdition(sel[0]); return }
       if (e.ctrlKey || e.metaKey || e.altKey) return
-      const raccourcis = { v: 'sélection', h: 'main', n: 'note', t: 'texte', r: 'forme', l: 'ligne', p: 'stylo', f: 'cadre', c: 'commentaire' }
+      const raccourcis = { v: 'sélection', m: 'multi', h: 'main', n: 'note', t: 'texte', r: 'forme', l: 'ligne', p: 'stylo', f: 'cadre', c: 'commentaire' }
       if (raccourcis[k]) choisirOutil(raccourcis[k])
     }
     window.addEventListener('keydown', f)
@@ -944,13 +970,14 @@ export default function Tableau() {
       </>
     )
     return (
-      <div key={el.id} data-el={el.id === '__aperçu' ? undefined : el.id} style={{ position: 'absolute', left: 0, top: 0, opacity: el.id === '__aperçu' ? 0.6 : 1, cursor: outil === 'sélection' ? 'move' : 'crosshair' }}>
+      <div key={el.id} data-el={el.id === '__aperçu' ? undefined : el.id} style={{ position: 'absolute', left: 0, top: 0, opacity: el.id === '__aperçu' ? 0.6 : 1, cursor: outil === 'sélection' ? 'move' : outil === 'multi' ? 'pointer' : 'crosshair' }}>
         {corps}
         {badges}
         {outil === 'ligne' && el.id !== '__aperçu' && el.type !== 'commentaire' && ['n', 's', 'e', 'w'].map(c => { const m = milieuCôté(el, c); return <span key={c} style={{ position: 'absolute', left: m.x - 5 / z, top: m.y - 5 / z, width: 10 / z, height: 10 / z, borderRadius: '50%', background: UI.accent, border: `${2 / z}px solid #fff`, pointerEvents: 'none' }} /> })}
         {choisi && el.type !== 'commentaire' && (
           <>
             <div style={{ position: 'absolute', left: el.x - 4 / z, top: el.y - 4 / z, width: el.l + 8 / z, height: el.h + 8 / z, border: `${1.6 / z}px solid ${UI.accent}`, pointerEvents: 'none' }} />
+            {outil === 'multi' && <span style={{ position: 'absolute', left: el.x - 12 / z, top: el.y - 12 / z, width: 24 / z, height: 24 / z, borderRadius: '50%', background: UI.accent, color: '#fff', fontSize: 15 / z, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', boxShadow: '0 2px 6px rgba(0,0,0,.25)' }}>✓</span>}
             {sélection.length === 1 && !el.verrou && [['nw', el.x, el.y], ['ne', el.x + el.l, el.y], ['sw', el.x, el.y + el.h], ['se', el.x + el.l, el.y + el.h]].map(([c, x, y]) => poignée(el.id, c, x, y))}
           </>
         )}
@@ -1004,6 +1031,15 @@ export default function Tableau() {
       position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'calc(84px + env(safe-area-inset-bottom))', zIndex: 20, maxWidth: 'calc(100% - 20px)',
       background: UI.barre, borderRadius: 14, boxShadow: '0 6px 24px rgba(0,0,0,.16)', display: 'flex', alignItems: 'center', gap: 2, padding: '4px 6px', overflowX: 'auto',
     }}>
+      {btn(<span style={{ color: '#d33', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Ic n="corbeille" t={20} />{choisis.length > 1 ? choisis.length : ''}</span>, () => supprimer(sélection), choisis.length > 1 ? `Supprimer les ${choisis.length} éléments` : 'Supprimer')}
+      {(outil === 'multi' || choisis.length > 1) && (
+        <>
+          <span style={{ fontSize: 12, fontWeight: 700, color: UI.doux, padding: '0 4px', whiteSpace: 'nowrap' }}>{choisis.length} choisi{choisis.length > 1 ? 's' : ''}</span>
+          {btn('Tout', () => setSélection(éléments.map(e => e.id)), 'Tout sélectionner')}
+          {btn('Aucun', () => setSélection([]), 'Tout désélectionner')}
+        </>
+      )}
+      {sép}
       {seul && ['note', 'texte', 'forme'].includes(seul.type) && (
         <>
           {btn('−', () => majChoisis(e => ({ taille: Math.max(8, Math.round(taillePolice(e) - 2)) })), 'Texte plus petit')}
@@ -1057,7 +1093,6 @@ export default function Tableau() {
           {btn('⊥', () => aligner('bas'), 'Aligner en bas')}
           {choisis.filter(placé).length >= 3 && btn('↔︎', () => aligner('répartirH'), 'Répartir horizontalement')}
           {choisis.filter(placé).length >= 3 && btn('↕︎', () => aligner('répartirV'), 'Répartir verticalement')}
-          <span style={{ fontSize: 12, color: UI.doux, padding: '0 6px', whiteSpace: 'nowrap' }}>{choisis.length} choisis</span>
         </>
       )}
       {seul?.type === 'code' && (
@@ -1084,7 +1119,6 @@ export default function Tableau() {
       {btn('📋', () => copier(sélection), 'Copier (Ctrl+C)')}
       {btn(<Ic n="dupliquer" t={20} />, () => dupliquer(sélection), 'Dupliquer')}
       {btn('⤒', () => premierPlan(sélection), 'Premier plan')}
-      {btn(<span style={{ color: '#d33' }}><Ic n="corbeille" t={20} /></span>, () => supprimer(sélection), 'Supprimer')}
     </div>
   )
 
@@ -1166,7 +1200,7 @@ export default function Tableau() {
   }
 
   const OUTILS = [
-    ['sélection', 'sélection', 'Sélection (V)'], ['main', 'main', 'Se déplacer (H)'], ['note', 'note', 'Pense-bête (N)'], ['texte', 'texte', 'Texte (T)'],
+    ['sélection', 'sélection', 'Sélection (V)'], ['multi', 'multi', 'Choisir plusieurs éléments (M)'], ['main', 'main', 'Se déplacer (H)'], ['note', 'note', 'Pense-bête (N)'], ['texte', 'texte', 'Texte (T)'],
     ['forme', 'forme', 'Formes (R)'], ['ligne', 'ligne', 'Ligne / flèche (L)'], ['stylo', 'stylo', 'Stylo (P)'], ['cadre', 'cadre', 'Cadre (F)'],
     ['commentaire', 'commentaire', 'Commentaire (C)'], ['image', 'image', 'Charger une image'],
   ]
@@ -1181,7 +1215,7 @@ export default function Tableau() {
       <div ref={zoneRef} onPointerDown={surBas} onPointerMove={surMouvement} onPointerUp={surHaut} onPointerCancel={surHaut} onContextMenu={e => e.preventDefault()}
         onScroll={e => { e.currentTarget.scrollLeft = 0; e.currentTarget.scrollTop = 0 }}
         aria-label="Tableau blanc" style={{
-          position: 'absolute', inset: 0, touchAction: 'none', overflow: 'clip', cursor: outil === 'main' || outil === 'sélection' ? 'default' : 'crosshair',
+          position: 'absolute', inset: 0, touchAction: 'none', overflow: 'clip', cursor: outil === 'main' || outil === 'sélection' || outil === 'multi' ? 'default' : 'crosshair',
           backgroundColor: présentation !== null ? '#e9e9e6' : UI.fond,
           backgroundImage: présentation !== null ? 'none' : `linear-gradient(${UI.grille} 1px, transparent 1px), linear-gradient(90deg, ${UI.grille} 1px, transparent 1px)`,
           backgroundSize: `${40 * z}px ${40 * z}px`, backgroundPosition: `${vue.x}px ${vue.y}px`,
@@ -1309,7 +1343,7 @@ export default function Tableau() {
         position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'max(14px, env(safe-area-inset-bottom))', zIndex: 20, display: 'flex', alignItems: 'center', gap: 2, padding: 6,
         maxWidth: 'calc(100% - 20px)', overflowX: 'auto', ...pill,
       }}>
-        {OUTILS.filter(([o]) => ['sélection', 'note', 'texte', 'forme', 'ligne', 'stylo'].includes(o)).map(([o, ic, titre]) => (
+        {OUTILS.filter(([o]) => ['sélection', 'multi', 'note', 'texte', 'forme', 'ligne', 'stylo'].includes(o)).map(([o, ic, titre]) => (
           <button key={o} onClick={() => choisirOutil(o)} aria-label={titre} title={titre} aria-pressed={outil === o} style={{
             width: 44, height: 44, minWidth: 44, border: 'none', borderRadius: 12, cursor: 'pointer', background: outil === o ? UI.survol : 'transparent', color: outil === o ? UI.accent : UI.texte,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1323,7 +1357,13 @@ export default function Tableau() {
           {FORMES.map(([f, s, n]) => btn(<span style={{ fontSize: 20 }}>{s}</span>, () => setForme(f), n, forme === f))}
         </div>
       )}
-      {outil !== 'sélection' && outil !== 'main' && !feuille && outil !== 'forme' && (
+      {outil === 'multi' && !choisis.length && !feuille && (
+        <div data-chrome onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'calc(84px + env(safe-area-inset-bottom))', zIndex: 20, display: 'flex', alignItems: 'center', gap: 6, padding: '4px 6px 4px 12px', maxWidth: 'calc(100% - 20px)', ...pill }}>
+          <span style={{ fontSize: 13, color: UI.doux }}>Touche les éléments à choisir, ou glisse pour en entourer</span>
+          {btn('Tout', () => setSélection(éléments.map(e => e.id)), 'Tout sélectionner')}
+        </div>
+      )}
+      {outil !== 'sélection' && outil !== 'main' && outil !== 'multi' && !feuille && outil !== 'forme' && (
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 'calc(80px + env(safe-area-inset-bottom))', zIndex: 19, background: 'rgba(27,27,27,.82)', color: '#fff', fontSize: 13, padding: '6px 12px', borderRadius: 20, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
           {{ note: 'Touche le tableau pour poser un pense-bête', texte: 'Touche le tableau pour écrire', ligne: 'Glisse d\'un élément à un autre', stylo: 'Dessine avec le doigt', cadre: 'Glisse pour tracer un cadre', commentaire: 'Touche pour placer un commentaire' }[outil]}
         </div>
