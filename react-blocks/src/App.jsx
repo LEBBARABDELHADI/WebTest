@@ -33,6 +33,7 @@ const PAGES = {
   Tableau: () => import('./pages/Tableau'),
   Prepa: () => import('./pages/Prepa'),
   CoursLivret: () => import('./pages/CoursLivret'),
+  SetQuestions: () => import('./pages/SetQuestions'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -45,6 +46,7 @@ const Agenda = charger(PAGES.Agenda)
 const Tableau = charger(PAGES.Tableau)
 const Prepa = charger(PAGES.Prepa)
 const CoursLivret = charger(PAGES.CoursLivret)
+const SetQuestions = charger(PAGES.SetQuestions)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -149,6 +151,8 @@ function App() {
       <Route path="/prepa/:examen/:espace" element={<EspaceRoute Page={Prepa} />} />
       <Route path="/cours/livret" element={<Navigate to="/cours/livret/perso" replace />} />
       <Route path="/cours/livret/:espace" element={<EspaceRoute Page={CoursLivret} />} />
+      <Route path="/set/soa-c03" element={<Navigate to="/set/soa-c03/perso" replace />} />
+      <Route path="/set/soa-c03/:espace" element={<EspaceRoute Page={SetQuestions} />} />
     </Routes>
     </Suspense>
     </>

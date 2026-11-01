@@ -81,6 +81,7 @@ export default function Prépa() {
   ].filter(Boolean)
 
   const outils = [
+    prépa.id === 'aws' && { emoji: '📚', titre: 'Set SOA-C03', détail: '197 questions : réponse, explication, console, discussion', lien: `/set/soa-c03/${espace}` },
     { emoji: '🃏', titre: 'Réviser mes cartes', détail: `${cartes.length} cartes · ${dues.length} à revoir`, lien: `${M}?action=reviser&${modèles(prépa.paquets)}` },
     objectif && { emoji: '📝', titre: 'Examen blanc', détail: `${objectif.questions} q. · ${objectif.minutes} min · pondéré`, lien: `${M}?action=examen&objectif=${objectif.id}` },
     { emoji: '📕', titre: 'Carnet d\'erreurs', détail: `${cartes.filter(c => c.carnet).length} dedans · ${carnet.length} aujourd'hui`, lien: `${M}?action=carnet` },
