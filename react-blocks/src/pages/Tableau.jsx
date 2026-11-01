@@ -854,11 +854,21 @@ export default function Tableau() {
     const t = { id: uid(), nom: nom.trim() || 'Sans titre', éléments: [] }
     setData(d => ({ ...d, tableaux: [...d.tableaux, t] })); setTableauId(t.id); setMenu(false)
   }
-  const renommer = () => {
-    const nom = window.prompt('Nom du tableau', tableau.nom)
-    if (nom === null || !nom.trim()) return
-    setData(d => ({ ...d, tableaux: d.tableaux.map(t => (t.id === tableau.id ? { ...t, nom: nom.trim() } : t)) }))
+  // Renommer un tableau directement (champ à la place du titre).
+  const [renommé, setRenommé] = useState(null) // { id, nom } en cours de saisie
+  const validerNom = () => {
+    const r = renommé
+    setRenommé(null)
+    if (!r || !r.nom.trim()) return
+    setData(d => ({ ...d, tableaux: d.tableaux.map(t => (t.id === r.id ? { ...t, nom: r.nom.trim() } : t)) }))
   }
+  const champNom = (t, style) => (
+    <input autoFocus value={renommé.nom} aria-label="Nom du tableau" onChange={e => setRenommé({ id: t.id, nom: e.target.value })}
+      onFocus={e => e.target.select()} onBlur={validerNom} onPointerDown={e => e.stopPropagation()}
+      onKeyDown={e => { e.stopPropagation(); if (e.key === 'Enter') validerNom(); if (e.key === 'Escape') setRenommé(null) }}
+      style={{ flex: 1, minWidth: 0, fontFamily: grotesk, fontWeight: 700, color: UI.texte, background: UI.fond, border: `2px solid ${UI.accent}`, borderRadius: 8, padding: '4px 8px', outline: 'none', ...style }} />
+  )
+  const renommer = () => { setMenu(false); setRenommé({ id: tableau.id, nom: tableau.nom }) }
   const supprimerTableau = () => {
     if (data.tableaux.length < 2) { afficher('C\'est le seul tableau'); return }
     if (!window.confirm(`Supprimer le tableau « ${tableau.nom} » et tout son contenu ?`)) return
@@ -1161,6 +1171,7 @@ export default function Tableau() {
         </>
       )}
       {seul?.type === 'trait' && [2, 3, 6, 10].map(ep => btn(<span style={{ width: 18, height: Math.min(8, ep), background: UI.texte, borderRadius: 2 }} />, () => majChoisis({ épaisseur: ep }), `Épaisseur ${ep}`, seul.épaisseur === ep))}
+      {seul?.type === 'cadre' && btn('✎ Titre', () => setÉdition(seul.id), 'Modifier le titre du cadre')}
       {seul?.type === 'cadre' && ['#ffffff', '#fff8e1', '#e3f2fd', '#e8f5e9', '#fce4ec', '#f3e5f5'].map(c => pastille(c, (seul.couleur || '#ffffff') === c, () => majChoisis({ couleur: c }), `Fond ${c}`))}
       {choisis.filter(placé).length >= 2 && (
         <>
@@ -1333,10 +1344,16 @@ export default function Tableau() {
       {/* Barre du haut */}
       <div data-chrome onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', left: 12, right: 12, display: 'flex', alignItems: 'center', gap: 4, padding: '6px 8px', zIndex: 20, ...pill }}>
         <Link to={foyer.accueil} aria-label="Accueil" title="Accueil" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', color: UI.texte, flexShrink: 0 }}><Ic n="maison" /></Link>
-        <button onClick={() => setMenu(m => !m)} aria-expanded={menu} title="Tableaux" style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', fontFamily: grotesk, fontSize: 17, fontWeight: 700, color: UI.texte, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 4px' }}>
-          {tableau.nom} <span style={{ fontSize: 12, color: UI.doux }}>▾</span>
-        </button>
-        <span style={{ fontSize: 12, color: UI.doux, flexShrink: 0 }}>{Math.round(z * 100)}%</span>
+        {renommé?.id === tableau.id && !menu ? champNom(tableau, { fontSize: 16, height: 36, boxSizing: 'border-box' }) : (
+          <>
+            <button onClick={() => setMenu(m => !m)} onDoubleClick={renommer} aria-expanded={menu} title="Tableaux" style={{ flex: '0 1 auto', minWidth: 0, textAlign: 'left', background: 'none', border: 'none', fontFamily: grotesk, fontSize: 17, fontWeight: 700, color: UI.texte, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 4px' }}>
+              {tableau.nom} <span style={{ fontSize: 12, color: UI.doux }}>▾</span>
+            </button>
+            <button onClick={renommer} aria-label="Renommer le tableau" title="Renommer le tableau" style={{ width: 34, height: 34, minWidth: 34, border: 'none', borderRadius: '50%', background: 'transparent', color: UI.doux, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>✎</button>
+            <span style={{ flex: 1 }} />
+          </>
+        )}
+        {window.innerWidth >= 480 && <span style={{ fontSize: 12, color: UI.doux, flexShrink: 0 }}>{Math.round(z * 100)}%</span>}
         {btn(<Ic n="ajuster" />, () => ajusterVue(), 'Tout voir')}
         {cadres.length > 0 && btn('▶', présenter, 'Présenter les cadres')}
         {minuteur.actif && (
@@ -1362,10 +1379,15 @@ export default function Tableau() {
           )}
           <p style={{ margin: '2px 8px 4px', fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: UI.doux }}>Tableaux</p>
           {data.tableaux.map(t => (
-            <button key={t.id} onClick={() => { setTableauId(t.id); setMenu(false) }} style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 8, padding: '10px 12px', border: 'none', borderRadius: 10, background: t.id === tableau.id ? UI.survol : 'transparent', cursor: 'pointer', fontFamily: grotesk, fontSize: 15, color: UI.texte, textAlign: 'left' }}>
-              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.nom}</span>
-              <span style={{ fontSize: 12, color: UI.doux }}>{t.éléments.length}</span>
-            </button>
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 2, borderRadius: 10, background: t.id === tableau.id ? UI.survol : 'transparent' }}>
+              {renommé?.id === t.id ? <div style={{ flex: 1, display: 'flex', padding: '4px 6px' }}>{champNom(t, { fontSize: 15, height: 38, boxSizing: 'border-box' })}</div> : (
+                <button onClick={() => { setTableauId(t.id); setMenu(false) }} style={{ display: 'flex', flex: 1, minWidth: 0, alignItems: 'center', gap: 8, padding: '10px 12px', border: 'none', borderRadius: 10, background: 'transparent', cursor: 'pointer', fontFamily: grotesk, fontSize: 15, color: UI.texte, textAlign: 'left' }}>
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.nom}</span>
+                  <span style={{ fontSize: 12, color: UI.doux }}>{t.éléments.length}</span>
+                </button>
+              )}
+              {renommé?.id !== t.id && <button onClick={() => setRenommé({ id: t.id, nom: t.nom })} aria-label={`Renommer « ${t.nom} »`} title="Renommer" style={{ width: 38, height: 38, minWidth: 38, border: 'none', borderRadius: 10, background: 'transparent', color: UI.doux, cursor: 'pointer', fontSize: 15 }}>✎</button>}
+            </div>
           ))}
           <div style={{ borderTop: `1px solid ${UI.bord}`, margin: '6px 0', paddingTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {pp?.éléments?.length > 0 && btn(`📋 Coller (${pp.éléments.filter(placé).length})`, () => { setMenu(false); coller() }, 'Coller les éléments copiés')}
