@@ -30,6 +30,72 @@ function colonnes(titre, cols, { l = 340, h = 520, couleursNotes = [J, O, V, B, 
   return els
 }
 
+// Grille de compétences : une section = un cadre, une compétence = un
+// pense-bête (niveau + cases à cocher). La barre de chaque cadre avance avec
+// les cases cochées ; la couleur suit le niveau.
+export const NIVEAUX_COMPÉTENCE = {
+  'à évaluer': { emoji: '❔', couleur: '#eceff1' },
+  Débutant: { emoji: '🟠', couleur: '#ffe0b2' },
+  Intermédiaire: { emoji: '🟡', couleur: '#fff59d' },
+  Maître: { emoji: '🟢', couleur: '#c8e6c9' },
+}
+export const COMPÉTENCES_DEVOPS = [
+  ['☁️ AWS', [
+    ['VPC et sous-réseaux', ['VPC, plages CIDR, sous-réseaux', 'Choisir sous-réseau public ou privé']],
+    ['EC2', ['ALB, target groups, Auto Scaling', 'AMI et volumes EBS', 'Scaling sur alarmes CloudWatch', 'Security groups']],
+    ['ECS', ['Cluster, service, task definition', 'Capacity providers', 'Images et conteneurs Docker']],
+    ['IAM', ['Rôles, politiques (identité / ressource)', 'Moindre privilège', 'Assume role']],
+    ['Lambda', ['Fonctionnement serverless', 'Déclencheurs', 'Lambda dans un VPC']],
+    ['Configuration', ['Parameter Store', 'Secrets Manager']],
+    ['Autres services', ['CloudWatch', 'Route 53', 'ACM', 'S3', 'RDS']],
+  ]],
+  ['🏗️ Terraform', [
+    ['Workspace', ['Variables, variable sets, droits', 'Run : plan, policy, apply', 'Gestion du state']],
+    ['Module', ['Module complet (web, batch, lambda…)', 'Publication et versions (registry)', 'Resources, data sources, variables, locals', 'Fonctions, outputs, providers']],
+  ]],
+  ['🧰 Outils', [
+    ['GitLab', ['Runners, groupes, dépôts', 'Variables, tokens, clés SSH, droits', 'Pipeline : build, image, tests, rapports']],
+    ['Docker', ['Image, conteneur, tag, registry', 'Dockerfile', 'Variables, volumes, ports', 'Réseau host / bridge']],
+    ['Kubernetes', ['Pod, service, deployment', 'Helm chart', 'Control plane / data plane']],
+    ['Datadog', ['Agent : logs et métriques', 'Pipelines, échantillonnage, exclusions', 'Explorer logs et métriques']],
+    ['Dynatrace', ['Agent APM', 'Hôtes et services', 'Traces et alertes']],
+    ['Akamai', ['Property (PAPI)', 'Règles d\'accès (IP, mTLS)', 'Routage des appels']],
+  ]],
+  ['🐧 Bases', [
+    ['Linux', ['Arborescence (/etc, /home…)', 'Commandes de base, sudo', 'Droits : chmod, chown', 'Paquets : apt, yum, apk']],
+    ['Réseau', ['Modèle OSI (couches 3 à 7)', 'IPv4, masques, IP publiques / privées', 'DNS : A, AAAA, CNAME', 'Outils : dig, nslookup, nc, curl']],
+  ]],
+]
+// niveaux : { 'EC2': 'Débutant', … } (sinon « à évaluer ») ; une compétence
+// au niveau Maître a toutes ses cases cochées.
+export function grilleCompétences(sections = COMPÉTENCES_DEVOPS, niveaux = {}, titre = 'Grille de compétences') {
+  const [f, els] = fabrique()
+  f.texte(0, -190, titre, 34)
+  const L = 300, H = 230, E = 30
+  const hauteur = n => Math.ceil(n / 2) * (H + E) + E
+  // deux colonnes de cadres : la plus courte reçoit la section suivante
+  const bas = [0, 0]
+  sections.forEach(([nom, compétences]) => {
+    const col = bas[0] <= bas[1] ? 0 : 1
+    const x = col * (2 * L + 3 * E + 80), y = bas[col]
+    f.cadre(x, y, 2 * L + 3 * E, hauteur(compétences.length), nom, BL)
+    compétences.forEach(([c, points], i) => {
+      const niveau = niveaux[c] || 'à évaluer'
+      const { emoji, couleur } = NIVEAUX_COMPÉTENCE[niveau] || NIVEAUX_COMPÉTENCE['à évaluer']
+      const coché = niveau === 'Maître' ? 'x' : ' '
+      f.note(x + E + (i % 2) * (L + E), y + E + Math.floor(i / 2) * (H + E), `**${c}**\n${emoji} ${niveau}\n${points.map(p => `[${coché}] ${p}`).join('\n')}`, couleur, L, H)
+    })
+    bas[col] = y + hauteur(compétences.length) + 110
+  })
+  const xl = 2 * (2 * L + 3 * E) + 80 + 60
+  f.note(xl, 0, 'Comment l\'utiliser\n\n- Coche une case quand la compétence est acquise : la barre de la section avance.\n- Change le niveau dans le texte (❔ à évaluer, 🟠 Débutant, 🟡 Intermédiaire, 🟢 Maître) et la couleur du pense-bête.\n- « ✓ Tâche » envoie une compétence dans le Programme.', J, 320, 380)
+  const c = f.cadre(xl, 460, 320, 360, '🎯 Prochains objectifs', BL)
+  f.note(xl + 20, 490, 'Mes 3 prochains objectifs :\n1. \n2. \n3. ', O, 280, 180)
+  f.note(xl + 20, 690, 'Prochaine revue de compétences le : ', B, 280, 110)
+  void c
+  return els
+}
+
 export const MODÈLES_TABLEAU = [
   // ---------- Réfléchir et organiser ----------
   {
@@ -142,6 +208,10 @@ export const MODÈLES_TABLEAU = [
   {
     id: 'incident', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '🚨', nom: 'Fiche incident', description: 'Symptôme, cause, impact, correctif, prévention',
     créer: () => colonnes('Fiche incident', [['🩺 Symptôme', ['Ce qu\'on observe'], '#fde2e1'], ['🔍 Cause', ['Cause racine'], '#fff8e1'], ['💥 Impact', ['Qui / combien de temps'], '#f3e5f5'], ['🛠️ Correctif', ['Ce qui a été fait'], '#e3f2fd'], ['🛡️ Prévention', ['Pour que ça ne revienne pas'], '#e8f5e9']], { l: 280, h: 420, couleursNotes: [R, O, M, B, V] }),
+  },
+  {
+    id: 'grille-competences', catégorie: 'Apprendre et mémoriser', emoji: '📊', nom: 'Grille de compétences', description: 'AWS, Terraform, outils, bases : niveau, cases et progression par section',
+    créer: () => grilleCompétences(),
   },
   {
     id: 'aws-vpc', catégorie: 'Technique (DevOps, AWS, Maven)', emoji: '☁️', nom: 'Architecture AWS multi-AZ', description: 'VPC, 2 AZ, sous-réseaux publics/privés, ALB, Auto Scaling, RDS Multi-AZ',
