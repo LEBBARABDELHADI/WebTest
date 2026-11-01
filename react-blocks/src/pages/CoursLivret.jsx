@@ -6,6 +6,7 @@ import { BoutonIcone } from '../components/UI'
 import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import { CHAPITRES, SOURCE_LIVRET } from '../lib/coursLivret'
+import { PAGES_LIVRET } from '../lib/pagesLivret'
 import { LIEUX } from '../lib/paquetsPrets'
 import { CONTOUR, CORSE, px, L as LC, H as HC } from '../lib/carteFrance'
 import { vérifierMotsClés } from '../lib/motsCles'
@@ -70,11 +71,14 @@ function texteDiapo(d) {
   if (d.type === 'personnes') return `${d.titre}. ${d.personnes.map(p => `${p[1]} : ${p[2]}`).join('. ')}`
   if (d.type === 'carte') return `${d.titre} : ${d.villes.join(', ')}.`
   if (d.type === 'article') return `Article ${d.numéro}. ${d.texte}`
+  if (d.type === 'nuage') return `${d.titre} : ${d.mots.join(', ')}.`
+  if (d.type === 'vraiFaux') return `Vrai ou faux ? ${d.affirmations.map(a => a[0]).join(' ')}`
   return ''
 }
 
 function Diapo({ T, d }) {
   const [vue, setVue] = useState(false)
+  const [réponses, setRéponses] = useState({})
   const carte = { background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 14, padding: '12px 14px' }
   const h = <h2 className="cl-a" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: 'clamp(22px, 5vw, 30px)', margin: '0 0 16px', color: T.text, lineHeight: 1.15 }}>{d.titre}</h2>
   if (d.type === 'titre') return (
@@ -231,6 +235,47 @@ function Diapo({ T, d }) {
       </div>
     )
   }
+  if (d.type === 'nuage') return (
+    <div>{h}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', alignItems: 'center', padding: '10px 0' }}>
+        {d.mots.map((m, i) => (
+          <span key={m} className="cl-p" style={{ ...retard(0.4 + i * 0.45), display: 'inline-block' }}>
+            <span className="cl-f" style={{ display: 'inline-block', animationDelay: `${i * 0.4}s`, padding: '10px 16px', borderRadius: 999, background: [T.accent, '#1f4fa3', '#2e9e6b', '#c2185b', '#8e24aa'][i % 5], color: '#fff', fontFamily: grotesk, fontWeight: 700, fontSize: [20, 16, 18, 15, 17][i % 5], boxShadow: '0 6px 16px rgba(0,0,0,.15)' }}>{m}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+  if (d.type === 'vraiFaux') {
+    const justes = d.affirmations.filter((a, k) => réponses[k] !== undefined && réponses[k] === a[1]).length
+    const faites = Object.keys(réponses).length
+    return (
+      <div>{h}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {d.affirmations.map(([texte, vrai, explication], k) => {
+            const r = réponses[k], répondu = r !== undefined, juste = r === vrai
+            return (
+              <div key={k} className="cl-g" style={{ ...retard(0.3 + k * 0.4), ...carte, borderColor: répondu ? (juste ? '#2e9e6b' : T.danger) : T.border }}>
+                <p style={{ margin: '0 0 8px', fontSize: 16.5, lineHeight: 1.45, color: T.text }}>{texte}</p>
+                {!répondu ? (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {[[true, '✓ Vrai'], [false, '✗ Faux']].map(([v, l]) => (
+                      <button key={l} onClick={() => setRéponses(x => ({ ...x, [k]: v }))} style={{ flex: 1, minHeight: 44, borderRadius: 12, border: `1px solid ${T.border}`, background: T.surface, color: T.text, fontFamily: grotesk, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>{l}</button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="cl-p" style={{ margin: 0, fontSize: 15, color: juste ? '#2e9e6b' : T.danger, fontFamily: grotesk, fontWeight: 700 }}>
+                    {juste ? '🎉 Bonne réponse' : '❌ Pas tout à fait'} : c'est {vrai ? 'vrai' : 'faux'}.{explication && <span style={{ display: 'block', fontFamily: 'inherit', fontWeight: 400, color: T.text, marginTop: 4 }}>{explication}</span>}
+                  </p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+        {faites === d.affirmations.length && <p className="cl-p" style={{ textAlign: 'center', fontFamily: grotesk, fontWeight: 800, fontSize: 20, margin: '14px 0 0', color: justes === faites ? '#2e9e6b' : T.text }}>{justes === faites ? '🏆' : '👍'} {justes}/{faites}</p>}
+      </div>
+    )
+  }
   if (d.type === 'article') {
     const mots = d.texte.split(' ')
     return (
@@ -247,7 +292,7 @@ function Diapo({ T, d }) {
 }
 
 // ---------- 1. Cours ----------
-function Cours({ T, chap, onFini }) {
+function Cours({ T, chap, onFini, libelléFin = 'Passer à la révision →' }) {
   const [i, setI] = useState(0)
   const [auto, setAuto] = useState(false)
   const départ = useRef(null)
@@ -282,7 +327,7 @@ function Cours({ T, chap, onFini }) {
         <span style={{ flex: 1 }} />
         {i < n - 1
           ? <button onClick={() => aller(i + 1)} style={bouton(true)}>Suivante ▶</button>
-          : <button onClick={onFini} style={bouton(true)}>Passer à la révision →</button>}
+          : <button onClick={onFini} style={bouton(true)}>{libelléFin}</button>}
       </div>
     </div>
   )
@@ -451,6 +496,8 @@ export default function CoursLivret() {
   const { mode, basculer } = useThemeMode()
   const [progrès, setProgrès] = useState(lireProgrès)
   const [chapId, setChapId] = useState(null)
+  const [onglet, setOnglet] = useState('chapitres') // chapitres | pages
+  const [pageNo, setPageNo] = useState(null)
   const [étape, setÉtape] = useState('cours')
   const [final, setFinal] = useState(null)
   const [message, setMessage] = useState('')
@@ -487,16 +534,37 @@ export default function CoursLivret() {
       <style>{ANIMATIONS}</style>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          {chap || final
-            ? <button onClick={() => { setChapId(null); setFinal(null); window.speechSynthesis?.cancel() }} style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.textMuted, fontSize: 13, fontFamily: grotesk, minHeight: 36, background: 'none', border: 'none', cursor: 'pointer' }}><Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Chapitres</button>
+          {chap || final || pageNo !== null
+            ? <button onClick={() => { setChapId(null); setFinal(null); setPageNo(null); window.speechSynthesis?.cancel() }} style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.textMuted, fontSize: 13, fontFamily: grotesk, minHeight: 36, background: 'none', border: 'none', cursor: 'pointer' }}><Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> {pageNo !== null ? 'Pages' : 'Chapitres'}</button>
             : <Link to={`/prepa/naturalisation/${espace}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.textMuted, fontSize: 13, fontFamily: grotesk, minHeight: 36 }}><Icon nom="fleche" taille={13} style={{ transform: 'rotate(180deg)' }} /> Prépa naturalisation</Link>}
           <BoutonIcone icon={mode === 'sombre' ? 'soleil' : 'lune'} title={mode === 'sombre' ? 'Thème clair' : 'Thème sombre'} onClick={basculer} />
         </div>
 
-        {!chap && !final && (
+        {!chap && !final && pageNo === null && (
           <>
             <p style={{ fontFamily: grotesk, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: T.accent, margin: '0 0 4px', fontWeight: 600 }}>Cours animé · {SOURCE_LIVRET}</p>
             <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: 32, margin: '0 0 8px', lineHeight: 1.1 }}>📘 Le Livret du citoyen</h1>
+            <div role="tablist" style={{ display: 'flex', gap: 6, margin: '6px 0 14px' }}>
+              {[['chapitres', '📚 Par chapitre'], ['pages', '📄 Page par page']].map(([id, nom]) => <button key={id} role="tab" aria-selected={onglet === id} onClick={() => setOnglet(id)} style={{ ...puce(onglet === id), minHeight: 44, fontSize: 14.5 }}>{nom}</button>)}
+            </div>
+            {onglet === 'pages' && (
+              <>
+                <p style={{ fontSize: 14.5, color: T.textMuted, margin: '0 0 14px', lineHeight: 1.5 }}>Chaque page du livret en animations courtes, puis un « Vrai ou faux ? ». {Object.keys(progrès.pages || {}).length}/{PAGES_LIVRET.length} pages vues.</p>
+                <div style={{ height: 10, borderRadius: 5, background: T.surface2, overflow: 'hidden', marginBottom: 16 }}><div style={{ height: '100%', width: `${(Object.keys(progrès.pages || {}).length / PAGES_LIVRET.length) * 100}%`, background: T.accent, transition: 'width .4s' }} /></div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 160px), 1fr))', gap: 10 }}>
+                  {PAGES_LIVRET.map((pg, i) => {
+                    const vue = progrès.pages?.[pg.page]
+                    return (
+                      <button key={pg.page} className="cl-a" onClick={() => { setPageNo(pg.page); window.scrollTo(0, 0) }} style={{ ...retard(i * 0.03), display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4, textAlign: 'left', padding: 12, borderRadius: 14, background: T.surface, border: `1px solid ${vue ? '#2e9e6b' : T.border}`, color: T.text, cursor: 'pointer', minHeight: 96 }}>
+                        <span style={{ display: 'flex', width: '100%', alignItems: 'center' }}><span style={{ fontSize: 26, flex: 1 }}>{pg.emoji}</span><span style={{ fontFamily: grotesk, fontSize: 12, color: vue ? '#2e9e6b' : T.textMuted, fontWeight: 700 }}>{vue ? '✓ ' : ''}p. {pg.page}</span></span>
+                        <strong style={{ fontFamily: grotesk, fontSize: 14, lineHeight: 1.3 }}>{pg.titre}</strong>
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+            {onglet === 'chapitres' && (<>
             <p style={{ fontSize: 14.5, color: T.textMuted, margin: '0 0 14px', lineHeight: 1.5 }}>Pour chaque chapitre : 🎬 cours animé → 🔁 révision → ✍️ questions ouvertes → ✅ QCM. {terminés}/{CHAPITRES.length} chapitres terminés.</p>
             <div style={{ height: 10, borderRadius: 5, background: T.surface2, overflow: 'hidden', marginBottom: 16 }}><div style={{ height: '100%', width: `${(CHAPITRES.reduce((t, c) => t + fait(c.id), 0) / (CHAPITRES.length * 4)) * 100}%`, background: T.accent, transition: 'width .4s' }} /></div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 230px), 1fr))', gap: 10, marginBottom: 18 }}>
@@ -519,8 +587,27 @@ export default function CoursLivret() {
             </div>
             {progrès.final !== undefined && <p style={{ fontSize: 13.5, color: T.textMuted, margin: '10px 0 0' }}>Meilleur examen final : {Math.round(progrès.final * 100)} %</p>}
             {message && <p role="status" style={{ fontSize: 14, fontFamily: grotesk, fontWeight: 600, color: message.startsWith('✓') ? '#2e9e6b' : T.text, margin: '10px 0 0' }}>{message}</p>}
+            </>)}
           </>
         )}
+
+        {pageNo !== null && (() => {
+          const k = PAGES_LIVRET.findIndex(x => x.page === pageNo), pg = PAGES_LIVRET[k]
+          const aller = j => { setPageNo(PAGES_LIVRET[j].page); window.scrollTo(0, 0) }
+          const voir = () => setProgrès(p => { const n = { ...p, pages: { ...(p.pages || {}), [pg.page]: true } }; try { localStorage.setItem(CLÉ, JSON.stringify(n)) } catch { /* ignore */ } return n })
+          return (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <button onClick={() => aller(k - 1)} disabled={k === 0} aria-label="Page précédente" style={{ ...puce(false), opacity: k === 0 ? 0.4 : 1 }}>◀</button>
+                <span style={{ flex: 1, textAlign: 'center', fontFamily: grotesk, fontWeight: 700, color: T.textMuted, fontSize: 13 }}>Page {pg.page} du livret · {k + 1}/{PAGES_LIVRET.length}</span>
+                <button onClick={() => aller(k + 1)} disabled={k === PAGES_LIVRET.length - 1} aria-label="Page suivante" style={{ ...puce(false), opacity: k === PAGES_LIVRET.length - 1 ? 0.4 : 1 }}>▶</button>
+              </div>
+              <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: 'clamp(24px, 6vw, 30px)', margin: '0 0 12px', lineHeight: 1.15 }}>{pg.emoji} {pg.titre}</h1>
+              <Cours key={pg.page} T={T} chap={{ id: `p${pg.page}`, diapos: pg.diapos }} libelléFin={k < PAGES_LIVRET.length - 1 ? 'Page suivante →' : '✓ Terminé'}
+                onFini={() => { voir(); if (k < PAGES_LIVRET.length - 1) aller(k + 1); else setPageNo(null) }} />
+            </>
+          )
+        })()}
 
         {final && (
           <>
