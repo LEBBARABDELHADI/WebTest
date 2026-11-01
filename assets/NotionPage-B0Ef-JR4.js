@@ -1,4 +1,4 @@
-import{At as e,Ft as t,Mt as n,Ot as r,Pt as i,jt as a,kt as o}from"./index-DSVyWTvR.js";var s=t(i(),1),c=`export const code = \`// Un composant = une fonction qui retourne du JSX
+import{At as e,Ft as t,Mt as n,Ot as r,Pt as i,jt as a,kt as o}from"./index-fa07vg6y.js";var s=t(i(),1),c=`export const code = \`// Un composant = une fonction qui retourne du JSX
 function Salutation({ nom }) {
   return (
     <div style={{ padding: '16px', background: '#252836', borderRadius: '8px' }}>
