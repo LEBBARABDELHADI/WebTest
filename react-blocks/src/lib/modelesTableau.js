@@ -210,6 +210,40 @@ export const MODÈLES_TABLEAU = [
     créer: () => colonnes('Fiche incident', [['🩺 Symptôme', ['Ce qu\'on observe'], '#fde2e1'], ['🔍 Cause', ['Cause racine'], '#fff8e1'], ['💥 Impact', ['Qui / combien de temps'], '#f3e5f5'], ['🛠️ Correctif', ['Ce qui a été fait'], '#e3f2fd'], ['🛡️ Prévention', ['Pour que ça ne revienne pas'], '#e8f5e9']], { l: 280, h: 420, couleursNotes: [R, O, M, B, V] }),
   },
   {
+    id: 'fiche-revision', catégorie: 'Apprendre et mémoriser', emoji: '📝', nom: 'Fiche de révision', description: 'Sujet, notions clés, schéma, pièges, auto-évaluation, questions, résumé',
+    créer: () => {
+      const [f, els] = fabrique()
+      f.texte(0, -190, 'Fiche de révision : (sujet)', 34, true, 900)
+      f.texte(0, -125, 'Source : cours, doc, vidéo…\nDate :                À revoir le : ', 17, false, 900, 70)
+      // Colonne de gauche : objectif et mots-clés
+      f.cadre(0, 20, 420, 300, '🎯 Objectif', BL)
+      f.note(25, 50, 'À la fin, je dois savoir…\n\nQuestion centrale : ', J, 370, 240)
+      f.cadre(0, 380, 420, 520, '🔑 Notions clés', BL)
+      ;[['Notion 1', 'définition en une phrase'], ['Notion 2', 'définition'], ['Notion 3', 'définition'], ['Notion 4', 'définition']].forEach(([n, d], i) =>
+        f.note(25 + (i % 2) * 190, 410 + Math.floor(i / 2) * 240, `**${n}**\n${d}`, B, 175, 220))
+      // Centre : explication et schéma
+      f.cadre(480, 20, 640, 520, '🧩 Explication et schéma', BL)
+      const a = f.forme(520, 80, 170, 90, 'rect', 'Élément A', '#e3f2fd')
+      const b = f.forme(780, 80, 170, 90, 'rect', 'Élément B', '#e8f5e9')
+      const c = f.forme(650, 260, 170, 90, 'rond', 'Résultat', '#fff8e1')
+      f.lier(a, c, 'cause'); f.lier(b, c)
+      f.note(520, 390, 'Exemple concret : ', O, 560, 120)
+      f.cadre(480, 600, 640, 300, '⚠️ Pièges et erreurs fréquentes', BL)
+      f.note(505, 630, '- \n- \n- ', R, 590, 240)
+      // Droite : auto-évaluation et questions
+      f.cadre(1180, 20, 420, 420, '✅ Je sais…', BL)
+      f.note(1205, 50, '[ ] expliquer l\'idée principale\n[ ] donner une définition de chaque notion\n[ ] faire le schéma de mémoire\n[ ] citer un exemple\n[ ] éviter les pièges', V, 370, 360)
+      f.cadre(1180, 500, 420, 400, '❓ Questions pour me tester', BL)
+      f.note(1205, 530, 'Q1 : \nR : \n\nQ2 : \nR : \n\nQ3 : \nR : ', M, 370, 340)
+      // Bas : résumé
+      f.cadre(0, 960, 1600, 220, '📌 Résumé en 3 phrases', BL)
+      f.texte(30, 995, '1. \n2. \n3. ', 20, false, 1100, 150)
+      f.note(1180, 990, 'Astuce : choisis une note puis « 🧠 Carte » pour la transformer en carte Mémoriser (révision espacée).', G, 395, 160)
+      // Notes presque vides : taille fixe (en automatique, le texte serait énorme).
+      return els.map(e => (e.type === 'note' ? { ...e, taille: 17 } : e))
+    },
+  },
+  {
     id: 'grille-competences', catégorie: 'Apprendre et mémoriser', emoji: '📊', nom: 'Grille de compétences', description: 'AWS, Terraform, outils, bases : niveau, cases et progression par section',
     créer: () => grilleCompétences(),
   },
