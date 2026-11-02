@@ -12,13 +12,15 @@ import {
   analyserCidr, découperCidr, analyserCron, chmodDepuisOctal, chmodDepuisSymbolique, chmodOctal, chmodSymbolique,
   base64Encoder, base64Décoder, décoderJwt, analyserHorodatage, variablesDe, remplir, EXEMPLES_COMMANDES,
 } from '../lib/outilsDevops'
+import { analyserManifestes } from '../lib/k8sExplication'
+import { lirePlan, ACTIONS } from '../lib/terraformPlan'
 
 // Outils DevOps : boîte à outils (calculs dans le navigateur, rien n'est
 // envoyé) et coffre de commandes à variables (synchronisé avec le dépôt
 // privé, par espace).
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
-const OUTILS = [['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
+const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
 const compléterCommandes = d => ({
   commandes: Array.isArray(d?.commandes) ? d.commandes : [],
   profils: Array.isArray(d?.profils) && d.profils.length ? d.profils : [{ id: 'dev', nom: 'dev', valeurs: {} }, { id: 'prod', nom: 'prod', valeurs: {} }],
@@ -217,6 +219,182 @@ function OutilJson({ T, S }) {
   )
 }
 
+const EXEMPLE_K8S = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: api
+          image: registre.exemple.com/api:1.4.2
+          ports:
+            - containerPort: 8080
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 256Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: prod
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 8080
+`
+const NIVEAUX = { erreur: ['⛔', '#d33'], alerte: ['⚠️', '#c98a00'], info: ['ℹ️', '#3b6fd8'] }
+
+function OutilK8s({ T, S }) {
+  const [texte, setTexte] = useState('')
+  const [détails, setDétails] = useState(true)
+  const r = useMemo(() => {
+    if (!texte.trim()) return null
+    try { return { manifestes: analyserManifestes(yaml.loadAll(texte)) } } catch (e) { return { erreur: e.message.split('\n')[0] } }
+  }, [texte])
+  return (
+    <>
+      <div style={S.carte}>
+        <p style={S.étiquette}>Colle un ou plusieurs manifestes (séparés par ---)</p>
+        <textarea value={texte} onChange={e => setTexte(e.target.value)} rows={10} spellCheck={false} aria-label="Manifeste Kubernetes" style={{ ...S.champ, resize: 'vertical' }} />
+        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button onClick={() => setTexte(EXEMPLE_K8S)} style={S.puce(false)}>Exemple</button>
+          {texte && <button onClick={() => setTexte('')} style={S.puce(false)}>Effacer</button>}
+          <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14 }}><input type="checkbox" checked={détails} onChange={e => setDétails(e.target.checked)} /> Explication champ par champ</label>
+        </div>
+        {r?.erreur && <p style={{ color: T.danger, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 13.5 }}>❌ YAML invalide : {r.erreur}</p>}
+      </div>
+      {r?.manifestes?.map((m, i) => {
+        const par = n => m.alertes.filter(a => a.niveau === n).length
+        return (
+          <div key={i} style={S.carte}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+              <strong style={{ fontFamily: grotesk, fontSize: 17 }}>☸️ {m.nom}</strong>
+              <span style={{ fontSize: 13, color: par('erreur') ? T.danger : par('alerte') ? '#c98a00' : '#2e9e6b', fontFamily: grotesk, fontWeight: 700 }}>{par('erreur') ? `${par('erreur')} erreur(s)` : par('alerte') ? `${par('alerte')} point(s) à revoir` : '✓ rien de bloquant'}</span>
+            </div>
+            {m.description && <p style={{ margin: '4px 0 10px', fontSize: 14.5, color: T.textMuted }}>{m.description}</p>}
+            {m.planning && !m.planning.erreur && <p style={{ margin: '0 0 10px', fontSize: 14.5 }}>⏰ <strong>{m.planning.description}</strong> · prochaine exécution : {m.planning.prochaines[0]?.toLocaleString('fr-FR')} (heure de cet appareil ; le cluster est souvent en UTC)</p>}
+            {m.alertes.length > 0 && (
+              <ul style={{ listStyle: 'none', margin: '0 0 10px', padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {[...m.alertes].sort((a, b) => ['erreur', 'alerte', 'info'].indexOf(a.niveau) - ['erreur', 'alerte', 'info'].indexOf(b.niveau)).map((a, k) => (
+                  <li key={k} style={{ display: 'flex', gap: 8, padding: '8px 10px', borderRadius: 10, background: T.bg, borderLeft: `4px solid ${NIVEAUX[a.niveau][1]}`, fontSize: 14, lineHeight: 1.45 }}><span>{NIVEAUX[a.niveau][0]}</span><span>{a.texte}</span></li>
+                ))}
+              </ul>
+            )}
+            {détails && (
+              <details open={i === 0}>
+                <summary style={{ cursor: 'pointer', fontFamily: grotesk, fontWeight: 700, fontSize: 14, minHeight: 32 }}>Champ par champ ({m.lignes.filter(l => l.explication).length} expliqués)</summary>
+                <div style={{ marginTop: 6, fontSize: 13.5 }}>
+                  {m.lignes.map(l => (
+                    <div key={l.chemin} style={{ paddingLeft: l.profondeur * 14, padding: `4px 0 4px ${l.profondeur * 14}px`, borderBottom: `1px dashed ${T.border}` }}>
+                      <code style={{ color: T.accent, fontWeight: 700 }}>{l.clé}</code>{l.valeur !== null && l.valeur !== undefined && <code style={{ marginLeft: 6, wordBreak: 'break-all' }}>{String(l.valeur)}</code>}
+                      {l.explication && <div style={{ color: T.textMuted, fontSize: 13, lineHeight: 1.4, marginTop: 2 }}>{l.explication}</div>}
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
+const EXEMPLE_PLAN = `Terraform will perform the following actions:
+
+  # aws_instance.web will be created
+  + resource "aws_instance" "web" {
+      + ami = "ami-0abc"
+    }
+
+  # aws_db_instance.main must be replaced
+-/+ resource "aws_db_instance" "main" {
+      ~ identifier        = "db-old" -> "db-new" # forces replacement
+      ~ storage_encrypted = false -> true # forces replacement
+    }
+
+  # module.vpc.aws_subnet.private["a"] will be updated in-place
+  ~ resource "aws_subnet" "private" {
+      ~ tags = {}
+    }
+
+  # aws_s3_bucket.logs will be destroyed
+  # (because aws_s3_bucket.logs is not in configuration)
+  - resource "aws_s3_bucket" "logs" {
+    }
+
+Plan: 2 to add, 1 to change, 2 to destroy.`
+
+function OutilTerraform({ T, S }) {
+  const [texte, setTexte] = useState('')
+  const r = useMemo(() => lirePlan(texte), [texte])
+  const ordre = ['delete', 'replace', 'update', 'create', 'import', 'move', 'forget', 'read']
+  return (
+    <>
+      <div style={S.carte}>
+        <p style={S.étiquette}>Colle la sortie de terraform plan (ou terraform show -json plan.out)</p>
+        <textarea value={texte} onChange={e => setTexte(e.target.value)} rows={10} spellCheck={false} aria-label="Plan Terraform" style={{ ...S.champ, resize: 'vertical' }} />
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          <button onClick={() => setTexte(EXEMPLE_PLAN)} style={S.puce(false)}>Exemple</button>
+          {texte && <button onClick={() => setTexte('')} style={S.puce(false)}>Effacer</button>}
+        </div>
+        <p style={{ fontSize: 12.5, color: T.textMuted, margin: '8px 0 0' }}>Astuce : <code>terraform plan -no-color</code> ou <code>terraform plan -out=plan.out && terraform show -json plan.out</code>. Tout reste dans ton navigateur.</p>
+      </div>
+      {r?.erreur && <div style={S.carte}><p style={{ margin: 0, color: T.danger }}>{r.erreur}</p></div>}
+      {r && !r.erreur && (
+        <>
+          {r.rien && !r.ressources.length && <div style={{ ...S.carte, borderColor: '#2e9e6b' }}><p style={{ margin: 0, fontFamily: grotesk, fontWeight: 800, color: '#2e9e6b' }}>✅ Aucun changement : l'infrastructure correspond à la configuration.</p></div>}
+          {r.risquées.length > 0 && (
+            <div role="alert" style={{ ...S.carte, background: '#d332', borderColor: '#d33' }}>
+              <p style={{ margin: '0 0 6px', fontFamily: grotesk, fontWeight: 800, fontSize: 17, color: '#d33' }}>🛑 {r.risquées.length} ressource(s) seront détruites{r.compte.replace ? ' ou remplacées' : ''}</p>
+              <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>{r.risquées.map(x => <li key={x.adresse}><code>{x.adresse}</code>{r.données.includes(x) && <strong style={{ color: '#d33' }}> · 💾 contient des données</strong>}</li>)}</ul>
+            </div>
+          )}
+          <div style={S.carte}>
+            <p style={S.étiquette}>Résumé · lu au format {r.format}</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {ordre.filter(a => r.compte[a]).map(a => <span key={a} style={{ padding: '6px 10px', borderRadius: 16, background: `${ACTIONS[a].couleur}22`, color: ACTIONS[a].couleur, fontFamily: grotesk, fontWeight: 800, fontSize: 13.5 }}>{ACTIONS[a].emoji} {r.compte[a]} {ACTIONS[a].nom.toLowerCase()}</span>)}
+            </div>
+            {r.annoncé && <p style={{ margin: '8px 0 0', fontSize: 13.5, color: r.incohérent ? '#b07400' : T.textMuted }}>Terraform annonce : {r.annoncé.importer ? `${r.annoncé.importer} à importer, ` : ''}{r.annoncé.ajouter} à ajouter, {r.annoncé.modifier} à modifier, {r.annoncé.détruire} à détruire{r.incohérent ? ' ⚠️ ne correspond pas aux ressources lues : vérifie que le plan est complet.' : ' (un remplacement compte comme un ajout et une destruction).'}</p>}
+          </div>
+          {ordre.filter(a => r.compte[a]).map(a => (
+            <div key={a} style={S.carte}>
+              <p style={{ ...S.étiquette, color: ACTIONS[a].couleur }}>{ACTIONS[a].emoji} {ACTIONS[a].nom} ({r.compte[a]})</p>
+              {r.ressources.filter(x => x.action === a).map(x => (
+                <div key={x.adresse + a} style={{ padding: '8px 0', borderBottom: `1px solid ${T.border}` }}>
+                  <code style={{ fontSize: 14, wordBreak: 'break-all', fontWeight: 700 }}>{x.adresse}</code>{x.vers && <> → <code>{x.vers}</code></>}
+                  <div style={{ fontSize: 13, color: T.textMuted, marginTop: 2 }}>{x.type}{x.module ? ` · module ${x.module}` : ''}{r.données.includes(x) ? ' · 💾 données' : ''}</div>
+                  {x.attributs.length > 0 && <div style={{ fontSize: 13.5, marginTop: 2 }}>Remplacement forcé par : {x.attributs.map(t => <code key={t} style={{ marginRight: 6, color: '#e8590c' }}>{t}</code>)}</div>}
+                  {x.raison && <div style={{ fontSize: 13, color: T.textMuted, marginTop: 2 }}>Raison : {x.raison}</div>}
+                </div>
+              ))}
+            </div>
+          ))}
+          {r.conseils.length > 0 && <div style={S.carte}><p style={S.étiquette}>💡 Conseils</p><ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6, fontSize: 14.5 }}>{r.conseils.map(c => <li key={c}>{c.split('`').map((m, k) => (k % 2 ? <code key={k}>{m}</code> : m))}</li>)}</ul></div>}
+        </>
+      )}
+    </>
+  )
+}
+
 // ---------- Coffre de commandes ----------
 function Commandes({ T, S, data, setData }) {
   const [q, setQ] = useState('')
@@ -334,9 +512,9 @@ export default function OutilsDevops() {
   const config = useMemo(() => ({ id: espace, stockage: `react-blocs-commandes-${espace}`, chemin: `react-blocks/src/data/commandes-${espace}.json`, données: {} }), [espace])
   const { data, setData, token, statut, erreur, connecter, déconnecter } = useDonnéesSynchronisées(config, compléterCommandes)
   const [onglet, setOnglet] = useState(() => { try { return localStorage.getItem('react-blocs-outils-onglet') || 'outils' } catch { return 'outils' } })
-  const [outil, setOutil] = useState('cidr')
+  const [outil, setOutil] = useState('k8s')
   const choisirOnglet = o => { setOnglet(o); try { localStorage.setItem('react-blocs-outils-onglet', o) } catch { /* ignore */ } }
-  const Outil = { cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
+  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '20px 16px 60px', color: T.text }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
