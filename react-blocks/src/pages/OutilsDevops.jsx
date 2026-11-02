@@ -14,13 +14,16 @@ import {
 } from '../lib/outilsDevops'
 import { analyserManifestes } from '../lib/k8sExplication'
 import { lirePlan, ACTIONS } from '../lib/terraformPlan'
+import { analyserDockerfile } from '../lib/dockerfile'
+import { analyserGitlabCi, MOTS_CLÉS } from '../lib/gitlabCi'
+import { testerLogs, EXEMPLES_LOGS } from '../lib/logs'
 
 // Outils DevOps : boîte à outils (calculs dans le navigateur, rien n'est
 // envoyé) et coffre de commandes à variables (synchronisé avec le dépôt
 // privé, par espace).
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
-const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
+const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['docker', '🐳 Dockerfile'], ['gitlab', '🦊 GitLab CI'], ['logs', '🔎 Logs (regex / grok)'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
 const compléterCommandes = d => ({
   commandes: Array.isArray(d?.commandes) ? d.commandes : [],
   profils: Array.isArray(d?.profils) && d.profils.length ? d.profils : [{ id: 'dev', nom: 'dev', valeurs: {} }, { id: 'prod', nom: 'prod', valeurs: {} }],
@@ -395,6 +398,233 @@ function OutilTerraform({ T, S }) {
   )
 }
 
+function Alertes({ T, alertes, avecLigne }) {
+  if (!alertes.length) return null
+  return (
+    <ul style={{ listStyle: 'none', margin: '0 0 10px', padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {alertes.map((a, k) => (
+        <li key={k} style={{ display: 'flex', gap: 8, padding: '8px 10px', borderRadius: 10, background: T.bg, borderLeft: `4px solid ${NIVEAUX[a.niveau][1]}`, fontSize: 14, lineHeight: 1.45 }}>
+          <span>{NIVEAUX[a.niveau][0]}</span>
+          <span>{avecLigne && a.ligne ? <strong style={{ fontFamily: 'ui-monospace, Menlo, monospace', marginRight: 6 }}>L{a.ligne}</strong> : null}{a.job ? <strong style={{ fontFamily: 'ui-monospace, Menlo, monospace', marginRight: 6 }}>{a.job}</strong> : null}{a.texte}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+const Bilan = ({ T, alertes }) => {
+  const n = k => alertes.filter(a => a.niveau === k).length
+  return <span style={{ fontSize: 13.5, color: n('erreur') ? T.danger : n('alerte') ? '#c98a00' : '#2e9e6b', fontFamily: grotesk, fontWeight: 800 }}>{n('erreur') ? `${n('erreur')} erreur(s)` : ''}{n('erreur') && n('alerte') ? ' · ' : ''}{n('alerte') ? `${n('alerte')} point(s) à revoir` : ''}{!n('erreur') && !n('alerte') ? '✓ rien de bloquant' : ''}</span>
+}
+
+const DOCKER_À_REVOIR = `FROM node
+ENV API_KEY=abc123
+WORKDIR /app
+COPY . .
+RUN apt-get update
+RUN apt-get install -y curl git
+RUN npm install && npm run build
+CMD node dist/server.js`
+const DOCKER_BON = `FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine
+RUN addgroup -S app && adduser -S app -G app
+WORKDIR /app
+COPY --from=build --chown=app:app /app/dist ./dist
+USER app
+EXPOSE 3000
+HEALTHCHECK CMD wget -qO- http://localhost:3000/health || exit 1
+CMD ["node", "dist/server.js"]`
+
+function OutilDocker({ T, S }) {
+  const [texte, setTexte] = useState('')
+  const r = useMemo(() => analyserDockerfile(texte), [texte])
+  return (
+    <>
+      <div style={S.carte}>
+        <p style={S.étiquette}>Colle ton Dockerfile</p>
+        <textarea value={texte} onChange={e => setTexte(e.target.value)} rows={10} spellCheck={false} aria-label="Dockerfile" style={{ ...S.champ, resize: 'vertical' }} />
+        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+          <button onClick={() => setTexte(DOCKER_À_REVOIR)} style={S.puce(false)}>Exemple à corriger</button>
+          <button onClick={() => setTexte(DOCKER_BON)} style={S.puce(false)}>Exemple propre</button>
+          {texte && <button onClick={() => setTexte('')} style={S.puce(false)}>Effacer</button>}
+        </div>
+      </div>
+      {r && (
+        <>
+          <div style={S.carte}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 8 }}>
+              <strong style={{ fontFamily: grotesk, fontSize: 17 }}>🐳 {r.stats.étapes > 1 ? `Build multi-étapes (${r.stats.étapes})` : '1 étape'}</strong><Bilan T={T} alertes={r.alertes} />
+            </div>
+            {r.étapes.length > 0 && <p style={{ margin: '0 0 10px', fontSize: 14, color: T.textMuted }}>{r.étapes.map((e, i) => `${i + 1}. ${e.image}${e.nom ? ` (« ${e.nom} »)` : ''}`).join(' → ')}{r.étapes.length > 1 ? ' : seule la dernière étape forme l\'image finale.' : ''}</p>}
+            <Alertes T={T} alertes={r.alertes} avecLigne />
+          </div>
+          <div style={S.carte}>
+            <p style={S.étiquette}>Instruction par instruction</p>
+            {r.instructions.map((x, i) => (
+              <div key={i} style={{ padding: '7px 0', borderBottom: `1px dashed ${T.border}` }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                  <span style={{ fontSize: 12, color: T.textMuted, minWidth: 28, fontFamily: 'ui-monospace, Menlo, monospace' }}>L{x.ligne}</span>
+                  <code style={{ wordBreak: 'break-all', fontSize: 13.5 }}><strong style={{ color: T.accent }}>{x.instruction}</strong> {x.arguments}</code>
+                </div>
+                {x.explication && <div style={{ fontSize: 13, color: T.textMuted, marginLeft: 36, lineHeight: 1.4 }}>{x.explication}</div>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  )
+}
+
+const EXEMPLE_GITLAB = `stages: [build, test, deploy]
+
+default:
+  interruptible: true
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.node:
+  image: node:20-alpine
+  cache:
+    key: { files: [package-lock.json] }
+    paths: [node_modules/]
+
+build:
+  extends: .node
+  stage: build
+  script: [npm ci, npm run build]
+  artifacts: { paths: [dist/], expire_in: 1 week }
+
+lint:
+  extends: .node
+  stage: test
+  needs: [build]
+  script: [npm run lint]
+
+test:
+  extends: .node
+  stage: test
+  needs: [build]
+  script: [npm test]
+
+deploy_production:
+  stage: deploy
+  image: amazon/aws-cli:2.15.0
+  needs: [lint, test]
+  script: [aws s3 sync dist/ s3://$BUCKET]
+  environment: { name: production, url: https://exemple.fr }
+  resource_group: production
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual`
+
+function OutilGitlab({ T, S }) {
+  const [texte, setTexte] = useState('')
+  const r = useMemo(() => {
+    if (!texte.trim()) return null
+    try { return analyserGitlabCi(yaml.load(texte)) } catch (e) { return { erreur: `YAML invalide : ${e.message.split('\n')[0]}` } }
+  }, [texte])
+  const clés = r?.jobs ? [...new Set(r.jobs.flatMap(j => j.clés))].filter(k => MOTS_CLÉS[k]) : []
+  return (
+    <>
+      <div style={S.carte}>
+        <p style={S.étiquette}>Colle ton .gitlab-ci.yml</p>
+        <textarea value={texte} onChange={e => setTexte(e.target.value)} rows={10} spellCheck={false} aria-label="Fichier GitLab CI" style={{ ...S.champ, resize: 'vertical' }} />
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          <button onClick={() => setTexte(EXEMPLE_GITLAB)} style={S.puce(false)}>Exemple</button>
+          {texte && <button onClick={() => setTexte('')} style={S.puce(false)}>Effacer</button>}
+        </div>
+        {r?.erreur && <p style={{ color: T.danger, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 13.5 }}>❌ {r.erreur}</p>}
+      </div>
+      {r && !r.erreur && (
+        <>
+          <div style={S.carte}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 10 }}>
+              <strong style={{ fontFamily: grotesk, fontSize: 17 }}>🦊 Pipeline : {r.jobs.length} job(s)</strong><Bilan T={T} alertes={r.alertes} />
+            </div>
+            <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 8 }} aria-label="Pipeline par étape">
+              {r.stages.map(st => (
+                <div key={st} style={{ flex: '0 0 190px', background: T.bg, borderRadius: 12, padding: 8 }}>
+                  <p style={{ margin: '0 0 8px', fontFamily: grotesk, fontWeight: 800, fontSize: 13, color: r.déclarés.includes(st) || st.startsWith('.') ? T.textMuted : T.danger, textTransform: 'uppercase', letterSpacing: '.06em' }}>{st}</p>
+                  {r.jobs.filter(j => j.étape === st).map(j => (
+                    <div key={j.nom} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: '8px 10px', marginBottom: 6 }}>
+                      <strong style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 13.5, wordBreak: 'break-all' }}>{j.trigger ? '↗ ' : ''}{j.nom}</strong>
+                      <div style={{ fontSize: 12, color: T.textMuted, marginTop: 3, lineHeight: 1.45 }}>
+                        {j.image && <div>🐳 {j.image}</div>}
+                        {j.needs.length > 0 && <div>⏩ après {j.needs.join(', ')}</div>}
+                        {j.when !== 'on_success' && <div>{j.when === 'manual' ? '▶️ manuel' : `⚙️ ${j.when}`}</div>}
+                        {j.environment && <div>🌍 {j.environment}</div>}
+                        {j.extends.length > 0 && <div>🧬 {j.extends.join(', ')}</div>}
+                        {j.allow_failure && <div>🟡 échec toléré</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {r.modèles.length > 0 && <p style={{ fontSize: 13, color: T.textMuted, margin: '4px 0 10px' }}>Modèles cachés (non lancés) : {r.modèles.join(', ')}</p>}
+            <Alertes T={T} alertes={r.alertes} />
+          </div>
+          {clés.length > 0 && (
+            <div style={S.carte}>
+              <p style={S.étiquette}>Mots-clés utilisés</p>
+              {clés.map(k => <div key={k} style={{ padding: '6px 0', borderBottom: `1px dashed ${T.border}`, fontSize: 14 }}><code style={{ color: T.accent, fontWeight: 700 }}>{k}</code> <span style={{ color: T.textMuted }}>{MOTS_CLÉS[k]}</span></div>)}
+            </div>
+          )}
+        </>
+      )}
+    </>
+  )
+}
+
+function OutilLogs({ T, S }) {
+  const [mode, setMode] = useState('grok')
+  const [motif, setMotif] = useState('')
+  const [drapeaux, setDrapeaux] = useState('')
+  const [logs, setLogs] = useState('')
+  const r = useMemo(() => testerLogs({ mode, motif, drapeaux, logs }), [mode, motif, drapeaux, logs])
+  return (
+    <>
+      <div style={S.carte}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+          {[['grok', 'Règles grok (Datadog)'], ['regex', 'Expression régulière']].map(([id, nom]) => <button key={id} onClick={() => setMode(id)} aria-pressed={mode === id} style={S.puce(mode === id)}>{nom}</button>)}
+          <button onClick={() => { setLogs(EXEMPLES_LOGS.logs); setMotif(EXEMPLES_LOGS[mode]) }} style={S.puce(false)}>Exemple</button>
+        </div>
+        <p style={S.étiquette}>{mode === 'grok' ? 'Règles : une par ligne, « nom_regle motif »' : 'Expression régulière (groupes nommés : (?<nom>…))'}</p>
+        <textarea value={motif} onChange={e => setMotif(e.target.value)} rows={mode === 'grok' ? 3 : 2} spellCheck={false} aria-label="Motif" style={{ ...S.champ, resize: 'vertical' }} />
+        {mode === 'regex' && <input value={drapeaux} onChange={e => setDrapeaux(e.target.value)} placeholder="Drapeaux : i, m, s" aria-label="Drapeaux" style={{ ...S.champ, marginTop: 6, width: 180 }} />}
+        {mode === 'grok' && <p style={{ fontSize: 12.5, color: T.textMuted, margin: '6px 0 0', lineHeight: 1.5 }}>Matchers : word, notSpace, data, integer, number, ip, hostname, uuid, quotedString, date("…"), regex("…")… Filtres : :keyvalue, :json, :lowercase. La règle doit couvrir toute la ligne, comme dans Datadog.</p>}
+        <p style={{ ...S.étiquette, marginTop: 12 }}>Lignes de log</p>
+        <textarea value={logs} onChange={e => setLogs(e.target.value)} rows={7} spellCheck={false} aria-label="Lignes de log" style={{ ...S.champ, resize: 'vertical' }} />
+      </div>
+      {r?.erreur && <div style={S.carte}><p style={{ margin: 0, color: T.danger, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 13.5 }}>❌ {r.erreur}</p></div>}
+      {r && !r.erreur && (
+        <>
+          <div style={S.carte}>
+            <p style={{ margin: '0 0 6px', fontFamily: grotesk, fontWeight: 800, color: r.reconnues === r.total ? '#2e9e6b' : '#c98a00' }}>{r.reconnues}/{r.total} lignes reconnues</p>
+            <div style={{ height: 8, borderRadius: 4, background: T.surface2, overflow: 'hidden' }}><div style={{ height: '100%', width: `${(r.reconnues / r.total) * 100}%`, background: '#2e9e6b' }} /></div>
+            {r.tops.length > 0 && <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>{r.tops.map(t => <div key={t.champ} style={{ fontSize: 13.5 }}><code style={{ color: T.accent, fontWeight: 700 }}>{t.champ}</code> : {t.valeurs.map(([v, n]) => `${v} (${n})`).join(' · ')}</div>)}</div>}
+          </div>
+          {r.résultats.map((x, i) => (
+            <div key={i} style={{ ...S.carte, borderLeft: `4px solid ${x.ok ? '#2e9e6b' : T.danger}` }}>
+              <code style={{ display: 'block', fontSize: 13, wordBreak: 'break-all', color: T.textMuted, marginBottom: x.ok ? 6 : 0 }}>{x.ok ? '✓' : '✗ non reconnue :'} {x.ligne}</code>
+              {x.ok && <pre style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontFamily: 'ui-monospace, Menlo, monospace' }}>{JSON.stringify(x.champs, null, 2)}</pre>}
+            </div>
+          ))}
+        </>
+      )}
+    </>
+  )
+}
+
 // ---------- Coffre de commandes ----------
 function Commandes({ T, S, data, setData }) {
   const [q, setQ] = useState('')
@@ -514,7 +744,7 @@ export default function OutilsDevops() {
   const [onglet, setOnglet] = useState(() => { try { return localStorage.getItem('react-blocs-outils-onglet') || 'outils' } catch { return 'outils' } })
   const [outil, setOutil] = useState('k8s')
   const choisirOnglet = o => { setOnglet(o); try { localStorage.setItem('react-blocs-outils-onglet', o) } catch { /* ignore */ } }
-  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
+  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, docker: OutilDocker, gitlab: OutilGitlab, logs: OutilLogs, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '20px 16px 60px', color: T.text }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
