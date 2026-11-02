@@ -13,7 +13,7 @@ import RechercheGlobale from '../components/RechercheGlobale'
 import { joursAvant, compteÀRebours } from '../lib/certifications'
 import Sauvegarde from '../components/Sauvegarde'
 import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
-import { useDonnéesFoyer, ajouterRapidement, analyserSaisie } from '../lib/donneesFoyer'
+import { useDonnéesFoyer, ajouterRapidement, analyserSaisie, lireLocal } from '../lib/donneesFoyer'
 import { rappelsActifs, activerRappels, désactiverRappels, vérifierRappels } from '../lib/rappels'
 
 const aujourdhui = () => new Date().toISOString().slice(0, 10)
@@ -220,6 +220,7 @@ export default function Home({ foyerId = 'lebbar' }) {
     },
     { to: `/tableau/${espace}`, icône: 'reseau', titre: 'Graphe amélioré', chiffre: '✦', unité: 'tableau blanc', détail: 'Pense-bêtes, formes, flèches…' },
     { to: '/timer', icône: 'horloge', titre: 'Timer', chiffre: heure, unité: '', détail: 'Chrono · minuteur' },
+    { to: `/outils/${espace}`, icône: 'code', titre: 'Outils DevOps', chiffre: (lireLocal('commandes', espace).commandes || []).length, unité: 'commandes', détail: 'CIDR, cron, chmod, JWT, JSON/YAML…' },
   ]
 
   const carteStyle = { background: T.surface, border: `1px solid ${T.border}`, borderRadius: '16px' }
