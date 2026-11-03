@@ -220,6 +220,7 @@ export default function Tableau() {
   const [sélection, setSélection] = useState([])
   const [édition, setÉdition] = useState(null)
   const [aperçu, setAperçu] = useState(null) // élément en cours de création (glisser)
+  const [relierDe, setRelierDe] = useState(null) // « Relier » : id de l'élément de départ, en attente du 2e toucher
   const [cadreSel, setCadreSel] = useState(null)
   const [feuille, setFeuille] = useState(false)
   const [menu, setMenu] = useState(false)
@@ -463,6 +464,25 @@ export default function Tableau() {
     const poignée = e.target.closest('[data-poignee]')?.dataset.poignee
     const idEl = e.target.closest('[data-el]')?.dataset.el
     const { outil: o } = réf.current
+    // Mode « Relier » : le 2e élément touché reçoit la flèche ; toucher le fond annule.
+    if (relierDe) {
+      pointeurs.current.delete(e.pointerId)
+      if (idEl && idEl !== relierDe) { if (relierÉléments(relierDe, idEl)) afficher('🔗 Éléments reliés'); setSélection([idEl]) }
+      setRelierDe(null)
+      return
+    }
+    // Point bleu sur le bord de l'élément choisi : glisser crée une flèche.
+    const connecteur = e.target.closest('[data-connecteur]')?.dataset.connecteur
+    if (connecteur) {
+      const [id, côté] = connecteur.split(':')
+      const el = parId.get(id)
+      if (el) {
+        const m = milieuCôté(el, côté)
+        geste.current = { type: 'ligne', p0: m, de: id, côtéDe: côté, connecteur: true, s0: { x: e.clientX, y: e.clientY } }
+        setAperçu({ id: '__aperçu', type: 'ligne', x1: m.x, y1: m.y, x2: m.x, y2: m.y, couleur: UI.accent, épaisseur: 2, flèche: 'fin' })
+        return
+      }
+    }
     if (poignée) {
       const [id, coin] = poignée.split(':')
       geste.current = { type: 'redim', id, coin, p0: p, départ: parId.get(id), tracé: false }
@@ -649,6 +669,24 @@ export default function Tableau() {
       setOutil('stylo')
       return
     }
+    if (g.type === 'ligne' && g.connecteur) {
+      setAperçu(null)
+      const vers = élémentSous(e.clientX, e.clientY, g.de)
+      const bougé = Math.hypot(e.clientX - g.s0.x, e.clientY - g.s0.y) > 10
+      if (!bougé) { setRelierDe(g.de); return } // simple toucher : choisir le 2e élément ensuite
+      const versEl = vers && parId.get(vers)
+      if (versEl && versEl.type !== 'ligne' && versEl.type !== 'trait') {
+        if (relierÉléments(g.de, vers, { côtéDe: g.côtéDe, côtéVers: côtéLePlusProche(versEl, p) })) afficher('🔗 Éléments reliés')
+        return
+      }
+      // Lâché dans le vide : nouvelle note reliée à cet endroit.
+      const s = parId.get(g.de)
+      const [ln, hn] = s && ['note', 'forme'].includes(s.type) ? [s.l, s.h] : TAILLES.note
+      const n = { id: uid(), type: s?.type === 'forme' ? 'forme' : 'note', forme: s?.forme, x: p.x - ln / 2, y: p.y - hn / 2, l: ln, h: hn, texte: '', couleur: s?.type === 'note' ? s.couleur : s?.type === 'forme' ? s.couleur : NOTES[0], bord: s?.bord, taille: 'auto' }
+      majÉléments(l => [...l, n, { id: uid(), type: 'ligne', x1: 0, y1: 0, x2: 0, y2: 0, de: g.de, côtéDe: g.côtéDe, vers: n.id, couleur: '#1b1b1b', épaisseur: 2, flèche: 'fin', style: 'plein' }])
+      setSélection([n.id]); ouvrirÉdition(n.id)
+      return
+    }
     if (g.type === 'ligne') {
       setAperçu(null)
       const vers = élémentSous(e.clientX, e.clientY, g.de)
@@ -743,6 +781,22 @@ export default function Tableau() {
     window.addEventListener('paste', f)
     return () => window.removeEventListener('paste', f)
   })
+  // Relie deux éléments par une flèche (sans doublon). Côtés facultatifs :
+  // sinon la flèche part et arrive par les côtés les plus proches.
+  const relierÉléments = (a, b, côtés = {}) => {
+    if (!a || !b || a === b) return false
+    const ea = parId.get(a), eb = parId.get(b)
+    if (!ea || !eb || [ea.type, eb.type].some(t => t === 'ligne' || t === 'trait')) return false
+    if (réf.current.éléments.some(x => x.type === 'ligne' && ((x.de === a && x.vers === b) || (x.de === b && x.vers === a)))) { afficher('Ces deux éléments sont déjà reliés'); return false }
+    majÉléments(l => [...l, { id: uid(), type: 'ligne', x1: 0, y1: 0, x2: 0, y2: 0, de: a, vers: b, ...côtés, couleur: '#1b1b1b', épaisseur: 2, flèche: 'fin', style: 'plein' }])
+    return true
+  }
+  const relierEnChaîne = ids => {
+    const liste = ids.filter(id => { const x = parId.get(id); return x && x.type !== 'ligne' && x.type !== 'trait' })
+    let n = 0
+    for (let i = 0; i < liste.length - 1; i++) if (relierÉléments(liste[i], liste[i + 1])) n++
+    if (n) afficher(n === 1 ? '🔗 Éléments reliés' : `🔗 ${n} flèches ajoutées`)
+  }
   const ajouterRelié = id => {
     if (brouillon.current) terminerÉdition()
     const s = parId.get(id)
@@ -837,7 +891,7 @@ export default function Tableau() {
       if ((e.ctrlKey || e.metaKey) && k === 'g' && sel.length > 1) { e.preventDefault(); if (e.shiftKey) dégrouper(); else grouper(); return }
       if ((e.ctrlKey || e.metaKey) && k === 'l' && sel.length) { e.preventDefault(); basculerVerrou(); return }
       if ((e.key === 'Delete' || e.key === 'Backspace') && sel.length) { e.preventDefault(); supprimer(sel); return }
-      if (e.key === 'Escape') { setSélection([]); setOutil('sélection'); setFeuille(false); return }
+      if (e.key === 'Escape') { if (relierDe) { setRelierDe(null); return } setSélection([]); setOutil('sélection'); setFeuille(false); return }
       if (e.key === 'Enter' && sel.length === 1 && avecTexte(réf.current.parId.get(sel[0]))) { e.preventDefault(); setÉdition(sel[0]); return }
       if (e.ctrlKey || e.metaKey || e.altKey) return
       const raccourcis = { v: 'sélection', m: 'multi', h: 'main', n: 'note', t: 'texte', r: 'forme', l: 'ligne', p: 'stylo', f: 'cadre', c: 'commentaire' }
@@ -890,6 +944,19 @@ export default function Tableau() {
       <div data-poignee={`${id}:${coin}`} style={{ position: 'absolute', inset: -14 / z }} />
     </div>
   )
+  // Point bleu au milieu d'un côté : glisser vers un autre élément = flèche ;
+  // toucher = mode « Relier » (toucher ensuite l'élément d'arrivée).
+  const connecteur = (el, côté) => {
+    const m = milieuCôté(el, côté)
+    return (
+      <div key={`c-${côté}`} data-connecteur={`${el.id}:${côté}`} title="Glisser vers un autre élément pour le relier" style={{
+        position: 'absolute', left: m.x - 8 / z, top: m.y - 8 / z, width: 16 / z, height: 16 / z, borderRadius: '50%', background: UI.accent,
+        border: `${2 / z}px solid #fff`, boxShadow: '0 1px 4px rgba(0,0,0,.3)', cursor: 'crosshair', touchAction: 'none', zIndex: 6,
+      }}>
+        <div data-connecteur={`${el.id}:${côté}`} style={{ position: 'absolute', inset: -9 / z, borderRadius: '50%' }} />
+      </div>
+    )
+  }
   const champTexte = el => (
     <textarea
       autoFocus
@@ -1068,6 +1135,7 @@ export default function Tableau() {
             <div style={{ position: 'absolute', left: el.x - 4 / z, top: el.y - 4 / z, width: el.l + 8 / z, height: el.h + 8 / z, border: `${1.6 / z}px solid ${UI.accent}`, pointerEvents: 'none' }} />
             {outil === 'multi' && <span style={{ position: 'absolute', left: el.x - 12 / z, top: el.y - 12 / z, width: 24 / z, height: 24 / z, borderRadius: '50%', background: UI.accent, color: '#fff', fontSize: 15 / z, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', boxShadow: '0 2px 6px rgba(0,0,0,.25)' }}>✓</span>}
             {sélection.length === 1 && !el.verrou && [['nw', el.x, el.y], ['ne', el.x + el.l, el.y], ['sw', el.x, el.y + el.h], ['se', el.x + el.l, el.y + el.h]].map(([c, x, y]) => poignée(el.id, c, x, y))}
+            {sélection.length === 1 && outil === 'sélection' && !relierDe && ['n', 'e', 's', 'w'].map(c => connecteur(el, c))}
           </>
         )}
       </div>
@@ -1202,6 +1270,8 @@ export default function Tableau() {
       {sép}
       {btn('👍', () => majChoisis(e => ({ votes: (e.votes || 0) + 1 })), 'Voter (+1)')}
       {choisis.some(e => e.votes) && btn('👎', () => majChoisis(e => { const c = { ...e, votes: Math.max(0, (e.votes || 0) - 1) }; if (!c.votes) delete c.votes; return c }), 'Retirer un vote')}
+      {seul && seul.type !== 'ligne' && seul.type !== 'trait' && btn('🔗 Relier', () => setRelierDe(seul.id), 'Relier à un autre élément : touche-le ensuite')}
+      {choisis.filter(e => e.type !== 'ligne' && e.type !== 'trait').length >= 2 && btn(choisis.length === 2 ? '🔗 Relier' : '🔗 Relier en chaîne', () => relierEnChaîne(sélection), choisis.length === 2 ? 'Relier ces deux éléments par une flèche' : 'Relier les éléments dans l\'ordre où tu les as choisis')}
       {choisis.length >= 2 && !choisis.every(e => e.groupe && e.groupe === choisis[0].groupe) && btn('⛓ Grouper', grouper, 'Grouper (Ctrl+G)')}
       {choisis.some(e => e.groupe) && btn('Dégrouper', dégrouper, 'Dégrouper (Ctrl+Maj+G)')}
       {btn(choisis.every(e => e.verrou) ? '🔓' : '🔒', basculerVerrou, choisis.every(e => e.verrou) ? 'Déverrouiller (Ctrl+L)' : 'Verrouiller (Ctrl+L)', choisis.every(e => e.verrou))}
@@ -1339,7 +1409,17 @@ export default function Tableau() {
         )}
       </div>
 
-      {boutonPlus}
+      {relierDe ? null : boutonPlus}
+      {relierDe && (() => {
+        const d = parId.get(relierDe)
+        const nom = (d?.texte || '').split('\n')[0].replace(/\*\*/g, '').slice(0, 30) || { note: 'pense-bête', forme: 'forme', texte: 'texte', image: 'image', cadre: 'cadre' }[d?.type] || 'élément'
+        return (
+          <div data-chrome role="status" onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'calc(max(12px, env(safe-area-inset-top)) + 62px)', left: '50%', transform: 'translateX(-50%)', width: 'min(460px, calc(100% - 24px))', zIndex: 21, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 8px 8px 14px', borderRadius: 14, background: UI.accent, color: '#fff', boxShadow: '0 6px 20px rgba(0,0,0,.2)', fontFamily: grotesk, fontSize: 14.5 }}>
+            <span style={{ flex: 1 }}>🔗 Touche l'élément à relier à « {nom} »</span>
+            <button onClick={() => setRelierDe(null)} style={{ minHeight: 36, padding: '0 12px', borderRadius: 10, border: 'none', background: 'rgba(255,255,255,.22)', color: '#fff', fontWeight: 700, fontFamily: grotesk, cursor: 'pointer' }}>Annuler</button>
+          </div>
+        )
+      })()}
 
       {/* Barre du haut */}
       <div data-chrome onPointerDown={e => e.stopPropagation()} style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', left: 12, right: 12, display: 'flex', alignItems: 'center', gap: 4, padding: '6px 8px', zIndex: 20, ...pill }}>
