@@ -1,0 +1,290 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Un samedi matin, sur la place de la mairie.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Lina révise son entretien de naturalisation avec M. Arnaud. Aujourd'hui, trois mots gravés dans la pierre.",
+  "émotion": null
+ },
+ {
+  "clé": "devise:0",
+  "qui": "lina",
+  "texte": "Ces trois mots sur la façade… je les vois sur tous les bâtiments officiels.",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "devise:1",
+  "qui": "arnaud",
+  "texte": "C'est la devise de la France : liberté, égalité, fraternité.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "devise:2",
+  "qui": "arnaud",
+  "texte": "Ce sont les valeurs fondatrices de la République. Des repères communs pour vivre ensemble.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "devise:3",
+  "qui": "narrateur",
+  "texte": "La devise de la France « liberté, égalité, fraternité » consacre les valeurs fondatrices de la République française, repères communs pour le vivre ensemble.",
+  "officiel": true
+ },
+ {
+  "clé": "devise:4",
+  "qui": "lina",
+  "texte": "Et on la retrouve sur les préfectures, sur les mairies…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "devise:5",
+  "qui": "narrateur",
+  "texte": "Elle est inscrite sur le fronton des bâtiments publics (préfectures, mairies…).",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-a:0",
+  "qui": "narrateur",
+  "texte": "Premier mot : la liberté.",
+  "émotion": null
+ },
+ {
+  "clé": "parc:0",
+  "qui": "lina",
+  "texte": "Dans ce parc, chacun fait comme il veut : l'un lit, l'autre chante, d'autres débattent.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "parc:1",
+  "qui": "arnaud",
+  "texte": "Les femmes et les hommes sont libres dans leurs choix…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "parc:2",
+  "qui": "arnaud",
+  "texte": "… dans leurs opinions…",
+  "émotion": null
+ },
+ {
+  "clé": "parc:3",
+  "qui": "arnaud",
+  "texte": "… et dans leur manière de penser, de s'exprimer et de vivre.",
+  "émotion": null
+ },
+ {
+  "clé": "parc:4",
+  "qui": "narrateur",
+  "texte": "Les femmes et les hommes sont libres dans leurs choix, leurs opinions et leur manière de penser, de s'exprimer et de vivre.",
+  "officiel": true
+ },
+ {
+  "clé": "minuit:0",
+  "qui": "narrateur",
+  "texte": "Le soir. Une fête monte le son… à minuit.",
+  "émotion": null
+ },
+ {
+  "clé": "minuit:1",
+  "qui": "lina",
+  "texte": "Si je suis libre, je peux mettre la musique à fond, non ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "minuit:2",
+  "qui": "arnaud",
+  "texte": "Pas si tu empêches tes voisins de dormir. Ta liberté s'arrête là où tu nuis aux autres.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "article4:0",
+  "qui": "arnaud",
+  "texte": "C'est écrit dans la Déclaration des droits de l'homme et du citoyen de 1789. Son article 4 le proclame.",
+  "émotion": null
+ },
+ {
+  "clé": "article4:1",
+  "qui": "narrateur",
+  "texte": "La liberté est une valeur fondamentale inscrite dans la Déclaration des droits de l'homme et du citoyen (DDHC) de 1789, qui proclame à son article 4 que « la liberté consiste à pouvoir faire tout ce qui ne nuit pas à autrui ». C'est-à-dire, que l'on peut faire tout ce qui ne gêne pas les autres (et qui est défini par la loi).",
+  "officiel": true
+ },
+ {
+  "clé": "article4:2",
+  "qui": "lina",
+  "texte": "Tout ce qui ne gêne pas les autres… et qui est défini par la loi.",
+  "émotion": "idée"
+ },
+ {
+  "clé": "memes:0",
+  "qui": "arnaud",
+  "texte": "Et ces libertés sont les mêmes pour l'ensemble des citoyens, dans le respect des lois.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "memes:1",
+  "qui": "lina",
+  "texte": "On les verra en détail avec les droits et devoirs des citoyens ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "memes:2",
+  "qui": "arnaud",
+  "texte": "Exactement.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "memes:3",
+  "qui": "narrateur",
+  "texte": "Les libertés sont les mêmes pour l'ensemble des citoyens, dans le respect des lois. Elles sont présentées dans la thématique des « droits et devoirs des citoyens ».",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-b:0",
+  "qui": "narrateur",
+  "texte": "Deuxième mot : l'égalité.",
+  "émotion": null
+ },
+ {
+  "clé": "egalite:0",
+  "qui": "lina",
+  "texte": "Et l'égalité, c'est écrit où ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "egalite:1",
+  "qui": "arnaud",
+  "texte": "C'est un principe fondamental de la République, à l'article 1er de la Constitution de 1958.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "egalite:2",
+  "qui": "narrateur",
+  "texte": "L'égalité est un principe fondamental de la République française (article 1er de la Constitution de 1958).",
+  "officiel": true
+ },
+ {
+  "clé": "egalite:3",
+  "qui": "arnaud",
+  "texte": "Tous les citoyens ont les mêmes droits : quel que soit leur sexe, leur origine, leur religion, leurs opinions ou leur orientation sexuelle.",
+  "émotion": null
+ },
+ {
+  "clé": "egalite:4",
+  "qui": "narrateur",
+  "texte": "Tous les citoyens ont les mêmes droits quel que soit leur sexe, leur origine, leur religion, leurs opinions ou leur orientation sexuelle (article 1er de la DDHC).",
+  "officiel": true
+ },
+ {
+  "clé": "femmes-hommes:0",
+  "qui": "narrateur",
+  "texte": "Le soir, Lina appelle Inès.",
+  "émotion": null
+ },
+ {
+  "clé": "femmes-hommes:1",
+  "qui": "ines",
+  "texte": "L'égalité entre les femmes et les hommes ? C'est dans le préambule de la Constitution, depuis 1946 !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "femmes-hommes:2",
+  "qui": "lina",
+  "texte": "Et elle s'applique partout : au travail, pour la santé, à l'école…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "femmes-hommes:3",
+  "qui": "narrateur",
+  "texte": "L'égalité entre les femmes et les hommes est inscrite dans le préambule de la Constitution depuis 1946 et elle s'applique dans tous les domaines : travail, santé, éducation…",
+  "officiel": true
+ },
+ {
+  "clé": "agence:0",
+  "qui": "narrateur",
+  "texte": "Lundi, Lina visite un appartement. Son dossier est complet.",
+  "émotion": null
+ },
+ {
+  "clé": "agence:1",
+  "qui": "lina",
+  "texte": "Bonjour ! Je viens pour l'appartement, voici mon dossier.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "agence:2",
+  "qui": "agent",
+  "texte": "Ah… Avec votre origine, ce sera non.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "agence:3",
+  "qui": "lina",
+  "texte": "Pardon ? Une autre personne avec le même dossier, vous la prendriez ?",
+  "émotion": "fâché"
+ },
+ {
+  "clé": "definition:0",
+  "qui": "arnaud",
+  "texte": "Ce que tu as vécu a un nom : une discrimination. La France condamne les discriminations.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "definition:1",
+  "qui": "narrateur",
+  "texte": "La France condamne les discriminations.",
+  "officiel": true
+ },
+ {
+  "clé": "definition:2",
+  "qui": "arnaud",
+  "texte": "C'est traiter une personne différemment d'une autre, dans une situation comparable : le logement, le travail, les loisirs…",
+  "émotion": null
+ },
+ {
+  "clé": "definition:3",
+  "qui": "arnaud",
+  "texte": "… en raison de son origine, de son sexe, de son âge, de ses convictions religieuses, de son apparence physique…",
+  "émotion": null
+ },
+ {
+  "clé": "definition:4",
+  "qui": "narrateur",
+  "texte": "Une discrimination est le fait de traiter différemment une personne par rapport à une autre, dans une situation comparable (logement, travail, loisirs…), en raison de son origine, de son sexe, de son orientation sexuelle, de son opinion politique, de son âge, de ses convictions religieuses, de son apparence physique…",
+  "officiel": true
+ },
+ {
+  "clé": "loi:0",
+  "qui": "narrateur",
+  "texte": "Et la règle est claire.",
+  "émotion": null
+ },
+ {
+  "clé": "loi:1",
+  "qui": "narrateur",
+  "texte": "Les discriminations sont punies par la loi.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Liberté, égalité… Et le troisième mot, fraternité ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "Ça, c'est pour la prochaine fois.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : la fraternité, page 7.",
+  "émotion": null
+ }
+]

@@ -1,4 +1,4 @@
-// Styles du court-métrage (prototype page 10).
+// Styles du court-métrage (prototypes pages 6 et 10).
 export const CSS_CINÉMA = `
 .c-ecran { position: fixed; inset: 0; z-index: 1000; background: #000; color: #fff; display: flex; flex-direction: column; overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", sans-serif }
 .c-scene { position: relative; flex: 1; overflow: hidden; background: #05050a }
@@ -54,6 +54,25 @@ export const CSS_CINÉMA = `
 .c-deroule { animation: c-deroule 1.2s cubic-bezier(.2,.8,.25,1) both }
 .c-plume { animation: c-plume 3.2s steps(40) both }
 .c-mot-pilule { text-align: center; padding: clamp(6px, 1.2vw, 12px) 8px; border-radius: 40px; background: rgba(18,14,36,.78); border: 2px solid rgba(255,255,255,.25); color: #fff3c4; animation: c-mot .8s cubic-bezier(.2,1.3,.4,1) both; backdrop-filter: blur(4px) }
+.c-drapeau-6 { animation: c-drapeau 2.4s ease-in-out infinite; transform-origin: 803px 32px }
+.c-jet { animation: c-jet 1.8s ease-in-out infinite }
+.c-livre { animation: c-livre 3s ease-in-out infinite; transform-origin: 0 -26px }
+.c-note { animation: c-note 2.6s ease-in-out infinite }
+.c-onde-son { animation: c-onde 1.1s ease-out infinite }
+.c-zzz { animation: c-zzz 3s ease-in-out infinite }
+.c-fleau-6 { animation: c-fleau 2.2s cubic-bezier(.3,1.4,.5,1) both }
+.c-fete-6 { animation: c-fete 1.2s steps(3) infinite }
+.c-impact-6 { animation: c-impact .7s cubic-bezier(.2,1.6,.4,1) both }
+@keyframes c-drapeau { 0%, 100% { transform: skewY(0) scaleX(1) } 50% { transform: skewY(-4deg) scaleX(.94) } }
+@keyframes c-jet { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
+@keyframes c-livre { 0%, 100% { transform: rotate(0) } 50% { transform: rotate(-4deg) } }
+@keyframes c-note { 0% { opacity: 0; transform: translate(0, 10px) } 30% { opacity: 1 } 100% { opacity: 0; transform: translate(22px, -46px) } }
+@keyframes c-onde { 0% { opacity: 0; transform: translateX(-10px) } 40% { opacity: 1 } 100% { opacity: 0; transform: translateX(30px) } }
+@keyframes c-zzz { 0%, 100% { opacity: .35; transform: translateY(0) } 50% { opacity: .9; transform: translateY(-8px) } }
+@keyframes c-fleau { 0% { transform: rotate(-9deg) } 55% { transform: rotate(3deg) } 80% { transform: rotate(-1deg) } 100% { transform: rotate(0) } }
+@keyframes c-impact { 0% { opacity: 0; transform: scale(2.4); filter: blur(6px) } 100% { opacity: 1; transform: none; filter: none } }
+@keyframes c-fete { 0% { fill: #ff5fa2 } 33% { fill: #7c5cff } 66% { fill: #2ee6c8 } 100% { fill: #ff5fa2 } }
+@keyframes c-kenburns { from { transform: scale(1.02) translateY(0) } to { transform: scale(1.12) translateY(-3%) } }
 @keyframes c-entre { from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(.96) } to { opacity: 1 } }
 @keyframes c-respire { 0%, 100% { transform: translateY(0) scaleY(1) } 50% { transform: translateY(-2px) scaleY(1.008) } }
 @keyframes c-tete { 0%, 100% { transform: rotate(0) } 30% { transform: rotate(1.4deg) } 70% { transform: rotate(-1deg) } }

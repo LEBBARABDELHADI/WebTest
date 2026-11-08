@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback } from 'react'
 import Personnage from './Personnage'
-import DecorCinema, { Particules } from './Decors10'
-import Visuel from './Visuels10'
+import { Particules } from './Decors10'
+import { Décor as DecorCinema, VisuelScène as Visuel } from './Registre'
 import { CSS_CINÉMA } from '../../../lib/livret2026/cinema/cinemaCss'
 import { créerSonCinéma, garderVoix, lireVoix, effacerVoix, clésVoix, enregistreur, jouerVoix, jouerFichier, précharger } from '../../../lib/livret2026/cinema/sonCinema'
 import { imagePage } from '../../../lib/livret2026/outils'
 import { distribuerVoix, jouerRéplique } from '../../../lib/livret2026/cinema/voixActeurs'
 
-// Expérience narrative cinématographique (PROTOTYPE, page 10).
+// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6 et 10).
 // Affiche → scènes (décor en couches + caméra + personnages dessinés +
 // visuels pédagogiques) → quiz. Faits officiels sur des cartes « 📜 Livret »,
 // fiction en sous-titres. Son sans IA : ambiances, bruitages, piano « humain »,
@@ -197,14 +197,17 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
   // Taille des personnages : selon la hauteur de l'écran, sans se chevaucher.
   const hPerso = n => Math.min(taille.h * 0.82, ((taille.l * (n > 1 ? (taille.l < taille.h ? 0.5 : 0.46) : 0.7)) / 0.75))
 
+  // Durée annoncée : celle des voix générées quand elles existent.
+  const minutes = Math.max(1, Math.round(film.scènes.reduce((n, x) => n + 1.8 + x.temps.reduce((m, y, k) => m + (film.voix?.lignes[`${x.id}:${k}`]?.d || durée(y) / 1000) + 0.7, 0), 0) / 60))
+
   // ---------- Affiche ----------
   if (phase === 'affiche') {
     return (
       <div className="c-ecran" role="dialog" aria-modal="true" aria-label={`${film.titre} : court-métrage de la page ${film.page}`}>
         <style>{CSS_CINÉMA}</style>
         <div style={{ position: 'absolute', inset: 0 }}>
-          <div className="c-couche"><DecorCinema nom="rue-soir" couche="fond" /></div>
-          <div className="c-couche"><DecorCinema nom="rue-soir" couche="milieu" /></div>
+          <div className="c-couche"><DecorCinema nom={film.affiche || film.scènes[0].décor} couche="fond" /></div>
+          <div className="c-couche"><DecorCinema nom={film.affiche || film.scènes[0].décor} couche="milieu" /></div>
           <Particules type="feuilles" n={18} />
         </div>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(5,6,20,.55), rgba(5,6,20,.88))' }} />
@@ -222,7 +225,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
             ))}
           </div>
           <p style={{ margin: '4px 0', maxWidth: 560, fontSize: 13.5, opacity: 0.85, lineHeight: 1.5 }}>🎭 {film.avertissement}</p>
-          <p style={{ margin: 0, fontSize: 12.5, opacity: 0.7 }}>{film.scènes.length} scènes · environ 7 min · puis un quiz de {film.quiz.length} questions</p>
+          <p style={{ margin: 0, fontSize: 12.5, opacity: 0.7 }}>{film.scènes.length} scènes · environ {minutes} min · puis un quiz de {film.quiz.length} questions</p>
           <p style={{ margin: 0, maxWidth: 600, fontSize: 12.5, opacity: 0.8, lineHeight: 1.5 }}>
             🗣️ {voix.size ? `${voix.size} réplique(s) avec ta vraie voix ; ` : ''}{film.voix ? `voix doublées : ${Object.entries(personnages).filter(([k]) => k !== 'narrateur').map(([k, p]) => `${p.nom} (${Object.entries(film.voix.lignes).find(([c]) => film.scènes.find(x => x.id === c.split(':')[0])?.temps[Number(c.split(':')[1])]?.qui === k)?.[1].voix || '—'})`).join(', ')}, narration (${film.voix.lignes['ouverture:0']?.voix || '—'})` : distribution ? `les autres, voix de l'appareil : ${[...new Set([...distribution.values()].map(v => v.name.replace(/\s*\(.*\)/, '')))].slice(0, 3).join(', ')}` : 'aucune voix française sur cet appareil : sous-titres seuls'}
             <button onClick={() => régler('synthèse', !réglages.synthèse)} aria-pressed={réglages.synthèse} className="c-btn" style={{ minHeight: 30, fontSize: 12, marginLeft: 8 }}>{réglages.synthèse ? 'Voix : oui' : 'Voix : non'}</button>
@@ -242,7 +245,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
 
   if (phase === 'quiz') {
     return (
-      <div className="c-ecran" role="dialog" aria-modal="true" aria-label="Quiz de la page 10">
+      <div className="c-ecran" role="dialog" aria-modal="true" aria-label={`Quiz de la page ${film.page}`}>
         <style>{CSS_CINÉMA}</style>
         <Quiz film={film} onRevoir={id => { const k = film.scènes.findIndex(x => x.id === id); setPhase('film'); setS(Math.max(0, k)); setB(0); setLecture(true) }} onRejouer={() => { setPhase('film'); setS(0); setB(0); setLecture(true) }} onFermer={onFermer} onTerminé={onTerminé} onOriginal={() => setOriginal(true)} />
         {original && <PageOriginale page={film.page} onFermer={() => setOriginal(false)} />}
@@ -465,7 +468,7 @@ function Quiz({ film, onRevoir, onRejouer, onFermer, onTerminé, onOriginal }) {
           <div className="c-apparait" style={{ textAlign: 'center', paddingTop: 20 }}>
             <div style={{ fontSize: 64 }}>{bonnes >= 9 ? '🏆' : bonnes >= 7 ? '👏' : '💪'}</div>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 34, margin: '6px 0' }}>{bonnes} / {questions.length}</h2>
-            <p style={{ opacity: 0.85, maxWidth: 480, margin: '0 auto 16px', lineHeight: 1.5 }}>{bonnes >= 8 ? 'Tu as compris et retenu l\'essentiel de la page 10.' : 'Revois les scènes des questions manquées, puis retente le quiz.'}</p>
+            <p style={{ opacity: 0.85, maxWidth: 480, margin: '0 auto 16px', lineHeight: 1.5 }}>{bonnes >= 8 ? `Tu as compris et retenu l'essentiel de la page ${film.page}.` : 'Revois les scènes des questions manquées, puis retente le quiz.'}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
               <button onClick={() => { setI(0); setChoix(null); setBonnes(0); setFin(false) }} className="c-btn">↺ Refaire le quiz</button>
               <button onClick={onRejouer} className="c-btn">🎬 Revoir l'histoire</button>
