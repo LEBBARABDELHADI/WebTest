@@ -4,6 +4,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from '../lib/githubSync'
 import { useRelectureAuRetour, useEnvoiEnPartant } from '../lib/synchro'
 import { analyserAujourdhui } from '../lib/aujourdhui'
+import { normaliser } from '../lib/motsCles'
 import LiensÉlément from '../components/LiensElement'
 import { fusionner, réconcilier, lireBase, écrireBase, annoncer } from '../lib/fusion'
 import Icon from '../components/Icon'
@@ -609,10 +610,19 @@ export default function Taches() {
     setÉditionId(null)
   }
 
+  // Arrivée dans « Terminé » : date notée (pour la revue de la semaine).
+  const versColonne = (d, c, colonneId) => {
+    if (c.colonneId === colonneId) return c
+    const fin = d.colonnes.find(x => /termin|fini|fait$/.test(normaliser(x.titre)))
+    if (fin && colonneId === fin.id) return { ...c, colonneId, terminéeLe: jourLocal() }
+    const copie = { ...c, colonneId }
+    delete copie.terminéeLe
+    return copie
+  }
   const déplacerCarte = (carteId, colonneId) => {
     setData(d => ({
       ...d,
-      cartes: d.cartes.map(c => c.id === carteId ? { ...c, colonneId } : c),
+      cartes: d.cartes.map(c => c.id === carteId ? versColonne(d, c, colonneId) : c),
     }))
   }
 
@@ -626,7 +636,7 @@ export default function Taches() {
       const dernière = reste.reduce((m, c, j) => (c.colonneId === colonneId ? j : m), -1)
       k = dernière >= 0 ? dernière + 1 : reste.length
     }
-    reste.splice(k, 0, { ...carte, colonneId })
+    reste.splice(k, 0, versColonne(d, carte, colonneId))
     return { ...d, cartes: reste }
   })
 

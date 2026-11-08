@@ -4,6 +4,20 @@ import { HashRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { ThemeProvider } from './lib/theme.jsx'
+import { lirePartage } from './lib/lectures.js'
+
+// Page partagée depuis le menu Partager du téléphone (share_target du
+// manifeste) : /WebTest/?url=…&titre=… → #/lire/<espace>?url=…&titre=…
+{
+  const p = new URLSearchParams(window.location.search)
+  if (p.has('url') || p.has('texte') || p.has('titre')) {
+    const { url, titre } = lirePartage(p)
+    let espace = 'perso'
+    try { espace = localStorage.getItem('react-blocs-lire-espace') || 'perso' } catch { /* ignore */ }
+    const q = new URLSearchParams({ ...(url ? { url } : {}), ...(titre ? { titre } : {}) })
+    window.history.replaceState(null, '', `${window.location.pathname}#/lire/${espace}?${q}`)
+  }
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

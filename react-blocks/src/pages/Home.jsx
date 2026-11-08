@@ -15,6 +15,7 @@ import Sauvegarde from '../components/Sauvegarde'
 import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 import { useDonnéesFoyer, ajouterRapidement, analyserSaisie, lireLocal } from '../lib/donneesFoyer'
 import { rappelsActifs, activerRappels, désactiverRappels, vérifierRappels } from '../lib/rappels'
+import { compléterPilotage, lundiDe, avancement } from '../lib/pilotage'
 
 const aujourdhui = () => new Date().toISOString().slice(0, 10)
 
@@ -77,6 +78,10 @@ function libelléRécent(lire, chemin) {
   if (outil === 'agenda') return { titre: 'Agenda', icône: 'calendrier' }
   if (outil === 'tableau') return { titre: `Graphe amélioré ${type.toLowerCase()}`, icône: 'reseau' }
   if (outil === 'timer') return { titre: 'Timer', icône: 'horloge' }
+  if (outil === 'journee') return { titre: 'Ma journée', icône: 'soleil' }
+  if (outil === 'semaine') return { titre: 'Revue de la semaine', icône: 'calendrier' }
+  if (outil === 'annee') return { titre: 'Objectifs de l\'année', icône: 'cible' }
+  if (outil === 'lire') return { titre: `À lire ${type.toLowerCase()}`, icône: 'livre' }
   if (outil === 'notion') {
     const n = notions.find(x => x.id === espace)
     return { titre: n ? n.titre : 'Cours React', détail: 'Cours React', icône: 'livre' }
@@ -156,7 +161,7 @@ export default function Home({ foyerId = 'lebbar' }) {
   const récents = lireRécents()
     .filter(r => {
       const e = r.chemin.split('/')[2]
-      return !['taches', 'notes', 'memoriser', 'graph', 'habitudes', 'agenda'].includes(r.chemin.split('/')[1]) || foyerDeLEspace(e) === foyer.id
+      return !['taches', 'notes', 'memoriser', 'graph', 'habitudes', 'agenda', 'journee', 'semaine', 'annee', 'lire'].includes(r.chemin.split('/')[1]) || foyerDeLEspace(e) === foyer.id
     })
     .map(r => ({ ...r, ...libelléRécent(lire, r.chemin) }))
     .filter(r => r.titre)
@@ -185,6 +190,24 @@ export default function Home({ foyerId = 'lebbar' }) {
   ;['perso', 'pro'].flatMap(t => lire('memoriser', `${foyer.préfixe}${t}`).objectifs || [])
     .filter(o => joursAvant(o.date) >= 0).sort((a, b) => a.date.localeCompare(b.date))
     .forEach(o => résumé.push(`🎯 ${o.nom} ${compteÀRebours(o.date)}`))
+
+  // Pilotage : journée, semaine, année, À lire.
+  const pilotage = compléterPilotage(lireLocal('pilotage', foyer.id))
+  const prioDuJour = pilotage.jours[aujLocal]?.priorités || []
+  const lundiCourant = lundiDe(aujLocal)
+  const estDimanche = maintenant.getDay() === 0
+  const revueFaite = !!pilotage.semaines[lundiCourant]?.terminée
+  const objectifsAnnée = pilotage.objectifs.filter(o => o.année === maintenant.getFullYear())
+  const moyenneAnnée = objectifsAnnée.length ? objectifsAnnée.reduce((n, o) => n + avancement(o, lire, e => lire('lectures', e)).taux, 0) / objectifsAnnée.length : null
+  const lectures = lire('lectures', espace).éléments || []
+  const àLire = lectures.filter(l => l.statut !== 'lu').length
+  if (estDimanche && !revueFaite) résumé.push('📝 revue de la semaine à faire')
+  const pilotes = [
+    { to: `/journee/${foyer.préfixe}perso`, emoji: '🌅', titre: 'Ma journée', chiffre: prioDuJour.length ? `${prioDuJour.filter(p => p.fait).length}/${prioDuJour.length}` : '', unité: prioDuJour.length ? 'priorités' : '', détail: prioDuJour.length ? 'Agenda, habitudes, carte du jour' : 'Choisis tes 3 priorités' },
+    { to: `/semaine/${foyer.préfixe}perso`, emoji: '📝', titre: 'Ma semaine', chiffre: revueFaite ? '✓' : estDimanche ? '!' : '', unité: revueFaite ? 'revue faite' : estDimanche ? "c'est le jour" : '', détail: revueFaite ? 'Priorités de la semaine prochaine prêtes' : 'Bilan et priorités, le dimanche', alerte: estDimanche && !revueFaite },
+    { to: `/annee/${foyer.préfixe}perso`, emoji: '🎯', titre: 'Mon année', chiffre: moyenneAnnée == null ? '' : `${Math.round(moyenneAnnée * 100)} %`, unité: moyenneAnnée == null ? '' : 'en moyenne', détail: objectifsAnnée.length ? `${objectifsAnnée.length} objectif${objectifsAnnée.length > 1 ? 's' : ''} ${maintenant.getFullYear()}` : 'Fixe 3 à 5 objectifs' },
+    { to: `/lire/${espace}`, emoji: '📚', titre: 'À lire', chiffre: àLire || '', unité: àLire ? 'en attente' : '', détail: lectures.length ? `${lectures.filter(l => l.statut === 'lu').length} lus · ${type === 'pro' ? 'Pro' : 'Perso'}` : 'Articles, vidéos, docs' },
+  ]
 
   const tuiles = [
     {
@@ -234,7 +257,8 @@ export default function Home({ foyerId = 'lebbar' }) {
         .tuile { transition: border-color .15s, transform .15s, background .15s }
         .tuile:hover { border-color: ${T.accent} !important; transform: translateY(-2px) }
         .ligne-recente:hover { background: ${T.surface2} }
-        .grille-outils { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+        .grille-outils, .grille-pilotage { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+        @media (min-width: 700px) { .grille-pilotage { grid-template-columns: repeat(4, minmax(0, 1fr)) } }
         @media (max-width: 560px) { .masque-tel { display: none } }
         @media (min-width: 700px) { .grille-outils { grid-template-columns: repeat(4, minmax(0, 1fr)) } }
         @media (min-width: 1050px) { .grille-outils { grid-template-columns: repeat(7, minmax(0, 1fr)) } }
@@ -294,6 +318,21 @@ export default function Home({ foyerId = 'lebbar' }) {
         </div>
 
         <AjoutRapide T={T} espace={espace} type={type} afficher={afficher} onAjouté={(outil, données) => { remplacer(outil, espace, données); setTimeout(() => rafraîchir(true), 4000) }} />
+
+        {/* Pilotage */}
+        <h2 style={titreBloc}>Mon pilotage</h2>
+        <nav aria-label="Mon pilotage" className="grille-pilotage" style={{ display: 'grid', gap: '10px', marginBottom: '22px' }}>
+          {pilotes.map(t => (
+            <Link key={t.titre} to={t.to} className="tuile" style={{ ...carteStyle, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px', textDecoration: 'none', color: T.text, minWidth: 0, ...(t.alerte ? { borderColor: T.accent } : {}) }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '20px' }} aria-hidden="true">{t.emoji}</span>
+                <span style={{ flex: 1, fontWeight: 700, fontSize: '15px', fontFamily: grotesk }}>{t.titre}</span>
+                {t.chiffre !== '' && <span style={{ fontFamily: serif, fontSize: '22px', lineHeight: 1, color: t.alerte ? T.accent : T.text, fontVariantNumeric: 'tabular-nums' }}>{t.chiffre}</span>}
+              </span>
+              <span style={{ fontSize: '12.5px', color: T.textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.unité ? `${t.unité} · ` : ''}{t.détail}</span>
+            </Link>
+          ))}
+        </nav>
 
         {/* Outils */}
         <div className="grille-outils" style={{ display: 'grid', gap: '10px', marginBottom: '26px' }}>

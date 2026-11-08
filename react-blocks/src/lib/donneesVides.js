@@ -13,6 +13,7 @@ const VIDES = {
   memoriser: { paquets: [], cartes: [] },
   graph: { graphes: [] },
   habitudes: { habitudes: [], coches: {} },
+  lectures: { éléments: [] },
 }
 
 const ESPACES = ['perso', 'pro', 'idrissi-perso', 'idrissi-pro']

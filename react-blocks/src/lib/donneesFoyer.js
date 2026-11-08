@@ -5,8 +5,9 @@ import { TOKEN_KEY, lireDepuisGitHub, écrireVersGitHub } from './githubSync'
 import { normaliser } from './motsCles'
 import { texteBrut, morceauxCode } from './texteFormate'
 import { videsParEspace } from './donneesVides'
+import { réconcilier, lireBase } from './fusion'
 
-export const OUTILS = ['taches', 'notes', 'memoriser', 'graph', 'habitudes']
+export const OUTILS = ['taches', 'notes', 'memoriser', 'graph', 'habitudes', 'lectures']
 
 const LIVRÉES = Object.fromEntries(OUTILS.map(o => [o, videsParEspace(o)]))
 
@@ -43,7 +44,15 @@ export function useDonnéesFoyer(foyer) {
     const lus = await Promise.allSettled(paires.map(([o, e]) => lireDepuisGitHub(token, chemin(o, e))))
     setDonnées(avant => {
       const après = { ...avant }
-      lus.forEach((r, i) => { if (r.status === 'fulfilled' && !r.value.périmé) après[`${paires[i][0]}:${paires[i][1]}`] = r.value.data })
+      lus.forEach((r, i) => {
+        if (r.status !== 'fulfilled' || r.value.périmé) return
+        // Modifications de l'appareil pas encore envoyées (page quittée juste
+        // après un changement) : gardées, fusionnées avec la version en ligne.
+        const [o, e] = paires[i]
+        let local = null
+        try { local = JSON.parse(localStorage.getItem(clé(o, e))) } catch { /* ignore */ }
+        après[`${o}:${e}`] = réconcilier({ distant: r.value.data, local, base: lireBase(clé(o, e)) }).données
+      })
       return après
     })
     if (lus.some(r => r.status === 'fulfilled')) setÀJourÀ(new Date())
@@ -127,6 +136,9 @@ export function rechercherPartout(lire, foyer, requête) {
           if (ok(t)) résultats.push({ type: 'section', espace: type, titre: `${ss.titre}`, extrait: extrait(t, q), lien: `/graph/${espace}?graphe=${g.id}&section=${b.id}&sous=${ss.id}` })
         })
       }))
+    })
+    ;(lire('lectures', espace).éléments || []).forEach(l => {
+      if (ok(l.titre) || ok(l.note) || ok(l.url)) résultats.push({ type: 'lecture', espace: type, titre: l.titre || l.url, extrait: extrait(ok(l.note) ? l.note : `${l.url}`, q), lien: `/lire/${espace}?el=${l.id}` })
     })
     // Graphe amélioré (tableau blanc)
     ;(lireLocal('tableau', espace).tableaux || []).forEach(t => (t.éléments || []).forEach(e => {
@@ -253,13 +265,23 @@ export async function ajouterTempsHabitude({ espace, habitudeId, minutes, jour }
 
 // Modifie les données d'un outil depuis une autre page : la copie de
 // l'appareil tout de suite, puis GitHub si un token est connecté (fusion).
-export async function modifierOutil(outil, espace, fn) {
-  const local = fn(lireLocal(outil, espace))
-  try { localStorage.setItem(clé(outil, espace), JSON.stringify(local)) } catch { /* ignore */ }
+// Sans copie sur l'appareil (outil jamais ouvert ici), on part de `actuel`
+// (ce que la page affiche) ou de la version en ligne, jamais d'un fichier vide.
+export async function modifierOutil(outil, espace, fn, actuel) {
+  let brut = null
+  try { brut = localStorage.getItem(clé(outil, espace)) } catch { /* ignore */ }
+  const garder = d => { try { localStorage.setItem(clé(outil, espace), JSON.stringify(d)) } catch { /* ignore */ } }
+  let local = null
+  if (brut) { try { local = fn(JSON.parse(brut)) } catch { local = null } }
+  if (local) garder(local)
   const token = localStorage.getItem(TOKEN_KEY) || ''
-  if (!token) return { données: local, enLigne: false }
+  if (!token) {
+    if (!local) { local = fn(actuel || lireLocal(outil, espace)); garder(local) }
+    return { données: local, enLigne: false }
+  }
   const { data, sha } = await lireDepuisGitHub(token, chemin(outil, espace))
-  await écrireVersGitHub(fn(data), token, sha, chemin(outil, espace), data)
+  const écrit = await écrireVersGitHub(fn(data), token, sha, chemin(outil, espace), data)
+  if (!local) { local = écrit?.données || fn(data); garder(local) }
   return { données: local, enLigne: true }
 }
 
@@ -321,14 +343,23 @@ export async function créerSauvegarde(foyer) {
     if (r.status === 'fulfilled' && !r.value.périmé) fichiers[`${o}-${e}.json`] = r.value.data
     else { fichiers[`${o}-${e}.json`] = lireLocal(o, e); depuisAppareil.push(`${o}-${e}.json`) }
   })
+  // Pilotage (journée, semaine, objectifs de l'année) : un fichier par foyer.
+  try {
+    const r = await lireDepuisGitHub(token, chemin('pilotage', foyer.id))
+    fichiers[`pilotage-${foyer.id}.json`] = r.data
+  } catch {
+    const local = lireLocal('pilotage', foyer.id)
+    if (Object.keys(local).length) { fichiers[`pilotage-${foyer.id}.json`] = local; depuisAppareil.push(`pilotage-${foyer.id}.json`) }
+  }
   return { app: 'react-blocs', version: 1, foyer: foyer.id, date: new Date().toISOString(), fichiers, depuisAppareil }
 }
 
 // Résumé lisible d'une sauvegarde (pour l'aperçu avant restauration).
 export function résumerSauvegarde(s) {
   return Object.entries(s.fichiers || {}).map(([nom, d]) => {
-    const n = d?.cartes?.length ?? d?.notes?.length ?? d?.graphes?.length ?? d?.habitudes?.length ?? 0
-    const unité = nom.startsWith('taches') ? 'tâches' : nom.startsWith('notes') ? 'notes' : nom.startsWith('memoriser') ? 'cartes' : nom.startsWith('graph') ? 'graphes' : 'habitudes'
+    if (nom.startsWith('pilotage')) return { nom, texte: `${(d?.objectifs || []).length} objectifs · ${Object.keys(d?.semaines || {}).length} semaines` }
+    const n = d?.cartes?.length ?? d?.notes?.length ?? d?.graphes?.length ?? d?.habitudes?.length ?? d?.éléments?.length ?? 0
+    const unité = nom.startsWith('taches') ? 'tâches' : nom.startsWith('notes') ? 'notes' : nom.startsWith('memoriser') ? 'cartes' : nom.startsWith('graph') ? 'graphes' : nom.startsWith('lectures') ? 'lectures' : 'habitudes'
     return { nom, texte: `${n} ${unité}` }
   })
 }
@@ -339,7 +370,7 @@ export async function restaurerSauvegarde(s, foyer, progression = () => {}) {
   const token = localStorage.getItem(TOKEN_KEY) || ''
   if (!token) throw new Error('Connecte le token GitHub pour restaurer.')
   if (s?.app !== 'react-blocs' || !s.fichiers) throw new Error('Ce fichier n\'est pas une sauvegarde React Blocs.')
-  const autorisés = new Set(espacesDu(foyer).flatMap(e => OUTILS.map(o => `${o}-${e}.json`)))
+  const autorisés = new Set([...espacesDu(foyer).flatMap(e => OUTILS.map(o => `${o}-${e}.json`)), `pilotage-${foyer.id}.json`])
   const noms = Object.keys(s.fichiers).filter(n => autorisés.has(n))
   if (!noms.length) throw new Error(`Cette sauvegarde ne contient rien pour ${foyer.nom}.`)
   for (const [i, nom] of noms.entries()) {

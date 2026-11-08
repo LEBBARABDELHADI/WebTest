@@ -31,8 +31,9 @@ import Objectifs, { compteÀRebours } from '../components/Objectifs'
 import LaboChrono from '../components/LaboChrono'
 import ImportCartes from '../components/ImportCartes'
 import JeuxNaturalisation from '../components/JeuxNaturalisation'
-import { entrerAuCarnet, avancerCarnet, aujourdhui as aujourdhuiLocal } from '../lib/certifications'
+import { entrerAuCarnet, aujourdhui as aujourdhuiLocal } from '../lib/certifications'
 import { vérifierMotsClés } from '../lib/motsCles'
+import { appliquerRéponse } from '../lib/revisionCarte'
 
 const EXTRAIT_VOIX = 'Liberté, égalité, fraternité.'
 
@@ -112,6 +113,7 @@ function complète(objet) {
     cartes: Array.isArray(objet.cartes) ? objet.cartes : [],
     ...(Array.isArray(objet.examens) ? { examens: objet.examens } : {}),
     ...(Array.isArray(objet.objectifs) ? { objectifs: objet.objectifs } : {}),
+    ...(objet.activité && typeof objet.activité === 'object' && !Array.isArray(objet.activité) ? { activité: objet.activité } : {}),
   }
 }
 
@@ -558,19 +560,7 @@ export default function Memoriser() {
   }
 
   // Réponse sur une carte : révision espacée + carnet d'erreurs.
-  const noterCarte = (carteId, su) => setData(d => ({
-    ...d,
-    cartes: d.cartes.map(carte => {
-      if (carte.id !== carteId) return carte
-      const c = avancerCarnet(carte, su)
-      if (su === 'hésité') {
-        const niveau = Math.max(1, c.niveau || 0)
-        return { ...c, niveau, prochaineRevision: dateDans(Math.max(1, Math.round(INTERVALLES[niveau] / 2))), fautesConsécutives: 0 }
-      }
-      const niveau = su ? Math.min((c.niveau || 0) + 1, INTERVALLES.length - 1) : 0
-      return { ...c, niveau, prochaineRevision: dateDans(INTERVALLES[niveau]), fautesConsécutives: su ? 0 : (c.fautesConsécutives || 0) + 1 }
-    }),
-  }))
+  const noterCarte = (carteId, su) => setData(d => appliquerRéponse(d, carteId, su))
   // Infos qui changent (actualité) : revérifiées tous les 3 mois.
   const àRevérifier = c => c.aVérifier && (!c.vérifiéLe || dateDans(-90) > c.vérifiéLe)
   const marquerVérifiée = id => setData(d => ({ ...d, cartes: d.cartes.map(c => (c.id === id ? { ...c, aVérifier: true, vérifiéLe: aujourdhuiISO() } : c)) }))

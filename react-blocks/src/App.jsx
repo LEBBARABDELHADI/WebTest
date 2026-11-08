@@ -35,6 +35,10 @@ const PAGES = {
   CoursLivret: () => import('./pages/CoursLivret'),
   SetQuestions: () => import('./pages/SetQuestions'),
   OutilsDevops: () => import('./pages/OutilsDevops'),
+  ALire: () => import('./pages/ALire'),
+  MaJournee: () => import('./pages/MaJournee'),
+  RevueSemaine: () => import('./pages/RevueSemaine'),
+  ObjectifsAnnee: () => import('./pages/ObjectifsAnnee'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -49,6 +53,10 @@ const Prepa = charger(PAGES.Prepa)
 const CoursLivret = charger(PAGES.CoursLivret)
 const SetQuestions = charger(PAGES.SetQuestions)
 const OutilsDevops = charger(PAGES.OutilsDevops)
+const ALire = charger(PAGES.ALire)
+const MaJournee = charger(PAGES.MaJournee)
+const RevueSemaine = charger(PAGES.RevueSemaine)
+const ObjectifsAnnee = charger(PAGES.ObjectifsAnnee)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -157,6 +165,14 @@ function App() {
       <Route path="/set/soa-c03/:espace" element={<EspaceRoute Page={SetQuestions} />} />
       <Route path="/outils" element={<Navigate to="/outils/perso" replace />} />
       <Route path="/outils/:espace" element={<EspaceRoute Page={OutilsDevops} />} />
+      <Route path="/lire" element={<Navigate to="/lire/perso" replace />} />
+      <Route path="/lire/:espace" element={<EspaceRoute Page={ALire} />} />
+      <Route path="/journee" element={<Navigate to="/journee/perso" replace />} />
+      <Route path="/journee/:espace" element={<EspaceRoute Page={MaJournee} />} />
+      <Route path="/semaine" element={<Navigate to="/semaine/perso" replace />} />
+      <Route path="/semaine/:espace" element={<EspaceRoute Page={RevueSemaine} />} />
+      <Route path="/annee" element={<Navigate to="/annee/perso" replace />} />
+      <Route path="/annee/:espace" element={<EspaceRoute Page={ObjectifsAnnee} />} />
     </Routes>
     </Suspense>
     </>

@@ -4,8 +4,8 @@ import Icon from './Icon'
 import { grotesk } from '../lib/theme'
 import { rechercherPartout } from '../lib/donneesFoyer'
 
-const ICÔNES_RÉSULTAT = { tâche: 'checklist', note: 'note', carte: 'cartes', graphe: 'reseau', bulle: 'reseau', section: 'texte', tableau: 'reseau' }
-const NOMS_RÉSULTAT = { tâche: 'Tâches', note: 'Notes', carte: 'Cartes', graphe: 'Graphes', bulle: 'Bulles', section: 'Sections de graphe', tableau: 'Graphe amélioré' }
+const ICÔNES_RÉSULTAT = { tâche: 'checklist', note: 'note', carte: 'cartes', graphe: 'reseau', bulle: 'reseau', section: 'texte', tableau: 'reseau', lecture: 'livre' }
+const NOMS_RÉSULTAT = { tâche: 'Tâches', note: 'Notes', carte: 'Cartes', graphe: 'Graphes', bulle: 'Bulles', section: 'Sections de graphe', tableau: 'Graphe amélioré', lecture: 'À lire' }
 
 // Palette de recherche : un champ, des résultats groupés, ↑ ↓ Entrée.
 export default function RechercheGlobale({ T, lire, foyer, onFermer, onChoisir, titre }) {
