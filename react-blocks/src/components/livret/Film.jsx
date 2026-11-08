@@ -277,7 +277,7 @@ export default function Film({ film, onFermer, onVu }) {
     contenu = (
       <div className="f-chapitre">
         <div className="f-titre-ep">{plan.numéro}</div>
-        <div style={{ fontSize: 'clamp(28px, 7vw, 56px)', fontWeight: 900, marginTop: 12, animation: 'f-coup .9s cubic-bezier(.2,1.2,.4,1) .4s both' }}>{plan.titre}</div>
+        <div style={{ fontSize: 'clamp(26px, 6.6vw, 56px)', fontWeight: 900, marginTop: 12, maxWidth: 'min(92vw, 900px)', whiteSpace: 'normal', overflowWrap: 'anywhere', lineHeight: 1.15, textAlign: 'center', animation: 'f-coup .9s cubic-bezier(.2,1.2,.4,1) .4s both' }}>{plan.titre}</div>
         <div style={{ width: 120, height: 3, background: '#ffd166', marginTop: 16, animation: 'f-fondu 1s 1s both' }} />
       </div>
     )
