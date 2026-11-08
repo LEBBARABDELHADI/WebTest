@@ -7,7 +7,7 @@ import { créerSonCinéma, garderVoix, lireVoix, effacerVoix, clésVoix, enregis
 import { imagePage } from '../../../lib/livret2026/outils'
 import { distribuerVoix, jouerRéplique } from '../../../lib/livret2026/cinema/voixActeurs'
 
-// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7, 8, 10 et 11).
+// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7, 8, 10, 11 et 12).
 // Affiche → scènes (décor en couches + caméra + personnages dessinés +
 // visuels pédagogiques) → quiz. Faits officiels sur des cartes « 📜 Livret »,
 // fiction en sous-titres. Son sans IA : ambiances, bruitages, piano « humain »,
@@ -298,7 +298,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
         {t?.officiel && (
           <div key={`o-${s}-${b}`} className="c-officiel" role="note" aria-label="Texte officiel du Livret du citoyen">
             <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.12em', textTransform: 'uppercase', color: '#1d4ed8', marginBottom: 6 }}>📜 Texte officiel · {t.officiel.source}</div>
-            <p style={{ margin: 0, fontFamily: 'Georgia, serif', fontSize: 'clamp(15px, 2.1vw, 20px)', lineHeight: 1.5 }}>{t.officiel.texte}</p>
+            <p style={{ margin: 0, fontFamily: 'Georgia, serif', fontSize: 'clamp(15px, 2.1vw, 20px)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{t.officiel.texte}</p>
           </div>
         )}
         <div style={{ position: 'absolute', top: 'clamp(22px, 6.5vh, 66px)', right: 10, zIndex: 9, display: 'flex', gap: 6 }}>
@@ -460,7 +460,7 @@ function Quiz({ film, onRevoir, onRejouer, onFermer, onTerminé, onOriginal }) {
             </div>
             {choix && (
               <div className="c-apparait" style={{ marginTop: 14 }}>
-                {officiel && <div style={{ background: '#fbf7ee', color: '#1b1b2a', borderRadius: 12, padding: '12px 14px', borderLeft: '8px solid #2563eb', fontFamily: 'Georgia, serif', fontSize: 15, lineHeight: 1.5 }}><div style={{ fontFamily: 'system-ui', fontSize: 11, fontWeight: 900, letterSpacing: '.1em', color: '#1d4ed8', marginBottom: 4 }}>📜 TEXTE OFFICIEL</div>{officiel.texte}</div>}
+                {officiel && <div style={{ background: '#fbf7ee', color: '#1b1b2a', borderRadius: 12, padding: '12px 14px', borderLeft: '8px solid #2563eb', fontFamily: 'Georgia, serif', fontSize: 15, lineHeight: 1.5, whiteSpace: 'pre-line' }}><div style={{ fontFamily: 'system-ui', fontSize: 11, fontWeight: 900, letterSpacing: '.1em', color: '#1d4ed8', marginBottom: 4, whiteSpace: 'normal' }}>📜 TEXTE OFFICIEL</div>{officiel.texte}</div>}
                 <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
                   <button onClick={suivante} className="c-btn c-plein" style={{ padding: '0 18px' }}>{i + 1 < questions.length ? 'Question suivante →' : 'Voir mon score'}</button>
                   {choix !== q.r && <button onClick={() => onRevoir(q.scène)} className="c-btn">🎬 Revoir la scène</button>}

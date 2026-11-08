@@ -1,0 +1,296 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Samedi matin, à la médiathèque.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Depuis hier, une question trotte dans la tête de Lina.",
+  "émotion": null
+ },
+ {
+  "clé": "limites-1:0",
+  "qui": "lina",
+  "texte": "Si on peut critiquer une religion, alors on a le droit de tout dire ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "limites-1:1",
+  "qui": "arnaud",
+  "texte": "Non. La liberté d'expression connaît des limites. Mais ces limites ne concernent pas le blasphème.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "limites-1:2",
+  "qui": "narrateur",
+  "texte": "La liberté d'expression connaît des limites, mais celles-ci ne concernent pas le blasphème. Ces limites concernent :",
+  "officiel": true
+ },
+ {
+  "clé": "limites-1:3",
+  "qui": "arnaud",
+  "texte": "D'abord, la diffamation : dire des choses fausses sur quelqu'un pour lui nuire. Et les injures publiques.",
+  "émotion": null
+ },
+ {
+  "clé": "limites-1:4",
+  "qui": "arnaud",
+  "texte": "Ensuite, encourager à commettre certains crimes ou délits contre une religion.",
+  "émotion": null
+ },
+ {
+  "clé": "limites-1:5",
+  "qui": "arnaud",
+  "texte": "Et l'incitation à la haine raciale, ethnique ou religieuse.",
+  "émotion": null
+ },
+ {
+  "clé": "limites-1:6",
+  "qui": "narrateur",
+  "texte": "La diffamation (dire des choses fausses sur quelqu'un pour lui nuire) et les injures publiques,\nL'encouragement à commettre certains crimes ou délits contre une religion,\nL'incitation à la haine raciale, ethnique ou religieuse,",
+  "officiel": true
+ },
+ {
+  "clé": "limites-2:0",
+  "qui": "lina",
+  "texte": "Il y en a d'autres ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "limites-2:1",
+  "qui": "arnaud",
+  "texte": "Utiliser la religion pour justifier des crimes de guerre ou du terrorisme.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "limites-2:2",
+  "qui": "arnaud",
+  "texte": "Inciter à discriminer.",
+  "émotion": null
+ },
+ {
+  "clé": "limites-2:3",
+  "qui": "arnaud",
+  "texte": "Et remettre en cause des crimes contre l'humanité, comme le négationnisme : nier l'existence de la Shoah.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "limites-2:4",
+  "qui": "narrateur",
+  "texte": "L'utilisation de la religion pour justifier des crimes de guerre ou du terrorisme,\nL'incitation à discriminer,\nLa remise en cause de crimes contre l'humanité, dont le négationnisme (nier l'existence de la Shoah).",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-4:0",
+  "qui": "narrateur",
+  "texte": "Quatrième point : la laïcité, selon les lieux.",
+  "émotion": null
+ },
+ {
+  "clé": "chapitre-4:1",
+  "qui": "narrateur",
+  "texte": "Selon les lieux, différentes règles s'appliquent afin de respecter et faire vivre la laïcité.",
+  "officiel": true
+ },
+ {
+  "clé": "marche:0",
+  "qui": "narrateur",
+  "texte": "Midi, jour de marché. Habitants, voisins, passants : tout le monde se croise.",
+  "émotion": null
+ },
+ {
+  "clé": "marche:1",
+  "qui": "lina",
+  "texte": "Ici, dans la rue, chacun peut montrer sa religion ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "marche:2",
+  "qui": "arnaud",
+  "texte": "Oui. Toute personne a le droit de montrer sa religion dans l'espace public : les rues, les parcs, les marchés, les transports…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "marche:3",
+  "qui": "narrateur",
+  "texte": "En France, toute personne a le droit de montrer sa religion dans l'espace public : rues, parcs et jardins publics, marchés, transports…",
+  "officiel": true
+ },
+ {
+  "clé": "marche:4",
+  "qui": "arnaud",
+  "texte": "On peut porter des signes religieux, participer à des célébrations ou à des rassemblements, exprimer ses convictions.",
+  "émotion": null
+ },
+ {
+  "clé": "marche:5",
+  "qui": "narrateur",
+  "texte": "Cela signifie qu'une personne peut porter des signes religieux (voile, kippa, croix, turban…), participer à des célébrations ou rassemblements religieux ou encore, exprimer ses convictions religieuses.",
+  "officiel": true
+ },
+ {
+  "clé": "ordre-public:0",
+  "qui": "lina",
+  "texte": "Et il n'y a aucune limite ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "ordre-public:1",
+  "qui": "arnaud",
+  "texte": "Si : le respect de l'ordre public est indispensable. Une manifestation religieuse peut être soumise à autorisation, encadrée, ou interdite.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "ordre-public:2",
+  "qui": "lina",
+  "texte": "Pour éviter des troubles, comme des prières de rue ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "ordre-public:3",
+  "qui": "narrateur",
+  "texte": "Cependant, le respect de l'ordre public est indispensable. Une manifestation religieuse peut être soumise à autorisation, encadrée ou interdite pour éviter des troubles à l'ordre public (exemple : prières de rue).",
+  "officiel": true
+ },
+ {
+  "clé": "visage:0",
+  "qui": "arnaud",
+  "texte": "Et une loi de 2010 interdit de dissimuler son visage dans l'espace public.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "visage:1",
+  "qui": "lina",
+  "texte": "Une cagoule, un masque, un voile intégral…",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "visage:2",
+  "qui": "narrateur",
+  "texte": "La loi du 11 octobre 2010 interdit la dissimulation du visage dans l'espace public (cagoule, masque, voile intégral…). Cette loi vise à protéger l'ordre public.",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-b:0",
+  "qui": "narrateur",
+  "texte": "Lundi, Lina retourne à la mairie.",
+  "émotion": null
+ },
+ {
+  "clé": "agents:0",
+  "qui": "agente",
+  "texte": "Bonjour Lina ! Vous revenez pour votre dossier ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "agents:1",
+  "qui": "lina",
+  "texte": "Oui. Dites-moi : au travail, vous ne montrez jamais vos opinions ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "agents:2",
+  "qui": "agente",
+  "texte": "Jamais. Ceux qui travaillent dans les services publics, à l'hôpital, à l'école ou à la mairie, doivent rester neutres.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "agents:3",
+  "qui": "narrateur",
+  "texte": "Les personnes qui travaillent dans les services publics, comme les hôpitaux, les écoles ou les mairies, doivent rester neutres et ne pas montrer leurs opinions ou croyances personnelles pendant leur travail.",
+  "officiel": true
+ },
+ {
+  "clé": "agents:4",
+  "qui": "agente",
+  "texte": "C'est ce qui permet de traiter tous les usagers de façon équitable.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "agents:5",
+  "qui": "narrateur",
+  "texte": "C'est l'une des conditions pour un traitement équitable des usagers.",
+  "officiel": true
+ },
+ {
+  "clé": "murs:0",
+  "qui": "arnaud",
+  "texte": "Regarde les murs : aucun signe religieux, politique ou philosophique. Ni dans les bureaux, ni aux guichets.",
+  "émotion": null
+ },
+ {
+  "clé": "murs:1",
+  "qui": "narrateur",
+  "texte": "Cette neutralité se traduit aussi dans les bâtiments des services publics. Aucun signe ou emblème religieux, politique ou philosophique ne doit être exposé dans les bureaux, aux guichets ou encore dans les espaces communs.",
+  "officiel": true
+ },
+ {
+  "clé": "usagers:0",
+  "qui": "lina",
+  "texte": "Et nous, les usagers ? On doit aussi être neutres ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "usagers:1",
+  "qui": "agente",
+  "texte": "Non. Un usager peut porter un signe d'appartenance religieuse ici, s'il respecte les règles de fonctionnement du service.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "usagers:2",
+  "qui": "narrateur",
+  "texte": "La neutralité ne s'impose pas aux personnes qui se rendent dans un service public en tant qu'usagers. Elles peuvent donc porter un signe d'appartenance religieuse au sein d'un service public, à condition de respecter les règles de fonctionnement du service.",
+  "officiel": true
+ },
+ {
+  "clé": "adaptation:0",
+  "qui": "narrateur",
+  "texte": "Au guichet voisin, Paul a une demande.",
+  "émotion": null
+ },
+ {
+  "clé": "adaptation:1",
+  "qui": "paul",
+  "texte": "Pourriez-vous changer les horaires du service, pour respecter ma religion ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "adaptation:2",
+  "qui": "agente",
+  "texte": "Je comprends, monsieur. Mais on ne peut pas exiger une adaptation du service public au nom d'une religion.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "adaptation:3",
+  "qui": "paul",
+  "texte": "D'accord, je reviendrai aux horaires habituels.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "adaptation:4",
+  "qui": "narrateur",
+  "texte": "Il n'est pas possible en revanche d'exiger une adaptation du service public au nom d'une religion.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Dans la rue, chacun peut montrer sa religion, dans le respect de l'ordre public. Au guichet, l'agent reste neutre.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "Et l'usager reste libre, s'il respecte les règles du service.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : la laïcité au travail et à l'école, page 13.",
+  "émotion": null
+ }
+]

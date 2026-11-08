@@ -1,0 +1,188 @@
+// Expérience narrative cinématographique — PROTOTYPE, page 12 uniquement.
+// « Selon les lieux » : les limites de la liberté d'expression, puis
+// « 4. La mise en œuvre de la laïcité dans différents espaces » : a) l'espace
+// public, b) les services publics.
+//
+// Règle de fidélité : les cartes « officiel » reprennent MOT POUR MOT le texte
+// de la page 12. Personnages, lieux et dialogues sont fictifs ; ils n'énoncent
+// que ce que dit la page. Aucune religion réelle n'est mise en scène.
+import { VOIX_P12 } from './voixP12.js'
+import { PERSONNAGES as P11 } from './p11.js'
+
+const p12 = 'Livret du citoyen, page 12'
+
+export const PERSONNAGES = P11
+
+export const COURT_MÉTRAGE = {
+  page: 12,
+  titre: 'Selon les lieux',
+  sousTitre: 'Les limites de l\'expression, l\'espace public, les services publics',
+  avertissement: 'Personnages et situations fictifs. Les cartes « 📜 Livret » reprennent le texte officiel, mot pour mot.',
+  voix: VOIX_P12,
+  scènes: [
+    {
+      id: 'ouverture', titre: 'Ouverture', décor: 'mediatheque', ambiance: 'salle', musique: 'réflexion', transition: 'fondu', particules: 'poussiere',
+      caméra: { de: { x: -3, z: 1.16 }, à: { x: 2, z: 1.02 } }, titreFilm: true,
+      temps: [
+        { qui: 'narrateur', texte: 'Samedi matin, à la médiathèque.' },
+        { qui: 'narrateur', texte: 'Depuis hier, une question trotte dans la tête de Lina.', son: 'page' },
+      ],
+    },
+    {
+      id: 'limites-1', titre: 'Les limites de la liberté d\'expression', décor: 'mediatheque', visuel: 'limites', ambiance: 'salle', musique: 'réflexion', transition: 'lumiere', lumière: 'rgba(255,206,140,.65)',
+      caméra: { de: { x: 0, z: 1.08 }, à: { x: 0, z: 1.0 } },
+      personnages: [{ id: 'lina', x: 20, regard: 'droite', échelle: 0.86 }, { id: 'arnaud', x: 80, regard: 'gauche', échelle: 0.86 }],
+      temps: [
+        { qui: 'lina', texte: 'Si on peut critiquer une religion, alors on a le droit de tout dire ?', émotion: 'réflexion' },
+        { qui: 'arnaud', texte: 'Non. La liberté d\'expression connaît des limites. Mais ces limites ne concernent pas le blasphème.', émotion: 'neutre', geste: 'explique' },
+        { officiel: { texte: 'La liberté d\'expression connaît des limites, mais celles-ci ne concernent pas le blasphème. Ces limites concernent :', source: p12 } },
+        { qui: 'arnaud', texte: 'D\'abord, la diffamation : dire des choses fausses sur quelqu\'un pour lui nuire. Et les injures publiques.', étape: 1, son: 'bloc' },
+        { qui: 'arnaud', texte: 'Ensuite, encourager à commettre certains crimes ou délits contre une religion.', étape: 2, son: 'bloc' },
+        { qui: 'arnaud', texte: 'Et l\'incitation à la haine raciale, ethnique ou religieuse.', étape: 3, son: 'bloc' },
+        { officiel: { texte: 'La diffamation (dire des choses fausses sur quelqu\'un pour lui nuire) et les injures publiques,\nL\'encouragement à commettre certains crimes ou délits contre une religion,\nL\'incitation à la haine raciale, ethnique ou religieuse,', source: p12 }, étape: 3 },
+      ],
+    },
+    {
+      id: 'limites-2', titre: 'Les autres limites', décor: 'mediatheque', visuel: 'limites', ambiance: 'salle', musique: 'tension', transition: 'fondu', lumière: 'rgba(255,206,140,.6)',
+      caméra: { de: { x: 2, z: 1.1 }, à: { x: -2, z: 1.02 } },
+      personnages: [{ id: 'arnaud', x: 20, regard: 'droite', échelle: 0.86 }, { id: 'lina', x: 80, regard: 'gauche', échelle: 0.86 }],
+      temps: [
+        { qui: 'lina', texte: 'Il y en a d\'autres ?', émotion: 'réflexion', étape: 3 },
+        { qui: 'arnaud', texte: 'Utiliser la religion pour justifier des crimes de guerre ou du terrorisme.', émotion: 'neutre', étape: 4, son: 'bloc' },
+        { qui: 'arnaud', texte: 'Inciter à discriminer.', étape: 5, son: 'bloc' },
+        { qui: 'arnaud', texte: 'Et remettre en cause des crimes contre l\'humanité, comme le négationnisme : nier l\'existence de la Shoah.', émotion: 'tendre', étape: 6, son: 'bloc' },
+        { officiel: { texte: 'L\'utilisation de la religion pour justifier des crimes de guerre ou du terrorisme,\nL\'incitation à discriminer,\nLa remise en cause de crimes contre l\'humanité, dont le négationnisme (nier l\'existence de la Shoah).', source: p12 }, étape: 6 },
+      ],
+    },
+    {
+      id: 'chapitre-4', titre: '4. La laïcité selon les lieux', décor: 'carton', visuel: 'carton', carton: { lettre: '4', titre: 'La laïcité dans différents espaces', sous: 'Les principes de la République (suite)' }, ambiance: 'souffle', musique: 'élévation', transition: 'iris',
+      caméra: { de: { x: 0, z: 1.08 }, à: { x: 0, z: 1.0 } },
+      temps: [
+        { qui: 'narrateur', texte: 'Quatrième point : la laïcité, selon les lieux.', son: 'whoosh' },
+        { officiel: { texte: 'Selon les lieux, différentes règles s\'appliquent afin de respecter et faire vivre la laïcité.', source: p12 } },
+      ],
+    },
+    {
+      id: 'marche', titre: 'a) Au marché : l\'espace public', décor: 'marche', visuel: 'espace-public', ambiance: 'rue', musique: 'chaleureux', transition: 'volet', lumière: 'rgba(255,236,190,.7)',
+      caméra: { de: { x: -3, z: 1.1 }, à: { x: 3, z: 1.0 } },
+      personnages: [{ id: 'lina', x: 18, regard: 'droite', échelle: 0.84 }, { id: 'arnaud', x: 82, regard: 'gauche', échelle: 0.84 }],
+      temps: [
+        { qui: 'narrateur', texte: 'Midi, jour de marché. Habitants, voisins, passants : tout le monde se croise.', son: 'pas' },
+        { qui: 'lina', texte: 'Ici, dans la rue, chacun peut montrer sa religion ?', émotion: 'réflexion', étape: 1 },
+        { qui: 'arnaud', texte: 'Oui. Toute personne a le droit de montrer sa religion dans l\'espace public : les rues, les parcs, les marchés, les transports…', émotion: 'sourire', geste: 'montre', étape: 1 },
+        { officiel: { texte: 'En France, toute personne a le droit de montrer sa religion dans l\'espace public : rues, parcs et jardins publics, marchés, transports…', source: p12 }, étape: 1 },
+        { qui: 'arnaud', texte: 'On peut porter des signes religieux, participer à des célébrations ou à des rassemblements, exprimer ses convictions.', étape: 2 },
+        { officiel: { texte: 'Cela signifie qu\'une personne peut porter des signes religieux (voile, kippa, croix, turban…), participer à des célébrations ou rassemblements religieux ou encore, exprimer ses convictions religieuses.', source: p12 }, étape: 2 },
+      ],
+    },
+    {
+      id: 'ordre-public', titre: 'Le respect de l\'ordre public', décor: 'marche', visuel: 'ordre-public', ambiance: 'rue', musique: 'tension', transition: 'flou', lumière: 'rgba(230,235,255,.6)',
+      caméra: { de: { x: 2, z: 1.08 }, à: { x: -2, z: 1.0 } },
+      personnages: [{ id: 'arnaud', x: 22, regard: 'droite' }, { id: 'lina', x: 78, regard: 'gauche' }],
+      temps: [
+        { qui: 'lina', texte: 'Et il n\'y a aucune limite ?', émotion: 'réflexion' },
+        { qui: 'arnaud', texte: 'Si : le respect de l\'ordre public est indispensable. Une manifestation religieuse peut être soumise à autorisation, encadrée, ou interdite.', émotion: 'neutre', geste: 'explique', étape: 1 },
+        { qui: 'lina', texte: 'Pour éviter des troubles, comme des prières de rue ?', émotion: 'réflexion', étape: 2 },
+        { officiel: { texte: 'Cependant, le respect de l\'ordre public est indispensable. Une manifestation religieuse peut être soumise à autorisation, encadrée ou interdite pour éviter des troubles à l\'ordre public (exemple : prières de rue).', source: p12 }, étape: 2 },
+      ],
+    },
+    {
+      id: 'visage', titre: 'La loi du 11 octobre 2010', décor: 'place-mairie', visuel: 'loi-2010', ambiance: 'rue', musique: 'réflexion', transition: 'fondu', lumière: 'rgba(255,230,180,.6)',
+      caméra: { de: { x: 0, z: 1.08 }, à: { x: 0, z: 1.0 } },
+      personnages: [{ id: 'lina', x: 22, regard: 'droite' }, { id: 'arnaud', x: 78, regard: 'gauche' }],
+      temps: [
+        { qui: 'arnaud', texte: 'Et une loi de 2010 interdit de dissimuler son visage dans l\'espace public.', émotion: 'neutre', étape: 1, son: 'page' },
+        { qui: 'lina', texte: 'Une cagoule, un masque, un voile intégral…', émotion: 'réflexion', étape: 1 },
+        { officiel: { texte: 'La loi du 11 octobre 2010 interdit la dissimulation du visage dans l\'espace public (cagoule, masque, voile intégral…). Cette loi vise à protéger l\'ordre public.', source: `${p12} (encadré)` }, étape: 1 },
+      ],
+    },
+    {
+      id: 'chapitre-b', titre: 'b) Dans les services publics', décor: 'carton', visuel: 'carton', carton: { lettre: 'b', titre: 'Dans les services publics', sous: 'Hôpitaux, écoles, mairies…' }, ambiance: 'souffle', musique: 'élévation', transition: 'iris',
+      caméra: { de: { x: 0, z: 1.08 }, à: { x: 0, z: 1.0 } },
+      temps: [{ qui: 'narrateur', texte: 'Lundi, Lina retourne à la mairie.', son: 'whoosh' }],
+    },
+    {
+      id: 'agents', titre: 'Des agents neutres', décor: 'guichet-mairie', visuel: 'agents-neutres', ambiance: 'salle', musique: 'chaleureux', transition: 'fondu', lumière: 'rgba(230,240,255,.6)',
+      caméra: { de: { x: 2, z: 1.08 }, à: { x: -2, z: 1.0 } },
+      personnages: [{ id: 'lina', x: 24, regard: 'droite' }, { id: 'agente', x: 76, regard: 'gauche' }],
+      temps: [
+        { qui: 'agente', texte: 'Bonjour Lina ! Vous revenez pour votre dossier ?', émotion: 'sourire' },
+        { qui: 'lina', texte: 'Oui. Dites-moi : au travail, vous ne montrez jamais vos opinions ?', émotion: 'réflexion' },
+        { qui: 'agente', texte: 'Jamais. Ceux qui travaillent dans les services publics, à l\'hôpital, à l\'école ou à la mairie, doivent rester neutres.', émotion: 'neutre', étape: 1 },
+        { officiel: { texte: 'Les personnes qui travaillent dans les services publics, comme les hôpitaux, les écoles ou les mairies, doivent rester neutres et ne pas montrer leurs opinions ou croyances personnelles pendant leur travail.', source: p12 }, étape: 1 },
+        { qui: 'agente', texte: 'C\'est ce qui permet de traiter tous les usagers de façon équitable.', émotion: 'sourire', étape: 2 },
+        { officiel: { texte: 'C\'est l\'une des conditions pour un traitement équitable des usagers.', source: p12 }, étape: 2 },
+      ],
+    },
+    {
+      id: 'murs', titre: 'Des bâtiments neutres', décor: 'guichet-mairie', visuel: 'murs-neutres', ambiance: 'salle', musique: 'réflexion', transition: 'volet', lumière: 'rgba(230,240,255,.6)', focus: 'fond',
+      caméra: { de: { x: -4, z: 1.12 }, à: { x: 4, z: 1.02 } },
+      temps: [
+        { qui: 'arnaud', texte: 'Regarde les murs : aucun signe religieux, politique ou philosophique. Ni dans les bureaux, ni aux guichets.', étape: 1 },
+        { officiel: { texte: 'Cette neutralité se traduit aussi dans les bâtiments des services publics. Aucun signe ou emblème religieux, politique ou philosophique ne doit être exposé dans les bureaux, aux guichets ou encore dans les espaces communs.', source: p12 }, étape: 1 },
+      ],
+    },
+    {
+      id: 'usagers', titre: 'Et les usagers ?', décor: 'guichet-mairie', visuel: 'usagers', ambiance: 'salle', musique: 'chaleureux', transition: 'fondu', lumière: 'rgba(230,240,255,.6)',
+      caméra: { de: { x: 0, z: 1.08 }, à: { x: 0, z: 1.0 } },
+      personnages: [{ id: 'lina', x: 24, regard: 'droite' }, { id: 'agente', x: 76, regard: 'gauche' }],
+      temps: [
+        { qui: 'lina', texte: 'Et nous, les usagers ? On doit aussi être neutres ?', émotion: 'réflexion' },
+        { qui: 'agente', texte: 'Non. Un usager peut porter un signe d\'appartenance religieuse ici, s\'il respecte les règles de fonctionnement du service.', émotion: 'sourire', étape: 1 },
+        { officiel: { texte: 'La neutralité ne s\'impose pas aux personnes qui se rendent dans un service public en tant qu\'usagers. Elles peuvent donc porter un signe d\'appartenance religieuse au sein d\'un service public, à condition de respecter les règles de fonctionnement du service.', source: p12 }, étape: 1 },
+      ],
+    },
+    {
+      id: 'adaptation', titre: 'Pas d\'adaptation au nom d\'une religion', décor: 'guichet-mairie', visuel: 'adaptation', ambiance: 'salle', musique: 'tension', transition: 'flou', lumière: 'rgba(230,240,255,.6)',
+      caméra: { de: { x: 2, z: 1.08 }, à: { x: -2, z: 1.0 } },
+      personnages: [{ id: 'paul', x: 24, regard: 'droite' }, { id: 'agente', x: 76, regard: 'gauche' }],
+      temps: [
+        { qui: 'narrateur', texte: 'Au guichet voisin, Paul a une demande.', son: 'carillon' },
+        { qui: 'paul', texte: 'Pourriez-vous changer les horaires du service, pour respecter ma religion ?', émotion: 'réflexion' },
+        { qui: 'agente', texte: 'Je comprends, monsieur. Mais on ne peut pas exiger une adaptation du service public au nom d\'une religion.', émotion: 'neutre', geste: 'explique', étape: 1 },
+        { qui: 'paul', texte: 'D\'accord, je reviendrai aux horaires habituels.', émotion: 'sourire', étape: 1 },
+        { officiel: { texte: 'Il n\'est pas possible en revanche d\'exiger une adaptation du service public au nom d\'une religion.', source: p12 }, étape: 1 },
+      ],
+    },
+    {
+      id: 'final', titre: 'Final', décor: 'place-mairie-soir', visuel: 'lieux-recap', ambiance: 'soir', musique: 'final', transition: 'fondu', particules: 'poussiere', lumière: 'rgba(255,200,150,.65)',
+      caméra: { de: { x: 2, z: 1.12 }, à: { x: -2, z: 1.0 } },
+      personnages: [{ id: 'arnaud', x: 26, regard: 'droite', échelle: 0.9 }, { id: 'lina', x: 70, regard: 'gauche' }],
+      temps: [
+        { qui: 'lina', texte: 'Dans la rue, chacun peut montrer sa religion, dans le respect de l\'ordre public. Au guichet, l\'agent reste neutre.', émotion: 'joie', étape: 1 },
+        { qui: 'arnaud', texte: 'Et l\'usager reste libre, s\'il respecte les règles du service.', émotion: 'fier', étape: 1, son: 'carillon' },
+        { qui: 'narrateur', texte: 'À suivre : la laïcité au travail et à l\'école, page 13.', étape: 1 },
+      ],
+    },
+  ],
+  quiz: [
+    { q: 'Les limites de la liberté d\'expression concernent-elles le blasphème ?', r: 'Non : la liberté d\'expression a des limites, mais elles ne concernent pas le blasphème', f: ['Oui, le blasphème est la première limite', 'Oui, mais seulement dans la rue'], scène: 'limites-1' },
+    { q: 'Qu\'est-ce que la diffamation ?', r: 'Dire des choses fausses sur quelqu\'un pour lui nuire', f: ['Critiquer une religion', 'Porter un signe religieux'], scène: 'limites-1', o: 1 },
+    { q: 'Laquelle de ces propositions est une limite de la liberté d\'expression ?', r: 'L\'incitation à la haine raciale, ethnique ou religieuse', f: ['La caricature d\'une religion', 'La critique d\'une idée'], scène: 'limites-1', o: 1 },
+    { q: 'Le négationnisme, c\'est…', r: 'nier l\'existence de la Shoah', f: ['critiquer une religion', 'refuser une adaptation du service public'], scène: 'limites-2' },
+    { q: 'Est-il permis d\'utiliser la religion pour justifier des crimes de guerre ou du terrorisme ?', r: 'Non, c\'est une limite de la liberté d\'expression', f: ['Oui, au nom de la liberté religieuse', 'Oui, dans un cadre privé'], scène: 'limites-2' },
+    { q: 'Peut-on montrer sa religion dans l\'espace public (rues, parcs, marchés, transports…) ?', r: 'Oui, toute personne en a le droit', f: ['Non, jamais', 'Seulement le dimanche'], scène: 'marche' },
+    { q: 'Une manifestation religieuse dans l\'espace public peut-elle être interdite ?', r: 'Oui, elle peut être soumise à autorisation, encadrée ou interdite pour éviter des troubles à l\'ordre public', f: ['Non, elle est toujours libre', 'Non, sauf si elle a lieu la nuit'], scène: 'ordre-public' },
+    { q: 'Que prévoit la loi du 11 octobre 2010 ?', r: 'Elle interdit la dissimulation du visage dans l\'espace public', f: ['Elle interdit les signes religieux dans la rue', 'Elle interdit les marchés le dimanche'], scène: 'visage' },
+    { q: 'Les agents des services publics (hôpitaux, écoles, mairies) pendant leur travail…', r: 'doivent rester neutres et ne pas montrer leurs opinions ou croyances personnelles', f: ['peuvent afficher leur religion', 'doivent porter un signe religieux'], scène: 'agents' },
+    { q: 'Pourquoi les agents publics doivent-ils rester neutres ?', r: 'C\'est l\'une des conditions pour un traitement équitable des usagers', f: ['Pour aller plus vite', 'Parce que la religion est interdite en France'], scène: 'agents', o: 1 },
+    { q: 'Dans les bâtiments des services publics…', r: 'aucun signe ou emblème religieux, politique ou philosophique ne doit être exposé', f: ['chaque agent décore son bureau à son goût', 'seuls les signes religieux sont autorisés'], scène: 'murs' },
+    { q: 'Un usager peut-il porter un signe d\'appartenance religieuse dans un service public ?', r: 'Oui, à condition de respecter les règles de fonctionnement du service', f: ['Non, jamais', 'Oui, et il peut exiger un service adapté'], scène: 'usagers' },
+    { q: 'Peut-on exiger une adaptation du service public au nom d\'une religion ?', r: 'Non, ce n\'est pas possible', f: ['Oui, sur simple demande', 'Oui, si on est nombreux à le demander'], scène: 'adaptation' },
+  ],
+}
+
+// Contrôle de fidélité : chaque notion de la page 12 et la scène qui la montre.
+export const COUVERTURE = [
+  ['La liberté d\'expression a des limites, qui ne concernent pas le blasphème', 'limites-1'],
+  ['Diffamation et injures publiques ; encouragement à des crimes ou délits contre une religion ; incitation à la haine', 'limites-1'],
+  ['Religion pour justifier crimes de guerre ou terrorisme ; incitation à discriminer ; négationnisme', 'limites-2'],
+  ['Selon les lieux, différentes règles pour faire vivre la laïcité', 'chapitre-4'],
+  ['Espace public : droit de montrer sa religion ; signes, célébrations, convictions', 'marche'],
+  ['Ordre public : manifestation religieuse soumise à autorisation, encadrée ou interdite (prières de rue)', 'ordre-public'],
+  ['Encadré : loi du 11 octobre 2010, dissimulation du visage interdite', 'visage'],
+  ['Agents des services publics neutres ; traitement équitable des usagers', 'agents'],
+  ['Aucun signe ou emblème dans les bâtiments des services publics', 'murs'],
+  ['Usagers : signe d\'appartenance religieuse possible, dans le respect des règles du service', 'usagers'],
+  ['Pas d\'adaptation exigée au nom d\'une religion', 'adaptation'],
+]
