@@ -202,6 +202,8 @@ export default function Home({ foyerId = 'lebbar' }) {
   const lectures = lire('lectures', espace).éléments || []
   const àLire = lectures.filter(l => l.statut !== 'lu').length
   if (estDimanche && !revueFaite) résumé.push('📝 revue de la semaine à faire')
+  const livret = lireLocal('livret', espace)
+  const livretFaites = Object.values(livret.leçons || {}).filter(l => l?.faite).length
   const pilotes = [
     { to: `/journee/${foyer.préfixe}perso`, emoji: '🌅', titre: 'Ma journée', chiffre: prioDuJour.length ? `${prioDuJour.filter(p => p.fait).length}/${prioDuJour.length}` : '', unité: prioDuJour.length ? 'priorités' : '', détail: prioDuJour.length ? 'Agenda, habitudes, carte du jour' : 'Choisis tes 3 priorités' },
     { to: `/semaine/${foyer.préfixe}perso`, emoji: '📝', titre: 'Ma semaine', chiffre: revueFaite ? '✓' : estDimanche ? '!' : '', unité: revueFaite ? 'revue faite' : estDimanche ? "c'est le jour" : '', détail: revueFaite ? 'Priorités de la semaine prochaine prêtes' : 'Bilan et priorités, le dimanche', alerte: estDimanche && !revueFaite },
@@ -357,10 +359,10 @@ export default function Home({ foyerId = 'lebbar' }) {
         {/* Préparer un examen */}
         <h2 style={titreBloc}>Préparer un examen</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '10px', marginBottom: '26px' }}>
-          {[['aws', '☁️', 'Prépa AWS CloudOps', 'CloudOps Engineer – Associate', 'aws-cloudops'], ['naturalisation', '🇫🇷', 'Prépa naturalisation', 'Entretien et examen civique', 'civique']].map(([id, emoji, nom, sous, préset]) => {
-            const o = (lire('memoriser', espace).objectifs || []).find(x => x.préset === préset)
+          {[['aws', '☁️', 'Prépa AWS CloudOps', 'CloudOps Engineer – Associate', 'aws-cloudops'], ['naturalisation', '🇫🇷', 'Prépa naturalisation', 'Entretien et examen civique', 'civique'], ['livret2026', '📘', 'Livret du citoyen 2026', livret.plan ? `${livretFaites}/${livret.plan.calendrier?.length || 0} leçons · pages animées, maison de mémoire` : '83 pages animées, plan, maison de mémoire', null]].map(([id, emoji, nom, sous, préset]) => {
+            const o = préset ? (lire('memoriser', espace).objectifs || []).find(x => x.préset === préset) : null
             return (
-              <Link key={id} to={`/prepa/${id}/${espace}`} className="tuile" style={{ ...carteStyle, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: T.text }}>
+              <Link key={id} to={id === 'livret2026' ? `/livret2026/${espace}` : `/prepa/${id}/${espace}`} className="tuile" style={{ ...carteStyle, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: T.text }}>
                 <span style={{ fontSize: '28px', lineHeight: 1 }}>{emoji}</span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', fontWeight: 700, fontSize: '15px', fontFamily: grotesk }}>{nom}</span>

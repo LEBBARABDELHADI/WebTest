@@ -39,6 +39,7 @@ const PAGES = {
   MaJournee: () => import('./pages/MaJournee'),
   RevueSemaine: () => import('./pages/RevueSemaine'),
   ObjectifsAnnee: () => import('./pages/ObjectifsAnnee'),
+  Livret2026: () => import('./pages/Livret2026'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -57,6 +58,7 @@ const ALire = charger(PAGES.ALire)
 const MaJournee = charger(PAGES.MaJournee)
 const RevueSemaine = charger(PAGES.RevueSemaine)
 const ObjectifsAnnee = charger(PAGES.ObjectifsAnnee)
+const Livret2026 = charger(PAGES.Livret2026)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -173,6 +175,8 @@ function App() {
       <Route path="/semaine/:espace" element={<EspaceRoute Page={RevueSemaine} />} />
       <Route path="/annee" element={<Navigate to="/annee/perso" replace />} />
       <Route path="/annee/:espace" element={<EspaceRoute Page={ObjectifsAnnee} />} />
+      <Route path="/livret2026" element={<Navigate to="/livret2026/perso" replace />} />
+      <Route path="/livret2026/:espace" element={<EspaceRoute Page={Livret2026} />} />
     </Routes>
     </Suspense>
     </>

@@ -90,6 +90,7 @@ export default function Prépa() {
     prépa.pannes && { emoji: '🚑', titre: 'Scénarios de panne', détail: 'Démarches de dépannage', lien: `${M}?action=reviser&${modèles([prépa.pannes])}` },
     prépa.id === 'aws' && { emoji: '⌨️', titre: 'Commandes AWS CLI', détail: 'Cartes avec bouton Copier', lien: `${M}?action=reviser&${modèles(['aws-cli'])}` },
     prépa.id === 'aws' && { emoji: '🚨', titre: 'Runbooks', détail: 'Checklists d\'incident dans Notes', lien: `/notes/${espace}?modele=${encodeURIComponent('🚨 Runbook')}` },
+    prépa.id === 'naturalisation' && { emoji: '🇫🇷', titre: 'Livret 2026 animé', détail: '83 pages mises en scène, plan, maison de mémoire', lien: `/livret2026/${espace}` },
     prépa.id === 'naturalisation' && { emoji: '📘', titre: 'Cours animé du Livret', détail: '11 chapitres : cours, révision, questions, QCM', lien: `/cours/livret/${espace}` },
     prépa.entretien && { emoji: '🎙️', titre: 'Entretien simulé', détail: 'Questions à voix haute', lien: `${M}?action=entretien&modele=${prépa.entretien}` },
     prépa.oral && { emoji: '🗣️', titre: 'Oral chronométré', détail: 'Sujet au hasard, 1 à 3 min', lien: `${M}?action=oral&modele=${prépa.oral}` },

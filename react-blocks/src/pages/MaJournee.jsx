@@ -6,7 +6,7 @@ import { stylesPilotage } from '../lib/stylesPilotage'
 import { grotesk, serif, useTheme } from '../lib/theme'
 import { TexteFormaté } from '../lib/texteFormate'
 import { FOYERS, foyerDeLEspace } from '../lib/foyers'
-import { useDonnéesFoyer, modifierOutil } from '../lib/donneesFoyer'
+import { useDonnéesFoyer, modifierOutil, lireLocal } from '../lib/donneesFoyer'
 import { analyserAujourdhui } from '../lib/aujourdhui'
 import { construireIndex } from '../lib/agendaIndex'
 import { actives, prévue, faite, série, aujourdhuiLocal, décaler } from '../lib/habitudes'
@@ -80,6 +80,9 @@ export default function MaJournee() {
       a.enRetard.forEach(c => pousser({ texte: (c.texte || '').split('\n')[0], tâche: { espace: e, id: c.id }, origine: `${nom} · en retard`, retard: true }))
       ;[...a.échéance, ...a.colonne].forEach(c => pousser({ texte: (c.texte || '').split('\n')[0], tâche: { espace: e, id: c.id }, origine: `${nom} · aujourd'hui` }))
     })
+    const lv = lireLocal('livret', `${foyer.préfixe}perso`)
+    const lç = (lv.plan?.calendrier || []).find(([id, date]) => !lv.leçons?.[id]?.faite && date <= auj)
+    if (lç) pousser({ texte: `🇫🇷 Leçon du livret : ${lç[2]}`, origine: '📘 Livret 2026' })
     const trimestre = trimestreDe(auj)
     pilotage.objectifs.filter(o => o.année === Number(auj.slice(0, 4))).forEach(o => (o.étapes || []).filter(s => !s.fait && s.trimestre === trimestre).slice(0, 1).forEach(s => pousser({ texte: s.texte, origine: `${o.emoji || '🎯'} objectif` })))
     return l.slice(0, 8)
@@ -110,6 +113,11 @@ export default function MaJournee() {
   const lectures = espaces.flatMap(({ espace: e }) => (lire('lectures', e).éléments || []).map(x => ({ ...x, espace: e })))
   const lecture = lectures.find(x => x.statut === 'encours') || lectures.filter(x => x.statut === 'àlire').sort((a, b) => (a.ajouté || '').localeCompare(b.ajouté || ''))[0]
 
+  // Leçon du jour du Livret 2026 (plan créé dans la page du livret).
+  const livretEspace = `${foyer.préfixe}perso`
+  const livret = lireLocal('livret', livretEspace)
+  const leçonLivret = (livret.plan?.calendrier || []).find(([id]) => !livret.leçons?.[id]?.faite)
+  const livretRetard = (livret.plan?.calendrier || []).filter(([id, date]) => !livret.leçons?.[id]?.faite && date < auj).length
   const échéances = prochainesÉchéances(pilotage, lire, foyer, auj)
   const objectifs = pilotage.objectifs.filter(o => o.année === Number(auj.slice(0, 4)))
   const lireLectures = e => lire('lectures', e)
@@ -189,6 +197,18 @@ export default function MaJournee() {
                 <p style={{ ...S.discret, fontSize: 12.5, marginTop: 10 }}>📝 Semaine : {pilotage.semaines[lundi].priorités.map(p => `${p.fait ? '✓' : '○'} ${p.texte}`).join(' · ')}</p>
               )}
             </section>
+
+            {leçonLivret && (
+              <Link to={`/livret2026/${livretEspace}`} style={{ ...S.carte, display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', color: T.text, borderColor: leçonLivret[1] <= auj ? T.accent : T.border }}>
+                <span style={{ fontSize: 34 }}>{leçonLivret[3] || '📘'}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ ...S.titre, display: 'block', margin: '0 0 2px' }}>🇫🇷 Leçon du livret (15 min)</span>
+                  <strong style={{ display: 'block', fontSize: 15, lineHeight: 1.3 }}>{leçonLivret[2]}</strong>
+                  <span style={{ fontSize: 12.5, color: livretRetard ? T.danger : T.textMuted }}>{leçonLivret[1] > auj ? `Prévue le ${dateCourte(leçonLivret[1])} : tu peux avancer` : livretRetard ? `${livretRetard} leçon${livretRetard > 1 ? 's' : ''} en retard` : 'Prévue aujourd\'hui'}</span>
+                </span>
+                <span style={S.lien}>▶</span>
+              </Link>
+            )}
 
             {/* Agenda */}
             <section style={S.carte} aria-labelledby="titre-agenda">
