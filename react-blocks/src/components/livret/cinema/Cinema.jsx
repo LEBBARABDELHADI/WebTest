@@ -5,6 +5,7 @@ import Visuel from './Visuels10'
 import { CSS_CINÉMA } from '../../../lib/livret2026/cinema/cinemaCss'
 import { créerSonCinéma, garderVoix, lireVoix, effacerVoix, clésVoix, enregistreur, jouerVoix } from '../../../lib/livret2026/cinema/sonCinema'
 import { imagePage } from '../../../lib/livret2026/outils'
+import { distribuerVoix, jouerRéplique } from '../../../lib/livret2026/cinema/voixActeurs'
 
 // Expérience narrative cinématographique (PROTOTYPE, page 10).
 // Affiche → scènes (décor en couches + caméra + personnages dessinés +
@@ -13,7 +14,7 @@ import { imagePage } from '../../../lib/livret2026/outils'
 // vraies voix enregistrées dans le studio.
 
 const CLÉ_RÉGLAGES = 'react-blocs-cinema-reglages'
-const lireRéglages = () => { try { return { musique: true, ambiance: true, voix: true, taille: 1, ...JSON.parse(localStorage.getItem(CLÉ_RÉGLAGES) || '{}') } } catch { return { musique: true, ambiance: true, voix: true, taille: 1 } } }
+const lireRéglages = () => { try { return { musique: true, ambiance: true, voix: true, synthèse: true, taille: 1, ...JSON.parse(localStorage.getItem(CLÉ_RÉGLAGES) || '{}') } } catch { return { musique: true, ambiance: true, voix: true, synthèse: true, taille: 1 } } }
 const mélanger = l => { const c = [...l]; for (let i = c.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [c[i], c[j]] = [c[j], c[i]] } return c }
 const cléVoix = (page, scène, k) => `p${page}:${scène}:${k}`
 
@@ -61,6 +62,14 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
   const étape = scène.temps.slice(0, b + 1).reduce((m, x) => Math.max(m, x.étape || 0), 0)
 
   const régler = (k, v) => setRéglages(r => { const n = { ...r, [k]: v }; try { localStorage.setItem(CLÉ_RÉGLAGES, JSON.stringify(n)) } catch { /* ignore */ } return n })
+  // Voix de l'appareil distribuées aux personnages (la liste arrive parfois en retard).
+  const [distribution, setDistribution] = useState(() => distribuerVoix(personnages))
+  useEffect(() => {
+    const maj = () => setDistribution(distribuerVoix(personnages))
+    window.speechSynthesis?.addEventListener?.('voiceschanged', maj)
+    const t = setTimeout(maj, 600)
+    return () => { window.speechSynthesis?.removeEventListener?.('voiceschanged', maj); clearTimeout(t) }
+  }, [personnages])
   const rafraîchirVoix = useCallback(() => clésVoix().then(k => setVoix(new Set(k.filter(x => String(x).startsWith(`p${film.page}:`))))).catch(() => {}), [film.page])
   useEffect(() => { rafraîchirVoix() }, [rafraîchirVoix])
   useEffect(() => () => { génération.current++; lectureVoix.current?.arrêter(); son.current?.fermer() }, [])
@@ -103,14 +112,28 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
           return
         }
       }
-      // Sans voix enregistrée : sous-titres au rythme de lecture, lèvres qui
-      // bougent le temps de la réplique.
+      // Mode mixte : sinon, la voix la plus naturelle de l'appareil, « jouée »
+      // phrase par phrase (les cartes officielles sont lues par la narration).
+      const qui = t.officiel ? 'narrateur' : t.qui
+      const v = réglages.synthèse && distribution?.get(qui)
+      if (v) {
+        son.current?.atténuer(true)
+        const l = jouerRéplique(t.officiel ? t.officiel.texte : t.texte, v, personnages[qui]?.voix, parle => { if (encore()) setParlant(parle && !t.officiel ? t.qui : null) })
+        lectureVoix.current = l
+        await l.promesse
+        if (!encore()) return
+        son.current?.atténuer(false); setParlant(null)
+        suivant()
+        return
+      }
+      // Sans voix : sous-titres au rythme de lecture, lèvres qui bougent le
+      // temps de la réplique.
       if (t.texte) { setParlant(t.qui); après(duréeParole(t), () => setParlant(null)) }
       après(durée(t), suivant)
     }
     après(b === 0 ? 900 : 120, démarrer)
     return () => { minuteurs.forEach(clearTimeout); lectureVoix.current?.arrêter(); lectureVoix.current = null; setParlant(null); setNiveau(null); son.current?.atténuer(false) }
-  }, [phase, s, b, lecture, transition, réglages.voix, voix]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, s, b, lecture, transition, réglages.voix, réglages.synthèse, voix, distribution]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function allerScène(k) {
     if (k < 0 || k >= film.scènes.length) return
@@ -122,6 +145,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
     setTimeout(() => setTransition(null), 1200)
   }
   const lancer = () => {
+    try { window.speechSynthesis?.speak(Object.assign(new SpeechSynthesisUtterance(' '), { volume: 0 })) } catch { /* ignore */ }
     if (!son.current) son.current = créerSonCinéma()
     son.current?.démarrer()
     setPhase('film'); setS(0); setB(0); setLecture(true)
@@ -151,7 +175,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
     <div className="c-couche" style={{ transform: `translateX(${cx * facteur}%) scale(${1 + (cz - 1) * facteur})`, filter: flou ? `blur(${flou}px)` : 'none', ...extra }}>{enfant}</div>
   )
   // Taille des personnages : selon la hauteur de l'écran, sans se chevaucher.
-  const hPerso = n => Math.min(taille.h * 0.82, ((taille.l * (n > 1 ? 0.46 : 0.7)) / 0.75))
+  const hPerso = n => Math.min(taille.h * 0.82, ((taille.l * (n > 1 ? (taille.l < taille.h ? 0.5 : 0.46) : 0.7)) / 0.75))
 
   // ---------- Affiche ----------
   if (phase === 'affiche') {
@@ -179,6 +203,10 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
           </div>
           <p style={{ margin: '4px 0', maxWidth: 560, fontSize: 13.5, opacity: 0.85, lineHeight: 1.5 }}>🎭 {film.avertissement}</p>
           <p style={{ margin: 0, fontSize: 12.5, opacity: 0.7 }}>{film.scènes.length} scènes · environ 7 min · puis un quiz de {film.quiz.length} questions</p>
+          <p style={{ margin: 0, maxWidth: 600, fontSize: 12.5, opacity: 0.8, lineHeight: 1.5 }}>
+            🗣️ {voix.size ? `${voix.size} réplique(s) avec ta vraie voix ; ` : ''}{distribution ? `les autres, voix de l'appareil : ${[...new Set([...distribution.values()].map(v => v.name.replace(/\s*\(.*\)/, '')))].slice(0, 3).join(', ')}` : 'aucune voix française sur cet appareil : sous-titres seuls'}
+            <button onClick={() => régler('synthèse', !réglages.synthèse)} aria-pressed={réglages.synthèse} className="c-btn" style={{ minHeight: 30, fontSize: 12, marginLeft: 8 }}>{réglages.synthèse ? 'Voix de l\'appareil : oui' : 'Voix de l\'appareil : non'}</button>
+          </p>
           <button onClick={lancer} className="c-btn c-plein" style={{ minHeight: 56, padding: '0 30px', fontSize: 18, borderRadius: 28, marginTop: 6 }}>▶ Lancer l'histoire</button>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
             <button onClick={() => setStudio(true)} className="c-btn">🎙️ Voix humaines ({voix.size}/{film.scènes.reduce((n, x) => n + x.temps.filter(y => y.texte).length, 0)})</button>
@@ -274,6 +302,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
           <button onClick={() => (s < film.scènes.length - 1 ? allerScène(s + 1) : setPhase('quiz'))} aria-label="Scène suivante" className="c-btn">⏭</button>
           <button onClick={() => setMenu(m => !m)} aria-expanded={menu} aria-label="Liste des scènes" className="c-btn">☰ <span style={{ fontSize: 12 }}>{s + 1}/{film.scènes.length}</span></button>
           <button onClick={() => { setLecture(false); setOriginal(true) }} aria-label="Page originale" className="c-btn">📄</button>
+          <button onClick={() => { régler('synthèse', !réglages.synthèse); window.speechSynthesis?.cancel() }} aria-pressed={réglages.synthèse} aria-label="Voix de l'appareil" title="Voix de synthèse de l'appareil (les voix enregistrées passent toujours en premier)" className="c-btn">{réglages.synthèse ? '🗣️' : '🤐'}</button>
           <button onClick={() => régler('musique', !réglages.musique)} aria-pressed={réglages.musique} aria-label="Musique" className="c-btn">{réglages.musique ? '🎹' : '🔇'}</button>
           <button onClick={() => régler('ambiance', !réglages.ambiance)} aria-pressed={réglages.ambiance} aria-label="Ambiance sonore" className="c-btn">🌧️</button>
           <button onClick={() => régler('taille', réglages.taille >= 1.3 ? 0.9 : Math.round((réglages.taille + 0.2) * 10) / 10)} aria-label="Taille des sous-titres" className="c-btn" style={{ fontWeight: 800, fontSize: 13 }}>A{réglages.taille > 1 ? '+' : réglages.taille < 1 ? '−' : ''}</button>

@@ -11,10 +11,10 @@
 const p10 = 'Livret du citoyen, page 10'
 
 export const PERSONNAGES = {
-  lina: { nom: 'Lina', rôle: 'prépare son entretien de naturalisation', couleur: '#f59eb5', peau: '#c98e64', yeux: '#5a3b22', cheveux: { style: 'longs', couleur: '#2b1a12' }, tenue: { style: 'veste', couleur: '#f2b134' }, barrette: '#f472b6' },
-  arnaud: { nom: 'M. Arnaud', rôle: 'ancien professeur, bénévole à la médiathèque', couleur: '#b9a3ff', peau: '#f1c9a5', yeux: '#4a6b8a', cheveux: { style: 'courts', couleur: '#c9c9cf' }, tenue: { style: 'gilet', couleur: '#6b4f8a' }, lunettes: true, moustache: true },
-  ines: { nom: 'Inès', rôle: 'amie de Lina, vit à La Réunion', couleur: '#5eead4', peau: '#8d5a3b', yeux: '#3b2416', cheveux: { style: 'boucles', couleur: '#1a0f0a' }, tenue: { style: 'tshirt', couleur: '#22c3a6' } },
-  narrateur: { nom: 'Narration' },
+  lina: { nom: 'Lina', rôle: 'prépare son entretien de naturalisation', couleur: '#f59eb5', peau: '#c98e64', yeux: '#5a3b22', cheveux: { style: 'longs', couleur: '#2b1a12' }, tenue: { style: 'veste', couleur: '#f2b134' }, barrette: '#f472b6', voix: { genre: 'f', pitch: 1.08, rate: 1.03 } },
+  arnaud: { nom: 'M. Arnaud', rôle: 'ancien professeur, bénévole à la médiathèque', couleur: '#b9a3ff', peau: '#f1c9a5', yeux: '#4a6b8a', cheveux: { style: 'courts', couleur: '#c9c9cf' }, tenue: { style: 'gilet', couleur: '#6b4f8a' }, lunettes: true, moustache: true, voix: { genre: 'm', pitch: 0.9, rate: 0.9 } },
+  ines: { nom: 'Inès', rôle: 'amie de Lina, vit à La Réunion', couleur: '#5eead4', peau: '#8d5a3b', yeux: '#3b2416', cheveux: { style: 'boucles', couleur: '#1a0f0a' }, tenue: { style: 'tshirt', couleur: '#22c3a6' }, voix: { genre: 'f', pitch: 1.16, rate: 1.06 } },
+  narrateur: { nom: 'Narration', voix: { genre: 'm', pitch: 0.98, rate: 0.94 } },
 }
 
 export const COURT_MÉTRAGE = {

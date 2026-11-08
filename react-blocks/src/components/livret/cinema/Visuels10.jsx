@@ -143,8 +143,8 @@ function Journal({ étape }) {
 function Fil({ étape }) {
   if (étape < 1) return null
   return (
-    <div className="c-apparait" style={{ ...boîte, top: '5%', display: 'flex', justifyContent: 'center' }}>
-      <div style={{ padding: 'clamp(6px, 1.2vw, 10px) clamp(12px, 2.4vw, 22px)', borderRadius: 30, background: 'rgba(10,14,40,.85)', border: `2px solid ${or}`, color: crème, fontFamily: 'Georgia, serif', fontSize: 'clamp(13px, 2.2vw, 22px)', textAlign: 'center', boxShadow: '0 0 30px rgba(255,209,102,.4)' }}>
+    <div style={{ ...boîte, top: '22%', display: 'flex', justifyContent: 'center' }}>
+      <div className="c-apparait" style={{ padding: 'clamp(6px, 1.2vw, 10px) clamp(12px, 2.4vw, 22px)', borderRadius: 30, background: 'rgba(10,14,40,.85)', border: `2px solid ${or}`, color: crème, fontFamily: 'Georgia, serif', fontSize: 'clamp(13px, 2.2vw, 22px)', textAlign: 'center', boxShadow: '0 0 30px rgba(255,209,102,.4)' }}>
         métropole <span style={{ color: or }}>⟷</span> outre-mer · mêmes lois · mêmes droits · mêmes devoirs
       </div>
     </div>
