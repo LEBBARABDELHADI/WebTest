@@ -4,6 +4,8 @@ import PanneauSync from '../components/PanneauSync'
 import { BoutonIcone } from '../components/UI'
 import Icon from '../components/Icon'
 import Théâtre from '../components/livret/Theatre'
+import Film from '../components/livret/Film'
+import { PAGES_FILM, chargerFilm } from '../lib/livret2026/films'
 import Leçon from '../components/livret/Lecon'
 import Maison from '../components/livret/Maison'
 import Frise from '../components/livret/Frise'
@@ -226,6 +228,8 @@ function OngletPlan({ T, S, data, setData, espace, cartesMémo, afficher, versPa
 // ---------- Pages animées : chaque page affichée, puis « Animer » ----------
 function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
   const [anime, setAnime] = useState(false)
+  const [film, setFilm] = useState(null)
+  const ouvrirFilm = async k => setFilm(await chargerFilm(k))
   const n = Math.min(NB_PAGES, Math.max(1, page))
   const p = PAGE.get(n)
   const niv = niveauPage(n, data, cartesMémo)
@@ -258,7 +262,7 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
         <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,.25)', background: '#fff' }}>
           <img src={imagePage(n)} alt={`Page ${n} du Livret du citoyen 2026${p ? ` : ${p.titre}` : ''}`} style={{ width: '100%', display: 'block' }} />
           {p?.type === 'contenu' && (
-            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 18, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}><button onClick={() => setAnime(true)} className="l26-halo" style={{ pointerEvents: 'auto', minHeight: 54, padding: '0 22px', borderRadius: 27, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg, ${thème.a}, ${thème.b})`, color: '#fff', fontFamily: grotesk, fontWeight: 800, fontSize: 16.5, whiteSpace: 'nowrap' }}>▶ Animer la page</button></div>
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 18, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}><button onClick={() => setAnime(true)} className="l26-halo" style={{ pointerEvents: 'auto', minHeight: 54, padding: '0 22px', borderRadius: 27, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg, ${thème.a}, ${thème.b})`, color: '#fff', fontFamily: grotesk, fontWeight: 800, fontSize: 16.5, whiteSpace: 'nowrap' }}>▶ Animer la page</button>{PAGES_FILM.has(n) && <button onClick={() => ouvrirFilm(n)} style={{ pointerEvents: 'auto', marginLeft: 8, minHeight: 54, padding: '0 18px', borderRadius: 27, border: '2px solid #fff', cursor: 'pointer', background: '#111', color: '#fff', fontFamily: grotesk, fontWeight: 800, fontSize: 16, whiteSpace: 'nowrap', boxShadow: '0 10px 30px rgba(0,0,0,.35)' }}>🍿 Film</button>}</div>
           )}
         </div>
         <div>
@@ -277,6 +281,7 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
                   <p style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '0 0 10px', fontSize: 13.5 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: COULEURS_NIVEAU[niv] }} />{NOMS_NIVEAU[niv]}{data.pages[n]?.animée ? ` · animée le ${dateDe(data.pages[n].animée).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` : ''}</p>
                   <p style={{ ...S.discret, fontSize: 13 }}>{p.scènes.length} scènes : {[...new Set(p.scènes.map(s => s.type))].join(', ')}{leçon ? ` · leçon « ${leçon.titre} »` : ''}</p>
                   <button onClick={() => setAnime(true)} style={{ ...S.bouton(true), width: '100%', marginTop: 12 }}>▶ Animer la page</button>
+                  {PAGES_FILM.has(n) && <button onClick={() => ouvrirFilm(n)} style={{ ...S.bouton(false), width: '100%', marginTop: 8, borderColor: T.text }}>🍿 Mode film : l'épisode de la page {n}</button>}
                 </>
               ) : <p style={S.discret}>Page de garde (titre ou sommaire) : rien à animer.</p>}
             </div>
@@ -284,6 +289,7 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
           <p style={{ ...S.discret, fontSize: 12.5 }}>Astuce : dans l'animation, « Page suivante » continue la lecture du livret page après page. Touche ⏸ pour lire à ton rythme et 🔊 pour la voix.</p>
         </div>
       </div>
+      {film && <Film film={film} onFermer={() => setFilm(null)} onVu={k => setData(d => ({ ...d, pages: { ...d.pages, [k]: { ...(d.pages[k] || {}), animée: d.pages[k]?.animée || aujourdhuiLocal(), film: aujourdhuiLocal() } } }))} />}
       {anime && p && <Théâtre pages={PAGES_CONTENU} départ={Math.max(0, PAGES_CONTENU.indexOf(p))} onFermer={() => setAnime(false)} onPageAnimée={k => { marquer(k); setPage(k) }} libelléFin="Fin du livret 🎉" />}
     </>
   )
