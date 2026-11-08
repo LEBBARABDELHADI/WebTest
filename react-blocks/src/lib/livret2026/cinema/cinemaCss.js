@@ -1,4 +1,4 @@
-// Styles du court-métrage (prototypes pages 6, 7 et 10).
+// Styles du court-métrage (prototypes pages 6, 7, 8 et 10).
 export const CSS_CINÉMA = `
 .c-ecran { position: fixed; inset: 0; z-index: 1000; background: #000; color: #fff; display: flex; flex-direction: column; overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", sans-serif }
 .c-scene { position: relative; flex: 1; overflow: hidden; background: #05050a }
@@ -62,6 +62,8 @@ export const CSS_CINÉMA = `
 .c-zzz { animation: c-zzz 3s ease-in-out infinite }
 .c-fleau-6 { animation: c-fleau 2.2s cubic-bezier(.3,1.4,.5,1) both }
 .c-fete-6 { animation: c-fete 1.2s steps(3) infinite }
+.c-drapeau-8 { animation: c-drapeau-8 2.8s ease-in-out infinite; transform-origin: 0 0 }
+.c-feu { animation: c-feu 3.2s ease-out infinite both; transform-box: fill-box; transform-origin: center; opacity: 0 }
 .c-impact-6 { animation: c-impact .7s cubic-bezier(.2,1.6,.4,1) both }
 @keyframes c-drapeau { 0%, 100% { transform: skewY(0) scaleX(1) } 50% { transform: skewY(-4deg) scaleX(.94) } }
 @keyframes c-jet { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
@@ -72,6 +74,8 @@ export const CSS_CINÉMA = `
 @keyframes c-fleau { 0% { transform: rotate(-9deg) } 55% { transform: rotate(3deg) } 80% { transform: rotate(-1deg) } 100% { transform: rotate(0) } }
 @keyframes c-impact { 0% { opacity: 0; transform: scale(2.4); filter: blur(6px) } 100% { opacity: 1; transform: none; filter: none } }
 @keyframes c-fete { 0% { fill: #ff5fa2 } 33% { fill: #7c5cff } 66% { fill: #2ee6c8 } 100% { fill: #ff5fa2 } }
+@keyframes c-drapeau-8 { 0%, 100% { transform: skewY(0) scaleX(1) } 30% { transform: skewY(3deg) scaleX(.96) } 65% { transform: skewY(-2.5deg) scaleX(.93) } }
+@keyframes c-feu { 0% { opacity: 0; transform: scale(.1) } 8% { opacity: 1 } 45% { opacity: .9; transform: scale(1) } 70%, 100% { opacity: 0; transform: scale(1.12) } }
 @keyframes c-kenburns { from { transform: scale(1.02) translateY(0) } to { transform: scale(1.12) translateY(-3%) } }
 @keyframes c-entre { from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(.96) } to { opacity: 1 } }
 @keyframes c-respire { 0%, 100% { transform: translateY(0) scaleY(1) } 50% { transform: translateY(-2px) scaleY(1.008) } }

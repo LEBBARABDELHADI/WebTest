@@ -129,6 +129,34 @@ export function créerSonCinéma() {
       case 'goutte': { const o = ctx.createOscillator(); o.frequency.setValueAtTime(hasard(1800, 3200), t); o.frequency.exponentialRampToValueAtTime(600, t + 0.03); const g = ctx.createGain(); env(g, 0.001, 0.04, hasard(0.01, 0.03)); o.connect(g); g.connect(busAmbiance); o.start(t); o.stop(t + 0.06); break }
       case 'crépite': rafale('highpass', 2500, null, 0.001, 0.02, hasard(0.05, 0.15), 1, busAmbiance); break
       case 'grillon': for (let i = 0; i < 3; i++) setTimeout(() => { const o = ctx.createOscillator(); o.frequency.value = 4600; const g = ctx.createGain(); const tt = ctx.currentTime; g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(0.012, tt + 0.01); g.gain.linearRampToValueAtTime(0, tt + 0.05); o.connect(g); g.connect(busAmbiance); o.start(tt); o.stop(tt + 0.06) }, i * 70); break
+      // Premières mesures de La Marseillaise (Rouget de Lisle, 1792 :
+      // domaine public), jouées au piano avec un toucher « humain ».
+      case 'marseillaise': {
+        const noire = 0.56
+        let tt = t + 0.05
+        ;[[62, 0.75], [62, 0.25], [67, 1], [67, 1], [69, 1], [69, 1], [74, 1.5], [71, 0.5], [67, 0.75], [67, 0.25], [71, 0.75], [67, 0.25], [64, 1], [72, 2], [69, 0.75], [66, 0.25], [67, 2]].forEach(([n, d]) => {
+          piano(n, tt + hasard(-0.015, 0.02), hasard(0.72, 0.85), Math.max(0.9, d * noire * 1.6), busEffets)
+          piano(n - 12, tt, 0.35, d * noire * 1.4, busEffets)
+          tt += d * noire
+        })
+        break
+      }
+      // Feu d'artifice : sifflement qui monte, explosion, crépitements.
+      case 'artifice': {
+        const o = ctx.createOscillator(); o.frequency.setValueAtTime(hasard(600, 800), t); o.frequency.exponentialRampToValueAtTime(hasard(2200, 2800), t + 0.9)
+        const g = ctx.createGain(); env(g, 0.05, 0.85, 0.02); o.connect(g); g.connect(busEffets); o.start(t); o.stop(t + 1)
+        setTimeout(() => effet('éclat'), 950)
+        setTimeout(() => effet('éclat'), 2300)
+        break
+      }
+      case 'éclat': {
+        const o = ctx.createOscillator(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(38, t + 0.5)
+        const g = ctx.createGain(); env(g, 0.004, 0.7, 0.6); o.connect(g); g.connect(busEffets); g.connect(réverb); o.start(t); o.stop(t + 0.8)
+        rafale('bandpass', 900, 260, 0.004, 0.7, 0.45, 0.6)
+        for (let i = 0; i < 9; i++) setTimeout(() => effet('grésil'), 160 + i * hasard(50, 110))
+        break
+      }
+      case 'grésil': rafale('highpass', hasard(2800, 4200), null, 0.001, 0.03, hasard(0.06, 0.18), 1); break
       default: break
     }
   }

@@ -1,0 +1,248 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Le 14 juillet, au petit matin. La place de la mairie s'habille de bleu, de blanc et de rouge.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "M. Arnaud a invité Lina à passer la fête nationale avec lui et sa petite-fille, Zoé.",
+  "émotion": null
+ },
+ {
+  "clé": "chapitre-d:0",
+  "qui": "narrateur",
+  "texte": "Les symboles de la France sont les suivants :",
+  "officiel": true
+ },
+ {
+  "clé": "pourquoi:0",
+  "qui": "lina",
+  "texte": "Pourquoi la fête nationale tombe-t-elle le 14 juillet ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "pourquoi:1",
+  "qui": "arnaud",
+  "texte": "Pour deux événements. Ferme les yeux… Nous sommes à Paris, en 1789.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "bastille:0",
+  "qui": "narrateur",
+  "texte": "Le 14 juillet 1789, le peuple de Paris prend la Bastille, une prison royale.",
+  "émotion": null
+ },
+ {
+  "clé": "bastille:1",
+  "qui": "narrateur",
+  "texte": "C'est le début de la Révolution française.",
+  "émotion": null
+ },
+ {
+  "clé": "bastille:2",
+  "qui": "narrateur",
+  "texte": "Un an plus tard, le 14 juillet 1790, on célèbre la Fête de la Fédération.",
+  "émotion": null
+ },
+ {
+  "clé": "bastille:3",
+  "qui": "narrateur",
+  "texte": "Le 14 juillet 1789, le peuple de Paris a pris la Bastille (une prison royale), ce qui marque le début de la Révolution française. Un an plus tard, le 14 juillet 1790, est célébrée la Fête de la Fédération.",
+  "officiel": true
+ },
+ {
+  "clé": "fete-nationale:0",
+  "qui": "arnaud",
+  "texte": "Depuis 1880, le 14 juillet est notre fête nationale. Elle commémore ces deux événements.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "fete-nationale:1",
+  "qui": "lina",
+  "texte": "La prise de la Bastille et la Fête de la Fédération !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "fete-nationale:2",
+  "qui": "narrateur",
+  "texte": "Depuis 1880, le 14 juillet est consacré comme jour de fête nationale pour commémorer ces deux événements.",
+  "officiel": true
+ },
+ {
+  "clé": "hymne:1",
+  "qui": "zoe",
+  "texte": "C'est La Marseillaise ! Rouget de Lisle l'a écrite en 1792.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "hymne:2",
+  "qui": "lina",
+  "texte": "Et tu l'apprends en classe ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "hymne:3",
+  "qui": "zoe",
+  "texte": "Oui ! On l'étudie à l'école primaire.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "hymne:4",
+  "qui": "narrateur",
+  "texte": "En 1792, l'hymne national français, La Marseillaise, a été écrit par Rouget de Lisle (paroles ci-après). Elle est étudiée par les enfants à l'école primaire.",
+  "officiel": true
+ },
+ {
+  "clé": "langue:0",
+  "qui": "narrateur",
+  "texte": "Dans la mairie, une exposition sur les symboles est ouverte pour la fête.",
+  "émotion": null
+ },
+ {
+  "clé": "langue:1",
+  "qui": "lina",
+  "texte": "Les panneaux, les formulaires… tout est écrit en français.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "langue:2",
+  "qui": "arnaud",
+  "texte": "Bien sûr : le français est la langue officielle de la République.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "langue:3",
+  "qui": "narrateur",
+  "texte": "La langue officielle de la République est le français.",
+  "officiel": true
+ },
+ {
+  "clé": "marianne:0",
+  "qui": "lina",
+  "texte": "Et cette statue, avec ce bonnet ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "marianne:1",
+  "qui": "arnaud",
+  "texte": "C'est Marianne. Son bonnet phrygien est le symbole de la liberté.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "marianne:2",
+  "qui": "narrateur",
+  "texte": "Marianne, une femme portant un bonnet phrygien (symbole de la liberté), est devenue le symbole de la République.",
+  "officiel": true
+ },
+ {
+  "clé": "marianne:3",
+  "qui": "arnaud",
+  "texte": "On la voit sur les documents de l'administration. Et sa statue, dans toutes les mairies, rappelle la Révolution française.",
+  "émotion": null
+ },
+ {
+  "clé": "marianne:4",
+  "qui": "narrateur",
+  "texte": "Elle apparaît sur les documents de l'administration française. Sa statue, placée dans toutes les mairies, rappelle la Révolution française.",
+  "officiel": true
+ },
+ {
+  "clé": "drapeau:0",
+  "qui": "narrateur",
+  "texte": "Midi. Sur la façade de la mairie, le drapeau flotte au vent.",
+  "émotion": null
+ },
+ {
+  "clé": "drapeau:1",
+  "qui": "lina",
+  "texte": "Bleu, blanc, rouge… Le drapeau date aussi de la Révolution ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "drapeau:2",
+  "qui": "arnaud",
+  "texte": "Oui. Il est devenu le drapeau officiel en 1794. Sauf pendant la Restauration, de 1814 à 1830.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "drapeau:3",
+  "qui": "narrateur",
+  "texte": "Le drapeau tricolore (bleu, blanc, rouge) a aussi été créé pendant la Révolution. Il est devenu le drapeau officiel de la France en 1794, sauf lors de la période de la Restauration (1814-1830 – détaillé dans la partie « histoire, géographie et culture »).",
+  "officiel": true
+ },
+ {
+  "clé": "coq:0",
+  "qui": "zoe",
+  "texte": "Papi, et le coq ? C'est un symbole aussi ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "coq:1",
+  "qui": "arnaud",
+  "texte": "Oui. Il représente la fierté, le courage et la vigilance.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "coq:2",
+  "qui": "arnaud",
+  "texte": "Il n'a pas de statut officiel selon la Constitution, mais il est utilisé depuis l'Antiquité.",
+  "émotion": null
+ },
+ {
+  "clé": "coq:3",
+  "qui": "narrateur",
+  "texte": "Le coq représente la fierté, le courage et la vigilance. Bien qu'il n'ait pas de statut officiel selon la Constitution, il est utilisé depuis l'antiquité et est largement reconnu comme un symbole national.",
+  "officiel": true
+ },
+ {
+  "clé": "coq:4",
+  "qui": "zoe",
+  "texte": "Cocorico !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "partout:0",
+  "qui": "narrateur",
+  "texte": "En fin d'après-midi, Lina appelle Inès depuis son ordinateur.",
+  "émotion": null
+ },
+ {
+  "clé": "partout:1",
+  "qui": "lina",
+  "texte": "Regarde, sur le site de l'administration : Marianne, le drapeau… Les symboles sont là aussi !",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "partout:2",
+  "qui": "ines",
+  "texte": "Tu les retrouveras sur tous les sites et les documents de l'administration.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "partout:3",
+  "qui": "narrateur",
+  "texte": "On retrouve les symboles sur l'ensemble des sites internet et documents de l'administration.",
+  "officiel": true
+ },
+ {
+  "clé": "final:1",
+  "qui": "lina",
+  "texte": "La fête nationale, La Marseillaise, le français, Marianne, le drapeau, le coq…",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Les symboles de la France. Maintenant, tu les connais tous.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : La Marseillaise et ses paroles, page 9.",
+  "émotion": null
+ }
+]

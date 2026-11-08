@@ -7,7 +7,7 @@ import { créerSonCinéma, garderVoix, lireVoix, effacerVoix, clésVoix, enregis
 import { imagePage } from '../../../lib/livret2026/outils'
 import { distribuerVoix, jouerRéplique } from '../../../lib/livret2026/cinema/voixActeurs'
 
-// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7 et 10).
+// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7, 8 et 10).
 // Affiche → scènes (décor en couches + caméra + personnages dessinés +
 // visuels pédagogiques) → quiz. Faits officiels sur des cartes « 📜 Livret »,
 // fiction en sous-titres. Son sans IA : ambiances, bruitages, piano « humain »,
@@ -20,7 +20,7 @@ const cléVoix = (page, scène, k) => `p${page}:${scène}:${k}`
 
 // Temps de lecture « humain » : selon la longueur, avec des respirations
 // aux virgules et aux points.
-const durée = t => t.officiel
+const durée = t => t.pause ? t.pause : t.officiel
   ? 2600 + t.officiel.texte.length * 52
   : 1100 + t.texte.length * 58 + (t.texte.match(/[,;:]/g) || []).length * 180 + (t.texte.match(/[.!?…]/g) || []).length * 320
 const duréeParole = t => (t.texte ? Math.min(durée(t) - 600, 400 + t.texte.length * 46) : 0)
@@ -103,6 +103,8 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
     const k = cléVoix(film.page, scène.id, b)
     const suivant = () => après(t.officiel ? 400 : 650, () => setB(x => x + 1))
     const démarrer = async () => {
+      // Temps musical, sans parole (La Marseillaise, feu d'artifice…).
+      if (t.pause) { après(t.pause, suivant); return }
       if (t.texte && réglages.voix && voix.has(k)) {
         const blob = await lireVoix(k).catch(() => null)
         if (blob && encore()) {
@@ -316,6 +318,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
             </p>
           )}
           {t?.officiel && <p className="c-sous-titre" style={{ opacity: 0.7, fontSize: '0.85em' }}>📜 À lire : le texte officiel du livret.</p>}
+          {t?.légende && <p key={`l-${s}-${b}`} className="c-sous-titre" style={{ opacity: 0.85 }}><em>{t.légende}</em></p>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '6px 0' }} aria-hidden="true">
           {film.scènes.map((x, k) => <button key={x.id} tabIndex={-1} onClick={() => allerScène(k)} title={x.titre} style={{ flex: 1, height: 5, minHeight: 0, minWidth: 0, padding: 0, border: 'none', borderRadius: 3, cursor: 'pointer', background: k < s ? '#ffd166' : k === s ? `linear-gradient(90deg, #fff ${Math.round(progrès * 100)}%, rgba(255,255,255,.3) 0)` : 'rgba(255,255,255,.18)' }} />)}

@@ -20,12 +20,14 @@ CASTING = {
     'agent': ('fr-CH-FabriceNeural', 4, -3),
     'recruteur': ('fr-BE-GerardNeural', 3, 0),
     'directrice': ('fr-CH-ArianeNeural', -3, -2),
+    'zoe': ('fr-FR-EloiseNeural', 4, 2),
 }
 ÉMOTIONS = {'joie': (4, 4), 'fier': (2, 3), 'sourire': (1, 2), 'surprise': (3, 7), 'inquiet': (-5, -1), 'réflexion': (-7, 0), 'fâché': (3, -2), 'tendre': (-7, 1), 'neutre': (0, 0)}
 
 def dire(texte):
     t = texte.replace('M. Arnaud', 'Monsieur Arnaud').replace('1er', 'premier').replace(' – ', ', ').replace('(DDHC, voir', '(D.D.H.C., voir')
     t = t.replace('(DDHC', '(D.D.H.C.')
+    t = re.sub(r'(\d{4})-(\d{4})', r'\1 à \2', t)  # « 1814-1830 » : « 1814 à 1830 »
     return re.sub(r'\s+', ' ', t).strip()
 
 async def main():

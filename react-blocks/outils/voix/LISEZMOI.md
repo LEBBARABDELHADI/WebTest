@@ -1,4 +1,4 @@
-# Voix des courts-métrages (pages pilotes 6, 7 et 10)
+# Voix des courts-métrages (pages pilotes 6, 7, 8 et 10)
 
 Génère un fichier MP3 par réplique avec **edge-tts** (voix « Natural » de
 Microsoft), une voix et un jeu par personnage, puis le manifeste
@@ -17,6 +17,7 @@ présents sont gardés : relancer `generer.py` ne refait que ceux qui manquent
 
 Distribution : Lina = Vivienne, Inès = Denise, M. Arnaud = Henri,
 narration = Rémy, l'agent immobilier (page 6) = Fabrice, Hugo le recruteur
-(page 7) = Gérard, Mme Diallo la directrice (page 7) = Ariane. Vitesse et hauteur
+(page 7) = Gérard, Mme Diallo la directrice (page 7) = Ariane, Zoé (page 8)
+= Eloise (voix d'enfant). Vitesse et hauteur
 réglées par personnage et par émotion (tableaux CASTING et ÉMOTIONS dans
 `generer.py`).
