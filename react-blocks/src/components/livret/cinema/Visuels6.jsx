@@ -1,9 +1,5 @@
 // Visuels pédagogiques du court-métrage de la page 6 (responsives).
-const or = '#ffd166', crème = '#fff3c4'
-// Sous la bande noire du haut et le badge FICTION / OFFICIEL.
-const HAUT = 'calc(clamp(22px, 6.5vh, 66px) + 28px)'
-const boîte = { position: 'absolute', left: '50%', transform: 'translateX(-50%)', width: 'min(94%, 980px)', pointerEvents: 'none' }
-const pastille = (actif = true) => ({ display: 'inline-flex', alignItems: 'center', gap: 6, padding: 'clamp(5px, 1vw, 9px) clamp(10px, 1.6vw, 16px)', borderRadius: 24, background: 'rgba(14,12,32,.84)', border: `2px solid ${actif ? or : 'rgba(255,255,255,.2)'}`, color: crème, fontFamily: 'Georgia, serif', fontSize: 'clamp(13px, 2vw, 20px)', boxShadow: actif ? '0 0 24px rgba(255,209,102,.35)' : 'none' })
+import { or, crème, HAUT, boîte, pastille } from '../../../lib/livret2026/cinema/styleVisuels'
 
 function Devise({ étape }) {
   if (étape < 1) return null
@@ -81,10 +77,12 @@ function Mêmes({ étape }) {
     <div style={{ ...boîte, top: HAUT, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <svg viewBox="0 0 720 160" style={{ width: 'min(100%, 560px)' }} aria-hidden="true">
         {couleurs.map((c, k) => (
-          <g key={c} transform={`translate(${70 + k * 116},120)`} className="c-monte" style={{ animationDelay: `${k * 0.15}s` }}>
-            <circle cy="-70" r="22" fill={['#f1c9a5', '#8d5a3b', '#c98e64', '#e8b896', '#5a3b22', '#f4d7bc'][k]} />
-            <path d="M-34,30 C-34,-24 -20,-40 0,-40 C20,-40 34,-24 34,30 Z" fill={c} />
-            <circle cx="0" cy="-2" r="12" fill={or} stroke="#fff3c4" strokeWidth="3" />
+          <g key={c} transform={`translate(${70 + k * 116},120)`}>
+            <g className="c-monte" style={{ animationDelay: `${k * 0.15}s` }}>
+              <circle cy="-70" r="22" fill={['#f1c9a5', '#8d5a3b', '#c98e64', '#e8b896', '#5a3b22', '#f4d7bc'][k]} />
+              <path d="M-34,30 C-34,-24 -20,-40 0,-40 C20,-40 34,-24 34,30 Z" fill={c} />
+              <circle cx="0" cy="-2" r="12" fill={or} stroke="#fff3c4" strokeWidth="3" />
+            </g>
           </g>
         ))}
       </svg>

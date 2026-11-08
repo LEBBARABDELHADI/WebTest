@@ -180,9 +180,11 @@ function Visio({ couche }) {
   )
   if (couche === 'milieu') return (
     <svg {...V}><Défs />
-      <g transform="translate(1480,500)" className="c-palmier">
-        <path d="M0,260 C10,160 0,60 20,0" stroke="#7a5230" strokeWidth="22" fill="none" />
-        {[-70, -30, 10, 50, 90, 130].map((a, k) => <path key={k} d="M20,0 C70,-30 130,-10 170,40" stroke="#2f7a3a" strokeWidth="18" fill="none" strokeLinecap="round" transform={`rotate(${a} 20 0)`} />)}
+      <g transform="translate(1480,500)">
+        <g className="c-palmier">
+          <path d="M0,260 C10,160 0,60 20,0" stroke="#7a5230" strokeWidth="22" fill="none" />
+          {[-70, -30, 10, 50, 90, 130].map((a, k) => <path key={k} d="M20,0 C70,-30 130,-10 170,40" stroke="#2f7a3a" strokeWidth="18" fill="none" strokeLinecap="round" transform={`rotate(${a} 20 0)`} />)}
+        </g>
       </g>
       <rect x="784" y="0" width="32" height="900" fill="#0a0a12" />
     </svg>

@@ -7,7 +7,7 @@ import { créerSonCinéma, garderVoix, lireVoix, effacerVoix, clésVoix, enregis
 import { imagePage } from '../../../lib/livret2026/outils'
 import { distribuerVoix, jouerRéplique } from '../../../lib/livret2026/cinema/voixActeurs'
 
-// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6 et 10).
+// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7 et 10).
 // Affiche → scènes (décor en couches + caméra + personnages dessinés +
 // visuels pédagogiques) → quiz. Faits officiels sur des cartes « 📜 Livret »,
 // fiction en sous-titres. Son sans IA : ambiances, bruitages, piano « humain »,
@@ -201,6 +201,7 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
   const minutes = Math.max(1, Math.round(film.scènes.reduce((n, x) => n + 1.8 + x.temps.reduce((m, y, k) => m + (film.voix?.lignes[`${x.id}:${k}`]?.d || durée(y) / 1000) + 0.7, 0), 0) / 60))
 
   // ---------- Affiche ----------
+  const distribués = Object.entries(personnages).filter(([k]) => k !== 'narrateur' && film.scènes.some(x => x.personnages?.some(y => y.id === k)))
   if (phase === 'affiche') {
     return (
       <div className="c-ecran" role="dialog" aria-modal="true" aria-label={`${film.titre} : court-métrage de la page ${film.page}`}>
@@ -211,14 +212,14 @@ export default function Cinema({ film, personnages, onFermer, onTerminé }) {
           <Particules type="feuilles" n={18} />
         </div>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(5,6,20,.55), rgba(5,6,20,.88))' }} />
-        <div style={{ position: 'relative', zIndex: 2, flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '24px 18px', gap: 10 }}>
+        <div style={{ position: 'relative', zIndex: 2, flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'safe center', textAlign: 'center', padding: '24px 18px', gap: 10 }}>
           <span style={{ fontSize: 11.5, letterSpacing: '.34em', textTransform: 'uppercase', color: '#ffd166' }}>Prototype · Livret du citoyen · page {film.page}</span>
           <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontSize: 'clamp(38px, 8vw, 74px)', fontWeight: 700, lineHeight: 1, textShadow: '0 8px 30px rgba(0,0,0,.7)' }}>{film.titre}</h2>
           <p style={{ margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 'clamp(16px, 2.6vw, 22px)', opacity: 0.9 }}>{film.sousTitre}</p>
-          <div style={{ display: 'flex', gap: 'clamp(6px, 2vw, 18px)', margin: '10px 0 4px' }}>
-            {Object.entries(personnages).filter(([k]) => k !== 'narrateur').map(([k, p]) => (
-              <div key={k} style={{ width: 'clamp(76px, 14vw, 120px)', textAlign: 'center' }}>
-                <div style={{ height: 'clamp(92px, 17vw, 150px)' }}><Personnage p={p} émotion="sourire" regard="face" /></div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(6px, 2vw, 18px)', margin: '10px 0 4px' }}>
+            {distribués.map(([k, p]) => (
+              <div key={k} style={{ width: distribués.length > 4 ? 'clamp(60px, 12.5vw, 112px)' : 'clamp(76px, 14vw, 120px)', textAlign: 'center' }}>
+                <div style={{ height: distribués.length > 4 ? 'clamp(74px, 15vw, 140px)' : 'clamp(92px, 17vw, 150px)' }}><Personnage p={p} émotion="sourire" regard="face" /></div>
                 <strong style={{ display: 'block', fontSize: 13.5, color: p.couleur }}>{p.nom}</strong>
                 <span style={{ fontSize: 11.5, opacity: 0.75 }}>{p.rôle}</span>
               </div>
@@ -466,9 +467,9 @@ function Quiz({ film, onRevoir, onRejouer, onFermer, onTerminé, onOriginal }) {
           </div>
         ) : (
           <div className="c-apparait" style={{ textAlign: 'center', paddingTop: 20 }}>
-            <div style={{ fontSize: 64 }}>{bonnes >= 9 ? '🏆' : bonnes >= 7 ? '👏' : '💪'}</div>
+            <div style={{ fontSize: 64 }}>{bonnes >= questions.length * 0.9 ? '🏆' : bonnes >= questions.length * 0.7 ? '👏' : '💪'}</div>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 34, margin: '6px 0' }}>{bonnes} / {questions.length}</h2>
-            <p style={{ opacity: 0.85, maxWidth: 480, margin: '0 auto 16px', lineHeight: 1.5 }}>{bonnes >= 8 ? `Tu as compris et retenu l'essentiel de la page ${film.page}.` : 'Revois les scènes des questions manquées, puis retente le quiz.'}</p>
+            <p style={{ opacity: 0.85, maxWidth: 480, margin: '0 auto 16px', lineHeight: 1.5 }}>{bonnes >= questions.length * 0.8 ? `Tu as compris et retenu l'essentiel de la page ${film.page}.` : 'Revois les scènes des questions manquées, puis retente le quiz.'}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
               <button onClick={() => { setI(0); setChoix(null); setBonnes(0); setFin(false) }} className="c-btn">↺ Refaire le quiz</button>
               <button onClick={onRejouer} className="c-btn">🎬 Revoir l'histoire</button>

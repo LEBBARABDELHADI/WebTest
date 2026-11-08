@@ -1,0 +1,344 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Dimanche matin, dans le quartier de Lina.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Pendant la nuit, quelqu'un a couvert le mur de l'école de mots de haine.",
+  "émotion": null
+ },
+ {
+  "clé": "haine:0",
+  "qui": "lina",
+  "texte": "Qui peut écrire ça ? Ces insultes visent des gens pour leur sexe, leur origine, leur religion…",
+  "émotion": "fâché"
+ },
+ {
+  "clé": "haine:1",
+  "qui": "arnaud",
+  "texte": "Ce n'est pas une opinion, Lina. C'est de la haine. Et la République ne la laisse pas faire.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "haine:2",
+  "qui": "lina",
+  "texte": "La semaine dernière, on a vu que les discriminations sont punies par la loi.",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "haine:3",
+  "qui": "arnaud",
+  "texte": "Et l'État va plus loin : il lutte activement contre plusieurs formes de haine.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "chapitre-haine:0",
+  "qui": "narrateur",
+  "texte": "À ce titre, l'État lutte activement contre :",
+  "officiel": true
+ },
+ {
+  "clé": "sexisme:0",
+  "qui": "arnaud",
+  "texte": "D'abord, le sexisme : rabaisser une personne à cause de son sexe.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "sexisme:1",
+  "qui": "narrateur",
+  "texte": "Le sexisme : traitement dénigrant envers une autre personne en raison de son sexe ;",
+  "officiel": true
+ },
+ {
+  "clé": "sexisme:2",
+  "qui": "lina",
+  "texte": "Et le racisme ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "sexisme:3",
+  "qui": "arnaud",
+  "texte": "C'est discriminer une personne pour son origine, ou son appartenance ethnique ou raciale.",
+  "émotion": null
+ },
+ {
+  "clé": "sexisme:4",
+  "qui": "narrateur",
+  "texte": "Le racisme : discrimination fondée sur l'origine ou l'appartenance ethnique ou raciale d'une personne ;",
+  "officiel": true
+ },
+ {
+  "clé": "antisemitisme:0",
+  "qui": "lina",
+  "texte": "Et l'antisémitisme, c'est aussi du racisme ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "antisemitisme:1",
+  "qui": "arnaud",
+  "texte": "Oui : une forme spécifique de racisme et de haine contre les Juifs, nourrie de préjugés et de stéréotypes.",
+  "émotion": null
+ },
+ {
+  "clé": "antisemitisme:2",
+  "qui": "narrateur",
+  "texte": "L'antisémitisme : forme spécifique de racisme et de haine dirigée contre les Juifs, fondée sur des préjugés, des stéréotypes et des discriminations ;",
+  "officiel": true
+ },
+ {
+  "clé": "antisemitisme:3",
+  "qui": "arnaud",
+  "texte": "Il y a aussi la discrimination sur critère religieux : à cause de la religion qu'on suppose à quelqu'un.",
+  "émotion": null
+ },
+ {
+  "clé": "antisemitisme:4",
+  "qui": "narrateur",
+  "texte": "La discrimination sur critère religieux : discrimination fondée sur la religion supposée de la personne ;",
+  "officiel": true
+ },
+ {
+  "clé": "antisemitisme:5",
+  "qui": "arnaud",
+  "texte": "Et enfin, la haine anti-LGBT+ : être hostile à des personnes à cause de leur orientation sexuelle.",
+  "émotion": null
+ },
+ {
+  "clé": "antisemitisme:6",
+  "qui": "narrateur",
+  "texte": "La haine et la discrimination anti-LGBT+ : attitudes hostiles à l'égard des personnes en raison de leur orientation sexuelle.",
+  "officiel": true
+ },
+ {
+  "clé": "embauche:0",
+  "qui": "narrateur",
+  "texte": "Lundi, dans une entreprise. Lina a passé un entretien pour un poste de comptable.",
+  "émotion": null
+ },
+ {
+  "clé": "embauche:1",
+  "qui": "recruteur",
+  "texte": "Sa candidature est la meilleure… mais je préfère engager le fils d'un ami.",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "embauche:2",
+  "qui": "directrice",
+  "texte": "Non. On décide sur des raisons professionnelles, comme les compétences. Pas sur des raisons personnelles.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "embauche:3",
+  "qui": "narrateur",
+  "texte": "Toute décision d'un employeur (embauche, promotion…) doit être fondée sur des raisons professionnelles et non personnelles.",
+  "officiel": true
+ },
+ {
+  "clé": "embauche:4",
+  "qui": "directrice",
+  "texte": "Et c'est pareil pour une promotion.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "embauche:5",
+  "qui": "recruteur",
+  "texte": "Compris. Alors c'est Lina qui a le poste.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "chapitre-c:0",
+  "qui": "narrateur",
+  "texte": "Troisième mot : la fraternité.",
+  "émotion": null
+ },
+ {
+  "clé": "fraternite:0",
+  "qui": "narrateur",
+  "texte": "Le même après-midi, les voisins sont venus repeindre le mur. Ensemble.",
+  "émotion": null
+ },
+ {
+  "clé": "fraternite:1",
+  "qui": "lina",
+  "texte": "Il y a des gens de partout ! Je ne connaissais presque personne.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "fraternite:2",
+  "qui": "arnaud",
+  "texte": "La France est fondée sur cette volonté de vivre ensemble. C'est la fraternité.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "fraternite:3",
+  "qui": "narrateur",
+  "texte": "La France est fondée sur la volonté des citoyens de vivre ensemble. Cette volonté se traduit par la fraternité entre tous.",
+  "officiel": true
+ },
+ {
+  "clé": "fraternite:4",
+  "qui": "lina",
+  "texte": "Voir en l'autre un semblable, même s'il est différent.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "fraternite:5",
+  "qui": "arnaud",
+  "texte": "Exactement. Une fraternité civique : elle ne repose ni sur l'origine, ni sur la religion.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "fraternite:6",
+  "qui": "narrateur",
+  "texte": "Cette fraternité repose sur la capacité à voir en l'autre un semblable malgré les différences. La fraternité républicaine est donc civique et non basée sur l'origine ou la religion.",
+  "officiel": true
+ },
+ {
+  "clé": "solidarite:0",
+  "qui": "lina",
+  "texte": "Et concrètement, la fraternité, ça change quoi ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "solidarite:1",
+  "qui": "arnaud",
+  "texte": "Elle implique la solidarité entre nous. Une solidarité collective, et une solidarité entre les générations.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "solidarite:2",
+  "qui": "narrateur",
+  "texte": "La fraternité implique une solidarité entre les individus qui se décline sous différentes formes :",
+  "officiel": true
+ },
+ {
+  "clé": "collective:0",
+  "qui": "lina",
+  "texte": "Quand je me suis cassé le poignet, la Sécurité sociale m'a remboursée.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "collective:1",
+  "qui": "arnaud",
+  "texte": "C'est la solidarité collective : la Nation protège chacun.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "collective:2",
+  "qui": "narrateur",
+  "texte": "Le principe de solidarité signifie que la Nation assure aux individus une protection, par exemple, la Sécurité sociale.",
+  "officiel": true
+ },
+ {
+  "clé": "collective:3",
+  "qui": "arnaud",
+  "texte": "Tes impôts aussi : ils financent les services publics, pour tout le monde.",
+  "émotion": null
+ },
+ {
+  "clé": "collective:4",
+  "qui": "narrateur",
+  "texte": "Remplir ses obligations fiscales est un acte solidaire qui permet de financer les services publics au bénéfice de tous.",
+  "officiel": true
+ },
+ {
+  "clé": "collective:5",
+  "qui": "lina",
+  "texte": "Et défendre le pays ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "collective:6",
+  "qui": "arnaud",
+  "texte": "Chaque citoyen français doit participer à la défense de la Nation, en cas de nécessité.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "collective:7",
+  "qui": "narrateur",
+  "texte": "Le principe de solidarité exige aussi que chaque citoyen français doive participer à la défense de la Nation en cas de nécessité.",
+  "officiel": true
+ },
+ {
+  "clé": "generations:0",
+  "qui": "narrateur",
+  "texte": "Le soir, Lina appelle Inès.",
+  "émotion": null
+ },
+ {
+  "clé": "generations:1",
+  "qui": "ines",
+  "texte": "Moi, je travaille. Avec mes cotisations, je participe aux retraites, comme celle de ma grand-mère.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "generations:2",
+  "qui": "lina",
+  "texte": "Les générations se soutiennent les unes les autres.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "generations:3",
+  "qui": "narrateur",
+  "texte": "Le principe de solidarité se traduit par le soutien entre différentes générations. Par exemple, en cotisant, chaque salarié contribue aux versements des retraites.",
+  "officiel": true
+ },
+ {
+  "clé": "inegalites:0",
+  "qui": "narrateur",
+  "texte": "Protéger, financer, se soutenir…",
+  "émotion": null
+ },
+ {
+  "clé": "inegalites:1",
+  "qui": "narrateur",
+  "texte": "La fraternité contribue donc à la réduction des inégalités, notamment sociales.",
+  "officiel": true
+ },
+ {
+  "clé": "collecte:0",
+  "qui": "narrateur",
+  "texte": "Le samedi suivant, l'association du quartier organise une collecte pour une association humanitaire.",
+  "émotion": null
+ },
+ {
+  "clé": "collecte:1",
+  "qui": "lina",
+  "texte": "Je m'inscris ! Je tiendrai le stand avec les voisins.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "collecte:2",
+  "qui": "arnaud",
+  "texte": "Tu fais vivre la solidarité et la fraternité. C'est de la participation citoyenne.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "collecte:3",
+  "qui": "narrateur",
+  "texte": "L'organisation de collectes au profit d'associations humanitaires ou l'engagement dans une association de quartier constituent d'autres exemples de participation citoyenne mettant en œuvre le principe républicain de solidarité et de fraternité.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Liberté, égalité, fraternité. Cette fois, je connais les trois mots.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "Et la prochaine fois : les symboles de la France.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : les symboles de la France, page 8.",
+  "émotion": null
+ }
+]

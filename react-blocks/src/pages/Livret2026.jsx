@@ -10,7 +10,7 @@ import { PAGES_FILM, chargerFilm } from '../lib/livret2026/films'
 // Prototype « expérience cinéma » : page 10 seulement, chargé à la demande.
 const Cinéma = lazy(() => import('../components/livret/cinema/Cinema'))
 // Prototypes « expérience cinéma » : uniquement les pages pilotes validées une à une.
-const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 10: () => import('../lib/livret2026/cinema/p10') }
+const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 7: () => import('../lib/livret2026/cinema/p7'), 10: () => import('../lib/livret2026/cinema/p10') }
 import Leçon from '../components/livret/Lecon'
 import Maison from '../components/livret/Maison'
 import Frise from '../components/livret/Frise'

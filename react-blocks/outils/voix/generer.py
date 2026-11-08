@@ -18,6 +18,8 @@ CASTING = {
     'arnaud': ('fr-FR-HenriNeural', -10, -6),
     'narrateur': ('fr-FR-RemyMultilingualNeural', -6, -2),
     'agent': ('fr-CH-FabriceNeural', 4, -3),
+    'recruteur': ('fr-BE-GerardNeural', 3, 0),
+    'directrice': ('fr-CH-ArianeNeural', -3, -2),
 }
 ÉMOTIONS = {'joie': (4, 4), 'fier': (2, 3), 'sourire': (1, 2), 'surprise': (3, 7), 'inquiet': (-5, -1), 'réflexion': (-7, 0), 'fâché': (3, -2), 'tendre': (-7, 1), 'neutre': (0, 0)}
 

@@ -5,7 +5,7 @@ import { Particules } from './Decors10'
 const V = { viewBox: '0 0 1600 900', preserveAspectRatio: 'xMidYMid slice', style: { position: 'absolute', inset: 0, width: '100%', height: '100%' } }
 const h = (i, k = 1) => ((i * 9301 + 49297 * k) % 233280) / 233280
 
-const Défs = () => (
+export const Defs = () => (
   <defs>
     <radialGradient id="d6-halo"><stop offset="0" stopColor="rgba(255,214,140,.85)" /><stop offset=".35" stopColor="rgba(255,190,110,.28)" /><stop offset="1" stopColor="rgba(255,190,110,0)" /></radialGradient>
     <radialGradient id="d6-soleil"><stop offset="0" stopColor="#fff8d8" /><stop offset=".45" stopColor="#ffd98a" /><stop offset="1" stopColor="rgba(255,217,138,0)" /></radialGradient>
@@ -16,7 +16,7 @@ const Défs = () => (
 )
 
 // Immeuble haussmannien (fenêtres, balcons, toit en zinc).
-function Immeuble({ x, l, hh, sol, teinte = '#e9dcc4', soir }) {
+export function Immeuble({ x, l, hh, sol, teinte = '#e9dcc4', soir }) {
   const étages = Math.floor((hh - 60) / 70)
   return (
     <g>
@@ -37,7 +37,7 @@ function Immeuble({ x, l, hh, sol, teinte = '#e9dcc4', soir }) {
 
 function Place({ couche, soir }) {
   if (couche === 'fond') return (
-    <svg {...V}><Défs />
+    <svg {...V}><Defs />
       <linearGradient id={`d6-ciel-${soir ? 's' : 'j'}`} x1="0" y1="0" x2="0" y2="1">{soir ? <><stop offset="0" stopColor="#24124f" /><stop offset=".5" stopColor="#b24a78" /><stop offset=".85" stopColor="#ffa35c" /><stop offset="1" stopColor="#ffd08a" /></> : <><stop offset="0" stopColor="#5fa8f0" /><stop offset=".7" stopColor="#cbe8ff" /><stop offset="1" stopColor="#f4f0e0" /></>}</linearGradient>
       <rect width="1600" height="900" fill={`url(#d6-ciel-${soir ? 's' : 'j'})`} />
       <circle cx={soir ? 1300 : 1260} cy={soir ? 520 : 160} r={soir ? 200 : 140} fill="url(#d6-soleil)" opacity={soir ? 0.9 : 0.75} />
@@ -51,7 +51,7 @@ function Place({ couche, soir }) {
   if (couche === 'milieu') {
     const t = soir ? 'rgba(60,20,70,.35)' : 'rgba(255,255,255,0)'
     return (
-      <svg {...V}><Défs />
+      <svg {...V}><Defs />
         <path d="M0,700 L1600,700 L1600,900 L0,900 Z" fill={soir ? '#5a4152' : '#cbbfa8'} />
         {Array.from({ length: 16 }, (_, i) => <path key={i} d={`M${i * 110 - 60},900 L${800 + (i - 8) * 30},700`} stroke={soir ? 'rgba(0,0,0,.18)' : 'rgba(120,100,70,.18)'} strokeWidth="2" />)}
         <g>
@@ -102,7 +102,7 @@ function Place({ couche, soir }) {
 
 function Parc({ couche }) {
   if (couche === 'fond') return (
-    <svg {...V}><Défs />
+    <svg {...V}><Defs />
       <linearGradient id="d6-ciel-parc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7ec4ff" /><stop offset=".75" stopColor="#d8f0ff" /><stop offset="1" stopColor="#f6f2dc" /></linearGradient>
       <rect width="1600" height="900" fill="url(#d6-ciel-parc)" />
       <circle cx="320" cy="150" r="130" fill="url(#d6-soleil)" opacity=".8" />
@@ -117,7 +117,7 @@ function Parc({ couche }) {
       </g>
     )
     return (
-      <svg {...V}><Défs />
+      <svg {...V}><Defs />
         <path d="M0,640 Q800,600 1600,650 L1600,900 L0,900 Z" fill="#6fb35a" />
         <path d="M520,900 Q760,700 820,640 Q900,700 1180,900 Z" fill="#e8dcc0" />
         {[[300, 600], [1320, 590], [1500, 610]].map(([x, y], k) => <g key={k}><rect x={x - 6} y={y - 40} width="12" height="60" fill="#4a3424" /><circle cx={x} cy={y - 70} r="48" fill={['#4f8a46', '#5f9e52', '#3f7339'][k]} /></g>)}
@@ -138,7 +138,7 @@ function Parc({ couche }) {
 
 function Agence({ couche }) {
   if (couche === 'fond') return (
-    <svg {...V}><Défs />
+    <svg {...V}><Defs />
       <rect width="1600" height="900" fill="#e6eef0" />
       <rect x="980" y="120" width="520" height="440" rx="8" fill="#9ccbe8" />
       {Array.from({ length: 9 }, (_, i) => <rect key={i} x={1000 + i * 56} y={300 + (i % 3) * 30} width="44" height={260 - (i % 3) * 30} fill="#7fa5c4" />)}
@@ -155,7 +155,7 @@ function Agence({ couche }) {
     </svg>
   )
   if (couche === 'milieu') return (
-    <svg {...V}><Défs />
+    <svg {...V}><Defs />
       <g transform="translate(800,150)"><rect x="-300" y="-46" width="600" height="92" rx="10" fill="#0f766e" /><text y="14" textAnchor="middle" fontFamily="Georgia, serif" fontSize="40" letterSpacing="6" fill="#fff">AGENCE IMMOBILIÈRE</text></g>
       <g transform="translate(800,330)"><rect x="-150" y="-70" width="300" height="140" rx="10" fill="#fff" stroke="#0f766e" strokeWidth="6" /><path d="M-60,30 L0,-28 L60,30 L60,52 L-60,52 Z" fill="#f2b134" /><text y="-36" textAnchor="middle" fontFamily="system-ui" fontSize="26" fontWeight="900" fill="#0f766e">À LOUER · T2</text></g>
       <path d="M380,720 L1220,720 L1280,900 L320,900 Z" fill="#8a6a4c" />
@@ -173,7 +173,7 @@ function Agence({ couche }) {
 // Rue d'immeubles la nuit : une fenêtre fait la fête, les autres dorment.
 function ImmeublesNuit({ couche }) {
   if (couche === 'fond') return (
-    <svg {...V}><Défs />
+    <svg {...V}><Defs />
       <linearGradient id="d6-nuit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#070a24" /><stop offset=".7" stopColor="#1e1a48" /><stop offset="1" stopColor="#3a2d5e" /></linearGradient>
       <rect width="1600" height="900" fill="url(#d6-nuit)" />
       {Array.from({ length: 70 }, (_, i) => <circle key={i} cx={h(i, 3) * 1600} cy={h(i, 5) * 420} r={0.8 + h(i, 7) * 1.6} fill="#dfe6ff" className="c-scintille" style={{ animationDelay: `${h(i, 9) * 3}s` }} />)}
@@ -182,7 +182,7 @@ function ImmeublesNuit({ couche }) {
     </svg>
   )
   if (couche === 'milieu') return (
-    <svg {...V}><Défs />
+    <svg {...V}><Defs />
       <rect y="720" width="1600" height="180" fill="#1d1a2c" />
       <rect y="712" width="1600" height="14" fill="#2e2a42" />
       <Immeuble x={-40} l={420} hh={520} sol={720} teinte="#4a4462" soir />
