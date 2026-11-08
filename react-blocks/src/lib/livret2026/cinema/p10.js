@@ -8,6 +8,8 @@
 // personnages, les lieux et les dialogues sont fictifs ; ils n'énoncent que
 // ce que dit la page.
 
+import { VOIX_P10 } from './voixP10.js'
+
 const p10 = 'Livret du citoyen, page 10'
 
 export const PERSONNAGES = {
@@ -22,6 +24,7 @@ export const COURT_MÉTRAGE = {
   titre: 'Les fondations',
   sousTitre: 'Les principes de la République',
   avertissement: 'Personnages et situations fictifs. Les cartes « 📜 Livret » reprennent le texte officiel, mot pour mot.',
+  voix: VOIX_P10,
   scènes: [
     {
       id: 'ouverture', titre: 'Ouverture', décor: 'rue-soir', ambiance: 'rue', musique: 'chaleureux', transition: 'fondu', particules: 'feuilles',

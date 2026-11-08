@@ -1,0 +1,332 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Paris, un soir d'automne. Lina prépare son entretien de naturalisation.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Elle a rendez-vous à la médiathèque avec M. Arnaud, un ancien professeur devenu bénévole.",
+  "émotion": null
+ },
+ {
+  "clé": "article1:0",
+  "qui": "lina",
+  "texte": "Monsieur Arnaud… Mon entretien approche, et je ne sais pas par où commencer.",
+  "émotion": "inquiet"
+ },
+ {
+  "clé": "article1:1",
+  "qui": "arnaud",
+  "texte": "Par les fondations, Lina. Tout part d'un texte : la Constitution du 4 octobre 1958.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "article1:2",
+  "qui": "arnaud",
+  "texte": "Son article 1er définit les principes de la République. Écoute bien.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "article1:3",
+  "qui": "narrateur",
+  "texte": "Les principes de la République sont définis à l'article 1er de la Constitution du 4 octobre 1958 qui précise que « La France est une République indivisible, laïque, démocratique et sociale ».",
+  "officiel": true
+ },
+ {
+  "clé": "article1:4",
+  "qui": "lina",
+  "texte": "Indivisible, laïque, démocratique et sociale… Quatre mots, comme quatre piliers.",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "article1:5",
+  "qui": "arnaud",
+  "texte": "Ce soir, on bâtit les deux premiers : indivisible et laïque.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "plan:0",
+  "qui": "arnaud",
+  "texte": "Imagine les plans d'une maison : avant de construire, on fixe les règles de base.",
+  "émotion": null
+ },
+ {
+  "clé": "plan:1",
+  "qui": "narrateur",
+  "texte": "La Constitution est un acte fondateur d'un État. C'est un ensemble de règles fondamentales qui définissent comment le pays est organisé et dirigé.",
+  "officiel": true
+ },
+ {
+  "clé": "plan:2",
+  "qui": "lina",
+  "texte": "Donc la Constitution, c'est le plan de base : comment le pays est organisé, et comment il est dirigé.",
+  "émotion": null
+ },
+ {
+  "clé": "hierarchie:0",
+  "qui": "arnaud",
+  "texte": "Dans un État de droit, les règles sont rangées. En bas, toutes les lois…",
+  "émotion": null
+ },
+ {
+  "clé": "hierarchie:1",
+  "qui": "arnaud",
+  "texte": "… et tout en haut, la Constitution.",
+  "émotion": null
+ },
+ {
+  "clé": "hierarchie:2",
+  "qui": "narrateur",
+  "texte": "Dans un État de droit, la Constitution se situe tout en haut de la hiérarchie des normes, c'est-à-dire qu'elle est au-dessus de toutes les lois.",
+  "officiel": true
+ },
+ {
+  "clé": "hierarchie:3",
+  "qui": "lina",
+  "texte": "Au-dessus de toutes les lois… C'est ça, la hiérarchie des normes.",
+  "émotion": null
+ },
+ {
+  "clé": "pouvoirs:0",
+  "qui": "arnaud",
+  "texte": "En France, la Constitution fixe les droits et libertés des citoyens.",
+  "émotion": null
+ },
+ {
+  "clé": "pouvoirs:1",
+  "qui": "arnaud",
+  "texte": "Elle explique comment les pouvoirs sont partagés : le gouvernement, le Parlement et les tribunaux…",
+  "émotion": null
+ },
+ {
+  "clé": "pouvoirs:2",
+  "qui": "arnaud",
+  "texte": "… et elle encadre leur fonctionnement.",
+  "émotion": null
+ },
+ {
+  "clé": "pouvoirs:3",
+  "qui": "narrateur",
+  "texte": "En France, elle fixe les droits et libertés des citoyens, explique comment les pouvoirs (le gouvernement, le Parlement et les tribunaux) sont partagés et encadre leur fonctionnement.",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-a:0",
+  "qui": "narrateur",
+  "texte": "Premier pilier : une République indivisible.",
+  "émotion": null
+ },
+ {
+  "clé": "journal:0",
+  "qui": "lina",
+  "texte": "Regardez ce titre ! Un groupe veut décider à la place de tout le quartier.",
+  "émotion": "fâché"
+ },
+ {
+  "clé": "journal:1",
+  "qui": "arnaud",
+  "texte": "Il n'en a pas le droit. Aucun individu ou groupe ne peut décider à la place de l'ensemble des Français.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "journal:2",
+  "qui": "arnaud",
+  "texte": "Les décisions sont prises par les représentants élus par le peuple… ou par le peuple lui-même, lors de référendums.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "journal:3",
+  "qui": "narrateur",
+  "texte": "Aucun individu ou groupe ne peut décider à la place de l'ensemble des Français. Les décisions sont prises par les représentants élus par le peuple ou par le peuple lui-même lors de référendums.",
+  "officiel": true
+ },
+ {
+  "clé": "unite:0",
+  "qui": "narrateur",
+  "texte": "Plus tard, Lina appelle son amie Inès, qui vit à La Réunion.",
+  "émotion": null
+ },
+ {
+  "clé": "unite:1",
+  "qui": "ines",
+  "texte": "Ici, il fait déjà grand soleil ! Alors, ta révision ?",
+  "émotion": "joie"
+ },
+ {
+  "clé": "unite:2",
+  "qui": "lina",
+  "texte": "On a parlé de l'unité de la République. Toi à La Réunion, moi à Paris…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "unite:3",
+  "qui": "ines",
+  "texte": "… mêmes lois, mêmes droits et mêmes devoirs. En métropole comme en outre-mer !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "unite:4",
+  "qui": "narrateur",
+  "texte": "Cela signifie que tous les Français, partout dans le pays, métropole et outre-mer, sont soumis aux mêmes lois et ont les mêmes droits et devoirs. C'est ce qu'on appelle l'unité de la République.",
+  "officiel": true
+ },
+ {
+  "clé": "unite:5",
+  "qui": "ines",
+  "texte": "Et une seule langue officielle pour tout le pays : le français.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "unite:6",
+  "qui": "narrateur",
+  "texte": "De plus, la France a une seule langue officielle qui est le français.",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-b:0",
+  "qui": "narrateur",
+  "texte": "Deuxième pilier : une République laïque.",
+  "émotion": null
+ },
+ {
+  "clé": "chapitre-b:1",
+  "qui": "narrateur",
+  "texte": "La laïcité est un principe essentiel de la République, de valeur constitutionnelle et est officiellement célébrée en France le 9 décembre.",
+  "officiel": true
+ },
+ {
+  "clé": "conscience:0",
+  "qui": "lina",
+  "texte": "La laïcité, c'est être contre les religions ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "conscience:1",
+  "qui": "arnaud",
+  "texte": "Non. Elle garantit la liberté de conscience pour tous.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "conscience:2",
+  "qui": "arnaud",
+  "texte": "Chacun est libre d'avoir une religion…",
+  "émotion": null
+ },
+ {
+  "clé": "conscience:3",
+  "qui": "arnaud",
+  "texte": "… de ne pas en avoir…",
+  "émotion": null
+ },
+ {
+  "clé": "conscience:4",
+  "qui": "arnaud",
+  "texte": "… d'en changer : c'est le droit de se convertir…",
+  "émotion": null
+ },
+ {
+  "clé": "conscience:5",
+  "qui": "arnaud",
+  "texte": "… ou de ne plus en avoir.",
+  "émotion": null
+ },
+ {
+  "clé": "conscience:6",
+  "qui": "narrateur",
+  "texte": "La laïcité garantit la liberté de conscience pour tous, c'est-à-dire que chaque personne est libre d'avoir ou de ne pas avoir de religion, d'en changer (droit de se convertir) ou de ne plus en avoir.",
+  "officiel": true
+ },
+ {
+  "clé": "conscience:7",
+  "qui": "lina",
+  "texte": "Et quelqu'un qui ne croit en aucune religion, on dit quoi ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "conscience:8",
+  "qui": "arnaud",
+  "texte": "On dit qu'il est athée. Et quelqu'un qui est sceptique vis-à-vis de la religion est agnostique.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "conscience:9",
+  "qui": "narrateur",
+  "texte": "Une personne est dite « athée » lorsqu'elle ne croit en aucune religion et « agnostique » lorsqu'elle est sceptique vis-à-vis de la religion.",
+  "officiel": true
+ },
+ {
+  "clé": "article10:0",
+  "qui": "arnaud",
+  "texte": "La laïcité garantit aussi la liberté de manifester ses croyances ou convictions, et de pratiquer sa religion…",
+  "émotion": null
+ },
+ {
+  "clé": "article10:1",
+  "qui": "arnaud",
+  "texte": "… dans les limites du respect de l'ordre public, comme le dit l'article 10 de la Déclaration de 1789.",
+  "émotion": null
+ },
+ {
+  "clé": "article10:2",
+  "qui": "narrateur",
+  "texte": "« Nul ne doit être inquiété pour ses opinions, même religieuses, pourvu que leur manifestation ne trouble pas l'ordre public établi par la Loi. »",
+  "officiel": true
+ },
+ {
+  "clé": "article10:3",
+  "qui": "narrateur",
+  "texte": "Elle garantit la liberté de manifester ses croyances ou convictions et de pratiquer sa religion dans les limites du respect de l'ordre public comme cela est mentionné dans l'article 10 de la Déclaration des droits de l'homme et du citoyen de 1789 (DDHC – voir à la fin du livret).",
+  "officiel": true
+ },
+ {
+  "clé": "cultes:0",
+  "qui": "narrateur",
+  "texte": "Le soir tombe sur la ville. Chacun peut pratiquer son culte.",
+  "émotion": null
+ },
+ {
+  "clé": "cultes:1",
+  "qui": "arnaud",
+  "texte": "La laïcité garantit le libre exercice des cultes et le respect de toutes les croyances.",
+  "émotion": null
+ },
+ {
+  "clé": "cultes:2",
+  "qui": "arnaud",
+  "texte": "Et elle impose la neutralité de l'État.",
+  "émotion": null
+ },
+ {
+  "clé": "cultes:3",
+  "qui": "narrateur",
+  "texte": "La laïcité garantit le libre exercice des cultes et le respect de toutes les croyances. Elle impose la neutralité de l'État.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Indivisible… laïque… Les fondations, je les ai.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "La prochaine fois, on verra comment la laïcité s'applique au quotidien.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "Afin de mieux comprendre ce concept important de laïcité, vous trouverez ci-après des précisions sur ses modalités d'application dans différents domaines.",
+  "officiel": true
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : la laïcité au quotidien, page 11.",
+  "émotion": null
+ }
+]

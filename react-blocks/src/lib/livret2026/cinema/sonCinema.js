@@ -195,3 +195,32 @@ export function jouerVoix(son, blob, surNiveau) {
   })
   return { promesse, pause: () => audio.pause(), reprendre: () => audio.play().catch(() => {}), arrêter: () => { audio.pause(); audio.onended?.() } }
 }
+
+// ---------- Voix générées à l'avance (fichiers du site) ----------
+// Décodées une fois (cache), jouées par Web Audio : fiable sur téléphone après
+// le toucher « Lancer », et le volume anime les lèvres.
+const tampons = new Map()
+export function précharger(son, url) {
+  if (!son || tampons.has(url)) return tampons.get(url)
+  const p = fetch(url).then(r => { if (!r.ok) throw new Error(String(r.status)); return r.arrayBuffer() }).then(a => son.ctx.decodeAudioData(a)).catch(() => null)
+  tampons.set(url, p)
+  return p
+}
+export function jouerFichier(son, url, surNiveau) {
+  let source = null, raf = 0, fini = false, terminer = () => {}
+  const promesse = new Promise(ok => {
+    terminer = () => { if (fini) return; fini = true; cancelAnimationFrame(raf); surNiveau?.(0); try { source?.stop() } catch { /* ignore */ } ok() }
+    précharger(son, url).then(tampon => {
+      if (fini) return
+      if (!tampon) { terminer(); return }
+      source = son.ctx.createBufferSource(); source.buffer = tampon
+      const an = son.ctx.createAnalyser(); an.fftSize = 512
+      source.connect(an); an.connect(son.busVoix)
+      source.onended = terminer
+      const d = new Uint8Array(an.fftSize)
+      const mesurer = () => { an.getByteTimeDomainData(d); let s = 0; for (let i = 0; i < d.length; i++) { const v = (d[i] - 128) / 128; s += v * v } surNiveau?.(Math.sqrt(s / d.length)); raf = requestAnimationFrame(mesurer) }
+      source.start(); mesurer()
+    })
+  })
+  return { promesse, arrêter: () => terminer() }
+}
