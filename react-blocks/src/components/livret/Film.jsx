@@ -12,9 +12,27 @@ const ÉMOTIONS = { joie: '✨', surprise: '❗', gêne: '💧', idée: '💡', 
 const CLÉ = 'react-blocs-film-reglages'
 const lireRéglages = () => { try { return { voix: true, musique: true, sousTitres: true, ...JSON.parse(localStorage.getItem(CLÉ) || '{}') } } catch { return { voix: true, musique: true, sousTitres: true } } }
 
+// Une narration longue est découpée en sous-titres courts (phrase par phrase,
+// puis aux tirets ou aux virgules), pour garder l'image grande.
+function découper(texte, max = 150) {
+  const phrases = texte.match(/[^.!?…]+[.!?…]+(?:\s|$)|[^.!?…]+$/g)?.map(x => x.trim()).filter(Boolean) || [texte]
+  return phrases.flatMap(ph => {
+    if (ph.length <= max) return [ph]
+    const morceaux = ph.split(/\s—\s|,\s(?=[a-zà-ü])/i)
+    const l = []
+    let cour = ''
+    morceaux.forEach((m, i) => {
+      const sep = i === 0 ? '' : ph.includes(' — ') && cour && ph.indexOf(m) > 2 && ph[ph.indexOf(m) - 2] === '—' ? ' — ' : ', '
+      if ((cour + sep + m).length > max && cour) { l.push(cour + (/[,—]$/.test(cour) ? '' : '…')); cour = m } else cour = cour ? cour + sep + m : m
+    })
+    if (cour) l.push(cour)
+    return l
+  })
+}
+
 // Les « temps » d'un plan : ce qui est dit, dans l'ordre.
 function tempsDu(plan) {
-  const n = plan.narration ? [{ qui: 'narrateur', texte: plan.narration }] : []
+  const n = plan.narration ? découper(plan.narration).map(texte => ({ qui: 'narrateur', texte })) : []
   switch (plan.type) {
     case 'citation': return [...n, { qui: 'narrateur', texte: plan.texte, citation: true }]
     case 'split': return [...n, { qui: 'narrateur', texte: `${plan.gauche.titre.toLowerCase()} : ${plan.gauche.texte}`, côté: 'gauche' }, { qui: 'narrateur', texte: `${plan.droite.titre.toLowerCase()} : ${plan.droite.texte}`, côté: 'droite' }]
@@ -129,6 +147,7 @@ export default function Film({ film, onFermer, onVu }) {
       <div className="f-ecran" role="dialog" aria-modal="true" aria-label={`${film.épisode} : ${film.titre}`}>
         <style>{CSS_FILM}</style>
         <div style={{ position: 'absolute', inset: 0 }}><Decor nom={film.plans[0].décor} /></div>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 3, background: 'radial-gradient(ellipse at center, rgba(5,8,20,.8), rgba(5,8,20,.45) 80%)' }} />
         <div className="f-vignette" />
         <div style={{ position: 'relative', zIndex: 4, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 20, gap: 10 }}>
           <img src={imagePage(film.page)} alt={`Page ${film.page} du livret`} style={{ width: 'min(30vw, 130px)', borderRadius: 6, boxShadow: '0 12px 30px rgba(0,0,0,.6)', transform: 'rotate(-4deg)' }} />
@@ -157,7 +176,7 @@ export default function Film({ film, onFermer, onVu }) {
           <span className="f-corps" aria-hidden="true" style={{ fontSize: `min(17vh, ${Math.floor(80 / Math.max(2, (plan.acteurs || []).length))}vw, 160px)` }}>{pp.emoji}</span>
           {émo && <span key={`${b}-${émo}`} className="f-emotion" aria-hidden="true">{ÉMOTIONS[émo]}</span>}
           <div className="f-ombre" />
-          <div className="f-nom" style={{ color: pp.couleur }}>{pp.nom}</div>
+          {((plan.acteurs || []).length < 4 || parle === a.id) && <div className="f-nom" style={{ color: pp.couleur }}>{pp.nom}</div>}
         </div>
       </div>
     )
@@ -176,6 +195,7 @@ export default function Film({ film, onFermer, onVu }) {
     contenu = (
       <>
         <Decor nom={plan.décor} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'radial-gradient(ellipse at center, rgba(5,8,20,.72), rgba(5,8,20,.35) 75%)' }} />
         <div className="f-impact" style={{ zIndex: 3 }}>
           <div className="f-titre-ep">{film.épisode}</div>
           <div className="f-titre">{film.titre}</div>
@@ -218,6 +238,18 @@ export default function Film({ film, onFermer, onVu }) {
         <div className="f-split">{côté(plan.gauche, b >= 1)}{côté(plan.droite, b >= 2)}</div>
         <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 3, width: 64, height: 64, borderRadius: '50%', background: '#ffd166', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 20, boxShadow: '0 0 0 5px #111', animation: 'f-pop .5s .8s both' }}>VS</div>
         <div style={{ position: 'absolute', top: 10, left: 0, right: 0, textAlign: 'center', zIndex: 3, fontWeight: 900, fontSize: 'clamp(15px, 2.6vh, 20px)', textShadow: '0 2px 6px #000' }}>{plan.titre}</div>
+      </>
+    )
+  } else if (plan.type === 'tableau') {
+    contenu = (
+      <>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 40%, #3a2a18, #0b0805)' }} />
+        <div style={{ position: 'absolute', inset: '6% 0 14%', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2 }}>
+          <div style={{ height: '100%', aspectRatio: '296 / 434', maxWidth: '86%', overflow: 'hidden', border: '10px solid #c9a24a', outline: '3px solid #6b4f1d', boxShadow: '0 20px 60px rgba(0,0,0,.7), inset 0 0 0 2px #e8cf8a', borderRadius: 4, background: '#111' }}>
+            <img src={`${import.meta.env.BASE_URL}livret2026/${plan.image}`} alt={plan.légende} style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'f-kenburns 14s ease-in-out both' }} />
+          </div>
+        </div>
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '3%', textAlign: 'center', zIndex: 3, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 'clamp(13px, 2.1vh, 17px)', color: '#f3dfa8', animation: 'f-fondu 1s 1s both' }}>{plan.légende}</div>
       </>
     )
   } else if (plan.type === 'chapitre') {

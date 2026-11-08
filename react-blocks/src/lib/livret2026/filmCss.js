@@ -76,6 +76,7 @@ export const CSS_FILM = `
 @keyframes f-deroule { from { opacity: 0; clip-path: inset(0 0 100% 0) } to { opacity: 1; clip-path: inset(0 0 0 0) } }
 @keyframes f-nuage { from { transform: translateX(-20vw) } to { transform: translateX(120vw) } }
 @keyframes f-soleil { from { transform: translateY(30px) } to { transform: translateY(0) } }
+@keyframes f-kenburns { 0% { transform: scale(1.35) translate(0, 14%) } 50% { transform: scale(1.5) translate(-4%, -10%) } 100% { transform: scale(1) translate(0, 0) } }
 @keyframes f-drapeau { 0%, 100% { transform: skewY(0) } 50% { transform: skewY(-6deg) } }
 @media (prefers-reduced-motion: reduce) { .f-ecran *, .f-ecran *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important } }
 `

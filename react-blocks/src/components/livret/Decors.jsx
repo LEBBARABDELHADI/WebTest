@@ -20,7 +20,7 @@ function Immeubles({ couleur = '#0a0f1f', fenêtres = '#ffd86b', graine = 1, hau
 
 function Mairie() {
   return (
-    <svg viewBox="0 -10 200 130" style={{ ...abs, left: '50%', bottom: '18%', width: 'min(92%, 560px)', transform: 'translateX(-50%)' }} aria-hidden="true">
+    <svg viewBox="0 -10 200 130" style={{ ...abs, left: '50%', bottom: '33%', width: 'min(78%, 500px)', transform: 'translateX(-50%)' }} aria-hidden="true">
       <rect x="20" y="48" width="160" height="72" fill="#f3e9d6" stroke="#b9a684" />
       <polygon points="14,50 100,14 186,50" fill="#e8dcc2" stroke="#b9a684" />
       <text x="100" y="42" textAnchor="middle" fontSize="11" fontWeight="800" fill="#6b5a3a" fontFamily="Georgia, serif">MAIRIE</text>
@@ -70,8 +70,8 @@ export default function Decor({ nom }) {
       <div style={{ ...abs, inset: 0, background: 'linear-gradient(#7fbfff 0%, #d6efff 70%)' }}>
         {[0, 1].map(k => <div key={k} style={{ ...abs, top: `${8 + k * 14}%`, fontSize: 'clamp(40px, 8vh, 70px)', opacity: 0.9, animation: `f-nuage ${38 + k * 14}s linear ${-k * 16}s infinite` }}>☁️</div>)}
         <Immeubles couleur="#9fb4cf" fenêtres={null} graine={5} hauteur={40} />
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '34%', background: 'linear-gradient(#ddd5c4, #b8ad94)' }} />
         <Mairie />
-        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '19%', background: 'linear-gradient(#cfc6b4, #b3a98f)' }} />
       </div>
     )
     case 'bureau-vote': return (
@@ -80,6 +80,16 @@ export default function Decor({ nom }) {
         <div style={{ ...abs, right: '8%', bottom: '18%', width: '22%', height: '48%', background: 'repeating-linear-gradient(90deg, #6b7a99 0 10px, #56657f 10px 20px)', borderRadius: '8px 8px 0 0', boxShadow: '0 0 0 4px #3e4a63' }} />
         <div style={{ ...abs, left: '38%', right: '36%', bottom: '18%', height: '10%', background: '#a07650', borderRadius: 4 }} />
         <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '19%', background: 'repeating-linear-gradient(90deg, #c7ccd6 0 60px, #bcc2cd 60px 120px)' }} />
+      </div>
+    )
+    case 'agence': return (
+      <div style={{ ...abs, inset: 0, background: 'linear-gradient(#e9f1ee, #d3e0db)' }}>
+        <div style={{ ...abs, left: '6%', top: '7%', padding: '6px 14px', background: '#0f766e', color: '#fff', borderRadius: 6, fontWeight: 900, fontSize: 'clamp(12px, 2vh, 18px)', letterSpacing: '.06em' }}>APPARTEMENT À LOUER</div>
+        <div style={{ ...abs, right: '7%', top: '9%', width: '28%', height: '34%', background: '#fff', border: '6px solid #94a3b8', borderRadius: 6, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, padding: 6, boxSizing: 'border-box' }}>
+          {['🏠', '🛋️', '🛏️', '🚿'].map(e => <span key={e} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', fontSize: 'clamp(16px, 3vh, 30px)' }}>{e}</span>)}
+        </div>
+        <div style={{ ...abs, left: '30%', right: '30%', bottom: '18%', height: '9%', background: '#7c5a3c', borderRadius: 4, boxShadow: '0 -4px 0 #9a7451' }} />
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '19%', background: 'repeating-linear-gradient(90deg, #b9c7c1 0 70px, #adbcb6 70px 140px)' }} />
       </div>
     )
     case 'ville-jour': return (
