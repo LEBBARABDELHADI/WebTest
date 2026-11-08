@@ -1,0 +1,177 @@
+// Voix générées pour l'épisode 🍿 Film de la page 71 (edge-tts, voix « Natural »
+// de Microsoft) : fichier, durée (s), voix. Produit par un script, ne pas modifier à la main.
+export const VOIX_FILM71 = {
+ "base": "livret2026/voix/film71/",
+ "lignes": {
+  "0:0": {
+   "f": "0-0.mp3",
+   "d": 4.7,
+   "voix": "Remy"
+  },
+  "1:0": {
+   "f": "1-0.mp3",
+   "d": 3.22,
+   "voix": "Gerard"
+  },
+  "1:1": {
+   "f": "1-1.mp3",
+   "d": 5.14,
+   "voix": "Denise"
+  },
+  "2:0": {
+   "f": "2-0.mp3",
+   "d": 1.87,
+   "voix": "Remy"
+  },
+  "2:1": {
+   "f": "2-1.mp3",
+   "d": 4.58,
+   "voix": "Charline"
+  },
+  "2:2": {
+   "f": "2-2.mp3",
+   "d": 7.01,
+   "voix": "Fabrice"
+  },
+  "2:3": {
+   "f": "2-3.mp3",
+   "d": 6.34,
+   "voix": "Charline"
+  },
+  "2:4": {
+   "f": "2-4.mp3",
+   "d": 4.99,
+   "voix": "Fabrice"
+  },
+  "3:0": {
+   "f": "3-0.mp3",
+   "d": 4.92,
+   "voix": "Remy"
+  },
+  "3:1": {
+   "f": "3-1.mp3",
+   "d": 4.92,
+   "voix": "Remy"
+  },
+  "3:2": {
+   "f": "3-2.mp3",
+   "d": 4.03,
+   "voix": "Remy"
+  },
+  "4:0": {
+   "f": "4-0.mp3",
+   "d": 2.93,
+   "voix": "Remy"
+  },
+  "4:1": {
+   "f": "4-1.mp3",
+   "d": 2.35,
+   "voix": "Gerard"
+  },
+  "4:2": {
+   "f": "4-2.mp3",
+   "d": 5.23,
+   "voix": "Ariane"
+  },
+  "4:3": {
+   "f": "4-3.mp3",
+   "d": 6.5,
+   "voix": "Denise"
+  },
+  "4:4": {
+   "f": "4-4.mp3",
+   "d": 5.95,
+   "voix": "Eloise"
+  },
+  "4:5": {
+   "f": "4-5.mp3",
+   "d": 6.84,
+   "voix": "Remy"
+  },
+  "4:6": {
+   "f": "4-6.mp3",
+   "d": 5.18,
+   "voix": "Remy"
+  },
+  "5:0": {
+   "f": "5-0.mp3",
+   "d": 3.02,
+   "voix": "Remy"
+  },
+  "5:1": {
+   "f": "5-1.mp3",
+   "d": 2.76,
+   "voix": "Gerard"
+  },
+  "5:2": {
+   "f": "5-2.mp3",
+   "d": 2.88,
+   "voix": "Ariane"
+  },
+  "5:3": {
+   "f": "5-3.mp3",
+   "d": 4.1,
+   "voix": "Denise"
+  },
+  "5:4": {
+   "f": "5-4.mp3",
+   "d": 2.4,
+   "voix": "Eloise"
+  },
+  "5:5": {
+   "f": "5-5.mp3",
+   "d": 5.28,
+   "voix": "Remy"
+  },
+  "5:6": {
+   "f": "5-6.mp3",
+   "d": 3.12,
+   "voix": "Remy"
+  },
+  "6:0": {
+   "f": "6-0.mp3",
+   "d": 1.87,
+   "voix": "Remy"
+  },
+  "6:1": {
+   "f": "6-1.mp3",
+   "d": 3.6,
+   "voix": "Gerard"
+  },
+  "6:2": {
+   "f": "6-2.mp3",
+   "d": 6.36,
+   "voix": "Denise"
+  },
+  "6:3": {
+   "f": "6-3.mp3",
+   "d": 3.7,
+   "voix": "Gerard"
+  },
+  "6:4": {
+   "f": "6-4.mp3",
+   "d": 5.23,
+   "voix": "Denise"
+  },
+  "6:5": {
+   "f": "6-5.mp3",
+   "d": 4.01,
+   "voix": "Gerard"
+  },
+  "6:6": {
+   "f": "6-6.mp3",
+   "d": 5.45,
+   "voix": "Denise"
+  },
+  "7:0": {
+   "f": "7-0.mp3",
+   "d": 3.0,
+   "voix": "Denise"
+  },
+  "7:1": {
+   "f": "7-1.mp3",
+   "d": 2.71,
+   "voix": "Gerard"
+  }
+ }
+}
