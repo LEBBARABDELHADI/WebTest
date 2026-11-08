@@ -1,4 +1,4 @@
-// Styles du court-métrage (prototypes pages 6, 7, 8, 10, 11 et 12).
+// Styles du court-métrage (prototypes pages 6 à 8 et 10 à 13).
 export const CSS_CINÉMA = `
 .c-ecran { position: fixed; inset: 0; z-index: 1000; background: #000; color: #fff; display: flex; flex-direction: column; overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", sans-serif }
 .c-scene { position: relative; flex: 1; overflow: hidden; background: #05050a }

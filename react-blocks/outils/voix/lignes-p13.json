@@ -1,0 +1,302 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Lundi, huit heures. Les uns partent au travail, les autres à l'école.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Lina commence son nouveau poste dans l'entreprise de Mme Diallo.",
+  "émotion": null
+ },
+ {
+  "clé": "chapitre-c:0",
+  "qui": "narrateur",
+  "texte": "Premier lieu : le travail.",
+  "émotion": null
+ },
+ {
+  "clé": "public-prive:0",
+  "qui": "lina",
+  "texte": "Mme Roux travaille à la mairie, et moi dans une entreprise. C'est la même règle pour nous deux ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "public-prive:1",
+  "qui": "arnaud",
+  "texte": "Non. La laïcité ne s'applique pas de la même manière aux agents publics et aux salariés des entreprises privées.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "public-prive:2",
+  "qui": "narrateur",
+  "texte": "La laïcité ne s'applique pas de la même manière aux personnes qui travaillent dans les services publics (les fonctionnaires et agents publics) et à celles qui travaillent dans les entreprises privées (les salariés).",
+  "officiel": true
+ },
+ {
+  "clé": "agent-public:0",
+  "qui": "narrateur",
+  "texte": "À la mairie, Mme Roux commence sa journée.",
+  "émotion": null
+ },
+ {
+  "clé": "agent-public:1",
+  "qui": "arnaud",
+  "texte": "Bonjour, madame Roux. Au travail, vous pouvez montrer votre religion ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "agent-public:2",
+  "qui": "agente",
+  "texte": "Non. Je suis agente publique : pour garantir la neutralité de l'État, je ne montre ni ma religion ni mes opinions.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "agent-public:3",
+  "qui": "agente",
+  "texte": "Pas de signe religieux, et pas de pratique religieuse au travail.",
+  "émotion": null
+ },
+ {
+  "clé": "agent-public:4",
+  "qui": "narrateur",
+  "texte": "Pour garantir la neutralité de l'État, les agents publics ne peuvent pas montrer leur religion ou leurs opinions au travail. Ils ne peuvent pas porter de signes religieux ou pratiquer leur religion au travail.",
+  "officiel": true
+ },
+ {
+  "clé": "entreprise:0",
+  "qui": "narrateur",
+  "texte": "Dans l'entreprise de Mme Diallo, c'est le premier jour de Lina.",
+  "émotion": null
+ },
+ {
+  "clé": "entreprise:1",
+  "qui": "directrice",
+  "texte": "Bienvenue, Lina ! Une question avant de commencer ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "entreprise:2",
+  "qui": "lina",
+  "texte": "Oui : ici, un salarié peut porter un signe religieux ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "entreprise:3",
+  "qui": "directrice",
+  "texte": "Oui. Les salariés du privé ont le droit d'exprimer leurs opinions religieuses, y compris par une tenue ou un signe.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "entreprise:4",
+  "qui": "directrice",
+  "texte": "Sauf si cela perturbe le bon fonctionnement de l'entreprise, ou pour des raisons de sécurité.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "entreprise:5",
+  "qui": "narrateur",
+  "texte": "Les salariés des entreprises privées ont le droit d'exprimer leurs opinions religieuses, y compris en portant des tenues ou des signes religieux, sauf si cela perturbe le bon fonctionnement de l'entreprise ou pour des raisons de sécurité.",
+  "officiel": true
+ },
+ {
+  "clé": "reglement:0",
+  "qui": "narrateur",
+  "texte": "Mme Diallo lui fait visiter l'atelier.",
+  "émotion": null
+ },
+ {
+  "clé": "reglement:1",
+  "qui": "directrice",
+  "texte": "Le règlement intérieur peut fixer des limites, si elles sont justifiées par la nature des tâches.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "reglement:2",
+  "qui": "lina",
+  "texte": "Par exemple, ici, pour la sécurité ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "reglement:3",
+  "qui": "narrateur",
+  "texte": "L'employeur peut ainsi imposer, dans le cadre du règlement intérieur, des limites à la liberté de manifester son appartenance religieuse si celles-ci sont justifiées par la nature des tâches confiées au salarié.",
+  "officiel": true
+ },
+ {
+  "clé": "absence:0",
+  "qui": "recruteur",
+  "texte": "Madame Diallo, je voudrais une autorisation d'absence pour une fête religieuse.",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "absence:1",
+  "qui": "directrice",
+  "texte": "Vous avez le droit de la demander, Hugo. Je regarde le planning.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "absence:2",
+  "qui": "narrateur",
+  "texte": "Un salarié ou un agent public peut solliciter une autorisation d'absence de son employeur pour une fête religieuse.",
+  "officiel": true
+ },
+ {
+  "clé": "absence:3",
+  "qui": "lina",
+  "texte": "Et l'employeur peut refuser ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "absence:4",
+  "qui": "directrice",
+  "texte": "Oui, si ce n'est pas discriminatoire. Par exemple, à cause du règlement intérieur ou des nécessités de service.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "absence:5",
+  "qui": "narrateur",
+  "texte": "L'employeur peut refuser l'autorisation à condition que cela ne soit pas discriminatoire. La décision pourra notamment être motivée par le règlement intérieur ou des nécessités de service.",
+  "officiel": true
+ },
+ {
+  "clé": "absence:6",
+  "qui": "directrice",
+  "texte": "Ce jour-là, c'est possible : c'est d'accord.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "chapitre-d:0",
+  "qui": "narrateur",
+  "texte": "Deuxième lieu : l'école.",
+  "émotion": null
+ },
+ {
+  "clé": "ecole:0",
+  "qui": "narrateur",
+  "texte": "Au même moment, à l'école de Zoé, la petite-fille de M. Arnaud.",
+  "émotion": null
+ },
+ {
+  "clé": "ecole:1",
+  "qui": "zoe",
+  "texte": "Maîtresse, à l'école, on a le droit de penser ce qu'on veut ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "ecole:2",
+  "qui": "enseignante",
+  "texte": "Oui, Zoé. L'école publique est neutre : elle vous permet de penser librement et de vous construire vos propres opinions.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "ecole:3",
+  "qui": "narrateur",
+  "texte": "Les établissements scolaires publics et les personnels de l'Éducation nationale sont neutres vis-à-vis des religions. L'application du principe de laïcité à l'école vise à garantir la liberté de conscience des élèves, en leur permettant de penser librement, de se construire eux-mêmes leurs opinions, à l'abri des pressions et des influences.",
+  "officiel": true
+ },
+ {
+  "clé": "charte:0",
+  "qui": "enseignante",
+  "texte": "Toutes les règles de la laïcité à l'école sont réunies dans la Charte de la laïcité à l'École.",
+  "émotion": null
+ },
+ {
+  "clé": "charte:1",
+  "qui": "narrateur",
+  "texte": "L'ensemble des règles permettant de garantir l'application de la laïcité dans les écoles est listé dans la Charte de la laïcité à l'École.",
+  "officiel": true
+ },
+ {
+  "clé": "charte:2",
+  "qui": "zoe",
+  "texte": "Elle est pour qui ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "charte:3",
+  "qui": "enseignante",
+  "texte": "Pour tout le monde : les professeurs, les animateurs, les élèves, et aussi les parents.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "charte:4",
+  "qui": "narrateur",
+  "texte": "Elle s'adresse à l'ensemble des personnels de l'établissement (professeurs, animateurs périscolaires…), aux élèves ainsi qu'aux parents d'élèves.",
+  "officiel": true
+ },
+ {
+  "clé": "signes:0",
+  "qui": "zoe",
+  "texte": "Et un signe religieux, on peut le porter en classe ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "signes:1",
+  "qui": "enseignante",
+  "texte": "Depuis la loi du 15 mars 2004, pas un signe ou un vêtement qui montre sa religion de manière ostensible : qu'on voit immédiatement.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "signes:2",
+  "qui": "enseignante",
+  "texte": "Les signes discrets, eux, sont autorisés.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "signes:3",
+  "qui": "narrateur",
+  "texte": "Parmi ces règles, comme le prévoit la loi du 15 mars 2004, il est interdit de porter un signe ou un vêtement qui montre sa religion de manière ostensible, c'est-à-dire que l'on peut voir immédiatement. Les signes discrets sont autorisés.",
+  "officiel": true
+ },
+ {
+  "clé": "programme:0",
+  "qui": "narrateur",
+  "texte": "À la sortie de l'école, M. Arnaud attend Zoé.",
+  "émotion": null
+ },
+ {
+  "clé": "programme:1",
+  "qui": "zoe",
+  "texte": "Papi, aujourd'hui on a eu sciences et sport. Toute la classe participe !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "programme:2",
+  "qui": "arnaud",
+  "texte": "C'est la règle : on ne peut pas refuser, à cause de sa religion, une règle de l'école ou un enseignement du programme.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "programme:3",
+  "qui": "narrateur",
+  "texte": "Il n'est également pas possible de refuser, en raison de sa religion, une règle de fonctionnement ou un enseignement du programme scolaire.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Les agents publics restent neutres, les salariés du privé sont libres dans certaines limites…",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "zoe",
+  "texte": "… et à l'école, il y a la Charte de la laïcité !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Bravo, toutes les deux.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : une République démocratique et sociale, page 14.",
+  "émotion": null
+ }
+]
