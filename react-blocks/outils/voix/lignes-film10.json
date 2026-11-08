@@ -1,0 +1,317 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Un soir, Samir révise pour son entretien de naturalisation.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "0:1",
+  "qui": "narrateur",
+  "texte": "Une question le bloque.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "1:0",
+  "qui": "samir",
+  "texte": "Madame Diallo, c'est quoi, les principes de la République ?",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Ils sont définis à l'article 1er de la Constitution du 4 octobre 1958.",
+  "émotion": "idée",
+  "officiel": false
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Écoute bien.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "« La France est une République indivisible, laïque, démocratique et sociale. »",
+  "émotion": null,
+  "officiel": true
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "La Constitution est un acte fondateur d'un État : un ensemble de règles fondamentales qui définissent comment le pays est organisé et dirigé.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Dans un État de droit, la Constitution se situe tout en haut de la hiérarchie des normes : elle est au-dessus de toutes les lois.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "En France, elle fixe les droits et libertés des citoyens, explique comment les pouvoirs sont partagés et encadre leur fonctionnement.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Droits et libertés",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:2",
+  "qui": "lina",
+  "texte": "Elle fixe nos droits et nos libertés de citoyens.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:3",
+  "qui": "narrateur",
+  "texte": "Le gouvernement",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:4",
+  "qui": "samir",
+  "texte": "Elle explique le rôle du gouvernement…",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:5",
+  "qui": "narrateur",
+  "texte": "Le Parlement",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:6",
+  "qui": "odette",
+  "texte": "… celui du Parlement…",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:7",
+  "qui": "narrateur",
+  "texte": "Les tribunaux",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:8",
+  "qui": "yanis",
+  "texte": "… et celui des tribunaux !",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Aucun individu ou groupe ne peut décider à la place de l'ensemble des Français.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "7:0",
+  "qui": "odette",
+  "texte": "Les décisions sont prises par les représentants élus par le peuple…",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "7:1",
+  "qui": "samir",
+  "texte": "… ou par le peuple lui-même, lors des référendums !",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "8:0",
+  "qui": "narrateur",
+  "texte": "Tous les Français, partout dans le pays, métropole et outre-mer, sont soumis aux mêmes lois et ont les mêmes droits et devoirs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "8:1",
+  "qui": "narrateur",
+  "texte": "C'est l'unité de la République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "8:2",
+  "qui": "narrateur",
+  "texte": "métropole : Les mêmes lois, les mêmes droits et devoirs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "8:3",
+  "qui": "narrateur",
+  "texte": "outre-mer : Les mêmes lois, les mêmes droits et devoirs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "9:0",
+  "qui": "narrateur",
+  "texte": "De plus, la France a une seule langue officielle : le français.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "10:0",
+  "qui": "narrateur",
+  "texte": "La laïcité est un principe essentiel de la République, de valeur constitutionnelle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "10:1",
+  "qui": "narrateur",
+  "texte": "Elle est officiellement célébrée en France le 9 décembre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:0",
+  "qui": "narrateur",
+  "texte": "La laïcité garantit la liberté de conscience pour tous.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:1",
+  "qui": "narrateur",
+  "texte": "Avoir une religion",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:2",
+  "qui": "diallo",
+  "texte": "Moi, j'ai une religion.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:3",
+  "qui": "narrateur",
+  "texte": "Ne pas en avoir",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:4",
+  "qui": "samir",
+  "texte": "Moi, je ne crois en aucune religion : je suis athée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:5",
+  "qui": "narrateur",
+  "texte": "En changer",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:6",
+  "qui": "lina",
+  "texte": "Moi, j'ai changé de religion : j'en ai le droit.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:7",
+  "qui": "narrateur",
+  "texte": "Douter",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:8",
+  "qui": "odette",
+  "texte": "Et moi, je suis sceptique vis-à-vis de la religion : je suis agnostique.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "12:0",
+  "qui": "narrateur",
+  "texte": "Elle garantit la liberté de manifester ses croyances et de pratiquer sa religion, dans les limites du respect de l'ordre public.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "12:1",
+  "qui": "narrateur",
+  "texte": "« Nul ne doit être inquiété pour ses opinions, même religieuses, pourvu que leur manifestation ne trouble pas l'ordre public établi par la Loi. »",
+  "émotion": null,
+  "officiel": true
+ },
+ {
+  "clé": "13:0",
+  "qui": "yanis",
+  "texte": "Et la mairie, elle a une religion ?",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "13:1",
+  "qui": "diallo",
+  "texte": "Non ! La laïcité impose la neutralité de l'État.",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "13:2",
+  "qui": "diallo",
+  "texte": "Et elle garantit le libre exercice des cultes et le respect de toutes les croyances.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "14:0",
+  "qui": "samir",
+  "texte": "Indivisible, laïque…",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "14:1",
+  "qui": "odette",
+  "texte": "… démocratique…",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "14:2",
+  "qui": "lina",
+  "texte": "… et sociale !",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "14:3",
+  "qui": "yanis",
+  "texte": "Démocratique et sociale : on le voit dans l'épisode 14 !",
+  "émotion": "idée",
+  "officiel": false
+ }
+]

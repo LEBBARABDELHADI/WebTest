@@ -1,0 +1,124 @@
+// Mode film — page 10 : les principes de la République (article 1er de la
+// Constitution), la Constitution, la République indivisible, la République
+// laïque. Tout ce qui est dit vient de la page 10 du livret (et de l'article 10
+// de la DDHC, page 78) ; seuls les personnages et les décors sont inventés.
+import { CASTING } from './casting.js'
+import { VOIX_FILM10 } from './voixFilm10.js'
+
+export const FILM = {
+  page: 10,
+  épisode: 'Épisode 10',
+  titre: 'Les fondations',
+  sousTitre: 'Les principes de la République',
+  voix: VOIX_FILM10,
+  personnages: CASTING,
+  plans: [
+    {
+      type: 'titre', décor: 'nuit-ville', effet: 'étoiles', musique: 'mystère',
+      narration: 'Un soir, Samir révise pour son entretien de naturalisation. Une question le bloque.',
+    },
+    {
+      décor: 'cuisine', caméra: 'zoom', musique: 'tendre', accessoires: [['📘', 44, 74]],
+      acteurs: [{ id: 'samir', pos: 28, entrée: 'gauche', émotion: 'gêne' }, { id: 'diallo', pos: 72, entrée: 'droite' }],
+      répliques: [
+        { qui: 'samir', texte: 'Madame Diallo, c\'est quoi, les principes de la République ?' },
+        { qui: 'diallo', texte: 'Ils sont définis à l\'article 1er de la Constitution du 4 octobre 1958.', émotion: 'idée' },
+      ],
+    },
+    {
+      type: 'citation', décor: 'parchemin',
+      texte: '« La France est une République indivisible, laïque, démocratique et sociale. »',
+      source: 'Constitution du 4 octobre 1958, article 1er',
+      narration: 'Écoute bien.',
+    },
+    {
+      type: 'chapitre', numéro: 'Chapitre 1', titre: 'La Constitution', musique: 'mystère',
+      narration: 'La Constitution est un acte fondateur d\'un État : un ensemble de règles fondamentales qui définissent comment le pays est organisé et dirigé.',
+    },
+    {
+      type: 'impact', texte: 'TOUT EN HAUT', sous: 'Au-dessus de toutes les lois', effet: 'vitesse', musique: 'épique',
+      narration: 'Dans un État de droit, la Constitution se situe tout en haut de la hiérarchie des normes : elle est au-dessus de toutes les lois.',
+    },
+    {
+      type: 'manga', titre: 'Ce que fixe la Constitution', musique: 'joyeux',
+      narration: 'En France, elle fixe les droits et libertés des citoyens, explique comment les pouvoirs sont partagés et encadre leur fonctionnement.',
+      cases: [
+        { qui: 'lina', décor: '🗽', texte: 'Elle fixe nos droits et nos libertés de citoyens.', légende: 'Droits et libertés' },
+        { qui: 'samir', décor: '🏛️', texte: 'Elle explique le rôle du gouvernement…', légende: 'Le gouvernement' },
+        { qui: 'odette', décor: '🗳️', texte: '… celui du Parlement…', légende: 'Le Parlement' },
+        { qui: 'yanis', décor: '⚖️', texte: '… et celui des tribunaux !', légende: 'Les tribunaux' },
+      ],
+    },
+    {
+      type: 'chapitre', numéro: 'Chapitre 2', titre: 'Une République indivisible', musique: 'tendre',
+      narration: 'Aucun individu ou groupe ne peut décider à la place de l\'ensemble des Français.',
+    },
+    {
+      décor: 'bureau-vote', caméra: 'travelling', musique: 'tendre', accessoires: [['🗳️', 66, 56]],
+      acteurs: [{ id: 'odette', pos: 26, entrée: 'gauche' }, { id: 'samir', pos: 74, entrée: 'droite', émotion: 'idée' }],
+      répliques: [
+        { qui: 'odette', texte: 'Les décisions sont prises par les représentants élus par le peuple…' },
+        { qui: 'samir', texte: '… ou par le peuple lui-même, lors des référendums !', émotion: 'joie' },
+      ],
+    },
+    {
+      type: 'split', titre: 'L\'unité de la République', musique: 'épique',
+      gauche: { titre: 'MÉTROPOLE', chaîne: ['🏙️', '⚖️', '🤝'], texte: 'Les mêmes lois, les mêmes droits et devoirs.' },
+      droite: { titre: 'OUTRE-MER', chaîne: ['🏝️', '⚖️', '🤝'], texte: 'Les mêmes lois, les mêmes droits et devoirs.' },
+      narration: 'Tous les Français, partout dans le pays, métropole et outre-mer, sont soumis aux mêmes lois et ont les mêmes droits et devoirs. C\'est l\'unité de la République.',
+    },
+    {
+      type: 'impact', texte: 'UNE SEULE LANGUE OFFICIELLE', sous: 'le français', effet: 'vitesse', musique: 'épique',
+      narration: 'De plus, la France a une seule langue officielle : le français.',
+    },
+    {
+      type: 'chapitre', numéro: 'Chapitre 3', titre: 'Une République laïque', musique: 'mystère',
+      narration: 'La laïcité est un principe essentiel de la République, de valeur constitutionnelle. Elle est officiellement célébrée en France le 9 décembre.',
+    },
+    {
+      type: 'manga', titre: 'Libre de croire… ou pas', musique: 'tendre',
+      narration: 'La laïcité garantit la liberté de conscience pour tous.',
+      cases: [
+        { qui: 'diallo', décor: '🙏', texte: 'Moi, j\'ai une religion.', légende: 'Avoir une religion' },
+        { qui: 'samir', décor: '🚫', texte: 'Moi, je ne crois en aucune religion : je suis athée.', légende: 'Ne pas en avoir' },
+        { qui: 'lina', décor: '🔄', texte: 'Moi, j\'ai changé de religion : j\'en ai le droit.', légende: 'En changer' },
+        { qui: 'odette', décor: '🤔', texte: 'Et moi, je suis sceptique vis-à-vis de la religion : je suis agnostique.', légende: 'Douter' },
+      ],
+    },
+    {
+      type: 'citation', décor: 'parchemin',
+      texte: '« Nul ne doit être inquiété pour ses opinions, même religieuses, pourvu que leur manifestation ne trouble pas l\'ordre public établi par la Loi. »',
+      source: 'Déclaration des droits de l\'homme et du citoyen de 1789, article 10',
+      narration: 'Elle garantit la liberté de manifester ses croyances et de pratiquer sa religion, dans les limites du respect de l\'ordre public.',
+    },
+    {
+      décor: 'rue-mairie', caméra: 'zoom', musique: 'tendre',
+      acteurs: [{ id: 'yanis', pos: 28, entrée: 'course', émotion: 'idée' }, { id: 'diallo', pos: 72, entrée: 'fondu' }],
+      répliques: [
+        { qui: 'yanis', texte: 'Et la mairie, elle a une religion ?' },
+        { qui: 'diallo', texte: 'Non ! La laïcité impose la neutralité de l\'État.', émotion: 'joie' },
+        { qui: 'diallo', texte: 'Et elle garantit le libre exercice des cultes et le respect de toutes les croyances.' },
+      ],
+    },
+    {
+      type: 'final', décor: 'ville-jour', effet: 'confettis', musique: 'joyeux', texte: 'INDIVISIBLE · LAÏQUE · DÉMOCRATIQUE · SOCIALE',
+      acteurs: [{ id: 'lina', pos: 12, entrée: 'saut' }, { id: 'samir', pos: 31, entrée: 'saut' }, { id: 'diallo', pos: 50, entrée: 'saut' }, { id: 'odette', pos: 69, entrée: 'saut' }, { id: 'yanis', pos: 88, entrée: 'saut' }],
+      répliques: [
+        { qui: 'samir', texte: 'Indivisible, laïque…', émotion: 'joie' },
+        { qui: 'odette', texte: '… démocratique…' },
+        { qui: 'lina', texte: '… et sociale !', émotion: 'joie' },
+        { qui: 'yanis', texte: 'Démocratique et sociale : on le voit dans l\'épisode 14 !', émotion: 'idée' },
+      ],
+    },
+    {
+      type: 'fin',
+      retenir: [
+        ['📜', 'Article 1er de la Constitution du 4 octobre 1958 : « La France est une République indivisible, laïque, démocratique et sociale ».'],
+        ['🏛️', 'La Constitution est l\'acte fondateur de l\'État, tout en haut de la hiérarchie des normes. Elle fixe les droits et libertés et le partage des pouvoirs (gouvernement, Parlement, tribunaux).'],
+        ['🤝', 'République indivisible : personne ne décide à la place de tous ; les élus ou le peuple (référendum) décident. Mêmes lois, droits et devoirs en métropole et outre-mer. Une seule langue officielle : le français.'],
+        ['🕊️', 'Laïcité : principe essentiel, de valeur constitutionnelle, célébré le 9 décembre. Liberté de conscience : avoir ou non une religion, en changer, ne plus en avoir.'],
+        ['⚖️', 'Liberté de manifester ses croyances dans le respect de l\'ordre public (article 10 de la DDHC). Libre exercice des cultes, respect de toutes les croyances, neutralité de l\'État.'],
+      ],
+    },
+  ],
+}

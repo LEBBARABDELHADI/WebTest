@@ -1,0 +1,130 @@
+// Mode film — page 7 : l'État contre la haine, la décision d'un employeur,
+// « C. Fraternité » et la solidarité. Tout ce qui est dit vient de la page 7
+// du livret ; seuls les personnages, les décors et les situations sont inventés.
+import { CASTING } from './casting.js'
+import { VOIX_FILM7 } from './voixFilm7.js'
+
+export const FILM = {
+  page: 7,
+  épisode: 'Épisode 7',
+  titre: 'Le mur du quartier',
+  sousTitre: 'Contre la haine, la fraternité',
+  voix: VOIX_FILM7,
+  personnages: {
+    ...CASTING,
+    thomas: { nom: 'Thomas', emoji: '🧑🏼‍💼', couleur: '#60a5fa', voix: { pitch: 0.95, rate: 1.05 } },
+  },
+  plans: [
+    {
+      type: 'titre', décor: 'mur-tags', musique: 'mystère',
+      narration: 'Un dimanche matin, Yanis découvre le mur de son école couvert de mots de haine.',
+    },
+    {
+      décor: 'mur-tags', caméra: 'zoom', musique: 'mystère',
+      acteurs: [{ id: 'yanis', pos: 28, entrée: 'course', émotion: 'peur' }, { id: 'lina', pos: 72, entrée: 'droite' }],
+      répliques: [
+        { qui: 'yanis', texte: 'Lina, qui a écrit ces horreurs ?' },
+        { qui: 'lina', texte: 'Des gens qui détestent les autres pour leur sexe, leur origine ou leur religion. C\'est de la haine.', émotion: 'colère' },
+        { qui: 'yanis', texte: 'Et on ne peut rien faire ?', émotion: 'gêne' },
+        { qui: 'lina', texte: 'Si ! Les discriminations sont punies par la loi. Et l\'État lutte activement contre la haine.', émotion: 'idée' },
+      ],
+    },
+    {
+      type: 'chapitre', numéro: 'Chapitre 1', titre: 'Contre la haine', musique: 'épique',
+      narration: 'L\'État lutte activement contre plusieurs formes de haine.',
+    },
+    {
+      type: 'manga', titre: 'Ce que l\'État combat', musique: 'tendre',
+      cases: [
+        { qui: 'odette', décor: '♀♂', texte: 'Rabaisser une personne à cause de son sexe : c\'est du sexisme.', légende: 'Le sexisme' },
+        { qui: 'samir', décor: '🌍', texte: 'Discriminer quelqu\'un pour son origine, ou son appartenance ethnique ou raciale : c\'est du racisme.', légende: 'Le racisme' },
+        { qui: 'diallo', décor: '✡️', texte: 'Le racisme et la haine contre les Juifs, nourris de préjugés et de stéréotypes : c\'est l\'antisémitisme.', légende: 'L\'antisémitisme' },
+        { qui: 'lina', décor: '🕊️', texte: 'Discriminer quelqu\'un pour la religion qu\'on lui suppose, c\'est aussi combattu.', légende: 'La discrimination sur critère religieux' },
+      ],
+    },
+    {
+      décor: 'mur-tags', caméra: 'travelling', musique: 'tendre',
+      acteurs: [{ id: 'samir', pos: 28, entrée: 'gauche', émotion: 'gêne' }, { id: 'odette', pos: 72, entrée: 'fondu' }],
+      répliques: [
+        { qui: 'samir', texte: 'Et se moquer de quelqu\'un à cause de son orientation sexuelle ?' },
+        { qui: 'odette', texte: 'C\'est la haine anti-LGBT+ : des attitudes hostiles envers des personnes, à cause de leur orientation sexuelle. L\'État lutte aussi contre elle.', émotion: 'colère' },
+      ],
+    },
+    {
+      décor: 'bureau', caméra: 'zoom', musique: 'mystère', accessoires: [['📄', 40, 66]],
+      acteurs: [{ id: 'thomas', pos: 26, entrée: 'gauche' }, { id: 'diallo', pos: 74, entrée: 'droite' }],
+      narration: 'Lundi, dans l\'entreprise que dirige Mme Diallo.',
+      répliques: [
+        { qui: 'thomas', texte: 'Je préfère embaucher le neveu d\'un ami, même si sa candidature est moins bonne.' },
+        { qui: 'diallo', texte: 'Non, Thomas. Toute décision d\'un employeur, embauche ou promotion, doit être fondée sur des raisons professionnelles, et non personnelles.', émotion: 'colère' },
+        { qui: 'thomas', texte: 'Compris. On choisit la meilleure candidature.', émotion: 'gêne' },
+      ],
+    },
+    {
+      type: 'chapitre', numéro: 'Chapitre 2', titre: 'La fraternité', musique: 'tendre',
+      narration: 'Troisième mot de la devise : la fraternité.',
+    },
+    {
+      décor: 'mur-fresque', caméra: 'travelling', effet: 'confettis', musique: 'joyeux',
+      acteurs: [{ id: 'odette', pos: 14, entrée: 'fondu' }, { id: 'samir', pos: 38, entrée: 'saut' }, { id: 'yanis', pos: 62, entrée: 'saut', émotion: 'joie' }, { id: 'lina', pos: 86, entrée: 'droite' }],
+      narration: 'L\'après-midi, tout le quartier repeint le mur, ensemble.',
+      répliques: [
+        { qui: 'odette', texte: 'La France est fondée sur la volonté des citoyens de vivre ensemble.', émotion: 'amour' },
+        { qui: 'samir', texte: 'Et cette volonté, c\'est la fraternité entre tous !', émotion: 'joie' },
+        { qui: 'yanis', texte: 'Même si on est tous différents ?', émotion: 'idée' },
+        { qui: 'lina', texte: 'Justement : la fraternité, c\'est voir en l\'autre un semblable, malgré les différences.' },
+      ],
+    },
+    {
+      type: 'impact', texte: 'CIVIQUE', sous: 'Ni l\'origine, ni la religion', effet: 'vitesse', musique: 'épique',
+      narration: 'La fraternité républicaine est donc civique, et non basée sur l\'origine ou la religion.',
+    },
+    {
+      type: 'split', titre: 'La fraternité implique la solidarité', musique: 'épique',
+      gauche: { titre: 'COLLECTIVE', chaîne: ['🏥', '🧾', '🛡️'], texte: 'La Nation protège chacun, par exemple avec la Sécurité sociale. Les impôts financent les services publics. Chaque citoyen français participe à la défense de la Nation si nécessaire.' },
+      droite: { titre: 'ENTRE GÉNÉRATIONS', chaîne: ['👷🏽', '💶', '👵🏼'], texte: 'En cotisant, chaque salarié contribue au versement des retraites.' },
+      narration: 'La fraternité implique une solidarité entre les individus, sous différentes formes.',
+    },
+    {
+      décor: 'cuisine', caméra: 'zoom', musique: 'tendre', accessoires: [['☕', 42, 78]],
+      acteurs: [{ id: 'odette', pos: 28, entrée: 'gauche' }, { id: 'yanis', pos: 72, entrée: 'droite' }],
+      répliques: [
+        { qui: 'yanis', texte: 'Mamie, ta retraite, qui la paie ?', émotion: 'idée' },
+        { qui: 'odette', texte: 'Les salariés d\'aujourd\'hui, avec leurs cotisations. C\'est le soutien entre les générations.', émotion: 'amour' },
+        { qui: 'yanis', texte: 'Alors un jour, quand je travaillerai, je cotiserai aussi !', émotion: 'joie' },
+      ],
+    },
+    {
+      type: 'impact', texte: 'MOINS D\'INÉGALITÉS', sous: 'notamment sociales', effet: 'vitesse', musique: 'épique',
+      narration: 'La fraternité contribue donc à la réduction des inégalités, notamment sociales.',
+    },
+    {
+      type: 'final', décor: 'ville-jour', effet: 'confettis', musique: 'joyeux', texte: 'TOUS SOLIDAIRES',
+      acteurs: [{ id: 'lina', pos: 12, entrée: 'saut' }, { id: 'samir', pos: 31, entrée: 'saut' }, { id: 'diallo', pos: 50, entrée: 'saut' }, { id: 'odette', pos: 69, entrée: 'saut' }, { id: 'yanis', pos: 88, entrée: 'saut' }],
+      narration: 'Samedi, l\'association du quartier organise une collecte pour une association humanitaire.',
+      répliques: [
+        { qui: 'lina', texte: 'Moi, je m\'engage dans l\'association du quartier !', émotion: 'joie' },
+        { qui: 'diallo', texte: 'Une collecte, un engagement : c\'est de la participation citoyenne.' },
+        { qui: 'samir', texte: 'Au nom de la solidarité et de la fraternité !', émotion: 'joie' },
+      ],
+    },
+    {
+      type: 'final', décor: 'coucher-soleil', effet: 'étoiles', musique: 'tendre', texte: 'À SUIVRE : LES SYMBOLES',
+      acteurs: [{ id: 'yanis', pos: 30, entrée: 'saut', émotion: 'idée' }, { id: 'lina', pos: 70, entrée: 'fondu' }],
+      répliques: [
+        { qui: 'yanis', texte: 'Liberté, égalité, fraternité… Et les symboles de la France ?' },
+        { qui: 'lina', texte: 'Ça, c\'est pour le prochain épisode !', émotion: 'joie' },
+      ],
+    },
+    {
+      type: 'fin',
+      retenir: [
+        ['🛡️', 'L\'État lutte activement contre le sexisme, le racisme, l\'antisémitisme, la discrimination sur critère religieux (religion supposée) et la haine et la discrimination anti-LGBT+.'],
+        ['💼', 'Toute décision d\'un employeur (embauche, promotion…) doit être fondée sur des raisons professionnelles et non personnelles.'],
+        ['🤝', 'La France est fondée sur la volonté des citoyens de vivre ensemble : c\'est la fraternité. Voir en l\'autre un semblable malgré les différences ; elle est civique, non basée sur l\'origine ou la religion.'],
+        ['🏥', 'Solidarité collective : la Sécurité sociale, les impôts qui financent les services publics, la défense de la Nation. Solidarité entre générations : les cotisations paient les retraites.'],
+        ['📦', 'La fraternité réduit les inégalités, notamment sociales. Collectes humanitaires et associations de quartier : de la participation citoyenne.'],
+      ],
+    },
+  ],
+}

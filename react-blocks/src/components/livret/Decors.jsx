@@ -105,6 +105,74 @@ export default function Decor({ nom }) {
         <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '17%', background: '#1c0a2a' }} />
       </div>
     )
+    case 'mur-tags': case 'mur-fresque': {
+      const fresque = nom === 'mur-fresque'
+      return (
+        <div style={{ ...abs, inset: 0, background: fresque ? 'linear-gradient(#7fbfff 0%, #e8f4ff 55%)' : 'linear-gradient(#93a5bf 0%, #dfe5ec 55%)' }}>
+          <Immeubles couleur="#9fb4cf" fenêtres={null} graine={4} hauteur={62} />
+          <div style={{ ...abs, left: 0, right: 0, bottom: '16%', height: '40%', background: 'repeating-linear-gradient(0deg, #e3d3b4 0 18px, #d9c7a7 18px 20px)', boxShadow: '0 -10px 0 #c8b38d' }}>
+            <svg viewBox="0 0 200 60" preserveAspectRatio="none" style={{ ...abs, inset: '8% 4%', width: '92%', height: '84%' }} aria-hidden="true">
+              {fresque ? (
+                <>
+                  <rect x="0" y="0" width="200" height="60" rx="2" fill="#fbf7ee" />
+                  <text x="100" y="16" textAnchor="middle" fontSize="11" fontWeight="900" fill="#1d4ed8" fontFamily="Georgia, serif" letterSpacing="2">FRATERNITÉ</text>
+                  {['#f1c9a5', '#8d5a3b', '#c98e64', '#5a3b22', '#e8b896', '#6b4226'].map((c, k) => <g key={c} transform={`rotate(${k * 60} 100 38)`}><rect x="104" y="35" width="30" height="7" rx="3" fill={['#2563eb', '#f2b134', '#22c3a6', '#dc2626', '#8b5cf6', '#f97316'][k]} /><ellipse cx="104" cy="38.5" rx="6" ry="4.5" fill={c} /></g>)}
+                </>
+              ) : [[10, 14, '#b91c1c'], [70, 10, '#111827'], [130, 16, '#7c3aed'], [30, 38, '#111827'], [100, 36, '#b91c1c'], [160, 40, '#111827']].map(([x, y, c], k) => (
+                <path key={k} d={`M${x},${y} l5,-7 l4,9 l5,-8 l4,9 l5,-8 l4,8`} stroke={c} strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              ))}
+            </svg>
+          </div>
+          <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '17%', background: 'linear-gradient(#bdb3a3, #a89d8b)' }} />
+        </div>
+      )
+    }
+    case 'bureau': return (
+      <div style={{ ...abs, inset: 0, background: 'linear-gradient(#eef2f5, #d8e0e6)' }}>
+        <div style={{ ...abs, left: '6%', top: '7%', padding: '6px 14px', background: '#334155', color: '#fff', borderRadius: 6, fontWeight: 900, fontSize: 'clamp(12px, 2vh, 18px)', letterSpacing: '.06em' }}>RECRUTEMENT</div>
+        <div style={{ ...abs, right: '6%', top: '8%', width: '34%', height: '42%', background: 'linear-gradient(#a9d3f0, #d9eefb)', border: '8px solid #cbd5e1', borderRadius: 6, overflow: 'hidden' }}><Immeubles couleur="#7fa5c4" fenêtres={null} graine={6} hauteur={70} /></div>
+        <div style={{ ...abs, left: '26%', right: '26%', bottom: '18%', height: '9%', background: '#c8a27a', borderRadius: 4, boxShadow: '0 -4px 0 #d9b48c' }} />
+        <div style={{ ...abs, left: '44%', bottom: '27%', fontSize: 'clamp(26px, 6vh, 50px)' }}>💻</div>
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '19%', background: 'repeating-linear-gradient(90deg, #b8c2c9 0 70px, #aab5bd 70px 140px)' }} />
+      </div>
+    )
+    case 'fete-jour': case 'fete-nuit': {
+      const nuit = nom === 'fete-nuit'
+      const fanions = Array.from({ length: 22 }, (_, i) => ({ x: i * 4.6 + 0.5, y: 6 + Math.sin((i / 21) * Math.PI) * 9 }))
+      return (
+        <div style={{ ...abs, inset: 0, background: nuit ? 'linear-gradient(#0b1030 0%, #2a2350 60%, #4a3560 100%)' : 'linear-gradient(#7fbfff 0%, #d6efff 70%)' }}>
+          {nuit && étoiles.map((e, i) => <span key={i} className="f-etoile" style={{ left: `${e.x}%`, top: `${e.y}%`, animationDelay: `${e.d}s` }} />)}
+          {nuit && [[18, 14, '#f87171'], [78, 10, '#93c5fd'], [50, 6, '#fde68a'], [32, 26, '#86efac'], [88, 28, '#f0abfc']].map(([x, y, c], k) => (
+            <svg key={k} viewBox="-50 -50 100 100" className="f-feu" style={{ ...abs, left: `${x}%`, top: `${y}%`, width: 'min(22vw, 150px)', transform: 'translate(-50%, -50%)', animationDelay: `${k * 0.8}s` }} aria-hidden="true">
+              {Array.from({ length: 14 }, (_, i) => { const a = (i / 14) * Math.PI * 2; return <line key={i} x1={Math.cos(a) * 10} y1={Math.sin(a) * 10} x2={Math.cos(a) * 44} y2={Math.sin(a) * 44} stroke={c} strokeWidth="3.5" strokeLinecap="round" /> })}
+            </svg>
+          ))}
+          <Immeubles couleur={nuit ? '#1f1a3a' : '#9fb4cf'} fenêtres={nuit ? '#ffd86b' : null} graine={5} hauteur={40} />
+          <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '34%', background: nuit ? 'linear-gradient(#4a3f50, #2e2638)' : 'linear-gradient(#ddd5c4, #b8ad94)' }} />
+          <Mairie />
+          <svg viewBox="0 0 100 20" preserveAspectRatio="none" style={{ ...abs, left: 0, top: '4%', width: '100%', height: '16%' }} aria-hidden="true">
+            <path d={`M0,6 Q50,24 100,6`} stroke="#3f3f46" strokeWidth=".5" fill="none" />
+            {fanions.map((f, i) => <path key={i} d={`M${f.x},${f.y} l3.6,0 l-1.8,5 Z`} fill={['#1d4ed8', '#f8fafc', '#dc2626'][i % 3]} />)}
+          </svg>
+        </div>
+      )
+    }
+    case 'salle-mairie': return (
+      <div style={{ ...abs, inset: 0, background: 'linear-gradient(#f3ead8, #e2d3b8)' }}>
+        <div style={{ ...abs, left: '50%', top: '5%', transform: 'translateX(-50%)', padding: '5px 14px', background: '#1e3a8a', color: '#f2c94c', borderRadius: 6, fontFamily: 'Georgia, serif', fontSize: 'clamp(10px, 1.8vh, 15px)', letterSpacing: '.12em', whiteSpace: 'nowrap' }}>LIBERTÉ · ÉGALITÉ · FRATERNITÉ</div>
+        {[6, 76].map(x => <div key={x} style={{ ...abs, left: `${x}%`, top: '14%', width: '18%', height: '44%', background: 'linear-gradient(#bcd9ee, #e6f3fb)', borderLeft: '10px solid #1e3a8a', borderRight: '10px solid #1e3a8a' }} />)}
+        <svg viewBox="0 0 60 80" style={{ ...abs, left: '50%', bottom: '26%', width: 'min(20vw, 130px)', transform: 'translateX(-50%)' }} aria-label="Buste de Marianne au bonnet phrygien" role="img">
+          <rect x="18" y="58" width="24" height="22" fill="#e7e0d2" /><rect x="14" y="55" width="32" height="5" rx="1" fill="#d8cfbd" />
+          <path d="M8,56 C8,44 18,40 30,40 C42,40 52,44 52,56 Z" fill="#f3efe6" />
+          <rect x="26" y="32" width="9" height="10" fill="#ece6da" />
+          <ellipse cx="31" cy="26" rx="11" ry="13" fill="#f6f2ea" />
+          <path d="M33,25 q3,-2 5,0" stroke="#4a4338" strokeWidth="1.4" fill="none" /><path d="M34,33 q2,1 4,0" stroke="#a24f42" strokeWidth="1.3" fill="none" />
+          <path d="M19,24 C17,12 22,4 32,3 C40,2 46,8 44,15 C43,18 40,19 39,17 C40,14 38,12 36,13 C37,18 36,22 35,24 C29,26 24,26 19,24 Z" fill="#dc2626" />
+          <circle cx="23" cy="18" r="3.2" fill="#1d4ed8" /><circle cx="23" cy="18" r="2" fill="#fff" /><circle cx="23" cy="18" r="1" fill="#dc2626" />
+        </svg>
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '26%', background: 'linear-gradient(#a0714a, #8a5f3c)' }} />
+      </div>
+    )
     default: return <div style={{ ...abs, inset: 0, background: 'radial-gradient(circle at 50% 30%, #2a2f55, #07080f)' }} />
   }
 }

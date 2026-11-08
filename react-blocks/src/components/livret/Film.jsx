@@ -3,6 +3,8 @@ import Decor from './Decors'
 import { CSS_FILM } from '../../lib/livret2026/filmCss'
 import { direRéplique, créerMusique } from '../../lib/livret2026/filmAudio'
 import { imagePage } from '../../lib/livret2026/outils'
+import { tempsDu, découper } from '../../lib/livret2026/filmTemps'
+import { créerSonCinéma, jouerFichier, précharger } from '../../lib/livret2026/cinema/sonCinema'
 import { PAGE } from '../../lib/livret2026'
 
 // Mode film : la page racontée comme un épisode de dessin animé. Chaque plan a
@@ -11,36 +13,6 @@ import { PAGE } from '../../lib/livret2026'
 const ÉMOTIONS = { joie: '✨', surprise: '❗', gêne: '💧', idée: '💡', colère: '💢', amour: '💖', peur: '😱' }
 const CLÉ = 'react-blocs-film-reglages'
 const lireRéglages = () => { try { return { voix: true, musique: true, sousTitres: true, ...JSON.parse(localStorage.getItem(CLÉ) || '{}') } } catch { return { voix: true, musique: true, sousTitres: true } } }
-
-// Une narration longue est découpée en sous-titres courts (phrase par phrase,
-// puis aux tirets ou aux virgules), pour garder l'image grande.
-function découper(texte, max = 150) {
-  const phrases = texte.match(/[^.!?…]+[.!?…]+(?:\s|$)|[^.!?…]+$/g)?.map(x => x.trim()).filter(Boolean) || [texte]
-  return phrases.flatMap(ph => {
-    if (ph.length <= max) return [ph]
-    const morceaux = ph.split(/\s—\s|,\s(?=[a-zà-ü])/i)
-    const l = []
-    let cour = ''
-    morceaux.forEach((m, i) => {
-      const sep = i === 0 ? '' : ph.includes(' — ') && cour && ph.indexOf(m) > 2 && ph[ph.indexOf(m) - 2] === '—' ? ' — ' : ', '
-      if ((cour + sep + m).length > max && cour) { l.push(cour + (/[,—]$/.test(cour) ? '' : '…')); cour = m } else cour = cour ? cour + sep + m : m
-    })
-    if (cour) l.push(cour)
-    return l
-  })
-}
-
-// Les « temps » d'un plan : ce qui est dit, dans l'ordre.
-function tempsDu(plan) {
-  const n = plan.narration ? découper(plan.narration).map(texte => ({ qui: 'narrateur', texte })) : []
-  switch (plan.type) {
-    case 'citation': return [...n, { qui: 'narrateur', texte: plan.texte, citation: true }]
-    case 'split': return [...n, { qui: 'narrateur', texte: `${plan.gauche.titre.toLowerCase()} : ${plan.gauche.texte}`, côté: 'gauche' }, { qui: 'narrateur', texte: `${plan.droite.titre.toLowerCase()} : ${plan.droite.texte}`, côté: 'droite' }]
-    case 'manga': return [...n, ...plan.cases.flatMap((c, k) => [{ qui: 'narrateur', texte: c.légende, case: k }, { qui: c.qui, texte: c.texte, case: k }])]
-    case 'fin': return []
-    default: return [...n, ...(plan.répliques || [])]
-  }
-}
 
 function useLargeur(ref, actif) {
   const [l, setL] = useState(360)
@@ -69,6 +41,8 @@ export default function Film({ film, onFermer, onVu }) {
   const [b, setB] = useState(0)
   const [lecture, setLecture] = useState(true)
   const musique = useRef(null)
+  const son = useRef(null) // voix doublées (MP3 générés) et bruitages
+  const lectureVoix = useRef(null)
   const génération = useRef(0)
   const scène = useRef(null)
   const largeur = useLargeur(scène, lancé)
@@ -77,6 +51,14 @@ export default function Film({ film, onFermer, onVu }) {
   const actuel = temps[b]
   const perso = id => film.personnages[id] || { nom: id, voix: {} }
 
+  const urlVoix = f => `${import.meta.env.BASE_URL}${film.voix?.base || ''}${f}`
+  const voixDe = (k, i) => film.voix?.lignes[`${k}:${i}`]
+  const couperVoix = () => { lectureVoix.current?.arrêter(); lectureVoix.current = null; window.speechSynthesis?.cancel() }
+  // Précharge les voix du plan en cours et du suivant.
+  useEffect(() => {
+    if (!lancé || !son.current || !film.voix) return
+    ;[p, p + 1].forEach(k => film.plans[k] && tempsDu(film.plans[k]).forEach((_, i) => { const v = voixDe(k, i); if (v) précharger(son.current, urlVoix(v.f)) }))
+  }, [lancé, p]) // eslint-disable-line react-hooks/exhaustive-deps
   const régler = (k, v) => setRéglages(r => { const n = { ...r, [k]: v }; try { localStorage.setItem(CLÉ, JSON.stringify(n)) } catch { /* ignore */ } return n })
 
   // Musique : ambiance du plan (gardée tant qu'un plan n'en change pas).
@@ -86,7 +68,7 @@ export default function Film({ film, onFermer, onVu }) {
     musique.current.ambiance(amb)
     if (réglages.musique && lecture && plan.type !== 'fin') musique.current.démarrer(); else musique.current.arrêter()
   }, [lancé, p, réglages.musique, lecture]) // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => { génération.current++; window.speechSynthesis?.cancel(); musique.current?.fermer() }, [])
+  useEffect(() => () => { génération.current++; couperVoix(); musique.current?.fermer(); son.current?.fermer?.() }, [])
 
   // Déroulé : chaque temps est dit (ou affiché), puis le suivant, puis le plan suivant.
   useEffect(() => {
@@ -103,19 +85,27 @@ export default function Film({ film, onFermer, onVu }) {
     minuteur = setTimeout(() => {
       if (!encore()) return
       const suite = () => { if (encore()) minuteur = setTimeout(() => { if (encore()) setB(x => x + 1) }, 550) }
+      // Temps musical sans parole (La Marseillaise, feu d'artifice…).
+      if (t.pause) { if (t.son) son.current?.effet(t.son); minuteur = setTimeout(suite, t.pause); return }
+      // 1) voix doublée générée à l'avance (une voix par personnage),
+      // 2) sinon la voix de l'appareil, 3) sinon les sous-titres seuls.
+      const v = réglages.voix && voixDe(p, b)
+      if (v && son.current) { const l = jouerFichier(son.current, urlVoix(v.f)); lectureVoix.current = l; l.promesse.then(suite); return }
       if (réglages.voix && window.speechSynthesis) direRéplique(t.texte, perso(t.qui).voix).then(suite)
       else minuteur = setTimeout(suite, 1400 + t.texte.length * 52)
     }, départ)
-    return () => { clearTimeout(minuteur) }
+    return () => { clearTimeout(minuteur); lectureVoix.current?.arrêter(); lectureVoix.current = null }
   }, [lancé, lecture, p, b, réglages.voix]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const allerPlan = k => { génération.current++; window.speechSynthesis?.cancel(); setP(Math.max(0, Math.min(film.plans.length - 1, k))); setB(0) }
+  const allerPlan = k => { génération.current++; couperVoix(); setP(Math.max(0, Math.min(film.plans.length - 1, k))); setB(0) }
   const lancer = () => {
     try { window.speechSynthesis?.speak(Object.assign(new SpeechSynthesisUtterance(' '), { volume: 0 })) } catch { /* ignore */ }
     if (!musique.current) musique.current = créerMusique()
+    if (!son.current) son.current = créerSonCinéma()
+    son.current?.démarrer()
     setLancé(true); setLecture(true); setP(0); setB(0)
   }
-  const basculerLecture = () => { if (lecture) { génération.current++; window.speechSynthesis?.cancel() } setLecture(l => !l) }
+  const basculerLecture = () => { if (lecture) { génération.current++; couperVoix() } setLecture(l => !l) }
   useEffect(() => {
     const touche = e => {
       if (e.key === 'Escape') onFermer()
@@ -155,6 +145,7 @@ export default function Film({ film, onFermer, onVu }) {
           <h2 className="f-titre" style={{ margin: 0 }}>{film.titre}</h2>
           <p style={{ margin: 0, opacity: 0.9, fontSize: 16 }}>{film.sousTitre}</p>
           <p style={{ margin: '4px 0 10px', opacity: 0.75, fontSize: 13 }}>{film.plans.length - 1} plans · avec {Object.entries(film.personnages).filter(([k]) => k !== 'narrateur').map(([, v]) => `${v.emoji} ${v.nom}`).join(', ')}</p>
+          {film.voix && <p style={{ margin: '-6px 0 6px', opacity: 0.75, fontSize: 12.5 }}>🗣️ Voix doublées : {[...new Set(Object.values(film.voix.lignes).map(v => v.voix))].join(', ')}</p>}
           <button onClick={lancer} className="f-controle f-plein" style={{ minHeight: 56, padding: '0 28px', fontSize: 18, borderRadius: 28 }}>▶ Regarder l'épisode</button>
           <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
             <button onClick={() => régler('voix', !réglages.voix)} aria-pressed={réglages.voix} className="f-controle" style={{ padding: '0 12px', fontSize: 13.5 }}>{réglages.voix ? '🔊 Voix' : '🔇 Sans voix'}</button>
@@ -266,14 +257,17 @@ export default function Film({ film, onFermer, onVu }) {
         <div style={{ position: 'absolute', inset: 0, background: '#f4f1ea', backgroundImage: 'radial-gradient(#d9d3c4 1.2px, transparent 1.2px)', backgroundSize: '12px 12px' }} />
         <div className="f-manga">
           {plan.cases.map((c, k) => {
-            if (b < 1 + 2 * k) return <div key={k} style={{ border: '4px dashed #c9c2b2', borderRadius: 6 }} />
+            // Chaque case : sa légende (narration), puis la réplique. La narration
+            // du plan, s'il y en a une, passe avant la première case.
+            const d = plan.narration ? découper(plan.narration).length : 0
+            if (b < d + 2 * k) return <div key={k} style={{ border: '4px dashed #c9c2b2', borderRadius: 6 }} />
             const pp = perso(c.qui)
             return (
               <div key={k} className="f-case">
                 <div className="f-case-fond" aria-hidden="true">{c.décor}</div>
                 <div className="f-case-legende">{c.légende}</div>
-                <span className={b === 2 + 2 * k ? 'f-parle' : ''} style={{ position: 'relative', fontSize: 'clamp(44px, 10vh, 84px)', marginTop: 18 }}><span className="f-corps" style={{ fontSize: 'inherit' }}>{pp.emoji}</span></span>
-                {b >= 2 + 2 * k && <div className="f-case-bulle" style={{ animation: 'f-bulle .35s both' }}><strong style={{ color: pp.couleur, filter: 'brightness(.7)' }}>{pp.nom} : </strong>{c.texte}</div>}
+                <span className={b === d + 1 + 2 * k ? 'f-parle' : ''} style={{ position: 'relative', fontSize: 'clamp(44px, 10vh, 84px)', marginTop: 18 }}><span className="f-corps" style={{ fontSize: 'inherit' }}>{pp.emoji}</span></span>
+                {b >= d + 1 + 2 * k && <div className="f-case-bulle" style={{ animation: 'f-bulle .35s both' }}><strong style={{ color: pp.couleur, filter: 'brightness(.7)' }}>{pp.nom} : </strong>{c.texte}</div>}
               </div>
             )
           })}
@@ -304,7 +298,7 @@ export default function Film({ film, onFermer, onVu }) {
   }
 
   const sousTitre = actuel && réglages.sousTitres && plan.type !== 'fin'
-    ? (actuel.qui === 'narrateur' ? <em>{actuel.texte}</em> : <><strong style={{ color: perso(actuel.qui).couleur }}>{perso(actuel.qui).nom} : </strong>{actuel.texte}</>)
+    ? (actuel.légende ? <em>{actuel.légende}</em> : actuel.qui === 'narrateur' ? <em>{actuel.texte}</em> : <><strong style={{ color: perso(actuel.qui).couleur }}>{perso(actuel.qui).nom} : </strong>{actuel.texte}</>)
     : null
 
   return (
@@ -330,7 +324,7 @@ export default function Film({ film, onFermer, onVu }) {
             <button onClick={() => allerPlan(p - 1)} aria-label="Plan précédent" className="f-controle">⏮</button>
             <button onClick={basculerLecture} aria-label={lecture ? 'Pause' : 'Lecture'} className="f-controle f-plein" style={{ minWidth: 60 }}>{lecture ? '⏸' : '▶'}</button>
             <button onClick={() => allerPlan(p + 1)} aria-label="Plan suivant" className="f-controle">⏭</button>
-            <button onClick={() => { régler('voix', !réglages.voix); if (réglages.voix) window.speechSynthesis?.cancel() }} aria-pressed={réglages.voix} aria-label="Voix" className="f-controle">{réglages.voix ? '🔊' : '🔇'}</button>
+            <button onClick={() => { régler('voix', !réglages.voix); if (réglages.voix) couperVoix() }} aria-pressed={réglages.voix} aria-label="Voix" className="f-controle">{réglages.voix ? '🔊' : '🔇'}</button>
             <button onClick={() => régler('musique', !réglages.musique)} aria-pressed={réglages.musique} aria-label="Musique" className="f-controle">{réglages.musique ? '🎵' : '🔕'}</button>
             <button onClick={() => régler('sousTitres', !réglages.sousTitres)} aria-pressed={réglages.sousTitres} aria-label="Sous-titres" className="f-controle" style={{ fontSize: 12, fontWeight: 800 }}>CC</button>
           </div>

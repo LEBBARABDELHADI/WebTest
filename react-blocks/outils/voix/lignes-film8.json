@@ -1,0 +1,247 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Le 14 juillet au matin.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "0:1",
+  "qui": "narrateur",
+  "texte": "Toute la ville s'habille de bleu, de blanc et de rouge.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Mamie, pourquoi tout le monde fait la fête aujourd'hui ?",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "1:1",
+  "qui": "odette",
+  "texte": "C'est le 14 juillet, la fête nationale !",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "1:2",
+  "qui": "yanis",
+  "texte": "Et pourquoi le 14 juillet ?",
+  "émotion": "idée",
+  "officiel": false
+ },
+ {
+  "clé": "1:3",
+  "qui": "odette",
+  "texte": "Pour deux événements de la Révolution. Écoute bien…",
+  "émotion": "amour",
+  "officiel": false
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Paris, il y a plus de deux siècles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "1789 : Le peuple de Paris prend la Bastille, une prison royale : c'est le début de la Révolution française.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "1790 : Un an plus tard, on célèbre la Fête de la Fédération.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Depuis 1880, le 14 juillet est consacré comme jour de fête nationale, pour commémorer ces deux événements.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "4:1",
+  "qui": "yanis",
+  "texte": "Je la connais ! On l'étudie à l'école primaire.",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "4:2",
+  "qui": "samir",
+  "texte": "C'est notre hymne national. Rouget de Lisle l'a écrite en 1792.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Les symboles de la France sont les suivants : la fête nationale, l'hymne, la langue, Marianne, le drapeau et le coq.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "La langue officielle",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:1",
+  "qui": "lina",
+  "texte": "La langue officielle de la République est le français.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:2",
+  "qui": "narrateur",
+  "texte": "Marianne",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:3",
+  "qui": "diallo",
+  "texte": "Marianne porte un bonnet phrygien, symbole de la liberté. Elle est devenue le symbole de la République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:4",
+  "qui": "narrateur",
+  "texte": "Le drapeau tricolore",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:5",
+  "qui": "samir",
+  "texte": "Bleu, blanc, rouge : le drapeau tricolore a été créé pendant la Révolution.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:6",
+  "qui": "narrateur",
+  "texte": "Le coq",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "6:7",
+  "qui": "yanis",
+  "texte": "Cocorico ! Le coq représente la fierté, le courage et la vigilance.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Dans la salle de la mairie.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "C'est Marianne, là, avec son bonnet ?",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "7:2",
+  "qui": "diallo",
+  "texte": "Oui ! Sa statue est placée dans toutes les mairies. Elle rappelle la Révolution française.",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "7:3",
+  "qui": "diallo",
+  "texte": "Et Marianne apparaît aussi sur les documents de l'administration française.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "8:0",
+  "qui": "samir",
+  "texte": "Et le drapeau tricolore, il est officiel depuis quand ?",
+  "émotion": "idée",
+  "officiel": false
+ },
+ {
+  "clé": "8:1",
+  "qui": "odette",
+  "texte": "Il est devenu le drapeau officiel de la France en 1794…",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "8:2",
+  "qui": "odette",
+  "texte": "… sauf pendant la Restauration, de 1814 à 1830. On en reparlera en histoire !",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "9:0",
+  "qui": "narrateur",
+  "texte": "Bien qu'il n'ait pas de statut officiel selon la Constitution…",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "9:1",
+  "qui": "narrateur",
+  "texte": "le coq est utilisé depuis l'Antiquité et il est largement reconnu comme un symbole national.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "10:0",
+  "qui": "lina",
+  "texte": "Regarde, sur le site de l'administration : Marianne et le drapeau !",
+  "émotion": "surprise",
+  "officiel": false
+ },
+ {
+  "clé": "10:1",
+  "qui": "samir",
+  "texte": "On retrouve les symboles sur l'ensemble des sites internet et des documents de l'administration.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "11:1",
+  "qui": "yanis",
+  "texte": "La fête nationale, La Marseillaise, le français, Marianne, le drapeau, le coq !",
+  "émotion": "joie",
+  "officiel": false
+ },
+ {
+  "clé": "11:2",
+  "qui": "odette",
+  "texte": "Bravo, tu connais tous les symboles de la France !",
+  "émotion": "amour",
+  "officiel": false
+ },
+ {
+  "clé": "11:3",
+  "qui": "lina",
+  "texte": "Au prochain épisode : les paroles de La Marseillaise.",
+  "émotion": null,
+  "officiel": false
+ }
+]

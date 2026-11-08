@@ -11,13 +11,21 @@ node extraire.mjs 6               # lignes-p6.json depuis le scénario p6.js
 # derrière un proxy TLS : CA_PROXY=/chemin/ca.crt .venv/bin/python generer.py 6
 ```
 
-Sans numéro de page, les deux scripts traitent la page 10. Les MP3 déjà
+Épisodes 🍿 Film (personnages emoji, `src/lib/livret2026/films/pN.js`) :
+
+```bash
+node extraire-film.mjs 7          # lignes-film7.json, dans l'ordre exact du lecteur
+.venv/bin/python generer.py film7 # MP3 dans public/livret2026/voix/film7/ + films/voixFilm7.js
+```
+
+Sans numéro de page, les scripts du court-métrage traitent la page 10. Les MP3 déjà
 présents sont gardés : relancer `generer.py` ne refait que ceux qui manquent
 (utile quand le service répond « No audio was received »).
 
 Distribution : Lina = Vivienne, Inès = Denise, M. Arnaud = Henri,
 narration = Rémy, l'agent immobilier (page 6) = Fabrice, Hugo le recruteur
 (page 7) = Gérard, Mme Diallo la directrice (page 7) = Ariane, Zoé (page 8)
-= Eloise (voix d'enfant). Vitesse et hauteur
+= Eloise (voix d'enfant). Série 🍿 Film : Mamie Odette = Ariane, Samir = Gérard,
+Yanis = Eloise (plus grave), Mme Diallo = Denise, Thomas = Fabrice. Vitesse et hauteur
 réglées par personnage et par émotion (tableaux CASTING et ÉMOTIONS dans
 `generer.py`).

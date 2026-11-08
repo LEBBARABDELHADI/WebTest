@@ -79,4 +79,6 @@ export const CSS_FILM = `
 @keyframes f-kenburns { 0% { transform: scale(1.35) translate(0, 14%) } 50% { transform: scale(1.5) translate(-4%, -10%) } 100% { transform: scale(1) translate(0, 0) } }
 @keyframes f-drapeau { 0%, 100% { transform: skewY(0) } 50% { transform: skewY(-6deg) } }
 @media (prefers-reduced-motion: reduce) { .f-ecran *, .f-ecran *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important } }
+.f-feu { animation: f-feu 3.4s ease-out infinite both; opacity: 0 }
+@keyframes f-feu { 0% { opacity: 0; scale: .1 } 8% { opacity: 1 } 45% { opacity: .9; scale: 1 } 70%, 100% { opacity: 0; scale: 1.1 } }
 `

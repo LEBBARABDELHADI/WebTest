@@ -1,5 +1,7 @@
-# Génère les voix du court-métrage (page 10) avec edge-tts (voix « Natural »
-# de Microsoft) : une voix et un jeu par personnage, ajustés selon l'émotion.
+# Génère les voix avec edge-tts (voix « Natural » de Microsoft) : une voix et
+# un jeu par personnage, ajustés selon l'émotion.
+#   python generer.py 6       → court-métrage « expérience cinéma » de la page 6
+#   python generer.py film7   → épisode 🍿 Film de la page 7
 import asyncio, json, os, re, subprocess, sys
 import certifi
 # Derrière un proxy TLS (ex. session cloud) : CA_PROXY=/chemin/ca.crt pour que
@@ -9,9 +11,18 @@ if os.environ.get('CA_PROXY'):
 import edge_tts
 
 ICI = os.path.dirname(os.path.abspath(__file__))
-PAGE = sys.argv[1] if len(sys.argv) > 1 else '10'
-SORTIE = os.path.join(ICI, f'../../public/livret2026/voix/p{PAGE}')
-MANIFESTE = os.path.join(ICI, f'../../src/lib/livret2026/cinema/voixP{PAGE}.js')
+ARG = sys.argv[1] if len(sys.argv) > 1 else '10'
+FILM = ARG.startswith('film')
+PAGE = ARG[4:] if FILM else ARG
+if FILM:  # épisodes 🍿 Film (lib/livret2026/films)
+    DOSSIER, LIGNES, NOM = f'film{PAGE}', f'lignes-film{PAGE}.json', f'VOIX_FILM{PAGE}'
+    MANIFESTE = os.path.join(ICI, f'../../src/lib/livret2026/films/voixFilm{PAGE}.js')
+    QUOI = f"l'épisode 🍿 Film de la page {PAGE}"
+else:     # expérience cinéma (lib/livret2026/cinema)
+    DOSSIER, LIGNES, NOM = f'p{PAGE}', f'lignes-p{PAGE}.json', f'VOIX_P{PAGE}'
+    MANIFESTE = os.path.join(ICI, f'../../src/lib/livret2026/cinema/voixP{PAGE}.js')
+    QUOI = f'le court-métrage de la page {PAGE}'
+SORTIE = os.path.join(ICI, f'../../public/livret2026/voix/{DOSSIER}')
 CASTING = {
     'lina': ('fr-FR-VivienneMultilingualNeural', 2, 3),
     'ines': ('fr-FR-DeniseNeural', 6, 9),
@@ -21,8 +32,15 @@ CASTING = {
     'recruteur': ('fr-BE-GerardNeural', 3, 0),
     'directrice': ('fr-CH-ArianeNeural', -3, -2),
     'zoe': ('fr-FR-EloiseNeural', 4, 2),
+    # Série 🍿 Film (personnages emoji de films/casting.js)
+    'odette': ('fr-CH-ArianeNeural', -12, -12),
+    'samir': ('fr-BE-GerardNeural', 6, 3),
+    'yanis': ('fr-FR-EloiseNeural', 8, -10),
+    'diallo': ('fr-FR-DeniseNeural', -2, -3),
+    'thomas': ('fr-CH-FabriceNeural', 4, -3),
 }
-ÉMOTIONS = {'joie': (4, 4), 'fier': (2, 3), 'sourire': (1, 2), 'surprise': (3, 7), 'inquiet': (-5, -1), 'réflexion': (-7, 0), 'fâché': (3, -2), 'tendre': (-7, 1), 'neutre': (0, 0)}
+ÉMOTIONS = {'joie': (4, 4), 'fier': (2, 3), 'sourire': (1, 2), 'surprise': (3, 7), 'inquiet': (-5, -1), 'réflexion': (-7, 0), 'fâché': (3, -2), 'tendre': (-7, 1), 'neutre': (0, 0),
+           'gêne': (-4, -2), 'idée': (2, 4), 'colère': (4, -4), 'amour': (-5, 2), 'peur': (5, 6)}
 
 def dire(texte):
     t = texte.replace('M. Arnaud', 'Monsieur Arnaud').replace('1er', 'premier').replace(' – ', ', ').replace('(DDHC, voir', '(D.D.H.C., voir')
@@ -32,7 +50,7 @@ def dire(texte):
 
 async def main():
     os.makedirs(SORTIE, exist_ok=True)
-    lignes = json.load(open(os.path.join(ICI, f'lignes-p{PAGE}.json')))
+    lignes = json.load(open(os.path.join(ICI, LIGNES)))
     manifeste = {}
     for l in lignes:
         voix, r, p = CASTING[l['qui']]
@@ -53,7 +71,7 @@ async def main():
         print(f"{l['clé']:<16} {manifeste[l['clé']]['voix']:<9} {d:5.1f}s")
         await asyncio.sleep(0.3)
     with open(MANIFESTE, 'w') as f:
-        f.write(f'// Voix générées pour le court-métrage de la page {PAGE} (edge-tts, voix « Natural »\n// de Microsoft) : fichier, durée (s), voix. Produit par un script, ne pas modifier à la main.\n')
-        f.write(f'export const VOIX_P{PAGE} = ' + json.dumps({'base': f'livret2026/voix/p{PAGE}/', 'lignes': manifeste}, ensure_ascii=False, indent=1) + '\n')
+        f.write(f'// Voix générées pour {QUOI} (edge-tts, voix « Natural »\n// de Microsoft) : fichier, durée (s), voix. Produit par un script, ne pas modifier à la main.\n')
+        f.write(f'export const {NOM} = ' + json.dumps({'base': f'livret2026/voix/{DOSSIER}/', 'lignes': manifeste}, ensure_ascii=False, indent=1) + '\n')
     print('total', round(sum(v['d'] for v in manifeste.values()), 1), 's')
 asyncio.run(main())
