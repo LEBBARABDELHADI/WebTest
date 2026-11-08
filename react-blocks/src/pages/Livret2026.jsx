@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import PanneauSync from '../components/PanneauSync'
 import { BoutonIcone } from '../components/UI'
@@ -6,6 +6,11 @@ import Icon from '../components/Icon'
 import Théâtre from '../components/livret/Theatre'
 import Film from '../components/livret/Film'
 import { PAGES_FILM, chargerFilm } from '../lib/livret2026/films'
+
+// Prototype « expérience cinéma » : page 10 seulement, chargé à la demande.
+const Cinéma = lazy(() => import('../components/livret/cinema/Cinema'))
+const chargerCinéma = () => import('../lib/livret2026/cinema/p10')
+const PAGES_CINÉMA = new Set([10])
 import Leçon from '../components/livret/Lecon'
 import Maison from '../components/livret/Maison'
 import Frise from '../components/livret/Frise'
@@ -230,6 +235,8 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
   const [anime, setAnime] = useState(false)
   const [film, setFilm] = useState(null)
   const ouvrirFilm = async k => setFilm(await chargerFilm(k))
+  const [cinéma, setCinéma] = useState(null)
+  const ouvrirCinéma = async () => { const m = await chargerCinéma(); setCinéma({ film: m.COURT_MÉTRAGE, personnages: m.PERSONNAGES }) }
   const n = Math.min(NB_PAGES, Math.max(1, page))
   const p = PAGE.get(n)
   const niv = niveauPage(n, data, cartesMémo)
@@ -282,6 +289,7 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
                   <p style={{ ...S.discret, fontSize: 13 }}>{p.scènes.length} scènes : {[...new Set(p.scènes.map(s => s.type))].join(', ')}{leçon ? ` · leçon « ${leçon.titre} »` : ''}</p>
                   <button onClick={() => setAnime(true)} style={{ ...S.bouton(true), width: '100%', marginTop: 12 }}>▶ Animer la page</button>
                   {PAGES_FILM.has(n) && <button onClick={() => ouvrirFilm(n)} style={{ ...S.bouton(false), width: '100%', marginTop: 8, borderColor: T.text }}>🍿 Mode film : l'épisode de la page {n}</button>}
+                  {PAGES_CINÉMA.has(n) && <button onClick={ouvrirCinéma} style={{ ...S.bouton(false), width: '100%', marginTop: 8, borderColor: '#ffd166', background: 'linear-gradient(135deg, #1b1630, #3a2a12)', color: '#ffd166' }}>🎞️ Expérience cinéma (prototype)</button>}
                 </>
               ) : <p style={S.discret}>Page de garde (titre ou sommaire) : rien à animer.</p>}
             </div>
@@ -289,6 +297,7 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
           <p style={{ ...S.discret, fontSize: 12.5 }}>Astuce : dans l'animation, « Page suivante » continue la lecture du livret page après page. Touche ⏸ pour lire à ton rythme et 🔊 pour la voix.</p>
         </div>
       </div>
+      {cinéma && <Suspense fallback={null}><Cinéma film={cinéma.film} personnages={cinéma.personnages} onFermer={() => setCinéma(null)} onTerminé={(bonnes, total) => setData(d => ({ ...d, pages: { ...d.pages, [n]: { ...(d.pages[n] || {}), animée: d.pages[n]?.animée || aujourdhuiLocal(), cinéma: { date: aujourdhuiLocal(), bonnes, total } } } }))} /></Suspense>}
       {film && <Film film={film} onFermer={() => setFilm(null)} onVu={k => setData(d => ({ ...d, pages: { ...d.pages, [k]: { ...(d.pages[k] || {}), animée: d.pages[k]?.animée || aujourdhuiLocal(), film: aujourdhuiLocal() } } }))} />}
       {anime && p && <Théâtre pages={PAGES_CONTENU} départ={Math.max(0, PAGES_CONTENU.indexOf(p))} onFermer={() => setAnime(false)} onPageAnimée={k => { marquer(k); setPage(k) }} libelléFin="Fin du livret 🎉" />}
     </>
