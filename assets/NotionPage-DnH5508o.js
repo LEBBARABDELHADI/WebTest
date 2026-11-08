@@ -1,4 +1,4 @@
-import{fn as e,in as t,nn as n,on as r,rn as i,sn as a,un as o}from"./index-VGJ9jNyg.js";var s=e(o(),1),c=`export const code = \`// Un composant = une fonction qui retourne du JSX
+import{fn as e,in as t,nn as n,on as r,rn as i,sn as a,un as o}from"./index-Cg0qTgCf.js";var s=e(o(),1),c=`export const code = \`// Un composant = une fonction qui retourne du JSX
 function Salutation({ nom }) {
   return (
     <div style={{ padding: '16px', background: '#252836', borderRadius: '8px' }}>
