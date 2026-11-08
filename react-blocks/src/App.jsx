@@ -40,6 +40,7 @@ const PAGES = {
   RevueSemaine: () => import('./pages/RevueSemaine'),
   ObjectifsAnnee: () => import('./pages/ObjectifsAnnee'),
   Livret2026: () => import('./pages/Livret2026'),
+  Ansible: () => import('./pages/Ansible'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -59,6 +60,7 @@ const MaJournee = charger(PAGES.MaJournee)
 const RevueSemaine = charger(PAGES.RevueSemaine)
 const ObjectifsAnnee = charger(PAGES.ObjectifsAnnee)
 const Livret2026 = charger(PAGES.Livret2026)
+const Ansible = charger(PAGES.Ansible)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -177,6 +179,8 @@ function App() {
       <Route path="/annee/:espace" element={<EspaceRoute Page={ObjectifsAnnee} />} />
       <Route path="/livret2026" element={<Navigate to="/livret2026/perso" replace />} />
       <Route path="/livret2026/:espace" element={<EspaceRoute Page={Livret2026} />} />
+      <Route path="/ansible" element={<Navigate to="/ansible/perso" replace />} />
+      <Route path="/ansible/:espace" element={<EspaceRoute Page={Ansible} />} />
     </Routes>
     </Suspense>
     </>

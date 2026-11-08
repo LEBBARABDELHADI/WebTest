@@ -82,6 +82,8 @@ function libelléRécent(lire, chemin) {
   if (outil === 'semaine') return { titre: 'Revue de la semaine', icône: 'calendrier' }
   if (outil === 'annee') return { titre: 'Objectifs de l\'année', icône: 'cible' }
   if (outil === 'lire') return { titre: `À lire ${type.toLowerCase()}`, icône: 'livre' }
+  if (outil === 'ansible') return { titre: 'Learning Ansible', icône: 'code' }
+  if (outil === 'livret2026') return { titre: 'Livret du citoyen 2026', icône: 'livre' }
   if (outil === 'notion') {
     const n = notions.find(x => x.id === espace)
     return { titre: n ? n.titre : 'Cours React', détail: 'Cours React', icône: 'livre' }
@@ -202,6 +204,7 @@ export default function Home({ foyerId = 'lebbar' }) {
   const lectures = lire('lectures', espace).éléments || []
   const àLire = lectures.filter(l => l.statut !== 'lu').length
   if (estDimanche && !revueFaite) résumé.push('📝 revue de la semaine à faire')
+  const ansibleFaites = (() => { try { return Object.keys(JSON.parse(localStorage.getItem('react-blocs-ansible') || '{}').faites || {}).length } catch { return 0 } })()
   const livret = lireLocal('livret', espace)
   const livretFaites = Object.values(livret.leçons || {}).filter(l => l?.faite).length
   const pilotes = [
@@ -245,6 +248,7 @@ export default function Home({ foyerId = 'lebbar' }) {
     },
     { to: `/tableau/${espace}`, icône: 'reseau', titre: 'Graphe amélioré', chiffre: '✦', unité: 'tableau blanc', détail: 'Pense-bêtes, formes, flèches…' },
     { to: '/timer', icône: 'horloge', titre: 'Timer', chiffre: heure, unité: '', détail: 'Chrono · minuteur' },
+    { to: `/ansible/${espace}`, icône: 'code', titre: 'Learning Ansible', chiffre: `${ansibleFaites}/6`, unité: 'étapes', détail: ansibleFaites ? 'Reprendre la formation' : 'Définitions, bases, simulateur…' },
     { to: `/outils/${espace}`, icône: 'code', titre: 'Outils DevOps', chiffre: (lireLocal('commandes', espace).commandes || []).length, unité: 'commandes', détail: 'CIDR, cron, chmod, JWT, JSON/YAML…' },
   ]
 
