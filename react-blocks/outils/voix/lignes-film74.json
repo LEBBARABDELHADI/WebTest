@@ -1,0 +1,317 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 74 : Droits de l'enfant, devoirs des parents.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "odette",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Droits de l'enfant, devoirs des parents ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "En 1989, dans le cadre de l'ONU, 196 États ont signé ce texte.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Il présente les droits fondamentaux des enfants et impose des obligations aux États signataires.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "Cette convention assure la protection des enfants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "C'est le fondement de toute l'action de l'UNICEF, une organisation qui dépend de l'ONU.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Quelques droits de l'enfant : Égalité, Un nom, Une identité, Être soigné, Bien manger, Aller à l'école, Vie privée, Pas de violence, Pas d'exploitation, S'exprimer, être entendu.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "L'enfant a droit à l'égalité, à un nom, à être soigné et bien nourri, à l'école, à la vie privée, à la protection contre la violence et l'exploitation…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "narrateur",
+  "texte": "et à être entendu.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "narrateur",
+  "texte": "Les enfants handicapés ont droit à la même vie que les autres, avec un emploi du temps aménagé si besoin.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Des droits et des devoirs pour protéger l'enfant.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "yanis",
+  "texte": "Sécurité : surveiller relations, déplacements, communications, réseaux sociaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "lina",
+  "texte": "Santé.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "samir",
+  "texte": "Vie privée et image.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "odette",
+  "texte": "Bien-être : alimentation, hébergement, loisirs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "diallo",
+  "texte": "Éducation et développement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:6",
+  "qui": "yanis",
+  "texte": "Associer l'enfant aux décisions, selon son âge et sa maturité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:7",
+  "qui": "narrateur",
+  "texte": "L'autorité parentale appartient aux parents jusqu'à la majorité ou l'émancipation de l'enfant.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:8",
+  "qui": "narrateur",
+  "texte": "Ils doivent le protéger, par exemple contre le racket, le viol, la prostitution, les addictions, le harcèlement ou la violence.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Une fessée ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Non.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-grand-pere",
+  "texte": "De mon temps, une bonne correction, ça faisait grandir !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "âgé",
+  "rang": 0
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-salma",
+  "texte": "Aujourd'hui, l'autorité parentale s'exerce sans violences physiques ou psychologiques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:4",
+  "qui": "p-grand-pere",
+  "texte": "Même une petite tape ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "âgé",
+  "rang": 0
+ },
+ {
+  "clé": "5:5",
+  "qui": "p-salma",
+  "texte": "Les châtiments corporels sont interdits par la loi, comme l'excision : ils portent atteinte à l'intégrité physique et à la dignité de l'enfant.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "yanis",
+  "texte": "Des parents peuvent déshériter totalement l'un de leurs enfants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "samir",
+  "texte": "Faux ! Ce n'est pas possible : le partage doit être équitable entre tous les membres de la fratrie.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "yanis",
+  "texte": "L'UNICEF est une organisation qui dépend de l'ONU.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "samir",
+  "texte": "Vrai ! La Convention internationale des droits de l'enfant est le fondement de son action.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "yanis",
+  "texte": "Les parents associent l'enfant aux décisions qui le concernent, selon son âge et sa maturité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "samir",
+  "texte": "Vrai ! C'est ce que prévoit l'exercice de l'autorité parentale.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "odette",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

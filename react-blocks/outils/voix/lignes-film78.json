@@ -1,0 +1,362 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 78 : La DDHC en 17 articles.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « La DDHC en 17 articles ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Les hommes naissent et demeurent libres et égaux en droits. Les distinctions sociales ne peuvent être fondées que sur l'utilité commune.",
+  "émotion": null,
+  "officiel": true,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "La Déclaration des droits de l'homme et du citoyen date de 1789.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "Elle compte 17 articles.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "Voici le premier, le plus célèbre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "yanis",
+  "texte": "Selon l'article 2, quels sont les droits naturels et imprescriptibles de l'Homme ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "lina",
+  "texte": "Un indice : Il y en a quatre. Le premier est aussi le premier mot de la devise.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "lina",
+  "texte": "La liberté, la propriété, la sûreté et la résistance à l'oppression.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "narrateur",
+  "texte": "L'article 2 dit que le but de toute association politique est de conserver les droits naturels et imprescriptibles de l'Homme.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "narrateur",
+  "texte": "Lesquels ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "La liberté consiste à pouvoir faire tout ce qui ne nuit pas à autrui : ainsi, l'exercice des droits naturels de chaque homme n'a de bornes que celles qui assurent aux autres Membres de la Société la jouissance de ces mêmes droits. Ces bornes ne peuvent être déterminées que par la Loi.",
+  "émotion": null,
+  "officiel": true,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "L'article 4 définit la liberté.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "narrateur",
+  "texte": "Elle a des bornes, et seule la Loi peut les fixer.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "La Nation, la Loi et la justice (art.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "3 à 9).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "diallo",
+  "texte": "Art. 3 : le principe de toute Souveraineté réside essentiellement dans la Nation.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "yanis",
+  "texte": "Art. 5 : tout ce qui n'est pas défendu par la Loi ne peut être empêché, et nul ne peut être contraint à faire ce qu'elle n'ordonne pas.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "lina",
+  "texte": "Art. 6 : la Loi est l'expression de la volonté générale. Elle doit être la même pour tous, soit qu'elle protège, soit qu'elle punisse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:5",
+  "qui": "samir",
+  "texte": "Art. 7 et 8 : nul ne peut être accusé, arrêté, détenu ou puni que dans les cas prévus par une Loi établie avant le délit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:6",
+  "qui": "odette",
+  "texte": "Art. 9 : tout homme est présumé innocent jusqu'à ce qu'il ait été déclaré coupable.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:7",
+  "qui": "narrateur",
+  "texte": "Les articles 3 à 9 disent d'où vient le pouvoir, ce que peut faire la Loi, et comment elle protège chacun face à la justice.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Les garanties des droits.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "diallo",
+  "texte": "Art. 10 : nul ne doit être inquiété pour ses opinions, même religieuses, si leur manifestation ne trouble pas l'ordre public.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "yanis",
+  "texte": "Art. 11 : tout citoyen peut parler, écrire, imprimer librement, sauf abus dans les cas prévus par la Loi.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "lina",
+  "texte": "Art. 12 et 13 : une force publique pour l'avantage de tous, payée par une contribution commune répartie selon les facultés de chacun.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "samir",
+  "texte": "Art. 14 et 15 : les citoyens peuvent consentir librement la contribution publique et en suivre l'emploi ; la Société peut demander compte à tout agent public.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "odette",
+  "texte": "Art. 16 : sans garantie des droits ni séparation des pouvoirs, une Société n'a point de Constitution.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "diallo",
+  "texte": "Art. 17 : la propriété est un droit inviolable et sacré ; on n'en est privé que pour une nécessité publique, contre une juste et préalable indemnité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:7",
+  "qui": "narrateur",
+  "texte": "Les derniers articles protègent les opinions, organisent l'impôt et le contrôle de l'administration, et définissent ce qu'est une Constitution.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "diallo",
+  "texte": "Selon la DDHC, la Loi doit être la même pour tous.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "lina",
+  "texte": "Vrai ! Article 6 : elle doit être la même pour tous, soit qu'elle protège, soit qu'elle punisse.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "diallo",
+  "texte": "Selon la DDHC, une personne arrêtée est présumée coupable.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "lina",
+  "texte": "Faux ! Article 9 : tout homme est présumé innocent jusqu'à ce qu'il ait été déclaré coupable.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "diallo",
+  "texte": "Les emplois publics sont réservés à certaines familles.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "lina",
+  "texte": "Faux ! Article 6 : tous les citoyens sont également admissibles aux emplois publics, selon leur capacité, leurs vertus et leurs talents.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

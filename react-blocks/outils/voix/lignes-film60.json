@@ -1,0 +1,281 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 60 : La gastronomie française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « La gastronomie française ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Un repas entre amis.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "p-paul",
+  "texte": "À table ! En famille, entre amis ou au travail, le repas est un moment de partage et d'échanges.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "2:2",
+  "qui": "p-amina",
+  "texte": "Le repas gastronomique français est inscrit par l'UNESCO au patrimoine culturel immatériel de l'humanité !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "2:3",
+  "qui": "p-paul",
+  "texte": "Oui, il permet de célébrer les moments importants de la vie. Et voici le fromage : il est incontournable lors des repas conviviaux !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "2:4",
+  "qui": "narrateur",
+  "texte": "La diversité des terroirs a permis l'élaboration de produits connus, appréciés et exportés dans le monde entier.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "L'histoire du vin en France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "lina",
+  "texte": "Époque romaine : la vigne est introduite et cultivée dans de nombreuses régions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "samir",
+  "texte": "Au fil des siècles : moines, nobles et vignerons améliorent les techniques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "odette",
+  "texte": "Dès le XVIIe siècle, en Champagne : la fermentation en bouteille donne le vin effervescent.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "diallo",
+  "texte": "Aujourd'hui : vin et champagne protégés par les AOC et reconnus par l'UNESCO.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "narrateur",
+  "texte": "Le vin est devenu un symbole de la culture et du savoir-faire français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:6",
+  "qui": "narrateur",
+  "texte": "Les AOC sont les appellations d'origine contrôlée.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Des plats traditionnels et populaires.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "lina",
+  "texte": "Le pot-au-feu.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "samir",
+  "texte": "La blanquette de veau.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "odette",
+  "texte": "Le bœuf bourguignon.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Fromages et champagne : des terroirs : Le Brocciu (Corse), Le Camembert (Normandie), Le Maroilles (Nord), La Champagne : vin effervescent.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Des fromages sont produits sur l'ensemble du territoire, et certains ont une appellation protégée.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "Par exemple : le Brocciu en Corse, le Camembert en Normandie, le Maroilles dans le Nord.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "lina",
+  "texte": "Le repas gastronomique français est inscrit par l'UNESCO au patrimoine culturel immatériel de l'humanité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "odette",
+  "texte": "Vrai ! C'est une tradition culinaire qui permet de célébrer les moments importants de la vie.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "lina",
+  "texte": "La vigne est arrivée en France au XVIIe siècle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "odette",
+  "texte": "Faux ! L'histoire du vin remonte à l'époque romaine. Au XVIIe siècle, c'est la fermentation en bouteille qui apparaît en Champagne.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "lina",
+  "texte": "Le Maroilles est un fromage de Corse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "odette",
+  "texte": "Faux ! Le Maroilles vient du Nord. Le fromage cité pour la Corse est le Brocciu ; pour la Normandie, le Camembert.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

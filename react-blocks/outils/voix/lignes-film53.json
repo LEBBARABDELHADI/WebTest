@@ -1,0 +1,281 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 53 : La culture accessible à tous.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « La culture accessible à tous ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Où se manifeste la culture française ? : Patrimoine architectural, Littérature, Musique, Peinture, Sculpture, Cinéma, Festivals, Traditions locales.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "La culture française s'est construite à travers des siècles d'histoire et d'influences extérieures.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "Elle est au cœur de l'identité du pays et constitue un repère commun qui unit les Français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Une culture qui rayonne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "1re : destination touristique au monde : la France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "narrateur",
+  "texte": "1984 : création des Journées du patrimoine, en France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "narrateur",
+  "texte": "48 pays : où ont lieu aujourd'hui les Journées du patrimoine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "narrateur",
+  "texte": "Chaque année, au mois de septembre, les Journées du patrimoine ouvrent exceptionnellement des lieux…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "narrateur",
+  "texte": "monuments et édifices habituellement fermés au public.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "La culture pour chacun, quels que soient âge et moyens.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "diallo",
+  "texte": "Les musées publics : des collections riches et variées, des journées gratuites ou des tarifs réduits.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "yanis",
+  "texte": "Les bibliothèques et médiathèques : dans la plupart des communes, des millions d'ouvrages.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "lina",
+  "texte": "Les événements culturels : ils font découvrir et mettent en valeur l'art et l'histoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "samir",
+  "texte": "Le numérique : des plateformes comme « culture.gouv.fr », des œuvres en ligne à tout moment.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "De grands événements culturels : Avignon : festival de théâtre, Marciac : festival de jazz, Cannes : festival du cinéma.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Parmi les événements culturels : les Journées du patrimoine, le festival de théâtre d'Avignon…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "le festival de jazz de Marciac et celui du cinéma à Cannes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Le patrimoine matériel : L'ensemble des biens et des monuments qui retracent l'histoire de la culture française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "Le patrimoine immatériel : Les traditions, l'art du spectacle, les pratiques sociales et les savoir-faire, comme la gastronomie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "diallo",
+  "texte": "Les Journées du patrimoine ont lieu chaque année au mois de septembre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "lina",
+  "texte": "Vrai ! Des lieux habituellement fermés au public sont exceptionnellement ouverts. Cet événement, créé en France en 1984, a lieu dans 48 pays.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "diallo",
+  "texte": "Le festival de jazz a lieu à Cannes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "lina",
+  "texte": "Faux ! Le festival de jazz a lieu à Marciac. Cannes accueille le festival du cinéma.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "diallo",
+  "texte": "La gastronomie fait partie du patrimoine immatériel.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "lina",
+  "texte": "Vrai ! Le patrimoine immatériel rassemble traditions, art du spectacle, pratiques sociales et savoir-faire, comme la gastronomie.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

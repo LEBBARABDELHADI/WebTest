@@ -1,0 +1,308 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 58 : 1er mai, 21 juin et Tour de France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « 1er mai, 21 juin et Tour de France ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Le 1er mai dans la rue.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "p-sami",
+  "texte": "Aujourd'hui, c'est la « fête du Travail » ! Les syndicats organisent des manifestations sur la voie publique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "2:2",
+  "qui": "p-odile",
+  "texte": "Un brin de muguet ? C'est un porte-bonheur !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "âgée",
+  "rang": 0
+ },
+ {
+  "clé": "2:3",
+  "qui": "p-noe",
+  "texte": "Pourquoi ce jour est-il férié ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "enfant",
+  "rang": 0
+ },
+ {
+  "clé": "2:4",
+  "qui": "p-sami",
+  "texte": "Il est férié depuis 1947. Ses racines : le 1er mai 1886, les syndicats des États-Unis ont agi pour obtenir la « journée de huit heures ».",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Chaque 21 juin, depuis 1982 : tous les musiciens peuvent s'exprimer, notamment dans la rue, et se faire connaître.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Le sport, un patrimoine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "diallo",
+  "texte": "Les Jeux Olympiques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "yanis",
+  "texte": "La Coupe du monde de football.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "lina",
+  "texte": "Le Tour de France : 3e événement sportif mondial, derrière les deux premiers.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "narrateur",
+  "texte": "Les événements sportifs occupent une place importante dans le patrimoine culturel, social et même économique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "narrateur",
+  "texte": "Ils reflètent les traditions et les passions collectives.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:6",
+  "qui": "narrateur",
+  "texte": "Le Tour de France est la plus grande course cycliste du monde.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "1903 : la première édition : 60 coureurs s'affrontent au cours de six étapes, sur 2 300 kilomètres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Aujourd'hui, chaque juillet : Plus de 170 coureurs, plus de 3 000 km et 20 étapes, jusqu'aux Champs-Élysées, à Paris.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "Le tracé change chaque année.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "narrateur",
+  "texte": "Les étapes traversent plus d'un tiers des départements et mettent en valeur les paysages et le patrimoine national.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Les dates de la page.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "1er mai 1886 : Aux États-Unis, les syndicats agissent pour la « journée de huit heures »",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "narrateur",
+  "texte": "1903 : Premier Tour de France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "narrateur",
+  "texte": "1947 : Le 1er mai devient un jour férié.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "narrateur",
+  "texte": "1982 : Lancement de la fête de la musique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "diallo",
+  "texte": "Le 1er mai est un jour férié depuis 1947.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "lina",
+  "texte": "Vrai ! C'est la « fête du Travail » ou « fête des Travailleurs ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "diallo",
+  "texte": "La fête de la musique a lieu le 14 juillet.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "lina",
+  "texte": "Faux ! Elle a lieu le 21 juin de chaque année, depuis 1982.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "diallo",
+  "texte": "Le Tour de France arrive sur les Champs-Élysées, à Paris.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "lina",
+  "texte": "Vrai ! Plus de 170 coureurs parcourent plus de 3 000 km pour y arriver.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

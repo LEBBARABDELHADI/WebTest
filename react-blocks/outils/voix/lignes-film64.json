@@ -1,0 +1,389 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 64 : Délits routiers, transports, assurance.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "odette",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Délits routiers, transports, assurance ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Les délits routiers les plus graves.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "3 ans : de prison au maximum (alcool > 0,8 g/l).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "9000 € : d'amende (alcool > 0,8 g/l).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "1 an : de prison (conduite sans permis).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "narrateur",
+  "texte": "15000 € : d'amende (conduite sans permis).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "narrateur",
+  "texte": "Conduire avec plus de 0,8 gramme d'alcool par litre de sang peut entraîner jusqu'à 3 ans de prison, 9 000 euros d'amende…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:6",
+  "qui": "narrateur",
+  "texte": "la saisie du véhicule et l'annulation du permis pendant 5 ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:7",
+  "qui": "narrateur",
+  "texte": "Conduire sans permis : un an de prison et 15 000 euros d'amende.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Pourquoi prendre le bus, le métro, le train ou le tram ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "yanis",
+  "texte": "Moins de voitures en circulation.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "lina",
+  "texte": "Moins d'énergie consommée et moins de gaz polluants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "samir",
+  "texte": "Lutte contre le changement climatique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "odette",
+  "texte": "Meilleure qualité de l'air.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "diallo",
+  "texte": "Moins de nuisances sonores.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Contrôle dans le tramway.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "p-la-controleuse",
+  "texte": "Bonjour, votre titre de transport, s'il vous plaît.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "4:2",
+  "qui": "p-leo",
+  "texte": "Je n'ai pas de ticket… c'est grave ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "4:3",
+  "qui": "p-la-controleuse",
+  "texte": "Pour voyager, il faut payer un titre de transport, ticket ou billet. Sans titre, vous pouvez recevoir une amende.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "4:4",
+  "qui": "p-leo",
+  "texte": "Dommage… Dans certaines villes, pourtant, les transports sont gratuits !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Le ballon dans la fenêtre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "p-m-petit",
+  "texte": "Votre fils a cassé ma fenêtre avec son ballon !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "âgé",
+  "rang": 0
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-awa",
+  "texte": "Il ne l'a pas fait exprès, mais c'est mon enfant mineur : ma responsabilité civile est engagée. Je dois réparer le dommage.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 1
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-m-petit",
+  "texte": "Et votre chien, qui a déchiré mon pantalon la semaine dernière ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "âgé",
+  "rang": 0
+ },
+ {
+  "clé": "5:4",
+  "qui": "p-awa",
+  "texte": "Pareil pour un animal domestique sous ma responsabilité. Heureusement, l'assurance permet d'indemniser les victimes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 1
+ },
+ {
+  "clé": "5:5",
+  "qui": "narrateur",
+  "texte": "La responsabilité civile, c'est l'obligation de réparer les dommages matériels…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:6",
+  "qui": "narrateur",
+  "texte": "corporels ou moraux causés sans le vouloir à d'autres personnes : à son domicile, en voiture, dans la vie courante ou au travail.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Les différents types d'assurances.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "yanis",
+  "texte": "Habitation : risques liés au logement (incendie, dégât des eaux…).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "lina",
+  "texte": "Véhicule : accidents des véhicules motorisés (thermique, hybride, électrique).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "samir",
+  "texte": "Scolaire et extra-scolaire : les enfants à l'école ou à l'extérieur.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "narrateur",
+  "texte": "Ces assurances permettent d'indemniser les victimes, personnes blessées ou touchées en cas d'accident.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Voyager sans titre de transport peut être sanctionné par une amende.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "samir",
+  "texte": "Vrai ! L'usage des transports collectifs est conditionné au paiement d'un titre (ticket, billet…).",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "yanis",
+  "texte": "Si mon enfant mineur casse quelque chose chez le voisin, je ne suis pas concerné.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "samir",
+  "texte": "Faux ! Ma responsabilité civile est engagée pour un enfant mineur sous ma responsabilité.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "yanis",
+  "texte": "Conduire sans permis n'est puni que d'une petite amende.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "samir",
+  "texte": "Faux ! C'est puni d'un an de prison et de 15 000 euros d'amende.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "odette",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

@@ -1,0 +1,272 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 52 : Forêts et grottes préhistoriques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Mamie Odette, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "odette",
+  "texte": "Oui ! Aujourd'hui : « Forêts et grottes préhistoriques ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Les forêts en chiffres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "17.5 millions d'ha : de forêts en métropole.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "32 % : du territoire métropolitain.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "8 millions d'ha : de forêt amazonienne en Guyane.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "narrateur",
+  "texte": "9 pays : sur lesquels s'étend la forêt amazonienne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "La forêt amazonienne, en Guyane.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "odette",
+  "texte": "La Guyane : territoire ultramarin situé en Amérique latine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "diallo",
+  "texte": "Entourée du Brésil et du Suriname.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "yanis",
+  "texte": "Bordée par l'océan Atlantique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "lina",
+  "texte": "La plus grande variété d'animaux (faune) et de plantes (flore) de la planète.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "samir",
+  "texte": "Un rôle dans la régulation du climat.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Lascaux, en Dordogne : Grotte de Lascaux, Département de la Dordogne, Bordeaux, chef-lieu de la Nouvelle-Aquitaine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "La grotte de Lascaux est située dans le département de la Dordogne, en région Nouvelle-Aquitaine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "En classe, devant une photo de Lascaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "p-la-maitresse",
+  "texte": "La France compte de nombreuses grottes occupées par l'homme pendant la préhistoire. La plus célèbre est la grotte de Lascaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-leo",
+  "texte": "Ces peintures sont très anciennes ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "enfant",
+  "rang": 0
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-la-maitresse",
+  "texte": "Oui ! Ces peintures rupestres datent d'entre 18 000 et 15 000 ans avant Jésus-Christ.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:4",
+  "qui": "p-awa",
+  "texte": "Je vois un cheval brun à crinière noire entre deux grands aurochs !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "enfant",
+  "rang": 1
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "odette",
+  "texte": "Les forêts couvrent 32 % du territoire métropolitain.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "yanis",
+  "texte": "Vrai ! Soit 17,5 millions d'hectares en métropole.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "odette",
+  "texte": "La plus grande forêt de France se trouve en métropole.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "yanis",
+  "texte": "Faux ! C'est la forêt amazonienne, en Guyane : 8 millions d'hectares.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "odette",
+  "texte": "La grotte de Lascaux se trouve en Normandie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "yanis",
+  "texte": "Faux ! Elle se trouve dans le département de la Dordogne, en région Nouvelle-Aquitaine.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "odette",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

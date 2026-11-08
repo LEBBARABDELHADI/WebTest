@@ -1,0 +1,299 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 68 : La Sécurité sociale et les soins.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « La Sécurité sociale et les soins ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "À la Libération, la volonté de solidarité nationale crée la Sécurité sociale : un principe de solidarité, donc de fraternité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "La Sécurité sociale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "diallo",
+  "texte": "Les cotisations des employeurs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "yanis",
+  "texte": "Les cotisations des salariés.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "lina",
+  "texte": "Les cotisations des travailleurs indépendants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "samir",
+  "texte": "Des impôts.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "narrateur",
+  "texte": "Employeurs, salariés et travailleurs indépendants paient des cotisations.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:6",
+  "qui": "narrateur",
+  "texte": "Combinées à des impôts, elles financent la Sécurité sociale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Se soigner en France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "diallo",
+  "texte": "S'inscrire à l'Assurance Maladie : obligatoire pour tous les résidents.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "yanis",
+  "texte": "Recevoir sa carte Vitale, qui justifie ses droits.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "lina",
+  "texte": "Consulter un médecin, aller à l'hôpital ou en pharmacie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "samir",
+  "texte": "La CPAM rembourse (avec le tiers payant, on n'avance pas la part remboursée).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "odette",
+  "texte": "Une mutuelle complémentaire aide à payer le reste.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:6",
+  "qui": "narrateur",
+  "texte": "Toute personne vivant en France peut se soigner.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:7",
+  "qui": "narrateur",
+  "texte": "Les employeurs doivent proposer une complémentaire santé collective à tous leurs salariés, sauf exceptions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Le secret du docteur.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "p-le-patron-de-moussa",
+  "texte": "Docteur, mon salarié Moussa est venu vous voir hier. De quoi souffre-t-il ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-la-medecin",
+  "texte": "Je ne peux rien vous dire. Les personnels de santé doivent garder secrètes les informations médicales d'un patient.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-le-patron",
+  "texte": "Même pas un petit indice ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 1
+ },
+ {
+  "clé": "5:4",
+  "qui": "p-la-medecin",
+  "texte": "Non : c'est le principe de confidentialité dans le domaine de la santé.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "diallo",
+  "texte": "Tous les résidents en France doivent être inscrits à l'Assurance Maladie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "lina",
+  "texte": "Vrai ! C'est une obligation, selon sa situation et dans les conditions fixées par la loi.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "diallo",
+  "texte": "Avec le tiers payant, le patient avance toute la somme.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "lina",
+  "texte": "Faux ! Le tiers payant permet de ne pas avancer la part remboursée par l'Assurance Maladie.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "diallo",
+  "texte": "Un médecin peut raconter la maladie d'un patient à son employeur.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "lina",
+  "texte": "Faux ! Les personnels de santé doivent garder secrètes les informations médicales.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

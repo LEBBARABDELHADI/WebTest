@@ -1,0 +1,299 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 55 : Quelques artistes français célèbres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « Quelques artistes français célèbres ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Musique et chanson.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "p-rouget-de-lisle-1760-1836",
+  "texte": "Officier du génie et écrivain, j'ai composé La Marseillaise, l'hymne national français !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "2:2",
+  "qui": "p-claude-debussy-1862-1918",
+  "texte": "Compositeur, je suis l'un des plus grands musiciens français. J'occupe une place essentielle dans la musique du début du XXe siècle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 1
+ },
+ {
+  "clé": "2:3",
+  "qui": "p-edith-piaf-1915-1963",
+  "texte": "Je chante « Hymne à l'Amour » et « La Vie en rose ». Mon vrai nom ? Édith Gassion !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Peintres et sculpteur.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "lina",
+  "texte": "Claude Monet (1840-1926) : « Les Nymphéas », « Impression, soleil levant ». Un des fondateurs de l'impressionnisme.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "samir",
+  "texte": "Paul Cézanne (1839-1906) : père de la peinture moderne, précurseur du cubisme. Paysages et natures mortes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "odette",
+  "texte": "Auguste Renoir (1841-1919) : peintre impressionniste, connu pour ses figures humaines, notamment de femmes et d'enfants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "diallo",
+  "texte": "Suzanne Valadon (1865-1938) : entrée dans la peinture comme modèle à Montmartre ; portraits, autoportraits, nus. Une des premières femmes admises à la Société Nationale des Beaux-Arts.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "yanis",
+  "texte": "Auguste Rodin (1840-1917) : un des pères de la sculpture moderne. « L'Âge d'airain », « Le penseur ».",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Écrivaines et écrivains.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "lina",
+  "texte": "George Sand (1804-1876) : romancière du XIXe siècle aux engagements féministes, « Indiana », « Lélia ». Vrai nom : Aurore Dupin.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "samir",
+  "texte": "Charles Baudelaire (1821-1867) : poète majeur, « Les Fleurs du Mal », rôle dans la modernité poétique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "odette",
+  "texte": "Simone de Beauvoir (1908-1986) : engagée et indépendante, considérée comme le précurseur du mouvement féministe français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "diallo",
+  "texte": "Albert Camus (1913-1960) : écrivain et philosophe né en Algérie ; l'absurde, la révolte ; résistant via le journal clandestin « Combat ».",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "yanis",
+  "texte": "Marguerite Duras (1914-1996) : née à Gia Định près de Saïgon, vrai nom Marguerite Donnadieu ; « L'Amant ».",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "yanis",
+  "texte": "Aurore Dupin, Marguerite Donnadieu, Édith Gassion : sous quels noms sont-elles célèbres ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "odette",
+  "texte": "Un indice : Une romancière du XIXe siècle, l'autrice de « L'Amant » et une grande chanteuse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "odette",
+  "texte": "George Sand, Marguerite Duras et Edith Piaf.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Des œuvres à reconnaître : « Indiana », « Lélia », « Les Fleurs du Mal », « L'Âge d'airain », « Le penseur », « Les Nymphéas », « Impression, soleil levant », « Combat », « L'Amant », « La Vie en rose ».",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "George Sand, Baudelaire, Rodin, Monet, Camus, Duras, Piaf : sauras-tu retrouver l'artiste de chaque œuvre ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "lina",
+  "texte": "Rouget de Lisle a composé La Marseillaise.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "odette",
+  "texte": "Vrai ! Officier du génie et écrivain (1760-1836), il a composé l'hymne national français.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "lina",
+  "texte": "« Le penseur » est un tableau de Claude Monet.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "odette",
+  "texte": "Faux ! « Le penseur » est une œuvre du sculpteur Auguste Rodin. Monet a peint « Les Nymphéas ».",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "lina",
+  "texte": "Albert Camus est né en Algérie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "odette",
+  "texte": "Vrai ! Écrivain et philosophe, il s'est engagé dans la Résistance via le journal clandestin « Combat ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

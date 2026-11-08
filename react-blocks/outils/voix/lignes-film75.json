@@ -1,0 +1,335 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 75 : L'école, de 3 à 16 ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « L'école, de 3 à 16 ans ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "L'instruction obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "3 ans : début de l'instruction obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "16 ans : fin de l'instruction obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "L'école est obligatoire de 3 à 16 ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "narrateur",
+  "texte": "Les parents qui ne respectent pas cette obligation peuvent être sanctionnés par une amende, ainsi qu'une peine de prison.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "narrateur",
+  "texte": "Seules les absences pour raisons de santé ou familiales, comme un mariage ou un enterrement, sont acceptées.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Inscription à la mairie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "p-m-mensah",
+  "texte": "Nous venons d'arriver. Ma fille Leïla, 7 ans, ne parle pas encore français. Elle doit attendre pour aller à l'école ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "3:2",
+  "qui": "p-l-agente-de-la-mairie",
+  "texte": "Non ! C'est la mairie qui gère les inscriptions à l'école publique. Les enfants allophones sont accueillis comme les autres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "3:3",
+  "qui": "p-m-mensah",
+  "texte": "Elle apprendra le français là-bas ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "3:4",
+  "qui": "p-l-agente",
+  "texte": "Oui, le français et aussi toutes les autres matières.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 1
+ },
+ {
+  "clé": "3:5",
+  "qui": "narrateur",
+  "texte": "Les enfants en situation de handicap peuvent aussi avoir un emploi du temps aménagé à l'école pour suivre leurs soins.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Le parcours scolaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "lina",
+  "texte": "École maternelle : dès 3 ans, au début de l'instruction obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "samir",
+  "texte": "École élémentaire : de 6 à 11 ans, du CP au CM2.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "odette",
+  "texte": "Collège : quatre années, pour tous les enfants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "diallo",
+  "texte": "Lycée général, technologique ou professionnel : seconde, première, terminale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "narrateur",
+  "texte": "L'école primaire regroupe l'école maternelle et l'école élémentaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:6",
+  "qui": "narrateur",
+  "texte": "Le collège est l'établissement de niveau secondaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:7",
+  "qui": "narrateur",
+  "texte": "Au lycée, la scolarité dure trois ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Les parents dans la communauté éducative.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "lina",
+  "texte": "Garder des relations avec les professeurs, l'administration et l'équipe (ATSEM, animateurs périscolaires…).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "samir",
+  "texte": "Se présenter aux élections des représentants de parents d'élèves.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "odette",
+  "texte": "Rejoindre une association de parents.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "narrateur",
+  "texte": "Les parents doivent veiller à l'éducation scolaire, intellectuelle et morale de leurs enfants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "lina",
+  "texte": "L'instruction est obligatoire de 3 à 16 ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "odette",
+  "texte": "Vrai ! Les parents qui ne respectent pas cette obligation peuvent être sanctionnés.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "lina",
+  "texte": "On peut garder son enfant à la maison pour qu'il aide au magasin familial.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "odette",
+  "texte": "Faux ! Seules les absences pour raisons de santé ou familiales (mariage, enterrement…) sont acceptées.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "lina",
+  "texte": "Un enfant qui ne parle pas français doit attendre avant d'aller à l'école.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "odette",
+  "texte": "Faux ! Les enfants allophones sont accueillis comme les autres ; ils y apprennent le français et les autres matières.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

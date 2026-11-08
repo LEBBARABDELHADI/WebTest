@@ -1,0 +1,326 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 79 : Principes, valeurs et symboles.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "odette",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Principes, valeurs et symboles ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "En application de l'article 21-24 du code civil…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "elle rappelle les principes et valeurs essentiels de la République et énonce les droits et devoirs du citoyen.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "Ces droits et devoirs résultent de la Constitution ou de la loi.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "Le peuple français se reconnaît dans la Déclaration des droits de l'homme et du citoyen du 26 août 1789 et dans les principes démocratiques hérités de son histoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Les symboles de la République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "yanis",
+  "texte": "L'emblème national : le drapeau tricolore, bleu, blanc, rouge.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "lina",
+  "texte": "L'hymne national : La Marseillaise.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "samir",
+  "texte": "La devise : « Liberté, Egalité, Fraternité »",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "odette",
+  "texte": "La fête nationale : le 14 juillet.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "diallo",
+  "texte": "« Marianne » : la représentation symbolique de la République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:6",
+  "qui": "yanis",
+  "texte": "La langue de la République : le français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "La France est une République indivisible, laïque, démocratique et sociale dont les principes sont fixés par la Constitution du 4 octobre 1958.",
+  "émotion": null,
+  "officiel": true,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "Une phrase à savoir par cœur : elle donne les quatre caractères de la République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Ce que veut dire chaque mot.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "yanis",
+  "texte": "Indivisible : la souveraineté nationale appartient au peuple, qui l'exerce par ses représentants élus et par le référendum. Aucune partie du peuple, ni aucun individu, ne peut s'en attribuer l'exercice.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "lina",
+  "texte": "Laïque : la République assure la liberté de conscience et respecte toutes les croyances. L'État et les religions sont séparés.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "samir",
+  "texte": "Démocratique : gouvernement du peuple, par le peuple et pour le peuple. Le suffrage est toujours universel, égal et secret. La justice, rendue au nom du peuple français, est indépendante.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "odette",
+  "texte": "Sociale : la Nation assure à l'individu et à la famille les conditions nécessaires à leur développement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:5",
+  "qui": "diallo",
+  "texte": "Enfin, la République garantit à tous la sécurité des personnes et des biens.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Au café : peut-on changer de religion ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "p-lea",
+  "texte": "Mon cousin dit qu'en France, on n'a pas le droit de quitter sa religion. C'est vrai ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:2",
+  "qui": "p-moussa",
+  "texte": "Non ! La République assure la liberté de conscience. Chacun est libre de croire, de ne pas croire, de changer de religion.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "6:3",
+  "qui": "p-lea",
+  "texte": "Et l'État paie les religions ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:4",
+  "qui": "p-moussa",
+  "texte": "Non plus. La République garantit le libre exercice des cultes, mais n'en reconnaît, n'en salarie ni n'en subventionne aucun.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Un citoyen peut ignorer une loi qu'il n'a pas votée.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "samir",
+  "texte": "Faux ! La loi est l'expression de la volonté générale : tout citoyen doit la respecter. La force publique garantit le respect de la loi et des décisions de justice.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "yanis",
+  "texte": "La République participe à l'Union européenne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "samir",
+  "texte": "Vrai ! L'Union européenne est constituée d'Etats qui ont choisi librement d'exercer en commun certaines de leurs compétences.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "yanis",
+  "texte": "Un groupe de citoyens peut s'attribuer seul l'exercice de la souveraineté.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "samir",
+  "texte": "Faux ! La République est indivisible : aucune partie du peuple, ni aucun individu, ne peut s'en attribuer l'exercice.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "odette",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]
