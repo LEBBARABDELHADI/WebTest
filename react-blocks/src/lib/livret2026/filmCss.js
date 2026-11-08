@@ -81,4 +81,20 @@ export const CSS_FILM = `
 @media (prefers-reduced-motion: reduce) { .f-ecran *, .f-ecran *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important } }
 .f-feu { animation: f-feu 3.4s ease-out infinite both; opacity: 0 }
 @keyframes f-feu { 0% { opacity: 0; scale: .1 } 8% { opacity: 1 } 45% { opacity: .9; scale: 1 } 70%, 100% { opacity: 0; scale: 1.1 } }
+.f-cartes { position: absolute; inset: 3% 4% 2%; z-index: 2; display: flex; flex-direction: column; gap: 8px; min-height: 0 }
+.f-cartes-titre { text-align: center; font-weight: 900; font-size: clamp(17px, 3vh, 26px); color: #ffd166; text-shadow: 0 2px 8px #000; animation: f-fondu .6s both }
+.f-cartes-centre { align-self: center; padding: 8px 16px; border-radius: 30px; background: #ffd166; color: #111; font-weight: 900; font-size: clamp(14px, 2.4vh, 19px); text-align: center; animation: f-pop .5s both }
+.f-cartes-liste { position: relative; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-content: center; gap: 8px; padding: 4px }
+.f-carte { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.16); color: #fff; font-size: clamp(13.5px, 2.2vh, 17px); line-height: 1.35; animation: f-gauche .45s both; transition: background .3s, border-color .3s, transform .3s }
+.f-carte-active { background: rgba(255,209,102,.18); border-color: #ffd166; transform: scale(1.02); box-shadow: 0 0 24px rgba(255,209,102,.35) }
+.f-carte-emoji { font-size: clamp(22px, 4vh, 32px); flex: none }
+.f-carte-texte { flex: 1 }
+.f-carte-qui { flex: none; font-size: clamp(24px, 4.4vh, 36px) }
+.f-carte-haut { flex: none; min-width: 3.6em; padding: 4px 8px; border-radius: 10px; background: #ffd166; color: #111; font-weight: 900; text-align: center; font-size: clamp(12.5px, 2vh, 16px) }
+.f-v-flux .f-cartes-liste { grid-template-columns: 1fr; max-width: 640px; width: 100%; margin: 0 auto }
+.f-v-flux .f-carte + .f-carte::before { content: '⬇'; position: absolute; top: -15px; left: 22px; color: #ffd166; font-size: 14px }
+.f-v-frise .f-cartes-liste { grid-template-columns: 1fr; max-width: 680px; width: 100%; margin: 0 auto; border-left: 4px solid rgba(255,209,102,.5); padding-left: 10px }
+.f-v-chiffres .f-carte-haut { font-size: clamp(20px, 4.4vh, 38px); min-width: 3em }
+.f-v-nuage .f-cartes-liste { display: flex; flex-wrap: wrap; justify-content: center; align-content: center }
+.f-v-nuage .f-carte { padding: 8px 14px; border-radius: 30px; font-weight: 800 }
 `

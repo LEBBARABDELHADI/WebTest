@@ -1,0 +1,272 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 22 : L'Union européenne et ses membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Mamie Odette, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "odette",
+  "texte": "Oui ! Aujourd'hui : « L'Union européenne et ses membres ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "La France est l'un des pays à l'origine de la construction européenne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Objectif : créer une union solide entre les peuples européens et promouvoir la paix en Europe à l'issue de la Seconde Guerre mondiale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "De la CECA à l'Union européenne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "odette",
+  "texte": "1951 : la Communauté européenne du charbon et de l'acier (CECA).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "diallo",
+  "texte": "1957 : le traité de Rome instaure la Communauté économique européenne entre six pays fondateurs, dont la France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "yanis",
+  "texte": "1992 : avec le traité de Maastricht, l'Union européenne est créée et renforce la coopération des États membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "lina",
+  "texte": "2000 : la Charte des droits fondamentaux de l'UE garantit les droits des personnes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "samir",
+  "texte": "Le drapeau européen et ses 12 étoiles symbolisent l'unité et l'harmonie entre les Européens.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Les 6 pays fondateurs (1957) : France, Allemagne, Italie, Belgique, Pays-Bas, Luxembourg.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "L'Europe s'agrandit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "1973 : Royaume-Uni, Irlande et Danemark : 9 membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "1981 : Grèce : 10 membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "narrateur",
+  "texte": "1986 : Espagne et Portugal : 12 membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "narrateur",
+  "texte": "1990 : Extension à la RDA avec la réunification allemande.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:5",
+  "qui": "narrateur",
+  "texte": "1995 : Autriche, Suède et Finlande : 15 membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:6",
+  "qui": "narrateur",
+  "texte": "2004 : Pologne, République tchèque, Hongrie, Slovaquie, Slovénie, Lettonie, Lituanie, Estonie, Malte et Chypre : 25 membres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Les dernières entrées : 2007 : Roumanie et Bulgarie (27 membres). 2013 : Croatie (28 membres).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "Une sortie : le Brexit : En 2020, le Royaume-Uni quitte l'Union européenne. Aujourd'hui, l'Union compte 27 États membres, qui partagent des principes démocratiques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "odette",
+  "texte": "La France fait partie des six pays fondateurs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "yanis",
+  "texte": "Vrai ! Avec l'Allemagne, l'Italie, la Belgique, les Pays-Bas et le Luxembourg (1957).",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "odette",
+  "texte": "Le drapeau européen compte une étoile par pays membre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "yanis",
+  "texte": "Faux ! Il a 12 étoiles, qui symbolisent l'unité et l'harmonie entre les Européens.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "odette",
+  "texte": "Le Royaume-Uni a quitté l'Union européenne en 2020.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "yanis",
+  "texte": "Vrai ! C'est le Brexit. L'Union est alors passée de 28 à 27 membres.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "odette",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

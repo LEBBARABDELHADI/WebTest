@@ -18,6 +18,17 @@ node extraire-film.mjs 7          # lignes-film7.json, dans l'ordre exact du lec
 .venv/bin/python generer.py film7 # MP3 dans public/livret2026/voix/film7/ + films/voixFilm7.js
 ```
 
+Les autres pages de contenu ont un épisode construit à partir de leur contenu
+(`src/lib/livret2026/films/auto.js`). Pour (re)générer toutes leurs voix :
+
+```bash
+node extraire-film.mjs auto       # lignes-filmN.json pour chaque page sans épisode écrit
+for n in 3 9 11 …; do .venv/bin/python generer.py film$n; done
+```
+
+Les personnages propres à une page reçoivent une voix selon leur genre
+(emoji et nom) et leur rang dans l'épisode (tableau VOIX_GENRE).
+
 Sans numéro de page, les scripts du court-métrage traitent la page 10. Les MP3 déjà
 présents sont gardés : relancer `generer.py` ne refait que ceux qui manquent
 (utile quand le service répond « No audio was received »).

@@ -1,0 +1,263 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 39 : Moyen Âge et Ancien Régime.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "odette",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Moyen Âge et Ancien Régime ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Le Moyen Âge (Ve au XVe siècle).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "p-clovis",
+  "texte": "J'ai vécu de 466 à 511. J'unifie plusieurs royaumes de peuples francs : une étape importante pour l'unité du territoire français. J'adopte aussi la religion chrétienne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "2:2",
+  "qui": "p-jeanne-d-arc",
+  "texte": "Moi, je suis une jeune paysanne (1412-1431). Pendant la guerre de Cent Ans contre l'Angleterre, je conduis les troupes françaises à la libération d'une partie du territoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "2:3",
+  "qui": "p-un-eleve",
+  "texte": "Vous êtes devenue une héroïne nationale, symbole du patriotisme et du courage !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "enfant",
+  "rang": 0
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "La monarchie absolue.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "yanis",
+  "texte": "Le roi concentre tous les pouvoirs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "lina",
+  "texte": "Les rois sont couronnés à la cathédrale de Reims.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "samir",
+  "texte": "Un État puissant et centralisé se met en place.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Henri IV (1553-1610) : En 1598, il promulgue l'édit de Nantes. Ce décret met fin aux guerres de religion entre catholiques et protestants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "Louis XIV, le « Roi-Soleil » : Il règne de 1643 à 1715. Il fait construire le château de Versailles, joyau de l'architecture classique, près de Paris.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Les lieux des rois : Reims : la cathédrale où les rois sont couronnés, Versailles : le château de Louis XIV.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Le théâtre et les Lumières.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "yanis",
+  "texte": "Molière, auteur de théâtre (dramaturge) et comédien du XVIIe siècle, sous Louis XIV : « L'Avare », « Le Bourgeois gentilhomme »",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "lina",
+  "texte": "Les philosophes des Lumières : Rousseau, Voltaire, Diderot, Montesquieu, Condorcet, d'Alembert…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "samir",
+  "texte": "Ils combattent pour la tolérance, la liberté de pensée et le refus de l'arbitraire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "odette",
+  "texte": "Leur pensée influence les idéaux de la Révolution : liberté, égalité, fraternité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "diallo",
+  "texte": "Montesquieu dénonce l'esclavage.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Henri IV promulgue l'édit de Nantes en 1598.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "samir",
+  "texte": "Vrai ! Ce décret met fin aux guerres de religion entre catholiques et protestants.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "yanis",
+  "texte": "Sous l'Ancien Régime, les rois sont couronnés à Paris.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "samir",
+  "texte": "Faux ! Ils sont couronnés à la cathédrale de Reims.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "yanis",
+  "texte": "Montesquieu dénonce l'esclavage.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "samir",
+  "texte": "Vrai ! C'est un philosophe des Lumières, comme Rousseau, Voltaire ou Diderot.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "odette",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

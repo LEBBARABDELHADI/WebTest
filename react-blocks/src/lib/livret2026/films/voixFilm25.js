@@ -1,0 +1,172 @@
+// Voix générées pour l'épisode 🍿 Film de la page 25 (edge-tts, voix « Natural »
+// de Microsoft) : fichier, durée (s), voix. Produit par un script, ne pas modifier à la main.
+export const VOIX_FILM25 = {
+ "base": "livret2026/voix/film25/",
+ "lignes": {
+  "0:0": {
+   "f": "0-0.mp3",
+   "d": 4.25,
+   "voix": "Remy"
+  },
+  "1:0": {
+   "f": "1-0.mp3",
+   "d": 3.17,
+   "voix": "Eloise"
+  },
+  "1:1": {
+   "f": "1-1.mp3",
+   "d": 4.25,
+   "voix": "Vivienne"
+  },
+  "2:0": {
+   "f": "2-0.mp3",
+   "d": 4.32,
+   "voix": "Remy"
+  },
+  "2:1": {
+   "f": "2-1.mp3",
+   "d": 2.78,
+   "voix": "Remy"
+  },
+  "2:2": {
+   "f": "2-2.mp3",
+   "d": 5.71,
+   "voix": "Remy"
+  },
+  "2:3": {
+   "f": "2-3.mp3",
+   "d": 4.66,
+   "voix": "Remy"
+  },
+  "3:0": {
+   "f": "3-0.mp3",
+   "d": 8.21,
+   "voix": "Remy"
+  },
+  "3:1": {
+   "f": "3-1.mp3",
+   "d": 8.47,
+   "voix": "Remy"
+  },
+  "3:2": {
+   "f": "3-2.mp3",
+   "d": 3.7,
+   "voix": "Remy"
+  },
+  "3:3": {
+   "f": "3-3.mp3",
+   "d": 6.24,
+   "voix": "Remy"
+  },
+  "4:0": {
+   "f": "4-0.mp3",
+   "d": 8.64,
+   "voix": "Remy"
+  },
+  "4:1": {
+   "f": "4-1.mp3",
+   "d": 5.16,
+   "voix": "Remy"
+  },
+  "4:2": {
+   "f": "4-2.mp3",
+   "d": 2.98,
+   "voix": "Remy"
+  },
+  "4:3": {
+   "f": "4-3.mp3",
+   "d": 3.58,
+   "voix": "Remy"
+  },
+  "5:0": {
+   "f": "5-0.mp3",
+   "d": 1.82,
+   "voix": "Remy"
+  },
+  "5:1": {
+   "f": "5-1.mp3",
+   "d": 4.06,
+   "voix": "Vivienne"
+  },
+  "5:2": {
+   "f": "5-2.mp3",
+   "d": 4.63,
+   "voix": "Gerard"
+  },
+  "5:3": {
+   "f": "5-3.mp3",
+   "d": 4.66,
+   "voix": "Ariane"
+  },
+  "5:4": {
+   "f": "5-4.mp3",
+   "d": 3.36,
+   "voix": "Denise"
+  },
+  "5:5": {
+   "f": "5-5.mp3",
+   "d": 6.17,
+   "voix": "Eloise"
+  },
+  "6:0": {
+   "f": "6-0.mp3",
+   "d": 2.02,
+   "voix": "Remy"
+  },
+  "6:1": {
+   "f": "6-1.mp3",
+   "d": 5.28,
+   "voix": "Vivienne"
+  },
+  "6:2": {
+   "f": "6-2.mp3",
+   "d": 6.07,
+   "voix": "Gerard"
+  },
+  "7:0": {
+   "f": "7-0.mp3",
+   "d": 1.87,
+   "voix": "Remy"
+  },
+  "7:1": {
+   "f": "7-1.mp3",
+   "d": 2.54,
+   "voix": "Vivienne"
+  },
+  "7:2": {
+   "f": "7-2.mp3",
+   "d": 6.29,
+   "voix": "Ariane"
+  },
+  "7:3": {
+   "f": "7-3.mp3",
+   "d": 2.59,
+   "voix": "Vivienne"
+  },
+  "7:4": {
+   "f": "7-4.mp3",
+   "d": 4.85,
+   "voix": "Ariane"
+  },
+  "7:5": {
+   "f": "7-5.mp3",
+   "d": 3.96,
+   "voix": "Vivienne"
+  },
+  "7:6": {
+   "f": "7-6.mp3",
+   "d": 6.17,
+   "voix": "Ariane"
+  },
+  "8:0": {
+   "f": "8-0.mp3",
+   "d": 2.14,
+   "voix": "Vivienne"
+  },
+  "8:1": {
+   "f": "8-1.mp3",
+   "d": 2.81,
+   "voix": "Eloise"
+  }
+ }
+}

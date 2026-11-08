@@ -1,0 +1,290 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 33 : Crimes et respect des institutions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « Crimes et respect des institutions ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Ce sont les infractions les plus graves : braquage, viol, assassinat, meurtre, terrorisme…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Les crimes sont sanctionnés par une peine de réclusion criminelle pouvant aller jusqu'à la perpétuité, c'est-à-dire la prison à vie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Qui juge quoi ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "diallo",
+  "texte": "Contravention → tribunal de police.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "yanis",
+  "texte": "Délit → tribunal correctionnel.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "lina",
+  "texte": "Crime → cour d'assises ou cour criminelle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "yanis",
+  "texte": "Une personne condamnée pour viol peut-elle perdre le droit de voter ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "lina",
+  "texte": "Oui. Certaines condamnations graves entraînent la privation des droits civiques et politiques : pendant plusieurs années, la personne ne peut plus voter ni se présenter aux élections.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "L'autorité de l'État, des collectivités territoriales et de la justice.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "diallo",
+  "texte": "Respecter les agents publics, les élus locaux et les juges dans leurs fonctions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "yanis",
+  "texte": "Sanctions aggravées en cas d'atteinte aux forces de l'ordre, aux juges ou aux enseignants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "lina",
+  "texte": "L'outrage est sanctionné (article 433-5 du Code pénal).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "samir",
+  "texte": "Refuser d'obéir à un policier ou à un gendarme : un délit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:5",
+  "qui": "odette",
+  "texte": "L'outrage au drapeau tricolore ou à l'hymne national est puni.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:6",
+  "qui": "diallo",
+  "texte": "Les décisions de justice s'imposent à tous : c'est l'État de droit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Le contrôle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "p-le-policier",
+  "texte": "Bonjour, contrôle de police. Arrêtez-vous, s'il vous plaît.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "6:2",
+  "qui": "p-le-conducteur",
+  "texte": "Je suis pressé, je ne m'arrête pas ! Et vous, vous êtes un…",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 1
+ },
+ {
+  "clé": "6:3",
+  "qui": "p-la-passagere",
+  "texte": "Arrête ! Refuser d'obéir à un policier est un délit. Et l'outrage envers lui est puni plus sévèrement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:4",
+  "qui": "narrateur",
+  "texte": "Des peines renforcées sont prévues quand l'outrage vise une personne dépositaire de l'autorité publique, comme un policier, un magistrat ou un élu.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "diallo",
+  "texte": "Le terrorisme est un crime.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "lina",
+  "texte": "Vrai ! Comme le braquage, le viol, l'assassinat ou le meurtre.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "diallo",
+  "texte": "Outrager le drapeau tricolore ou l'hymne national n'est pas puni.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "lina",
+  "texte": "Faux ! Le Code pénal sanctionne l'outrage au drapeau tricolore ou à l'hymne national, notamment lors d'une manifestation publique.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "diallo",
+  "texte": "Les décisions de justice doivent être respectées par tous.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "lina",
+  "texte": "Vrai ! C'est le principe de l'État de droit.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

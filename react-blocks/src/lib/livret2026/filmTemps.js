@@ -19,15 +19,31 @@ export function découper(texte, max = 150) {
   })
 }
 
-// Les « temps » d'un plan : ce qui est dit, dans l'ordre.
+// Titre d'un côté de « split » lu à voix haute : « DEPUIS 1946 » → « depuis 1946 »,
+// mais « L'État ne peut pas » reste tel quel.
+const lu = t => (t === t.toUpperCase() && /[A-ZÀ-Ý]{4,}/.test(t) ? t.toLowerCase() : t) // « CDD » reste « CDD »
+const narrer = t => (t ? découper(t).map(texte => ({ qui: 'narrateur', texte })) : [])
+
+// Plan « cartes » : à quel temps chaque carte apparaît (une carte sans texte à
+// dire apparaît avec la précédente).
+export function apparitionCartes(plan) {
+  const d = narrer(plan.narration).length
+  let i = 0, préc = d
+  return plan.items.map(it => { if (it.dire) { préc = d + i; i++ } return préc })
+}
+
+// Les « temps » d'un plan : ce qui est dit, dans l'ordre. « après » : narration
+// lue à la fin du plan (conclusion).
 export function tempsDu(plan) {
-  const n = plan.narration ? découper(plan.narration).map(texte => ({ qui: 'narrateur', texte })) : []
+  if (plan.type === 'fin') return []
+  const n = narrer(plan.narration)
+  const après = narrer(plan.après)
   switch (plan.type) {
-    case 'citation': return [...n, { qui: 'narrateur', texte: plan.texte, citation: true }]
-    case 'split': return [...n, { qui: 'narrateur', texte: `${plan.gauche.titre.toLowerCase()} : ${plan.gauche.texte}`, côté: 'gauche' }, { qui: 'narrateur', texte: `${plan.droite.titre.toLowerCase()} : ${plan.droite.texte}`, côté: 'droite' }]
-    case 'manga': return [...n, ...plan.cases.flatMap((c, k) => [{ qui: 'narrateur', texte: c.légende, case: k }, { qui: c.qui, texte: c.texte, case: k }])]
-    case 'fin': return []
+    case 'citation': return [...n, { qui: 'narrateur', texte: plan.texte, citation: true }, ...après]
+    case 'split': return [...n, { qui: 'narrateur', texte: `${lu(plan.gauche.titre)} : ${plan.gauche.texte}`, côté: 'gauche' }, { qui: 'narrateur', texte: `${lu(plan.droite.titre)} : ${plan.droite.texte}`, côté: 'droite' }, ...après]
+    case 'manga': return [...n, ...plan.cases.flatMap((c, k) => [{ qui: 'narrateur', texte: c.légende, case: k }, { qui: c.qui, texte: c.texte, case: k }]), ...après]
+    case 'cartes': return [...n, ...plan.items.flatMap((it, k) => (it.dire ? [{ qui: it.qui || 'narrateur', texte: it.dire, carte: k }] : [])), ...après]
     // Une réplique peut aussi être un temps musical sans parole : { pause, son, légende }.
-    default: return [...n, ...(plan.répliques || [])]
+    default: return [...n, ...(plan.répliques || []), ...après]
   }
 }

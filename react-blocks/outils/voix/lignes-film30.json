@@ -1,0 +1,299 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 30 : Justice et droits politiques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « Justice et droits politiques ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Faire valoir ses droits devant les tribunaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "lina",
+  "texte": "Des juges indépendants et impartiaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "samir",
+  "texte": "Être entendu et se défendre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "odette",
+  "texte": "Être assisté par un avocat.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "diallo",
+  "texte": "Être traité de manière égale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "yanis",
+  "texte": "Présomption d'innocence tant qu'il n'y a pas de condamnation définitive.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:6",
+  "qui": "lina",
+  "texte": "Des peines prévues par la loi et proportionnées aux faits.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:7",
+  "qui": "narrateur",
+  "texte": "Ces principes assurent une justice équitable, transparente et respectueuse des droits fondamentaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Trois aides pour accéder à la justice.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "lina",
+  "texte": "L'aide juridictionnelle : une aide financière de l'État pour avoir un avocat lors d'un procès, quand on a peu de moyens.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "samir",
+  "texte": "Le Défenseur des droits : litige avec une administration, discrimination, atteinte aux droits.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "odette",
+  "texte": "Les maisons de justice et du droit : conseils et permanences gratuites, avec des associations (coordination : CDAD).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "yanis",
+  "texte": "Quelle autorité administrative indépendante, créée en 2011, défend notamment les droits des usagers des services publics ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "odette",
+  "texte": "Le Défenseur des droits. On peut être reçu par un délégué dans des structures locales.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Voter et être candidat : Le droit de vote et le droit de se porter candidat aux élections sont les fondements de la démocratie représentative.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Se réunir : Chacun peut se rassembler pacifiquement pour exprimer des opinions, débattre ou défendre des intérêts communs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Quand la liberté de réunion peut être limitée.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "lina",
+  "texte": "Une réunion pacifique : une liberté importante pour la démocratie.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "samir",
+  "texte": "Un risque de trouble à l'ordre public : violences, émeutes…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "odette",
+  "texte": "L'autorité administrative (maire, préfet…) peut la restreindre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "diallo",
+  "texte": "Toujours sous le contrôle du juge.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "lina",
+  "texte": "Une personne poursuivie est présumée coupable jusqu'à son procès.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "odette",
+  "texte": "Faux ! Elle est présumée innocente tant qu'aucune condamnation définitive n'a été prononcée.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "lina",
+  "texte": "Les maisons de justice et du droit proposent des permanences gratuites.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "odette",
+  "texte": "Vrai ! Grâce à des associations spécialisées, sous la coordination des conseils départementaux d'accès au droit (CDAD).",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "lina",
+  "texte": "Le maire ou le préfet peut restreindre la liberté de réunion sans aucun contrôle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "odette",
+  "texte": "Faux ! Il peut la restreindre en cas de risque de trouble à l'ordre public, mais sous le contrôle du juge.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

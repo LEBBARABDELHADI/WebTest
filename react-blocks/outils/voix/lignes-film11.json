@@ -1,0 +1,254 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 11 : Neutralité, prosélytisme, blasphème.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "samir",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Neutralité, prosélytisme, blasphème ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Loi de 1905 sur la séparation des Églises et de l'État : l'État et les organisations religieuses sont séparés…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "et la loi est la même pour tout le monde, quelles que soient sa religion ou ses convictions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "L'État ne peut pas : Soutenir une organisation religieuse ; S'impliquer dans leur fonctionnement interne ; Financer la construction d'un édifice religieux ; Payer un personnel religieux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "L'État peut / doit : Considérer toutes les religions de la même manière ; Financer la restauration d'un monument religieux classé au patrimoine ; Traiter tous les citoyens de la même manière dans les services publics.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "narrateur",
+  "texte": "L'État, les collectivités territoriales et les services publics sont neutres vis-à-vis des religions : c'est la neutralité de l'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Une exception historique : Alsace, Moselle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "En Alsace et en Moselle, en raison de l'Histoire, l'État a des accords spéciaux avec certaines religions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Le prosélytisme.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "p-un-passant",
+  "texte": "Ce monsieur distribue des tracts sur sa religion dans la rue. Il a le droit ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-une-voisine",
+  "texte": "Oui, tant que cela ne trouble pas l'ordre public, et sans forcer personne par la violence, la menace ou la pression.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-le-passant",
+  "texte": "Et s'il le fait au guichet de la mairie ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 1
+ },
+ {
+  "clé": "5:4",
+  "qui": "p-la-voisine",
+  "texte": "Là, non : le prosélytisme est interdit dans les services publics, à cause de la neutralité de l'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 1
+ },
+ {
+  "clé": "5:5",
+  "qui": "narrateur",
+  "texte": "Le prosélytisme religieux, c'est vouloir convaincre quelqu'un d'adopter sa religion ou ses idées religieuses.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "lina",
+  "texte": "3. Le blasphème (parole qui insulte la divinité, la religion ou ce qui est sacré) est-il un délit en France ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "samir",
+  "texte": "Un indice : Pense à la liberté d'expression.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "samir",
+  "texte": "Non. Chacun peut critiquer une religion ou s'en moquer, y compris par la caricature. Personne ne peut être puni pour cela : c'est la liberté d'expression.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "samir",
+  "texte": "En règle générale, l'État peut financer la construction d'un édifice religieux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "diallo",
+  "texte": "Faux ! L'État n'a pas ce droit. Il existe quelques exceptions, comme en Alsace et en Moselle. L'État peut en revanche financer la restauration d'un monument religieux classé.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "samir",
+  "texte": "On peut distribuer des tracts religieux dans la rue si cela ne trouble pas l'ordre public.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "diallo",
+  "texte": "Vrai ! Le prosélytisme est autorisé sans violence, menace ni pression.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "samir",
+  "texte": "Une caricature qui se moque d'une religion est punie comme blasphème.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "diallo",
+  "texte": "Faux ! Le blasphème n'est pas un délit en France.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "samir",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

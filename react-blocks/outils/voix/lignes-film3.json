@@ -1,0 +1,263 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 3 : Le chemin vers la nationalité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « Le chemin vers la nationalité ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "En demandant la nationalité française, vous montrez votre volonté de rejoindre la communauté nationale, de respecter ses valeurs et de l'enrichir.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "S'assimiler à la communauté française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "diallo",
+  "texte": "Maîtriser le français : niveau B2, à l'oral et à l'écrit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "yanis",
+  "texte": "Connaître assez l'histoire, la culture et la société françaises.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "lina",
+  "texte": "Adhérer aux principes et valeurs de la République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "narrateur",
+  "texte": "Le niveau B2 est celui du cadre européen commun de référence pour les langues.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "narrateur",
+  "texte": "Il est demandé à l'oral et à l'écrit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Les étapes du dossier.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "diallo",
+  "texte": "Demande d'acquisition de la nationalité française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "yanis",
+  "texte": "Examen civique : il évalue vos connaissances.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "lina",
+  "texte": "Si le dossier est recevable…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "samir",
+  "texte": "Entretien en préfecture, en sous-préfecture ou en consulat.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "odette",
+  "texte": "On évalue votre degré d'assimilation à la communauté nationale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Le jour de l'entretien.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "p-l-agente",
+  "texte": "Nous allons échanger sur votre connaissance des droits et devoirs du citoyen.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-le-candidat",
+  "texte": "J'ai étudié le livret avant l'examen civique et avant cet entretien.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-l-agente",
+  "texte": "Nous regardons aussi votre adhésion aux valeurs : elle se voit dans leur respect et leur mise en œuvre au quotidien, en famille et dans la société.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "diallo",
+  "texte": "Le niveau de français demandé est B2, à l'oral et à l'écrit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "lina",
+  "texte": "Vrai ! Niveau B2 oral et écrit du cadre européen commun de référence pour les langues.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "diallo",
+  "texte": "Le livret contient absolument tout ce qu'il faut savoir.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "lina",
+  "texte": "Faux ! Il n'est pas exhaustif. Il illustre le niveau de connaissances attendu.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "diallo",
+  "texte": "L'entretien peut avoir lieu dans un consulat.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "lina",
+  "texte": "Vrai ! En préfecture, en sous-préfecture ou en consulat.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

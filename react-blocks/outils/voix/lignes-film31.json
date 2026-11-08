@@ -1,0 +1,272 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 31 : Manifester, s'associer, environnement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "samir",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Manifester, s'associer, environnement ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Organiser une manifestation.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "samir",
+  "texte": "Manifester : une liberté fondamentale reconnue dans la DDHC.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "odette",
+  "texte": "Déclarer la manifestation auprès de l'administration.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "diallo",
+  "texte": "Préciser le parcours.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "yanis",
+  "texte": "Identifier les organisateurs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "lina",
+  "texte": "Objectif : éviter les troubles à l'ordre public.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:6",
+  "qui": "narrateur",
+  "texte": "Manifester fait partie des moyens d'expression collective traditionnels dans la vie politique et sociale française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:7",
+  "qui": "narrateur",
+  "texte": "La manifestation est inscrite dans le droit français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Créer une association.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "p-aicha",
+  "texte": "Avec des voisins, on veut créer une association pour le quartier. On a le droit ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "3:2",
+  "qui": "p-paul",
+  "texte": "Oui ! La loi du 1er juillet 1901 reconnaît le droit de créer ou de rejoindre une association.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "3:3",
+  "qui": "p-aicha",
+  "texte": "Et il y a des règles ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "3:4",
+  "qui": "p-paul",
+  "texte": "Respecter les lois de la République. Une association qui ne respecte pas les principes républicains peut être dissoute par l'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Chacun a le droit de vivre dans un environnement équilibré et respectueux de la santé.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "Ce droit est reconnu par la Charte de l'environnement de 2004, intégrée dans la Constitution de 1958.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Deux textes à retenir.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "1er juillet 1901 : Loi sur la liberté d'association.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "2004 : Charte de l'environnement, intégrée dans la Constitution de 1958.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "samir",
+  "texte": "Une manifestation doit être déclarée auprès de l'administration.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "diallo",
+  "texte": "Vrai ! Cette déclaration préalable précise le parcours et identifie les organisateurs.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "samir",
+  "texte": "Une association peut agir contre les principes républicains sans risque.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "diallo",
+  "texte": "Faux ! Une association qui ne respecte pas les principes républicains peut être dissoute par l'État.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "samir",
+  "texte": "La Charte de l'environnement de 2004 est intégrée dans la Constitution de 1958.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "diallo",
+  "texte": "Vrai ! Elle reconnaît le droit de vivre dans un environnement équilibré et respectueux de la santé.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "samir",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

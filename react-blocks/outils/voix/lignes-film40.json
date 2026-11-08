@@ -1,0 +1,254 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 40 : La Révolution et la Ire République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « La Révolution et la Ire République ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Les Parisiens s'emparent de la Bastille, prison royale et symbole du pouvoir monarchique arbitraire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "C'est le début de la Révolution française et la fin de la monarchie absolue.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Naissance des valeurs républicaines.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "p-la-fayette",
+  "texte": "En 1789, la Révolution adopte la Déclaration des droits de l'homme et du citoyen. Moi, le marquis de La Fayette, j'ai contribué à son écriture.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "3:2",
+  "qui": "p-une-candidate",
+  "texte": "La Révolution française est donc à l'origine de nos valeurs républicaines !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "La chute du roi Louis XVI.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "1789 : Début de la Révolution : fin de la monarchie absolue.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "narrateur",
+  "texte": "1791 : Monarchie constitutionnelle : les pouvoirs du roi sont limités.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "narrateur",
+  "texte": "10 août 1792 : Après sa tentative de fuite vers l'étranger, Louis XVI est renversé, puis jugé.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "narrateur",
+  "texte": "1793 : Louis XVI est guillotiné sur la place de la Concorde.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "La Première République (1792-1804).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "lina",
+  "texte": "Elle débute en 1792, à la fin de la monarchie constitutionnelle : elle est l'héritière de la Révolution.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "samir",
+  "texte": "Menaces : des révoltes à l'intérieur du pays et des guerres avec d'autres pays.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "odette",
+  "texte": "La Terreur : les ennemis de la Révolution sont surveillés, les suspects de trahison guillotinés.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "diallo",
+  "texte": "Maximilien Robespierre défend l'égalité et la République, mais il dirige aussi la Terreur.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:5",
+  "qui": "yanis",
+  "texte": "1799 : Napoléon Bonaparte prend le pouvoir ; en 1804, il met fin à la Ire République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "lina",
+  "texte": "La prise de la Bastille a lieu le 14 juillet 1789.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "odette",
+  "texte": "Vrai ! Elle marque le début de la Révolution française.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "lina",
+  "texte": "Louis XVI est guillotiné sur la place de la Bastille.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "odette",
+  "texte": "Faux ! Il est guillotiné sur la place de la Concorde, en 1793.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "lina",
+  "texte": "Robespierre dirige la Terreur.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "odette",
+  "texte": "Vrai ! Il défend l'égalité et la République, mais dirige aussi la Terreur.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

@@ -1,0 +1,299 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 48 : Des naturalisés célèbres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "lina",
+  "texte": "Samir, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "samir",
+  "texte": "Oui ! Aujourd'hui : « Des naturalisés célèbres ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Au fil de son histoire, de nombreuses personnes sont venues vivre en France et beaucoup ont choisi de devenir françaises.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Par leur talent, elles ont contribué au rayonnement de la France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Ils ont fait avancer la France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "diallo",
+  "texte": "Marie Curie (née en Pologne) : radioactivité, Nobel de physique 1903, de chimie 1911 ; inhumée au Panthéon.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "yanis",
+  "texte": "Georges Charpak (origine polonaise) : imagerie biomédicale, détection des particules, Nobel de physique 1992.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "lina",
+  "texte": "Haroun Tazieff (né à Varsovie) : père de la volcanologie contemporaine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "samir",
+  "texte": "Léon Gambetta (petit-fils d'un commerçant italien) : aide la France à se relever après la défaite de 1870 ; un des pères de la IIIe République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "odette",
+  "texte": "Françoise Giroud (origine suisse) : co-fondatrice de « L'Express », deux fois Secrétaire d'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Les arts et les lettres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "diallo",
+  "texte": "Peintres d'origine russe : Vassily Kandinsky, un fondateur de l'art abstrait ; Marc Chagall, plafond de l'Opéra Garnier.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "yanis",
+  "texte": "Guillaume Apollinaire (« Alcools », « Calligramme ») ; Andrée Chedid, née au Caire, poétesse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "lina",
+  "texte": "Marguerite Yourcenar, née à Bruxelles : « Mémoires d'Hadrien », première femme élue à l'Académie française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "samir",
+  "texte": "Romain Gary : seul écrivain à recevoir deux fois le Goncourt (1956 ; 1975 sous le nom d'Émile Ajar).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "odette",
+  "texte": "Maria Casarès, née à La Corogne : « Les enfants du paradis », « Orphée »",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Sur scène et en chansons.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "p-josephine-baker",
+  "texte": "D'origine américaine, je suis la première chanteuse, danseuse et meneuse de revue noire reconnue. Pendant la Seconde Guerre mondiale, j'agis dans la Résistance.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "5:2",
+  "qui": "p-dalida",
+  "texte": "Je suis d'origine égyptienne. Mes succès ? « Bambino », « Il venait d'avoir 18 ans », « Laissez-moi danser »…",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 1
+ },
+ {
+  "clé": "5:3",
+  "qui": "p-miriam-makeba",
+  "texte": "Engagée contre l'apartheid, je suis la première chanteuse sud-africaine à obtenir un Grammy Award.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 2
+ },
+ {
+  "clé": "5:4",
+  "qui": "p-moustaki",
+  "texte": "Moi, Georges Moustaki, d'origine italo-grecque, je deviens dans les années 1960 un des grands noms de la chanson française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "6:0",
+  "qui": "yanis",
+  "texte": "Quel cycliste, né en Italie, remporte en 1903 le premier Tour de France de l'histoire ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "lina",
+  "texte": "Maurice-François Garin (1871-1957), une figure légendaire du cyclisme mondial.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "diallo",
+  "texte": "Marie Curie a reçu deux prix Nobel.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "lina",
+  "texte": "Vrai ! Physique en 1903 (avec Pierre Curie et Henri Becquerel), puis chimie en 1911 pour l'isolement du radium.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "diallo",
+  "texte": "Marguerite Yourcenar est la première femme élue à l'Académie française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "lina",
+  "texte": "Vrai ! Née à Bruxelles, elle est célèbre pour « Mémoires d'Hadrien ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "diallo",
+  "texte": "Romain Gary n'a reçu le prix Goncourt qu'une seule fois.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "lina",
+  "texte": "Faux ! Deux fois : en 1956 pour « Les Racines du ciel », en 1975 pour « La Vie devant soi » sous le nom d'Émile Ajar.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "samir",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "lina",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

@@ -3,7 +3,7 @@ import Decor from './Decors'
 import { CSS_FILM } from '../../lib/livret2026/filmCss'
 import { direRéplique, créerMusique } from '../../lib/livret2026/filmAudio'
 import { imagePage } from '../../lib/livret2026/outils'
-import { tempsDu, découper } from '../../lib/livret2026/filmTemps'
+import { tempsDu, découper, apparitionCartes } from '../../lib/livret2026/filmTemps'
 import { créerSonCinéma, jouerFichier, précharger } from '../../lib/livret2026/cinema/sonCinema'
 import { PAGE } from '../../lib/livret2026'
 
@@ -28,6 +28,12 @@ function useLargeur(ref, actif) {
   return l
 }
 
+// Fait défiler la liste de cartes (et elle seule) jusqu'à la carte lue.
+function défilerVers(el) {
+  const l = el?.parentElement
+  if (l && (el.offsetTop < l.scrollTop || el.offsetTop + el.offsetHeight > l.scrollTop + l.clientHeight)) l.scrollTo({ top: Math.max(0, el.offsetTop - 8), behavior: 'smooth' })
+}
+
 function MachineÀÉcrire({ texte, vitesse = 26 }) {
   const [n, setN] = useState(0)
   useEffect(() => { const t = setInterval(() => setN(x => (x >= texte.length ? (clearInterval(t), x) : x + 1)), vitesse); return () => clearInterval(t) }, [texte, vitesse])
@@ -50,6 +56,7 @@ export default function Film({ film, onFermer, onVu }) {
   const temps = tempsDu(plan)
   const actuel = temps[b]
   const perso = id => film.personnages[id] || { nom: id, voix: {} }
+  const dNarr = plan.narration ? découper(plan.narration).length : 0
 
   const urlVoix = f => `${import.meta.env.BASE_URL}${film.voix?.base || ''}${f}`
   const voixDe = (k, i) => film.voix?.lignes[`${k}:${i}`]
@@ -211,8 +218,8 @@ export default function Film({ film, onFermer, onVu }) {
         <Decor nom={plan.décor} />
         <div className="f-parchemin">
           <div style={{ fontSize: 'clamp(40px, 9vh, 70px)', lineHeight: 0.5, color: '#8a5a1a' }} aria-hidden="true">“</div>
-          <p style={{ fontStyle: 'italic', fontSize: 'clamp(18px, 3.4vh, 28px)', lineHeight: 1.5, margin: '10px 0', minHeight: '4.5em' }}>{b >= temps.length - 1 ? <MachineÀÉcrire texte={plan.texte} /> : ''}</p>
-          <p style={{ margin: 0, fontSize: 'clamp(13px, 2vh, 16px)', opacity: b >= temps.length - 1 ? 0.85 : 0, transition: 'opacity 1s 2s' }}>— {plan.source}</p>
+          <p style={{ fontStyle: 'italic', fontSize: 'clamp(18px, 3.4vh, 28px)', lineHeight: 1.5, margin: '10px 0', minHeight: '4.5em' }}>{b >= dNarr ? <MachineÀÉcrire texte={plan.texte} /> : ''}</p>
+          <p style={{ margin: 0, fontSize: 'clamp(13px, 2vh, 16px)', opacity: b >= dNarr ? 0.85 : 0, transition: 'opacity 1s 2s' }}>— {plan.source}</p>
         </div>
       </>
     )
@@ -226,7 +233,7 @@ export default function Film({ film, onFermer, onVu }) {
     )
     contenu = (
       <>
-        <div className="f-split">{côté(plan.gauche, b >= 1)}{côté(plan.droite, b >= 2)}</div>
+        <div className="f-split">{côté(plan.gauche, b >= dNarr)}{côté(plan.droite, b >= dNarr + 1)}</div>
         <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 3, width: 64, height: 64, borderRadius: '50%', background: '#ffd166', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 20, boxShadow: '0 0 0 5px #111', animation: 'f-pop .5s .8s both' }}>VS</div>
         <div style={{ position: 'absolute', top: 10, left: 0, right: 0, textAlign: 'center', zIndex: 3, fontWeight: 900, fontSize: 'clamp(15px, 2.6vh, 20px)', textShadow: '0 2px 6px #000' }}>{plan.titre}</div>
       </>
@@ -241,6 +248,29 @@ export default function Film({ film, onFermer, onVu }) {
           </div>
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: '3%', textAlign: 'center', zIndex: 3, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 'clamp(13px, 2.1vh, 17px)', color: '#f3dfa8', animation: 'f-fondu 1s 1s both' }}>{plan.légende}</div>
+      </>
+    )
+  } else if (plan.type === 'cartes') {
+    // Liste, étapes, frise, chiffres, nuage de mots : les cartes apparaissent
+    // au fil de la lecture ; celle qu'on lit est mise en avant.
+    const apparition = apparitionCartes(plan)
+    contenu = (
+      <>
+        <div style={{ position: 'absolute', inset: 0, background: plan.fond || 'radial-gradient(circle at 50% 20%, #24305e, #070b1a)' }} />
+        <div className={`f-cartes f-v-${plan.variante || 'liste'}`}>
+          <div className="f-cartes-titre">{plan.titre}</div>
+          {plan.centre && <div className="f-cartes-centre"><span aria-hidden="true">{plan.centre.emoji}</span> {plan.centre.texte}</div>}
+          <div className="f-cartes-liste">
+            {plan.items.map((it, k) => b >= apparition[k] && (
+              <div key={k} className={`f-carte ${actuel?.carte === k ? 'f-carte-active' : ''}`} ref={actuel?.carte === k ? défilerVers : undefined}>
+                {it.haut && <div className="f-carte-haut">{it.haut}</div>}
+                {it.emoji && <span className="f-carte-emoji" aria-hidden="true">{it.emoji}</span>}
+                <span className="f-carte-texte">{it.texte}</span>
+                {it.qui && it.qui !== 'narrateur' && <span className={`f-carte-qui ${actuel?.carte === k ? 'f-parle' : ''}`} aria-hidden="true"><span className="f-corps" style={{ fontSize: 'inherit' }}>{perso(it.qui).emoji}</span></span>}
+              </div>
+            ))}
+          </div>
+        </div>
       </>
     )
   } else if (plan.type === 'chapitre') {
@@ -259,7 +289,7 @@ export default function Film({ film, onFermer, onVu }) {
           {plan.cases.map((c, k) => {
             // Chaque case : sa légende (narration), puis la réplique. La narration
             // du plan, s'il y en a une, passe avant la première case.
-            const d = plan.narration ? découper(plan.narration).length : 0
+            const d = dNarr
             if (b < d + 2 * k) return <div key={k} style={{ border: '4px dashed #c9c2b2', borderRadius: 6 }} />
             const pp = perso(c.qui)
             return (
@@ -306,8 +336,8 @@ export default function Film({ film, onFermer, onVu }) {
       <style>{CSS_FILM}</style>
       <div className="f-bande f-haut">
         <span style={{ fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: '#ffd166', fontWeight: 800, whiteSpace: 'nowrap' }}>{film.épisode}</span>
-        <div style={{ flex: 1, display: 'flex', gap: 3 }} aria-hidden="true">
-          {film.plans.map((_, k) => <button key={k} onClick={() => allerPlan(k)} tabIndex={-1} style={{ flex: 1, height: 5, padding: 0, border: 'none', borderRadius: 3, cursor: 'pointer', background: k < p ? '#ffd166' : k === p ? '#fff' : 'rgba(255,255,255,.22)' }} />)}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 3 }} aria-hidden="true">
+          {film.plans.map((_, k) => <button key={k} onClick={() => allerPlan(k)} tabIndex={-1} style={{ flex: 1, height: 5, minWidth: 0, minHeight: 0, padding: 0, border: 'none', borderRadius: 3, cursor: 'pointer', background: k < p ? '#ffd166' : k === p ? '#fff' : 'rgba(255,255,255,.22)' }} />)}
         </div>
         <button onClick={onFermer} aria-label="Fermer l'épisode" className="f-controle">✕</button>
       </div>

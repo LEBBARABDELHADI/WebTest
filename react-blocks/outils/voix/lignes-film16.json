@@ -1,0 +1,299 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 16 : État de droit et institutions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "samir",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « État de droit et institutions ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "En France, la loi doit être respectée par tous, y compris par l'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "L'État de droit est une condition de la démocratie, en opposition à l'État arbitraire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "« Le Gouvernement du peuple, par le peuple et pour le peuple. »",
+  "émotion": null,
+  "officiel": true,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "Le principe de la démocratie est inscrit à l'article 2 de la Constitution de 1958 : le Gouvernement du peuple, par le peuple et pour le peuple.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "La Constitution de la Ve République, adoptée en 1958.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "samir",
+  "texte": "Approuvée par référendum : un vote où les citoyens sont consultés directement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "odette",
+  "texte": "Son préambule cite la Déclaration des droits de l'homme et du citoyen de 1789.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "diallo",
+  "texte": "Elle définit l'organisation de l'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "yanis",
+  "texte": "Pour la modifier : un référendum ou le Parlement réuni en Congrès.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "lina",
+  "texte": "Les décisions de l'État respectent la Constitution et la Déclaration de 1789.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:6",
+  "qui": "narrateur",
+  "texte": "Notre Constitution est celle de la Ve République, adoptée en 1958 et approuvée par référendum.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:7",
+  "qui": "narrateur",
+  "texte": "Ses modifications doivent être approuvées par référendum ou par le Parlement réuni en Congrès.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Trois pouvoirs séparés.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "samir",
+  "texte": "Pouvoir législatif : élaborer et voter les lois (députés et sénateurs).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "odette",
+  "texte": "Pouvoir exécutif : définir la politique de la Nation et mettre en œuvre les lois (gouvernement).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "diallo",
+  "texte": "Pouvoir judiciaire : rendre la justice (les juges).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "yanis",
+  "texte": "Les partis politiques se forment et exercent leur activité librement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:5",
+  "qui": "lina",
+  "texte": "L'administration respecte la Constitution, les lois et les principes républicains ; elle agit sous le contrôle du juge.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:6",
+  "qui": "narrateur",
+  "texte": "Les principes de l'État de droit sont la protection des libertés fondamentales, la séparation des trois pouvoirs et l'indépendance de la justice.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Le Président de la République : Chef de l'État et des armées. Élu au suffrage universel direct pour 5 ans, renouvelables une fois (il faut 500 parrainages d'élus pour être candidat). Il nomme le Gouvernement, issu de la majorité aux législatives, sur proposition du Premier ministre, qui en dirige l'action.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "Le Parlement : Assemblée nationale + Sénat. Il vote les lois et contrôle le Gouvernement. 577 députés élus au suffrage universel direct tous les 5 ans (élections législatives) ; 348 sénateurs élus au suffrage universel indirect pour 6 ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "samir",
+  "texte": "Dans un État de droit, l'État n'est pas obligé de respecter la loi.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "diallo",
+  "texte": "Faux ! La loi doit être respectée par tous, y compris par l'État.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "samir",
+  "texte": "Le Président de la République est élu pour 5 ans, renouvelables une fois.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "diallo",
+  "texte": "Vrai ! Il est élu au suffrage universel direct pour cinq ans, renouvelables une fois.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "samir",
+  "texte": "Les sénateurs sont élus directement par les citoyens.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "diallo",
+  "texte": "Faux ! Les 348 sénateurs sont élus au suffrage universel indirect, pour un mandat de six ans.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "samir",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

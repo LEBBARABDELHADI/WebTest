@@ -1,0 +1,326 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 36 : Éducation et solidarité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "samir",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Éducation et solidarité ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "La scolarité obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "3 ans : début de la scolarité obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "16 ans : fin de la scolarité obligatoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "Les parents doivent scolariser leur enfant à partir de la rentrée scolaire de l'année civile de ses 3 ans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "narrateur",
+  "texte": "Sinon, ils s'exposent à des poursuites judiciaires.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Les parents, premiers acteurs de l'éducation.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "samir",
+  "texte": "La liberté.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "odette",
+  "texte": "L'égalité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "diallo",
+  "texte": "La fraternité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "yanis",
+  "texte": "Le principe de laïcité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "lina",
+  "texte": "À l'école, mais aussi en famille, dans la vie de tous les jours.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Parents étrangers : un engagement (article 20 de la loi CIAI du 26 janvier 2024).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "samir",
+  "texte": "Assurer à leur enfant une éducation respectueuse des valeurs et des principes de la République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "odette",
+  "texte": "L'accompagner dans sa démarche d'intégration.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "diallo",
+  "texte": "Notamment par l'acquisition de la langue française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Le devoir d'aider les autres repose sur la valeur républicaine de fraternité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Au-delà des obligations légales, l'entraide, par des initiatives individuelles ou dans la vie associative…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "améliore le vivre ensemble en renforçant les liens sociaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Témoin d'un accident.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "p-nadia",
+  "texte": "Un scooter vient de chuter, le conducteur ne bouge plus !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:2",
+  "qui": "p-tom",
+  "texte": "Ce n'est pas notre problème, on y va…",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "6:3",
+  "qui": "p-nadia",
+  "texte": "Si ! C'est le devoir d'assistance à personne en danger. Je préviens les secours.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:4",
+  "qui": "p-tom",
+  "texte": "Tu as raison : la non-assistance à personne en danger est un délit.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "6:5",
+  "qui": "narrateur",
+  "texte": "Chacun doit porter secours à autrui, dans la mesure où il peut le faire sans mettre sa propre vie en péril.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "samir",
+  "texte": "Transmettre les valeurs républicaines, c'est seulement le rôle de l'école.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "diallo",
+  "texte": "Faux ! Cela doit aussi se faire par l'éducation familiale : les parents sont les premiers acteurs de l'éducation.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "samir",
+  "texte": "Il faut porter secours même en mettant sa propre vie en péril.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "diallo",
+  "texte": "Faux ! On doit porter secours dans la mesure où on peut le faire sans mettre sa propre vie en péril.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "samir",
+  "texte": "Des parents qui ne scolarisent pas leur enfant s'exposent à des poursuites judiciaires.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "diallo",
+  "texte": "Vrai ! La scolarité est obligatoire de 3 à 16 ans.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "samir",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

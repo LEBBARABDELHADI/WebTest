@@ -1,0 +1,263 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 12 : Expression, rue, services publics.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Mamie Odette, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "odette",
+  "texte": "Oui ! Aujourd'hui : « Expression, rue, services publics ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Ce qui est interdit (le blasphème n'en fait pas partie).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "odette",
+  "texte": "La diffamation (dire des choses fausses pour nuire) et les injures publiques.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "diallo",
+  "texte": "Encourager à commettre des crimes ou délits contre une religion.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "yanis",
+  "texte": "Inciter à la haine raciale, ethnique ou religieuse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "lina",
+  "texte": "Utiliser la religion pour justifier des crimes de guerre ou le terrorisme.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "samir",
+  "texte": "Inciter à discriminer.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:6",
+  "qui": "odette",
+  "texte": "Remettre en cause des crimes contre l'humanité, dont le négationnisme (nier la Shoah).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Selon les lieux, différentes règles s'appliquent pour respecter et faire vivre la laïcité : l'espace public, les services publics, le lieu de travail…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "l'école.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "a) Dans l'espace public.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "p-une-passante",
+  "texte": "Dans la rue, au parc, au marché ou dans le bus, j'ai le droit de porter mon voile.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "4:2",
+  "qui": "p-un-passant",
+  "texte": "Et moi mon turban. On peut aussi participer à des célébrations religieuses et exprimer ses convictions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "4:3",
+  "qui": "p-une-policiere",
+  "texte": "Oui, mais l'ordre public d'abord : une manifestation religieuse peut être soumise à autorisation, encadrée ou interdite (exemple : les prières de rue).",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 1
+ },
+ {
+  "clé": "4:4",
+  "qui": "p-la-policiere",
+  "texte": "Et la loi du 11 octobre 2010 interdit de dissimuler son visage dans l'espace public : cagoule, masque, voile intégral…",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 2
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Les agents : À l'hôpital, à l'école, à la mairie, ils restent neutres et ne montrent pas leurs opinions ou croyances pendant leur travail. Aucun signe religieux, politique ou philosophique dans les bureaux, aux guichets ou dans les espaces communs.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Les usagers : La neutralité ne s'impose pas à eux : ils peuvent porter un signe religieux, en respectant les règles de fonctionnement du service. Mais ils ne peuvent pas exiger une adaptation du service au nom d'une religion.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "La neutralité des agents est l'une des conditions d'un traitement équitable des usagers.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "odette",
+  "texte": "On a le droit de porter une kippa ou une croix dans la rue.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "yanis",
+  "texte": "Vrai ! Chacun peut montrer sa religion dans l'espace public, dans le respect de l'ordre public.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "odette",
+  "texte": "Un usager peut exiger qu'un service public s'adapte à sa religion.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "yanis",
+  "texte": "Faux ! Il n'est pas possible d'exiger une adaptation du service public au nom d'une religion.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "odette",
+  "texte": "Nier l'existence de la Shoah fait partie de la liberté d'expression.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "yanis",
+  "texte": "Faux ! Le négationnisme est une limite de la liberté d'expression.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "odette",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

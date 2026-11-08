@@ -1,0 +1,326 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 45 : Ve République, décolonisation, Mai 68.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « Ve République, décolonisation, Mai 68 ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "La naissance de la Ve République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "lina",
+  "texte": "Crise politique : guerre d'Algérie et gouvernements instables de la IVe République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "samir",
+  "texte": "Été 1958 : de Gaulle est appelé comme président du Conseil pour rédiger une nouvelle Constitution.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "odette",
+  "texte": "28 septembre 1958 : la Constitution est adoptée par référendum.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "diallo",
+  "texte": "4 octobre 1958 : elle est promulguée.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "yanis",
+  "texte": "De Gaulle devient le premier Président de la Ve République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Un pouvoir exécutif fort.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "lina",
+  "texte": "Un président doté de pouvoirs importants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "samir",
+  "texte": "L'Assemblée nationale peut moins facilement renverser le Gouvernement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "odette",
+  "texte": "Le but : la continuité et la stabilité du Gouvernement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "diallo",
+  "texte": "C'est encore aujourd'hui le régime politique de la France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "La décolonisation française.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "lina",
+  "texte": "Entre le XVIIe et le XIXe siècle, la France conquiert un vaste empire colonial, qu'elle contrôle politiquement, administrativement et économiquement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "samir",
+  "texte": "En Afrique (Afrique de l'Ouest, Afrique équatoriale, Algérie, Madagascar, Maroc, Tunisie…) et en Asie (Indochine…).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "odette",
+  "texte": "Pendant la Seconde Guerre mondiale, de nombreux soldats des colonies meurent pour défendre la France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "diallo",
+  "texte": "Après la guerre, des mouvements nationalistes réclament l'indépendance.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "yanis",
+  "texte": "La plupart des colonies l'obtiennent dans les années 1950 et 1960, par des processus négociés.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Deux conflits meurtriers.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "1946-1954 : Indochine : un conflit, puis l'indépendance.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "1954-1962 : Algérie : un conflit, puis l'indépendance.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Mai 1968.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "p-une-etudiante",
+  "texte": "Nous réclamons de meilleures conditions d'études et davantage de libertés !",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "6:2",
+  "qui": "p-un-ouvrier",
+  "texte": "Avec les syndicats, nous contestons la rigidité du système politique et social. Nos grèves sont parmi les plus importantes du XXe siècle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "6:3",
+  "qui": "p-le-journal",
+  "texte": "Le mouvement se conclut par des avancées sociales importantes, comme l'augmentation du salaire minimum. La société se transforme.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 1
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "lina",
+  "texte": "La Constitution de la Ve République est promulguée le 4 octobre 1958.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "odette",
+  "texte": "Vrai ! Elle a été adoptée par référendum le 28 septembre 1958.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "lina",
+  "texte": "La guerre d'Algérie dure de 1946 à 1954.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "odette",
+  "texte": "Faux ! Ce sont les dates de l'Indochine. L'Algérie : 1954-1962.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "lina",
+  "texte": "Mai 1968 commence par un mouvement d'étudiants.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "odette",
+  "texte": "Vrai ! Il est ensuite amplifié par les salariés et les syndicats d'ouvriers.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

@@ -1,0 +1,317 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 35 : Défense et environnement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Lina, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "lina",
+  "texte": "Oui ! Aujourd'hui : « Défense et environnement ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "La défense nationale.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "lina",
+  "texte": "En premier lieu, une armée de métier.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "samir",
+  "texte": "Une stratégie de dissuasion nucléaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "odette",
+  "texte": "La Journée Défense et Citoyenneté (JDC) pour les jeunes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:4",
+  "qui": "diallo",
+  "texte": "Des réserves : militaire, police, citoyenne, sanitaire…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:5",
+  "qui": "yanis",
+  "texte": "En cas de crise ou de guerre, tout citoyen peut être appelé.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:6",
+  "qui": "lina",
+  "texte": "Au Liban, la France s'engage dans la FINUL (Nations unies).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Du service obligatoire au service volontaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "1997 : Fin du service militaire obligatoire en France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "narrateur",
+  "texte": "1er janvier 2026 : Mise en place du service militaire volontaire (SMV) de 8 mois.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:3",
+  "qui": "narrateur",
+  "texte": "Aujourd'hui, les jeunes participent à la JDC.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:4",
+  "qui": "narrateur",
+  "texte": "Elle les sensibilise à leurs responsabilités en matière de sécurité nationale et leur fait découvrir les missions des forces armées…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:5",
+  "qui": "narrateur",
+  "texte": "en temps de paix et en temps de guerre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Les chiffres à retenir.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "16 ans : recensement à la mairie pour la JDC.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "narrateur",
+  "texte": "8 mois : durée du service militaire volontaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "narrateur",
+  "texte": "25 ans : âge maximum pour le SMV (de 18 à 25 ans).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "narrateur",
+  "texte": "Le SMV s'adresse aux jeunes de 18 à 25 ans, français ou étrangers, exclus du marché de l'emploi.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "narrateur",
+  "texte": "Il leur apporte une formation et affirme les valeurs de la République, pour renforcer la cohésion nationale et créer une culture de l'engagement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "« Toute personne a le devoir de prendre part à la préservation et à l'amélioration de l'environnement. »",
+  "émotion": null,
+  "officiel": true,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "Depuis 2004, la Charte de l'environnement impose à chacun de contribuer à la protection de l'environnement.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Égalité : Pour que chacun ait accès à un environnement sain.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "Fraternité : Pour les générations futures et le bien commun.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "lina",
+  "texte": "La défense nationale repose en premier lieu sur une armée de métier et la dissuasion nucléaire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "odette",
+  "texte": "Vrai ! C'est ce que dit le livret ; des réserves permettent aussi aux volontaires de s'engager.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "lina",
+  "texte": "Le service militaire volontaire est réservé aux jeunes Français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "odette",
+  "texte": "Faux ! Il s'adresse aux jeunes de 18 à 25 ans, français ou étrangers, exclus du marché de l'emploi.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "lina",
+  "texte": "Protéger l'environnement est un devoir pour chacun.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "odette",
+  "texte": "Vrai ! Depuis 2004, la Charte de l'environnement impose à chacun de contribuer à sa protection.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "lina",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

@@ -173,6 +173,35 @@ export default function Decor({ nom }) {
         <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '26%', background: 'linear-gradient(#a0714a, #8a5f3c)' }} />
       </div>
     )
+    case 'classe': return (
+      <div style={{ ...abs, inset: 0, background: 'linear-gradient(#f6edd9, #eadcbf)' }}>
+        <div style={{ ...abs, left: '12%', right: '12%', top: '8%', height: '40%', background: '#1f4d3a', border: '10px solid #8a5a35', borderRadius: 6, boxShadow: 'inset 0 0 30px rgba(0,0,0,.35)' }}>
+          <div style={{ ...abs, left: '8%', top: '14%', color: 'rgba(255,255,255,.85)', fontFamily: 'Georgia, serif', fontSize: 'clamp(14px, 2.6vh, 22px)' }}>Liberté · Égalité · Fraternité</div>
+          <div style={{ ...abs, left: '8%', top: '46%', width: '50%', height: 3, background: 'rgba(255,255,255,.5)' }} />
+          <div style={{ ...abs, left: '8%', top: '62%', width: '36%', height: 3, background: 'rgba(255,255,255,.4)' }} />
+        </div>
+        <div style={{ ...abs, right: '5%', top: '10%', fontSize: 'clamp(30px, 6vh, 52px)' }}>🕰️</div>
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '22%', background: 'repeating-linear-gradient(90deg, #c08a5a 0 80px, #b57f50 80px 160px)' }} />
+      </div>
+    )
+    case 'paysage': return (
+      <div style={{ ...abs, inset: 0, background: 'linear-gradient(#8fd0ff 0%, #dff3ff 55%, #fff5d6 100%)' }}>
+        {[0, 1].map(k => <div key={k} style={{ ...abs, top: `${6 + k * 12}%`, fontSize: 'clamp(40px, 8vh, 70px)', opacity: 0.9, animation: `f-nuage ${40 + k * 16}s linear ${-k * 18}s infinite` }}>☁️</div>)}
+        <svg viewBox="0 0 100 40" preserveAspectRatio="none" style={{ ...abs, left: 0, right: 0, bottom: '20%', width: '100%', height: '38%' }} aria-hidden="true">
+          <path d="M0,40 L0,22 L14,8 L24,18 L36,4 L50,20 L62,10 L76,22 L88,12 L100,20 L100,40 Z" fill="#7d9cb8" />
+          <path d="M33,7 L36,4 L39,8 Z M59,12 L62,10 L65,13 Z" fill="#fff" />
+          <path d="M0,40 L0,30 Q25,22 50,30 T100,28 L100,40 Z" fill="#6fb35a" />
+        </svg>
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '21%', background: 'linear-gradient(#5fa04c, #4b8a3c)' }} />
+      </div>
+    )
+    case 'tribunal': return (
+      <div style={{ ...abs, inset: 0, background: 'repeating-linear-gradient(90deg, #6b4a2e 0 60px, #5e4027 60px 120px)' }}>
+        <div style={{ ...abs, left: '50%', top: '6%', transform: 'translateX(-50%)', fontSize: 'clamp(40px, 9vh, 80px)', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,.5))' }}>⚖️</div>
+        <div style={{ ...abs, left: '22%', right: '22%', bottom: '18%', height: '22%', background: 'linear-gradient(#8a5a35, #6b4426)', borderRadius: '8px 8px 0 0', boxShadow: '0 -6px 0 #a06a40' }} />
+        <div style={{ ...abs, left: 0, right: 0, bottom: 0, height: '19%', background: '#3b2a1c' }} />
+      </div>
+    )
     default: return <div style={{ ...abs, inset: 0, background: 'radial-gradient(circle at 50% 30%, #2a2f55, #07080f)' }} />
   }
 }

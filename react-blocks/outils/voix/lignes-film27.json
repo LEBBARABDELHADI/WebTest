@@ -1,0 +1,335 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 27 : Liberté de la presse et de circuler.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Mamie Odette, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "odette",
+  "texte": "Oui ! Aujourd'hui : « Liberté de la presse et de circuler ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "« La libre communication des pensées et des opinions »",
+  "émotion": null,
+  "officiel": true,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Selon l'article 11 de la Déclaration, la libre communication des pensées et des opinions est un principe fondamental.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "C'est pourquoi la presse est libre en France.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "Les journalistes peuvent : Informer librement sur la France et le monde, donner leur opinion, parler des institutions, des personnalités ou des croyances religieuses.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "narrateur",
+  "texte": "Ils ne peuvent pas : Publier des propos diffamatoires, inciter à commettre des crimes ou des délits, contester des crimes contre l'humanité. Sinon : poursuites judiciaires.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "A-t-on le droit de tout dire ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "Non : il est interdit de diffuser…",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "odette",
+  "texte": "des injures.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "diallo",
+  "texte": "des propos diffamatoires.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "yanis",
+  "texte": "des provocations à la haine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "lina",
+  "texte": "l'apologie de crimes contre l'humanité.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:6",
+  "qui": "narrateur",
+  "texte": "La liberté d'expression est un droit fondamental, mais elle a des limites, pour respecter les droits des autres.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "L'espace Schengen.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "narrateur",
+  "texte": "23 : États membres de l'Union européenne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "narrateur",
+  "texte": "4 : États associés : Norvège, Islande, Suisse, Liechtenstein.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "narrateur",
+  "texte": "Tout citoyen est libre de circuler en France et dans l'Union européenne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "narrateur",
+  "texte": "L'espace Schengen est une zone de libre circulation des personnes, sans contrôle aux frontières intérieures.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Liberté de circulation.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "odette",
+  "texte": "Mineur qui voyage sans ses parents : autorisation de sortie du territoire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "diallo",
+  "texte": "Prisonniers : privés de cette liberté le temps de leur peine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "yanis",
+  "texte": "Étrangers non européens : conditions d'entrée posées par les États, avec les visas.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "lina",
+  "texte": "Étranger hors UE : titre de séjour obligatoire à l'expiration du visa.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "samir",
+  "texte": "Crise exceptionnelle et temporaire (état d'urgence) : l'État peut la restreindre.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:6",
+  "qui": "narrateur",
+  "texte": "Les citoyens peuvent entrer et sortir librement du territoire, et leurs déplacements en France ne font en principe l'objet d'aucun contrôle.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:7",
+  "qui": "narrateur",
+  "texte": "Mais il existe des exceptions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "odette",
+  "texte": "Les journalistes peuvent parler des croyances religieuses.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "yanis",
+  "texte": "Vrai ! Ils peuvent informer et donner leur opinion, y compris sur les institutions, les personnalités ou les croyances religieuses.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "odette",
+  "texte": "Faire l'apologie de crimes contre l'humanité est permis au nom de la liberté d'expression.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "yanis",
+  "texte": "Faux ! C'est interdit, comme les injures, les propos diffamatoires et les provocations à la haine.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "odette",
+  "texte": "En cas d'état d'urgence, l'État peut restreindre la liberté d'aller et venir.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "yanis",
+  "texte": "Vrai ! C'est une exception prévue en cas de « crise exceptionnelle et temporaire ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "odette",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

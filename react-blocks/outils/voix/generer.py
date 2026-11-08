@@ -39,6 +39,15 @@ CASTING = {
     'diallo': ('fr-FR-DeniseNeural', -2, -3),
     'thomas': ('fr-CH-FabriceNeural', 4, -3),
 }
+# Personnages propres à une page (épisodes construits automatiquement) : une
+# voix selon le genre et le rang du personnage dans l'épisode.
+VOIX_GENRE = {
+    'f': [('fr-BE-CharlineNeural', 0, 0), ('fr-FR-DeniseNeural', 4, 3), ('fr-CH-ArianeNeural', 2, 4)],
+    'm': [('fr-CH-FabriceNeural', 0, 0), ('fr-FR-HenriNeural', 2, 2), ('fr-BE-GerardNeural', -3, -4)],
+    'enfant': [('fr-FR-EloiseNeural', 6, 0), ('fr-FR-EloiseNeural', 9, -9)],
+    'âgée': [('fr-CH-ArianeNeural', -12, -12), ('fr-FR-DeniseNeural', -12, -10)],
+    'âgé': [('fr-FR-HenriNeural', -12, -10), ('fr-BE-GerardNeural', -10, -12)],
+}
 ÉMOTIONS = {'joie': (4, 4), 'fier': (2, 3), 'sourire': (1, 2), 'surprise': (3, 7), 'inquiet': (-5, -1), 'réflexion': (-7, 0), 'fâché': (3, -2), 'tendre': (-7, 1), 'neutre': (0, 0),
            'gêne': (-4, -2), 'idée': (2, 4), 'colère': (4, -4), 'amour': (-5, 2), 'peur': (5, 6)}
 
@@ -46,6 +55,12 @@ def dire(texte):
     t = texte.replace('M. Arnaud', 'Monsieur Arnaud').replace('1er', 'premier').replace(' – ', ', ').replace('(DDHC, voir', '(D.D.H.C., voir')
     t = t.replace('(DDHC', '(D.D.H.C.')
     t = re.sub(r'(\d{4})-(\d{4})', r'\1 à \2', t)  # « 1814-1830 » : « 1814 à 1830 »
+    # Chiffres romains ordinaux : « Ire République » → « 1re », « XVIe siècle » → « 16e ».
+    rom = {'I': 1, 'V': 5, 'X': 10}
+    def arabe(m):
+        v = [rom[c] for c in m.group(1)]
+        return str(sum(-x if i + 1 < len(v) and x < v[i + 1] else x for i, x in enumerate(v))) + m.group(2)
+    t = re.sub(r'\b([IVX]+)(re|er|e)\b', arabe, t)
     return re.sub(r'\s+', ' ', t).strip()
 
 async def main():
@@ -53,7 +68,8 @@ async def main():
     lignes = json.load(open(os.path.join(ICI, LIGNES)))
     manifeste = {}
     for l in lignes:
-        voix, r, p = CASTING[l['qui']]
+        g = VOIX_GENRE.get(l.get('genre') or '')
+        voix, r, p = CASTING[l['qui']] if l['qui'] in CASTING else g[(l.get('rang') or 0) % len(g)]
         er, ep = ÉMOTIONS.get(l.get('émotion') or 'neutre', (0, 0))
         if l.get('officiel'): r -= 6
         if l['texte'].rstrip().endswith('?'): ep += 3

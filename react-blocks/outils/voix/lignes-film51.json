@@ -1,0 +1,281 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 51 : Montagnes, fleuves et volcans.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "samir",
+  "texte": "Mme Diallo, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "diallo",
+  "texte": "Oui ! Aujourd'hui : « Montagnes, fleuves et volcans ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Les chaînes de montagnes : Les Alpes, Le Mont-Blanc (4 810 m), Les Pyrénées, Le Massif central, Le Jura, Les Vosges.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Les Alpes séparent notamment la France de l'Italie et sont réputées pour leurs stations de ski.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:2",
+  "qui": "narrateur",
+  "texte": "Le Mont-Blanc, 4 810 m, est la plus haute montagne de France et d'Europe.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:3",
+  "qui": "narrateur",
+  "texte": "Les Pyrénées se situent entre la France et l'Espagne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "lina",
+  "texte": "Quel est le plus long fleuve français ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "samir",
+  "texte": "Un indice : Il est connu pour ses paysages naturels et ses châteaux.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:2",
+  "qui": "samir",
+  "texte": "La Loire.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "Les grands fleuves et leurs villes : Loire : le plus long fleuve, Seine : Paris, la capitale, Garonne : Toulouse (Occitanie), Garonne : Bordeaux (Nouvelle-Aquitaine), Rhône : Lyon (Auvergne-Rhône-Alpes), Rhin : frontière avec l'Allemagne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "narrateur",
+  "texte": "La Seine traverse Paris.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "narrateur",
+  "texte": "La Garonne traverse Toulouse, chef-lieu de l'Occitanie, et Bordeaux, chef-lieu de la Nouvelle-Aquitaine.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "narrateur",
+  "texte": "Le Rhône traverse Lyon, chef-lieu d'Auvergne-Rhône-Alpes.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "narrateur",
+  "texte": "Le Rhin délimite en partie la frontière avec l'Allemagne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "narrateur",
+  "texte": "Les volcans actifs : en outre-mer.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "samir",
+  "texte": "Les îles des Antilles.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "odette",
+  "texte": "L'île de la Réunion.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:3",
+  "qui": "diallo",
+  "texte": "Mayotte.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:4",
+  "qui": "narrateur",
+  "texte": "En France, les principaux volcans en activité sont situés dans les îles des Antilles, de la Réunion et de Mayotte.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Le Mont-Blanc : Dans les Alpes. 4 810 m : la plus haute montagne de France et d'Europe.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "narrateur",
+  "texte": "Le Piton de la Fournaise : À la Réunion. 2 600 m. L'un des volcans les plus actifs au monde, site protégé inscrit au patrimoine mondial de l'UNESCO.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "samir",
+  "texte": "La Seine est le plus long fleuve français.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "diallo",
+  "texte": "Faux ! C'est la Loire. La Seine, elle, traverse Paris.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "samir",
+  "texte": "Le Rhône traverse Toulouse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "diallo",
+  "texte": "Faux ! Le Rhône traverse Lyon. Toulouse est traversée par la Garonne, comme Bordeaux.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "samir",
+  "texte": "Les Pyrénées se situent entre la France et l'Espagne.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "diallo",
+  "texte": "Vrai ! Les Alpes, elles, séparent notamment la France de l'Italie.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "diallo",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "samir",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]

@@ -1,0 +1,299 @@
+[
+ {
+  "clé": "0:0",
+  "qui": "narrateur",
+  "texte": "Épisode 42 : Fin de l'esclavage, Second Empire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:0",
+  "qui": "yanis",
+  "texte": "Mamie Odette, on regarde l'épisode ensemble ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "1:1",
+  "qui": "odette",
+  "texte": "Oui ! Aujourd'hui : « Fin de l'esclavage, Second Empire ».",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:0",
+  "qui": "narrateur",
+  "texte": "Elle débute après deux monarchies : la Restauration (1815-1830) et la Monarchie de Juillet (1830-1848).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "2:1",
+  "qui": "narrateur",
+  "texte": "Elle est marquée par l'abolition de l'esclavage, en 1848.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:0",
+  "qui": "narrateur",
+  "texte": "1848 : la fin de l'esclavage.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "3:1",
+  "qui": "p-schoelcher",
+  "texte": "Je suis Victor Schoelcher, sous-secrétaire d'État chargé des colonies. En 1848, je rédige le décret qui met fin à l'esclavage.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "m",
+  "rang": 0
+ },
+ {
+  "clé": "3:2",
+  "qui": "p-une-enseignante",
+  "texte": "Aujourd'hui, la France reconnaît la traite et l'esclavage comme un crime contre l'humanité : c'est la loi Taubira de 2001.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "f",
+  "rang": 0
+ },
+ {
+  "clé": "3:3",
+  "qui": "p-un-eleve",
+  "texte": "Et chaque 10 mai, on commémore la journée nationale des mémoires de la traite, de l'esclavage et de leurs abolitions.",
+  "émotion": null,
+  "officiel": false,
+  "genre": "enfant",
+  "rang": 0
+ },
+ {
+  "clé": "4:0",
+  "qui": "narrateur",
+  "texte": "L'esclavage colonial.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:1",
+  "qui": "odette",
+  "texte": "À partir du XVIIe siècle : traite transatlantique et esclavage colonial dans les territoires d'outre-mer.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:2",
+  "qui": "diallo",
+  "texte": "1,2 million d'Africains déportés de force vers les Antilles (Saint-Domingue, Martinique, Guadeloupe), La Réunion et la Guyane.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:3",
+  "qui": "yanis",
+  "texte": "Ils travaillent surtout dans les plantations (canne à sucre, café…), dans des conditions extrêmement difficiles.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:4",
+  "qui": "lina",
+  "texte": "Nantes est le principal port français de la traite transatlantique.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "4:5",
+  "qui": "samir",
+  "texte": "L'esclavage y est pratiqué jusqu'en 1848.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:0",
+  "qui": "odette",
+  "texte": "Quel grand écrivain (1802-1885) a écrit « Les Misérables » et « Notre-Dame de Paris » ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:1",
+  "qui": "diallo",
+  "texte": "Un indice : Il porte le même prénom que Schoelcher.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "5:2",
+  "qui": "diallo",
+  "texte": "Victor Hugo, l'un des plus grands écrivains français. Il s'est engagé contre les inégalités sociales et la peine de mort.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:0",
+  "qui": "narrateur",
+  "texte": "Le Second Empire (1852-1870).",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:1",
+  "qui": "odette",
+  "texte": "Louis-Napoléon Bonaparte, neveu de Napoléon Ier, est élu président de la République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:2",
+  "qui": "diallo",
+  "texte": "Décembre 1851 : il organise un coup d'État.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:3",
+  "qui": "yanis",
+  "texte": "1852 : il devient empereur sous le nom de Napoléon III.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:4",
+  "qui": "lina",
+  "texte": "Années 1860 : plus de libertés, Parlement plus fort ; l'économie se modernise, la France s'ouvre à l'Europe.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "6:5",
+  "qui": "samir",
+  "texte": "1870 : défaite contre la Prusse, fin du Second Empire.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:0",
+  "qui": "narrateur",
+  "texte": "Vrai ou faux ?",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:1",
+  "qui": "odette",
+  "texte": "L'esclavage est aboli en 1848, sous la Deuxième République.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:2",
+  "qui": "yanis",
+  "texte": "Vrai ! Le décret est rédigé par Victor Schoelcher.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:3",
+  "qui": "odette",
+  "texte": "Napoléon III est le fils de Napoléon Ier.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:4",
+  "qui": "yanis",
+  "texte": "Faux ! Louis-Napoléon Bonaparte (Napoléon III) est son neveu.",
+  "émotion": "surprise",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:5",
+  "qui": "odette",
+  "texte": "Le Second Empire prend fin en 1870, après la défaite contre la Prusse.",
+  "émotion": null,
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "7:6",
+  "qui": "yanis",
+  "texte": "Vrai ! Commence alors la Troisième République.",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:0",
+  "qui": "odette",
+  "texte": "Voilà, tu sais tout sur cette page !",
+  "émotion": "joie",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ },
+ {
+  "clé": "8:1",
+  "qui": "yanis",
+  "texte": "Je file revoir ce qu'il faut retenir.",
+  "émotion": "idée",
+  "officiel": false,
+  "genre": null,
+  "rang": null
+ }
+]
