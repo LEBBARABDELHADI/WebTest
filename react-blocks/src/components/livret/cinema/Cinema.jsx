@@ -7,7 +7,7 @@ import { créerSonCinéma, garderVoix, lireVoix, effacerVoix, clésVoix, enregis
 import { imagePage } from '../../../lib/livret2026/outils'
 import { distribuerVoix, jouerRéplique } from '../../../lib/livret2026/cinema/voixActeurs'
 
-// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7, 8 et 10).
+// Expérience narrative cinématographique (PROTOTYPE, pages pilotes 6, 7, 8, 10 et 11).
 // Affiche → scènes (décor en couches + caméra + personnages dessinés +
 // visuels pédagogiques) → quiz. Faits officiels sur des cartes « 📜 Livret »,
 // fiction en sous-titres. Son sans IA : ambiances, bruitages, piano « humain »,

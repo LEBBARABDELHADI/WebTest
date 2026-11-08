@@ -32,6 +32,8 @@ CASTING = {
     'recruteur': ('fr-BE-GerardNeural', 3, 0),
     'directrice': ('fr-CH-ArianeNeural', -3, -2),
     'zoe': ('fr-FR-EloiseNeural', 4, 2),
+    'agente': ('fr-BE-CharlineNeural', 0, 0),
+    'paul': ('fr-BE-GerardNeural', 2, 1),
     # Série 🍿 Film (personnages emoji de films/casting.js)
     'odette': ('fr-CH-ArianeNeural', -12, -12),
     'samir': ('fr-BE-GerardNeural', 6, 3),

@@ -1,0 +1,356 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Lundi matin. Lina accompagne M. Arnaud à la mairie, pour une démarche.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "En chemin, ils reprennent leur leçon sur la laïcité.",
+  "émotion": null
+ },
+ {
+  "clé": "chapitre-1:0",
+  "qui": "narrateur",
+  "texte": "Premier point : la neutralité de l'État.",
+  "émotion": null
+ },
+ {
+  "clé": "separation:0",
+  "qui": "lina",
+  "texte": "La laïcité, concrètement, qu'est-ce que ça change pour l'État ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "separation:1",
+  "qui": "arnaud",
+  "texte": "L'État et les organisations religieuses sont séparés. C'est la loi de 1905 sur la séparation des Églises et de l'État.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "separation:2",
+  "qui": "lina",
+  "texte": "Et la loi est la même pour tout le monde, quelle que soit sa religion ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "separation:3",
+  "qui": "narrateur",
+  "texte": "Le principe de laïcité implique que l'État et les organisations religieuses sont séparés (loi de 1905 sur la séparation des Églises et de l'État). Il impose également que la loi est la même pour tout le monde, quelles que soient sa religion ou ses convictions.",
+  "officiel": true
+ },
+ {
+  "clé": "regles:0",
+  "qui": "arnaud",
+  "texte": "Par conséquent, l'État ne soutient aucune organisation religieuse.",
+  "émotion": null
+ },
+ {
+  "clé": "regles:1",
+  "qui": "arnaud",
+  "texte": "Il les considère toutes de la même manière, et il n'est pas impliqué dans leur fonctionnement interne.",
+  "émotion": null
+ },
+ {
+  "clé": "regles:2",
+  "qui": "narrateur",
+  "texte": "Par conséquent, l'État ne soutient aucune organisation religieuse, les considère toutes de la même manière et n'est pas impliqué dans leur fonctionnement interne.",
+  "officiel": true
+ },
+ {
+  "clé": "regles:3",
+  "qui": "lina",
+  "texte": "Donc l'État ne finance pas la construction d'un édifice religieux ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "regles:4",
+  "qui": "arnaud",
+  "texte": "Non. Et il ne paie pas non plus de personnel religieux.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "regles:5",
+  "qui": "narrateur",
+  "texte": "L'État n'a, par exemple, pas le droit de financer la construction d'un édifice religieux, ni de payer un personnel religieux.",
+  "officiel": true
+ },
+ {
+  "clé": "alsace:0",
+  "qui": "arnaud",
+  "texte": "Il y a cependant quelques exceptions.",
+  "émotion": null
+ },
+ {
+  "clé": "alsace:1",
+  "qui": "arnaud",
+  "texte": "En Alsace et en Moselle, en raison de l'Histoire, l'État a des accords spéciaux avec certaines religions.",
+  "émotion": null
+ },
+ {
+  "clé": "alsace:2",
+  "qui": "narrateur",
+  "texte": "Cependant, il y a quelques exceptions, comme en Alsace et en Moselle, où l'État, en raison de l'Histoire, a des accords spéciaux avec certaines religions.",
+  "officiel": true
+ },
+ {
+  "clé": "patrimoine:0",
+  "qui": "lina",
+  "texte": "Et ce vieux monument religieux en travaux ? L'État n'a pas le droit de l'aider ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "patrimoine:1",
+  "qui": "arnaud",
+  "texte": "Si : il est classé au patrimoine. L'État a la possibilité de financer sa restauration.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "patrimoine:2",
+  "qui": "narrateur",
+  "texte": "L'État a la possibilité de financer la restauration d'un monument religieux classé au patrimoine.",
+  "officiel": true
+ },
+ {
+  "clé": "patrimoine:3",
+  "qui": "lina",
+  "texte": "Construire, non. Restaurer un monument classé, oui.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "guichet:0",
+  "qui": "narrateur",
+  "texte": "À la mairie, chacun attend son tour au guichet.",
+  "émotion": null
+ },
+ {
+  "clé": "guichet:1",
+  "qui": "agente",
+  "texte": "Numéro 42 ! Bonjour, que puis-je faire pour vous ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "guichet:2",
+  "qui": "lina",
+  "texte": "Ici, tout le monde est servi pareil, quelle que soit sa religion ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "guichet:3",
+  "qui": "agente",
+  "texte": "Bien sûr. L'État, les collectivités territoriales et les services publics sont neutres vis-à-vis des religions.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "guichet:4",
+  "qui": "narrateur",
+  "texte": "L'État, les collectivités territoriales et les services publics sont neutres vis-à-vis des religions.",
+  "officiel": true
+ },
+ {
+  "clé": "guichet:5",
+  "qui": "arnaud",
+  "texte": "Chacun est traité de la même manière par l'administration : c'est la neutralité de l'État.",
+  "émotion": null
+ },
+ {
+  "clé": "guichet:6",
+  "qui": "narrateur",
+  "texte": "La République française garantit à tous les citoyens d'être traités de la même manière par l'administration et les services publics, quelles que soient leur religion ou leurs convictions. C'est ce que l'on appelle la neutralité de l'État.",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-2:0",
+  "qui": "narrateur",
+  "texte": "Deuxième point : le prosélytisme.",
+  "émotion": null
+ },
+ {
+  "clé": "tracts:0",
+  "qui": "narrateur",
+  "texte": "En sortant, devant la mairie, un homme distribue des tracts sur sa religion.",
+  "émotion": null
+ },
+ {
+  "clé": "tracts:1",
+  "qui": "paul",
+  "texte": "Bonjour ! Vous voulez découvrir ma religion ? Je vous laisse un tract.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "tracts:2",
+  "qui": "lina",
+  "texte": "Merci, je le lirai… mais ce n'est pas pour moi.",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "tracts:3",
+  "qui": "paul",
+  "texte": "Pas de souci, bonne journée !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "tracts:4",
+  "qui": "arnaud",
+  "texte": "Ça, c'est du prosélytisme : vouloir convaincre quelqu'un d'adopter sa religion ou ses idées religieuses.",
+  "émotion": null
+ },
+ {
+  "clé": "tracts:5",
+  "qui": "narrateur",
+  "texte": "Le prosélytisme religieux est le fait de vouloir convaincre quelqu'un d'adopter sa religion ou ses idées religieuses.",
+  "officiel": true
+ },
+ {
+  "clé": "tracts:6",
+  "qui": "lina",
+  "texte": "Et il a le droit de faire ça dans la rue ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "tracts:7",
+  "qui": "arnaud",
+  "texte": "Oui, tant que cela ne trouble pas l'ordre public.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "tracts:8",
+  "qui": "narrateur",
+  "texte": "Il est possible de distribuer des tracts sur une religion dans la rue, tant que cela ne trouble pas l'ordre public.",
+  "officiel": true
+ },
+ {
+  "clé": "pression:0",
+  "qui": "lina",
+  "texte": "Et s'il avait insisté ? S'il m'avait menacée ?",
+  "émotion": "inquiet"
+ },
+ {
+  "clé": "pression:1",
+  "qui": "arnaud",
+  "texte": "Là, non. C'est autorisé seulement sans forcer quelqu'un à croire contre son gré : ni violence, ni menace, ni pression.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "pression:2",
+  "qui": "narrateur",
+  "texte": "En France, cela est autorisé, à condition de ne pas forcer quelqu'un à croire en une religion contre son gré, en utilisant la violence, la menace ou la pression.",
+  "officiel": true
+ },
+ {
+  "clé": "service-public:0",
+  "qui": "narrateur",
+  "texte": "Un peu plus tard, l'homme entre dans la mairie avec ses tracts.",
+  "émotion": null
+ },
+ {
+  "clé": "service-public:1",
+  "qui": "agente",
+  "texte": "Monsieur, pas ici : dans un service public, le prosélytisme est interdit.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "service-public:2",
+  "qui": "paul",
+  "texte": "Ah, pardon. Je ressors.",
+  "émotion": "inquiet"
+ },
+ {
+  "clé": "service-public:3",
+  "qui": "arnaud",
+  "texte": "C'est l'application du principe de neutralité de l'État.",
+  "émotion": null
+ },
+ {
+  "clé": "service-public:4",
+  "qui": "narrateur",
+  "texte": "Il est par ailleurs interdit de faire du prosélytisme dans les services publics, en application du principe de neutralité de l'État.",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-3:0",
+  "qui": "narrateur",
+  "texte": "Troisième point : le blasphème.",
+  "émotion": null
+ },
+ {
+  "clé": "caricature:0",
+  "qui": "narrateur",
+  "texte": "L'après-midi, à la médiathèque, Lina feuillette un journal satirique.",
+  "émotion": null
+ },
+ {
+  "clé": "caricature:1",
+  "qui": "lina",
+  "texte": "Ce dessin se moque d'une religion ! C'est permis ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "caricature:2",
+  "qui": "arnaud",
+  "texte": "Un mot d'abord : le blasphème. C'est une parole ou un discours qui insulte la divinité, la religion, ou ce qui est considéré comme respectable ou sacré.",
+  "émotion": null
+ },
+ {
+  "clé": "caricature:3",
+  "qui": "narrateur",
+  "texte": "Le blasphème est une parole ou un discours qui insulte la divinité, la religion ou ce qui est considéré comme respectable ou sacré.",
+  "officiel": true
+ },
+ {
+  "clé": "caricature:4",
+  "qui": "arnaud",
+  "texte": "En France, ce n'est pas un délit. Chacun peut critiquer une religion ou s'en moquer, y compris à travers la caricature.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "caricature:5",
+  "qui": "narrateur",
+  "texte": "En France, ce n'est pas un délit. Chacun a le droit de critiquer ou de se moquer d'une religion, et de s'exprimer librement, y compris à travers la caricature.",
+  "officiel": true
+ },
+ {
+  "clé": "expression:0",
+  "qui": "narrateur",
+  "texte": "Le soir, Lina raconte sa journée à Inès.",
+  "émotion": null
+ },
+ {
+  "clé": "expression:1",
+  "qui": "ines",
+  "texte": "Donc personne ne peut être puni pour avoir critiqué une religion ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "expression:2",
+  "qui": "lina",
+  "texte": "Non. Chacun peut exprimer son avis : c'est la liberté d'expression.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "expression:3",
+  "qui": "narrateur",
+  "texte": "Personne ne peut être puni pour avoir critiqué une religion ou insulté une divinité et chacun peut donc exprimer son avis. C'est la liberté d'expression.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Un État neutre, le prosélytisme sans pression, et la liberté de critiquer.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "Tu as tout compris.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : la laïcité selon les lieux, page 12.",
+  "émotion": null
+ }
+]
