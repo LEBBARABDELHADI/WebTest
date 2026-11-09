@@ -72,6 +72,7 @@ def dire(texte):
     def arabe(m):
         v = [rom[c] for c in m.group(1)]
         return str(sum(-x if i + 1 < len(v) and x < v[i + 1] else x for i, x in enumerate(v))) + m.group(2)
+    t = re.sub(r'\b([IVX]+)ème\b', r'\1e', t)  # « Vème République » → « Ve »
     t = re.sub(r'\b([IVX]+)(re|er|e)\b', arabe, t)
     return re.sub(r'\s+', ' ', t).strip()
 

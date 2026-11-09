@@ -1,0 +1,350 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Un dimanche matin, jour d'élection.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Devant l'école du quartier, une banderole annonce le bureau de vote.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:2",
+  "qui": "narrateur",
+  "texte": "M. Arnaud vient voter. Sa petite-fille Zoé et Lina l'accompagnent.",
+  "émotion": null
+ },
+ {
+  "clé": "chapitre-c:0",
+  "qui": "narrateur",
+  "texte": "Troisième pilier : une République démocratique.",
+  "émotion": null
+ },
+ {
+  "clé": "democratie:0",
+  "qui": "zoe",
+  "texte": "Papi, pourquoi tous ces gens viennent voter ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "democratie:1",
+  "qui": "arnaud",
+  "texte": "Parce que la France est une démocratie : la souveraineté nationale, c'est-à-dire le pouvoir, appartient au peuple français.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "democratie:2",
+  "qui": "narrateur",
+  "texte": "La France est une démocratie, c'est-à-dire que la souveraineté nationale (le pouvoir) appartient au peuple français :",
+  "officiel": true
+ },
+ {
+  "clé": "democratie:3",
+  "qui": "zoe",
+  "texte": "Le pouvoir appartient au peuple…",
+  "émotion": "fier"
+ },
+ {
+  "clé": "article3:0",
+  "qui": "narrateur",
+  "texte": "Dans le bureau de vote, Lina ouvre son livret.",
+  "émotion": null
+ },
+ {
+  "clé": "article3:1",
+  "qui": "lina",
+  "texte": "Mon livret cite l'article 3 de la Constitution de la Ve République, de 1958.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "article3:2",
+  "qui": "narrateur",
+  "texte": "Article 3 de la Constitution de la Vème République de 1958 : « La souveraineté nationale appartient au peuple qui l'exerce par ses représentants et par la voie du référendum. »",
+  "officiel": true
+ },
+ {
+  "clé": "article3:3",
+  "qui": "arnaud",
+  "texte": "Le peuple exerce donc ce pouvoir de deux façons : par ses représentants, et par la voie du référendum.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "elus:0",
+  "qui": "arnaud",
+  "texte": "La République, c'est un régime politique où les dirigeants sont élus, et gouvernent au nom du peuple.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "elus:1",
+  "qui": "narrateur",
+  "texte": "La République est un régime politique dans lequel les dirigeants sont élus et gouvernent au nom du peuple.",
+  "officiel": true
+ },
+ {
+  "clé": "elus:2",
+  "qui": "zoe",
+  "texte": "Même le Président ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "elus:3",
+  "qui": "arnaud",
+  "texte": "Oui. Le Président de la République, les parlementaires, les maires, les représentants des régions, des départements et des communes.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "elus:4",
+  "qui": "arnaud",
+  "texte": "Tous sont élus au suffrage universel, direct ou indirect.",
+  "émotion": null
+ },
+ {
+  "clé": "elus:5",
+  "qui": "narrateur",
+  "texte": "Ainsi, le Président de la République, les parlementaires, les maires, les représentants des régions, des départements et des communes, sont élus au suffrage universel direct ou indirect.",
+  "officiel": true
+ },
+ {
+  "clé": "suffrage:0",
+  "qui": "lina",
+  "texte": "Suffrage universel direct ou indirect : quelle est la différence ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "suffrage:1",
+  "qui": "arnaud",
+  "texte": "Au suffrage direct, les citoyens votent directement pour élire leurs représentants.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "suffrage:2",
+  "qui": "arnaud",
+  "texte": "Au suffrage indirect, des personnes élues par les citoyens élisent, à leur tour, les représentants.",
+  "émotion": null
+ },
+ {
+  "clé": "suffrage:3",
+  "qui": "narrateur",
+  "texte": "Le suffrage universel direct permet aux citoyens de voter directement pour élire leurs représentants, tandis que dans le cadre du suffrage universel indirect, des personnes élues par les citoyens, élisent à leur tour les représentants.",
+  "officiel": true
+ },
+ {
+  "clé": "majorite:0",
+  "qui": "narrateur",
+  "texte": "M. Arnaud passe dans l'isoloir, puis glisse son bulletin dans l'urne.",
+  "émotion": null
+ },
+ {
+  "clé": "majorite:1",
+  "qui": "zoe",
+  "texte": "Moi aussi, je veux voter !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "majorite:2",
+  "qui": "arnaud",
+  "texte": "Pas encore, ma puce : il faut avoir au moins 18 ans. C'est l'âge de la majorité civile.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "majorite:3",
+  "qui": "zoe",
+  "texte": "Et les femmes aussi, elles votent ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "majorite:4",
+  "qui": "arnaud",
+  "texte": "Bien sûr. Tous les citoyens, hommes et femmes, qui disposent de leurs droits civils et politiques.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "majorite:5",
+  "qui": "arnaud",
+  "texte": "Ils ont le droit de voter, et de se présenter aux élections, dans les conditions fixées par la loi.",
+  "émotion": null
+ },
+ {
+  "clé": "majorite:6",
+  "qui": "narrateur",
+  "texte": "Cela signifie que tous les citoyens, hommes et femmes, ayant au moins 18 ans (majorité civile) et disposant de leurs droits civils et politiques, ont le droit de voter et de se présenter aux élections dans les conditions fixées par la loi.",
+  "officiel": true
+ },
+ {
+  "clé": "chapitre-d:0",
+  "qui": "narrateur",
+  "texte": "Quatrième pilier : une République sociale.",
+  "émotion": null
+ },
+ {
+  "clé": "egalite:0",
+  "qui": "narrateur",
+  "texte": "En sortant, ils traversent le parc. Lina a encore une question.",
+  "émotion": null
+ },
+ {
+  "clé": "egalite:1",
+  "qui": "lina",
+  "texte": "Démocratique, j'ai compris. Mais une République sociale, qu'est-ce que ça veut dire ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "egalite:2",
+  "qui": "arnaud",
+  "texte": "Le caractère social de la République est une conséquence du principe d'égalité.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "egalite:3",
+  "qui": "narrateur",
+  "texte": "Le caractère social de la République est une conséquence du principe d'égalité :",
+  "officiel": true
+ },
+ {
+  "clé": "egalite:4",
+  "qui": "arnaud",
+  "texte": "Souviens-toi de l'article premier de la Déclaration de 1789 : « Les hommes naissent et demeurent libres et égaux en droits ».",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "egalite:5",
+  "qui": "narrateur",
+  "texte": "« Les hommes naissent et demeurent libres et égaux en droits » affirme la Déclaration des droits de l'homme et du citoyen de 1789 (article 1er).",
+  "officiel": true
+ },
+ {
+  "clé": "egalite-reelle:0",
+  "qui": "lina",
+  "texte": "Égaux en droits… Mais comment cette égalité devient-elle réelle ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "egalite-reelle:1",
+  "qui": "arnaud",
+  "texte": "Pour que cette égalité de droits soit réelle, l'État favorise l'égalité des chances.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "egalite-reelle:2",
+  "qui": "arnaud",
+  "texte": "Et il contribue à améliorer la condition des plus démunis ou fragiles.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "egalite-reelle:3",
+  "qui": "narrateur",
+  "texte": "Pour que cette égalité de droits soit réelle, l'État favorise l'égalité des chances et contribue à l'amélioration de la condition des plus démunis ou fragiles, en intervenant notamment dans les domaines suivants :",
+  "officiel": true
+ },
+ {
+  "clé": "egalite-reelle:4",
+  "qui": "arnaud",
+  "texte": "Il intervient notamment dans quatre domaines. Venez, je vous les montre !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "education:0",
+  "qui": "zoe",
+  "texte": "Le premier, je le connais : c'est mon école !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "education:1",
+  "qui": "arnaud",
+  "texte": "Oui : l'éducation, avec l'école gratuite.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "education:2",
+  "qui": "narrateur",
+  "texte": "l'éducation (école gratuite)",
+  "officiel": true
+ },
+ {
+  "clé": "logement:0",
+  "qui": "narrateur",
+  "texte": "Un peu plus loin, une grande résidence.",
+  "émotion": null
+ },
+ {
+  "clé": "logement:1",
+  "qui": "arnaud",
+  "texte": "Deuxième domaine : le logement, avec la politique de logement social.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "logement:2",
+  "qui": "narrateur",
+  "texte": "le logement (politique de logement social)",
+  "officiel": true
+ },
+ {
+  "clé": "emploi:0",
+  "qui": "lina",
+  "texte": "Et le travail ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "emploi:1",
+  "qui": "arnaud",
+  "texte": "C'est le troisième domaine : l'emploi, avec le revenu de solidarité active et l'aide au retour à l'emploi.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "emploi:2",
+  "qui": "narrateur",
+  "texte": "l'emploi (revenu de solidarité active et aide au retour à l'emploi)",
+  "officiel": true
+ },
+ {
+  "clé": "sante:0",
+  "qui": "zoe",
+  "texte": "Et là, c'est le centre de santé !",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "sante:1",
+  "qui": "arnaud",
+  "texte": "Quatrième domaine : la santé, avec la Sécurité sociale.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "sante:2",
+  "qui": "narrateur",
+  "texte": "la santé (Sécurité sociale)",
+  "officiel": true
+ },
+ {
+  "clé": "sante:3",
+  "qui": "zoe",
+  "texte": "L'école, le logement, l'emploi, la santé : quatre domaines !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Une République démocratique : la souveraineté appartient au peuple, qui l'exerce par ses représentants et par le référendum.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "zoe",
+  "texte": "Et sociale : l'école, le logement, l'emploi et la santé !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Bravo. Et quand tu auras 18 ans, Zoé, tu pourras voter à ton tour.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : le système institutionnel et politique, page 15.",
+  "émotion": null
+ }
+]
