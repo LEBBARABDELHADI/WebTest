@@ -3,7 +3,8 @@
 // Fichier livret-<espace>.json :
 // { plan: { examen, début, calendrier: [[leçonId, date, titre, emoji]] },
 //   leçons: { id: { faite, bonnes, total, oral } }, pages: { n: { animée } },
-//   maison: { objetId: date }, situations: { id: { bon, date } }, frise: { meilleur } }
+//   maison: { objetId: date }, situations: { id: { bon, date } }, frise: { meilleur },
+//   immersion: { ouverture, libre, épisodes: { id: { vu, compris, quiz, meilleur, validé } }, géo, examen } }
 import { useMemo } from 'react'
 import { useDonnéesSynchronisées } from '../synchro'
 import { décaler, dateDe, aujourdhuiLocal } from '../habitudes'
@@ -13,7 +14,7 @@ import { LEÇONS, PAGE, PAGES_CONTENU, PAQUET_ID, PAQUET_NOM, cartesDePage, leç
 const objet = o => (o && typeof o === 'object' && !Array.isArray(o) ? o : {})
 export function compléterLivret(o) {
   const d = objet(o)
-  return { ...d, plan: d.plan && typeof d.plan === 'object' ? d.plan : null, leçons: objet(d.leçons), pages: objet(d.pages), maison: objet(d.maison), situations: objet(d.situations), frise: objet(d.frise) }
+  return { ...d, plan: d.plan && typeof d.plan === 'object' ? d.plan : null, leçons: objet(d.leçons), pages: objet(d.pages), maison: objet(d.maison), situations: objet(d.situations), frise: objet(d.frise), immersion: objet(d.immersion) }
 }
 export function useLivret(espace) {
   const config = useMemo(() => ({ id: espace, stockage: `react-blocs-livret-${espace}`, chemin: `react-blocks/src/data/livret-${espace}.json`, données: {} }), [espace])

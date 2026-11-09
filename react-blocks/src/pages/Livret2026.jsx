@@ -10,6 +10,8 @@ import { PAGES_FILM, chargerFilm } from '../lib/livret2026/films'
 // Prototype « expérience cinéma » : page 10 seulement, chargé à la demande.
 const Cinéma = lazy(() => import('../components/livret/cinema/Cinema'))
 // Prototypes « expérience cinéma » : uniquement les pages pilotes validées une à une.
+// « Immersion » : l'histoire de France comme un film (d'après le livret), chargée à la demande.
+const Immersion = lazy(() => import('../components/livret/immersion/Immersion'))
 const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 7: () => import('../lib/livret2026/cinema/p7'), 8: () => import('../lib/livret2026/cinema/p8'), 10: () => import('../lib/livret2026/cinema/p10'), 11: () => import('../lib/livret2026/cinema/p11'), 12: () => import('../lib/livret2026/cinema/p12'), 13: () => import('../lib/livret2026/cinema/p13') }
 import Leçon from '../components/livret/Lecon'
 import Maison from '../components/livret/Maison'
@@ -45,6 +47,7 @@ export default function Livret2026() {
   const choisir = (o, extra = {}) => setParams({ ...(o === 'plan' ? {} : { onglet: o }), ...extra }, { replace: true })
   const { data, setData, token, statut, erreur, connecter, déconnecter } = useLivret(espace)
   const [message, setMessage] = useState('')
+  const [immersion, setImmersion] = useState(false)
   const afficher = t => { setMessage(t); setTimeout(() => setMessage(m => (m === t ? '' : m)), 4000) }
   const cartesMémo = lireLocal('memoriser', espace).cartes || []
   const S = useMemo(() => ({
@@ -74,6 +77,14 @@ export default function Livret2026() {
         </div>
         <h1 style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 500, fontSize: 'clamp(28px, 6vw, 38px)', margin: '0 0 4px', lineHeight: 1.1 }}>🇫🇷 Livret du citoyen 2026</h1>
         <p style={{ ...S.discret, marginBottom: 14 }}>Les {NB_PAGES} pages de l'édition de mai 2026, mises en scène, pour retenir tout le livret avant l'examen civique et l'entretien.</p>
+        <button type="button" onClick={() => setImmersion(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', minHeight: 64, padding: '10px 16px', marginBottom: 14, borderRadius: 16, cursor: 'pointer', textAlign: 'left', border: '1px solid #ffd166', background: 'linear-gradient(135deg, #0b0e18, #2a2140 55%, #3a2a12)', color: '#fff', boxShadow: '0 10px 26px rgba(0,0,0,.28)' }}>
+          <span aria-hidden="true" style={{ fontSize: 30 }}>🎬</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', fontFamily: grotesk, fontWeight: 800, fontSize: 16.5, color: '#ffd166' }}>Immersion dans le Livret du citoyen 2026</span>
+            <span style={{ display: 'block', fontSize: 13, opacity: 0.85, marginTop: 2 }}>L'histoire de France comme un film : bande-annonce, grande frise, 15 épisodes, cartes, quiz</span>
+          </span>
+          <span aria-hidden="true" style={{ fontSize: 20, color: '#ffd166' }}>▶</span>
+        </button>
         <nav aria-label="Livret 2026" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 14, scrollbarWidth: 'none' }}>
           {ONGLETS.map(([id, emoji, nom]) => (
             <button key={id} onClick={() => choisir(id)} aria-current={onglet === id ? 'page' : undefined} style={{
@@ -91,6 +102,7 @@ export default function Livret2026() {
         {onglet === 'institutions' && <Institutions T={T} S={S} versPage={n => choisir('pages', { page: String(n) })} />}
         {onglet === 'situations' && <Situations T={T} S={S} data={data} setData={setData} versPage={n => choisir('pages', { page: String(n) })} />}
       </div>
+      {immersion && <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: '#07090f', color: '#ffd166', display: 'grid', placeItems: 'center', fontFamily: grotesk, fontWeight: 800 }}>🎬 Immersion…</div>}><Immersion data={data} setData={setData} onFermer={() => setImmersion(false)} /></Suspense>}
       {message && <div role="status" style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 'max(18px, env(safe-area-inset-bottom))', zIndex: 1100, maxWidth: 'calc(100vw - 32px)', padding: '11px 16px', borderRadius: 12, fontSize: 14, background: T.text, color: T.bg, boxShadow: '0 8px 24px rgba(0,0,0,.35)' }}>{message}</div>}
     </div>
   )

@@ -40,3 +40,21 @@ narration = Rémy, l'agent immobilier (page 6) = Fabrice, Hugo le recruteur
 Yanis = Eloise (plus grave), Mme Diallo = Denise, Thomas = Fabrice. Vitesse et hauteur
 réglées par personnage et par émotion (tableaux CASTING et ÉMOTIONS dans
 `generer.py`).
+
+## Immersion dans le Livret du citoyen 2026
+
+Bande-annonce, grande frise, 15 épisodes et volet géographique
+(`src/lib/livret2026/immersion/scenario.js`) : trois voix, « annonce » (Henri,
+grave, pour la bande-annonce et les intertitres), « narrateur » (Rémy) et
+« narratrice » (Vivienne, portraits et dates à retenir).
+
+```bash
+node extraire-immersion.mjs              # lignes-immersion.json (texte tel qu'il sera dit)
+.venv/bin/python generer.py immersion    # MP3 dans public/livret2026/voix/immersion/ + immersion/voixImmersion.js
+```
+
+Ici, le nom de chaque MP3 porte l'empreinte du texte et de la voix : après une
+modification du scénario, seules les répliques changées sont redites, et les
+anciens fichiers sont supprimés. Les répliques sont générées 5 par 5.
+Les cartes se reconstruisent avec `node outils/cartes/construire-cartes.mjs`
+après toute modification de `immersion/lieux.js`.

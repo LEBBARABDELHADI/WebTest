@@ -1,0 +1,3040 @@
+[
+ {
+  "clé": "ba:0",
+  "qui": "annonce",
+  "texte": "Bien avant la France, des hommes peignent les parois de Lascaux.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:1",
+  "qui": "annonce",
+  "texte": "476 : le Moyen Âge commence. Clovis unifie les royaumes des peuples francs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:2",
+  "qui": "annonce",
+  "texte": "Face à l’Angleterre, une jeune paysanne, Jeanne d’Arc, conduit les troupes françaises.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:3",
+  "qui": "annonce",
+  "texte": "1598 : Henri IV met fin aux guerres de religion.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:4",
+  "qui": "annonce",
+  "texte": "Le Roi-Soleil fait construire Versailles. Les Lumières préparent l’avenir.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:5",
+  "qui": "annonce",
+  "texte": "Le 14 juillet 1789, les Parisiens s’emparent de la Bastille.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:6",
+  "qui": "annonce",
+  "texte": "1804 : Napoléon devient empereur. 1815 : Waterloo.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:7",
+  "qui": "annonce",
+  "texte": "Rois, révolutions, République : en 1848, l’esclavage est aboli.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:8",
+  "qui": "annonce",
+  "texte": "La République s’installe : l’école gratuite, laïque, obligatoire. La loi de 1905.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:9",
+  "qui": "annonce",
+  "texte": "La grande guerre. Le 11 novembre 1918, l’armistice.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:10",
+  "qui": "annonce",
+  "texte": "1940 : la France est envahie. Le 18 juin, un appel lance la Résistance.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:11",
+  "qui": "annonce",
+  "texte": "Le 6 juin 1944, débarquement en Normandie. Le 25 août, Paris est libérée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:12",
+  "qui": "annonce",
+  "texte": "1958 : la Ve République est née.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:13",
+  "qui": "annonce",
+  "texte": "Majorité à 18 ans, loi Veil, abolition de la peine de mort, mariage pour tous : des droits nouveaux.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ba:14",
+  "qui": "annonce",
+  "texte": "L’histoire de France, comme un film. D’après le Livret du citoyen 2026.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:0",
+  "qui": "narratrice",
+  "texte": "La grande frise du livret : les principales périodes de l’histoire de France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:1",
+  "qui": "narratrice",
+  "texte": "476 : le Moyen Âge.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:2",
+  "qui": "narratrice",
+  "texte": "1492 : l’Ancien Régime.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:3",
+  "qui": "narratrice",
+  "texte": "1789 : Révolution française et période révolutionnaire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:4",
+  "qui": "narratrice",
+  "texte": "1792 : Première République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:5",
+  "qui": "narratrice",
+  "texte": "1804 : Premier Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:6",
+  "qui": "narratrice",
+  "texte": "1814 : Restauration.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:7",
+  "qui": "narratrice",
+  "texte": "1830 : Monarchie de Juillet.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:8",
+  "qui": "narratrice",
+  "texte": "1848 : Deuxième République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:9",
+  "qui": "narratrice",
+  "texte": "1852 : Second Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:10",
+  "qui": "narratrice",
+  "texte": "1870 : Troisième République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:11",
+  "qui": "narratrice",
+  "texte": "1940 : Régime de Vichy.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:12",
+  "qui": "narratrice",
+  "texte": "1944 : Gouvernement provisoire de la République française.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:13",
+  "qui": "narratrice",
+  "texte": "1946 : Quatrième République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "frise:14",
+  "qui": "narratrice",
+  "texte": "1958 : Cinquième République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:g",
+  "qui": "annonce",
+  "texte": "Épisode 1. Aux origines. Préhistoire et époque romaine.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:h",
+  "qui": "narrateur",
+  "texte": "La Gaule, les Gaulois et la conquête de Jules César ne sont pas présentés dans le Livret du citoyen 2026. Voici ce que le livret dit des origines.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:c:0",
+  "qui": "narrateur",
+  "texte": "La France compte de nombreuses grottes occupées par l’homme pendant la préhistoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:c:1",
+  "qui": "narrateur",
+  "texte": "Elles ont conservé les traces de cette occupation.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:e0:0",
+  "qui": "annonce",
+  "texte": "18 000 à 15 000 avant Jésus-Christ. Les peintures de Lascaux.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:e0:d",
+  "qui": "narrateur",
+  "texte": "Dans la grotte de Lascaux, en Dordogne, on trouve des peintures rupestres datant de cette époque.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:e0:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Parmi les grottes préhistoriques de France, Lascaux est aujourd’hui la plus célèbre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:e1:0",
+  "qui": "annonce",
+  "texte": "Époque romaine. La vigne arrive.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:e1:d",
+  "qui": "narrateur",
+  "texte": "La vigne est introduite et cultivée dans de nombreuses régions du pays.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : L’histoire du vin en France commence ; il deviendra un symbole de la culture et du savoir-faire français.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:d:0",
+  "qui": "narratrice",
+  "texte": "18 000 à 15 000 avant Jésus-Christ : Peintures rupestres de Lascaux.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:d:1",
+  "qui": "narratrice",
+  "texte": "476 : Début du Moyen Âge (frise du livret).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "origines:t",
+  "qui": "narrateur",
+  "texte": "La grande frise du livret commence en 476 : c’est le début du Moyen Âge.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:g",
+  "qui": "annonce",
+  "texte": "Épisode 2. Clovis et les Francs. Moyen Âge, Ve siècle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:c:0",
+  "qui": "narrateur",
+  "texte": "Sur la grande frise du livret, le Moyen Âge commence en 476.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:c:1",
+  "qui": "narrateur",
+  "texte": "Le Moyen Âge s’étend du Ve au XVe siècle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:c:2",
+  "qui": "narrateur",
+  "texte": "Plusieurs royaumes sont alors habités par des peuples francs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:p:0",
+  "qui": "narratrice",
+  "texte": "Clovis, 466-511. Il unifie plusieurs royaumes habités par des peuples francs, et adopte la religion chrétienne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:e0:0",
+  "qui": "annonce",
+  "texte": "Clovis (466-511). Les royaumes francs réunis.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:e0:d",
+  "qui": "narrateur",
+  "texte": "Clovis unifie plusieurs royaumes habités par des peuples francs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:e0:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : C’est une étape importante dans la construction de l’unité du territoire français.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:e1:0",
+  "qui": "annonce",
+  "texte": "Sous Clovis. Le choix de Clovis.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:e1:d",
+  "qui": "narrateur",
+  "texte": "Clovis adopte la religion chrétienne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:d:0",
+  "qui": "narratrice",
+  "texte": "476 : Début du Moyen Âge.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:d:1",
+  "qui": "narratrice",
+  "texte": "du Ve au XVe siècle : Le Moyen Âge.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "clovis:t",
+  "qui": "narrateur",
+  "texte": "Le Moyen Âge continue jusqu’au XVe siècle. Le livret s’arrête ensuite sur une jeune paysanne : Jeanne d’Arc.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:g",
+  "qui": "annonce",
+  "texte": "Épisode 3. La guerre de Cent Ans et Jeanne d’Arc. Moyen Âge, du XIVe au XVe siècle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:c:0",
+  "qui": "narrateur",
+  "texte": "La guerre de Cent Ans est un conflit entre la France et l’Angleterre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:c:1",
+  "qui": "narrateur",
+  "texte": "L’abbaye du Mont-Saint-Michel, au sommet d’un îlot rocheux en Normandie, a été un important lieu de pèlerinage pendant des siècles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:p:0",
+  "qui": "narratrice",
+  "texte": "Jeanne d’Arc, 1412-1431. Jeune paysanne, elle joue un rôle important pendant la guerre de Cent Ans.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e0:0",
+  "qui": "annonce",
+  "texte": "XIVe siècle. Le Palais des Papes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e0:d",
+  "qui": "narrateur",
+  "texte": "À Avignon, sur les rives du Rhône, s’élève l’un des plus magnifiques édifices de l’architecture gothique.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e0:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Il est aujourd’hui inscrit au patrimoine mondial culturel par l’UNESCO.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e1:0",
+  "qui": "annonce",
+  "texte": "Guerre de Cent Ans. La France face à l’Angleterre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e1:d",
+  "qui": "narrateur",
+  "texte": "Un long conflit oppose la France et l’Angleterre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e2:0",
+  "qui": "annonce",
+  "texte": "1412-1431. Jeanne conduit les troupes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e2:d",
+  "qui": "narrateur",
+  "texte": "Jeanne d’Arc, jeune paysanne, conduit les troupes françaises à la libération d’une partie du territoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:e2:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Elle est devenue une héroïne nationale, symbole du patriotisme et du courage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:d:0",
+  "qui": "narratrice",
+  "texte": "1412 : Naissance de Jeanne d’Arc.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:d:1",
+  "qui": "narratrice",
+  "texte": "1431 : Mort de Jeanne d’Arc.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:d:2",
+  "qui": "narratrice",
+  "texte": "1492 : Début de l’Ancien Régime.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "jeanne:t",
+  "qui": "narrateur",
+  "texte": "En 1492, la frise du livret ouvre une nouvelle période : l’Ancien Régime.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:g",
+  "qui": "annonce",
+  "texte": "Épisode 4. Les guerres de Religion et Henri IV. Ancien Régime, XVIe siècle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:h",
+  "qui": "narrateur",
+  "texte": "La Renaissance n’est pas présentée dans le Livret du citoyen 2026.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:c:0",
+  "qui": "narrateur",
+  "texte": "L’Ancien Régime commence en 1492 et dure jusqu’en 1789.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:c:1",
+  "qui": "narrateur",
+  "texte": "Il est marqué par la monarchie absolue : le roi concentre tous les pouvoirs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:c:2",
+  "qui": "narrateur",
+  "texte": "Les rois sont couronnés à la cathédrale de Reims. Un État puissant et centralisé se met en place.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:p:0",
+  "qui": "narratrice",
+  "texte": "Henri IV, 1553-1610. Roi de France, il promulgue en 1598 l’édit de Nantes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:e0:0",
+  "qui": "annonce",
+  "texte": "Avant 1598. Les guerres de religion.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:e0:d",
+  "qui": "narrateur",
+  "texte": "Des guerres de religion opposent les catholiques et les protestants.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:e1:0",
+  "qui": "annonce",
+  "texte": "1598. L’édit de Nantes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:e1:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Les guerres de religion déchirent catholiques et protestants.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:e1:d",
+  "qui": "narrateur",
+  "texte": "Henri IV, roi de France, promulgue un décret appelé l’édit de Nantes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Ce décret met fin aux guerres de religion entre catholiques et protestants.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:d:0",
+  "qui": "narratrice",
+  "texte": "1492 : Début de l’Ancien Régime.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:d:1",
+  "qui": "narratrice",
+  "texte": "1598 : Édit de Nantes : fin des guerres de religion.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:d:2",
+  "qui": "narratrice",
+  "texte": "1789 : Fin de l’Ancien Régime.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "religion:t",
+  "qui": "narrateur",
+  "texte": "Au XVIIe siècle, un roi incarne la monarchie absolue : Louis XIV, le Roi-Soleil.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:g",
+  "qui": "annonce",
+  "texte": "Épisode 5. Louis XIV, Molière et les Lumières. Ancien Régime, du XVIIe au XVIIIe siècle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:c:0",
+  "qui": "narrateur",
+  "texte": "L’Ancien Régime est marqué par la monarchie absolue : le roi concentre tous les pouvoirs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:c:1",
+  "qui": "narrateur",
+  "texte": "Au XVIIe siècle règne Louis XIV, appelé le « Roi-Soleil ».",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:p:0",
+  "qui": "narratrice",
+  "texte": "Louis XIV, règne 1643-1715. Le « Roi-Soleil », roi emblématique de France. Il fait construire le château de Versailles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:p:1",
+  "qui": "narratrice",
+  "texte": "Molière, XVIIe siècle. Auteur de pièces de théâtre et comédien, célèbre pour « L’Avare » et « Le Bourgeois gentilhomme ».",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:p:2",
+  "qui": "narratrice",
+  "texte": "Les philosophes des Lumières. Rousseau, Voltaire, Diderot, Montesquieu, Condorcet, d’Alembert… Ils combattent pour la tolérance, la liberté de pensée et le refus de l’arbitraire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:p:3",
+  "qui": "narratrice",
+  "texte": "Montesquieu. Philosophe des Lumières, il dénonce l’esclavage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e0:0",
+  "qui": "annonce",
+  "texte": "1643-1715. Le règne du Roi-Soleil.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e0:d",
+  "qui": "narrateur",
+  "texte": "Louis XIV, roi emblématique de France, règne pendant toute cette période.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e1:0",
+  "qui": "annonce",
+  "texte": "Sous Louis XIV. Versailles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e1:d",
+  "qui": "narrateur",
+  "texte": "Louis XIV fait construire le château de Versailles, situé près de Paris.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Versailles est un joyau de l’architecture classique.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e2:0",
+  "qui": "annonce",
+  "texte": "XVIIe siècle. Molière.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e2:d",
+  "qui": "narrateur",
+  "texte": "Pendant le règne de Louis XIV, Molière écrit et joue des comédies, comme « L’Avare » et « Le Bourgeois gentilhomme ».",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e3:0",
+  "qui": "annonce",
+  "texte": "À partir du XVIIe siècle. La traite transatlantique.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e3:d",
+  "qui": "narrateur",
+  "texte": "L’esclavage se développe autour de la traite transatlantique et de l’esclavage colonial dans les territoires d’outre-mer.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e4:0",
+  "qui": "annonce",
+  "texte": "Les Lumières. Le combat des idées.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e4:d",
+  "qui": "narrateur",
+  "texte": "Les philosophes des Lumières combattent, à travers leurs œuvres, pour la tolérance, la liberté de pensée et le refus de l’arbitraire. Montesquieu dénonce l’esclavage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Leur pensée a influencé les idéaux de la Révolution française : liberté, égalité, fraternité.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:d:0",
+  "qui": "narratrice",
+  "texte": "1643 : Début du règne de Louis XIV.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:d:1",
+  "qui": "narratrice",
+  "texte": "1715 : Fin du règne de Louis XIV.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:d:2",
+  "qui": "narratrice",
+  "texte": "Les Lumières : Tolérance, liberté de pensée, refus de l’arbitraire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "louis14:t",
+  "qui": "narrateur",
+  "texte": "En 1789, les idées de liberté éclatent au grand jour : c’est la Révolution.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:g",
+  "qui": "annonce",
+  "texte": "Épisode 6. La Révolution française. 1789 à 1799.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:c:0",
+  "qui": "narrateur",
+  "texte": "La Bastille, prison royale, est le symbole du pouvoir monarchique arbitraire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:c:1",
+  "qui": "narrateur",
+  "texte": "La pensée des Lumières a influencé les idéaux de liberté, d’égalité et de fraternité.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:p:0",
+  "qui": "narratrice",
+  "texte": "Le marquis de La Fayette. Il a notamment contribué à l’écriture de la Déclaration des droits de l’homme et du citoyen.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:p:1",
+  "qui": "narratrice",
+  "texte": "Louis XVI. Ses pouvoirs sont limités en 1791. Renversé le 10 août 1792, il est guillotiné en 1793.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:p:2",
+  "qui": "narratrice",
+  "texte": "Maximilien Robespierre. Il défend l’égalité et la République, mais il dirige aussi la Terreur.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:p:3",
+  "qui": "narratrice",
+  "texte": "Rouget de Lisle, 1760-1836. Il écrit La Marseillaise en 1792.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e0:0",
+  "qui": "annonce",
+  "texte": "14 juillet 1789. La prise de la Bastille.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e0:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? La Bastille est le symbole du pouvoir monarchique arbitraire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e0:d",
+  "qui": "narrateur",
+  "texte": "Les Parisiens s’emparent de la Bastille.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e0:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : C’est le début de la Révolution française, qui conduit à la fin de la monarchie absolue.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e1:0",
+  "qui": "annonce",
+  "texte": "1789. La Déclaration des droits de l’homme.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e1:d",
+  "qui": "narrateur",
+  "texte": "La Déclaration des droits de l’homme et du citoyen est adoptée ; La Fayette a contribué à son écriture.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : La Révolution est à l’origine de nos valeurs républicaines.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e2:0",
+  "qui": "annonce",
+  "texte": "14 juillet 1790. La Fête de la Fédération.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e2:d",
+  "qui": "narrateur",
+  "texte": "Un an après la prise de la Bastille, est célébrée la Fête de la Fédération.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e3:0",
+  "qui": "annonce",
+  "texte": "1791. Une monarchie constitutionnelle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e3:d",
+  "qui": "narrateur",
+  "texte": "Une monarchie constitutionnelle est mise en place : les pouvoirs du roi Louis XVI sont limités.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e4:0",
+  "qui": "annonce",
+  "texte": "10 août 1792. La chute du roi.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e4:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Sa tentative de fuite vers l’étranger et les tensions sociales dressent le peuple contre Louis XVI.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e4:d",
+  "qui": "narrateur",
+  "texte": "Le roi est renversé, puis jugé.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Il est guillotiné sur la place de la Concorde en 1793.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e5:0",
+  "qui": "annonce",
+  "texte": "1792. La Première République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e5:d",
+  "qui": "narrateur",
+  "texte": "La Première République débute, à la fin de la monarchie constitutionnelle. La Marseillaise est écrite par Rouget de Lisle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e5:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : La République est l’héritière de la Révolution française.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e6:0",
+  "qui": "annonce",
+  "texte": "La Terreur. Le régime de la Terreur.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e6:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? La France fait face à des révoltes à l’intérieur du pays et à des guerres avec d’autres pays.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e6:d",
+  "qui": "narrateur",
+  "texte": "Le gouvernement met en place la Terreur : les ennemis de la Révolution sont surveillés, les personnes soupçonnées de trahison sont guillotinées.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e7:0",
+  "qui": "annonce",
+  "texte": "1799. Bonaparte prend le pouvoir.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e7:d",
+  "qui": "narrateur",
+  "texte": "Napoléon Bonaparte prend le pouvoir.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:e7:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Il met fin à la Première République en 1804 et proclame le Premier Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:d:0",
+  "qui": "narratrice",
+  "texte": "14 juillet 1789 : Prise de la Bastille.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:d:1",
+  "qui": "narratrice",
+  "texte": "1789 : Déclaration des droits de l’homme et du citoyen.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:d:2",
+  "qui": "narratrice",
+  "texte": "10 août 1792 : Louis XVI renversé.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:d:3",
+  "qui": "narratrice",
+  "texte": "1792 : Première République ; La Marseillaise.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:d:4",
+  "qui": "narratrice",
+  "texte": "1799 : Napoléon Bonaparte prend le pouvoir.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "revolution:t",
+  "qui": "narrateur",
+  "texte": "L’homme qui a pris le pouvoir en 1799 devient empereur en 1804 : Napoléon.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:g",
+  "qui": "annonce",
+  "texte": "Épisode 7. Napoléon et le Premier Empire. 1804 à 1815.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:c:0",
+  "qui": "narrateur",
+  "texte": "En 1799, Napoléon Bonaparte prend le pouvoir.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:c:1",
+  "qui": "narrateur",
+  "texte": "En 1804, il met fin à la Première République et proclame le Premier Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:p:0",
+  "qui": "narratrice",
+  "texte": "Napoléon Bonaparte (Napoléon Ier), empereur de 1804 à 1815. Il gouverne la France pendant environ 15 ans et conduit des réformes qui structurent l’État français.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e0:0",
+  "qui": "annonce",
+  "texte": "1804. L’Empereur.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e0:d",
+  "qui": "narrateur",
+  "texte": "Napoléon Bonaparte devient empereur. Il gouverne la France pendant environ 15 ans.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e1:0",
+  "qui": "annonce",
+  "texte": "1804. Les grandes réformes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e1:d",
+  "qui": "narrateur",
+  "texte": "Il est notamment à l’origine du Code civil, promulgué en 1804, de la Banque de France et de la création des préfets.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Ces réformes structurent l’État français tel qu’on le connaît aujourd’hui.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e2:0",
+  "qui": "annonce",
+  "texte": "Sous l’Empire. Les guerres en Europe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e2:d",
+  "qui": "narrateur",
+  "texte": "Il mène de nombreuses guerres en Europe pour étendre son empire, et centralise le pouvoir en contrôlant la presse et les opposants.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e3:0",
+  "qui": "annonce",
+  "texte": "1802 et 1815. Esclavage et traite.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e3:d",
+  "qui": "narrateur",
+  "texte": "Napoléon rétablit l’esclavage en 1802, puis abolit la traite des Noirs en 1815.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e4:0",
+  "qui": "annonce",
+  "texte": "1815. Waterloo.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e4:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Napoléon est affaibli par ses défaites militaires.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e4:d",
+  "qui": "narrateur",
+  "texte": "Il abdique définitivement après la bataille de Waterloo.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Le Premier Empire prend fin et la monarchie est restaurée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:d:0",
+  "qui": "narratrice",
+  "texte": "1799 : Bonaparte prend le pouvoir.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:d:1",
+  "qui": "narratrice",
+  "texte": "1804 : Napoléon empereur ; Code civil.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:d:2",
+  "qui": "narratrice",
+  "texte": "1815 : Waterloo : fin du Premier Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "napoleon:t",
+  "qui": "narrateur",
+  "texte": "Après Waterloo, les rois reviennent. Le XIXe siècle va alterner monarchies, révolutions et République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:g",
+  "qui": "annonce",
+  "texte": "Épisode 8. Monarchies et révolutions du XIXe siècle. 1815 à 1870.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:c:0",
+  "qui": "narrateur",
+  "texte": "La Restauration de la monarchie commence en 1815, avec le retour de Louis XVIII.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:c:1",
+  "qui": "narrateur",
+  "texte": "Le XIXe siècle va connaître deux monarchies, une république, puis un empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:p:0",
+  "qui": "narratrice",
+  "texte": "Louis XVIII. Il rétablit la monarchie en 1815, tout en conservant la Charte constitutionnelle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:p:1",
+  "qui": "narratrice",
+  "texte": "Louis-Philippe. Roi de la Monarchie de Juillet, à partir de 1830.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:p:2",
+  "qui": "narratrice",
+  "texte": "Victor Schoelcher. Sous-secrétaire d’État chargé des colonies, il rédige en 1848 le décret qui met fin à l’esclavage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:p:3",
+  "qui": "narratrice",
+  "texte": "Victor Hugo, 1802-1885. L’un des plus grands écrivains français, engagé contre les inégalités sociales et la peine de mort (« Les Misérables », « Notre-Dame de Paris »).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:p:4",
+  "qui": "narratrice",
+  "texte": "Napoléon III. Louis-Napoléon Bonaparte, neveu de Napoléon Ier, élu président, devient empereur en 1852.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e0:0",
+  "qui": "annonce",
+  "texte": "1815. La Restauration.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e0:d",
+  "qui": "narrateur",
+  "texte": "Louis XVIII rétablit la monarchie tout en conservant la Charte constitutionnelle, qui protège des libertés comme la presse ou l’élection du Parlement. Il renforce le rôle de l’Église et surveille les opposants.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e1:0",
+  "qui": "annonce",
+  "texte": "1824. Charles X.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e1:d",
+  "qui": "narrateur",
+  "texte": "Charles X succède à Louis XVIII.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e2:0",
+  "qui": "annonce",
+  "texte": "1830. La révolte de 1830.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e2:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Les limitations des libertés sont trop importantes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e2:d",
+  "qui": "narrateur",
+  "texte": "La population se révolte à Paris.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e2:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : La Restauration prend fin : la Monarchie de Juillet, plus libérale, commence avec le roi Louis-Philippe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e3:0",
+  "qui": "annonce",
+  "texte": "1830-1848. La Monarchie de Juillet.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e3:d",
+  "qui": "narrateur",
+  "texte": "Le Parlement reçoit plus de pouvoirs et la presse plus de liberté. Le pouvoir s’appuie sur la bourgeoisie ; le droit de vote reste limité aux plus riches.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e4:0",
+  "qui": "annonce",
+  "texte": "1848. La révolution de 1848.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e4:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Les inégalités sociales augmentent et le refus d’élargir le droit de vote provoque des tensions.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e4:d",
+  "qui": "narrateur",
+  "texte": "Une autre révolution éclate.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Elle met fin à la Monarchie de Juillet : la Deuxième République commence.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e5:0",
+  "qui": "annonce",
+  "texte": "1848. Le suffrage universel.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e5:d",
+  "qui": "narrateur",
+  "texte": "Le premier vote au suffrage universel a lieu, mais il ne concerne que les hommes en âge de voter.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e6:0",
+  "qui": "annonce",
+  "texte": "1848. L’abolition de l’esclavage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e6:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Depuis le XVIIe siècle, la traite a déporté de force 1,2 million d’Africains vers les colonies des Antilles, de la Réunion et de la Guyane, où ils travaillaient dans des conditions extrêmement difficiles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e6:d",
+  "qui": "narrateur",
+  "texte": "Victor Schoelcher, sous-secrétaire d’État chargé des colonies, rédige le décret qui met fin à l’esclavage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e6:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Aujourd’hui, la France reconnaît la traite et l’esclavage comme un crime contre l’humanité (loi Taubira de 2001) ; le 10 mai, on commémore leurs mémoires et leurs abolitions.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e7:0",
+  "qui": "annonce",
+  "texte": "Décembre 1851 à 1852. Le Second Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e7:d",
+  "qui": "narrateur",
+  "texte": "Louis-Napoléon Bonaparte, élu président de la République, organise un coup d’État en décembre 1851 et devient empereur sous le nom de Napoléon III en 1852.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e8:0",
+  "qui": "annonce",
+  "texte": "Années 1860. Un empire qui s’ouvre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e8:d",
+  "qui": "narrateur",
+  "texte": "D’abord autoritaire, le régime évolue : la population obtient plus de libertés et le Parlement plus de pouvoirs. L’économie se modernise et la France s’ouvre à l’Europe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e9:0",
+  "qui": "annonce",
+  "texte": "1870. La défaite.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e9:d",
+  "qui": "narrateur",
+  "texte": "L’armée française est défaite lors de la guerre contre la Prusse.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:e9:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Le Second Empire prend fin.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:d:0",
+  "qui": "narratrice",
+  "texte": "1815 : Restauration (Louis XVIII).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:d:1",
+  "qui": "narratrice",
+  "texte": "1830 : Révolte à Paris : Monarchie de Juillet (Louis-Philippe).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:d:2",
+  "qui": "narratrice",
+  "texte": "1848 : Deuxième République ; suffrage universel masculin ; abolition de l’esclavage.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:d:3",
+  "qui": "narratrice",
+  "texte": "1852 : Second Empire (Napoléon III).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:d:4",
+  "qui": "narratrice",
+  "texte": "1870 : Défaite contre la Prusse : fin du Second Empire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "xixe:t",
+  "qui": "narrateur",
+  "texte": "En 1870, l’Empire s’effondre. Une République va enfin s’installer dans la durée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:g",
+  "qui": "annonce",
+  "texte": "Épisode 9. La Troisième République. 1870 à 1940.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:c:0",
+  "qui": "narrateur",
+  "texte": "La IIIe République installe dans la durée le régime républicain en France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:p:0",
+  "qui": "narratrice",
+  "texte": "Léon Gambetta, 1838-1882. Petit-fils d’un commerçant italien, fervent républicain, il aide la France à se relever après la défaite de 1870 ; il est un des pères de la IIIe République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:p:1",
+  "qui": "narratrice",
+  "texte": "Jules Ferry. Ministre de l’Instruction publique, ses lois rendent l’école publique gratuite, laïque et obligatoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:p:2",
+  "qui": "narratrice",
+  "texte": "Gustave Eiffel. Ingénieur, il conçoit la tour Eiffel pour l’Exposition universelle de 1889.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:p:3",
+  "qui": "narratrice",
+  "texte": "Marie Curie, 1867-1934. Physicienne née en Pologne, prix Nobel de physique (1903) puis de chimie (1911). Elle est inhumée au Panthéon.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e0:0",
+  "qui": "annonce",
+  "texte": "1880. La fête nationale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e0:d",
+  "qui": "narrateur",
+  "texte": "Le 14 juillet est consacré jour de fête nationale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e0:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Il commémore la prise de la Bastille (1789) et la Fête de la Fédération (1790).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e1:0",
+  "qui": "annonce",
+  "texte": "1881 et 1882. L’école de la République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e1:d",
+  "qui": "narrateur",
+  "texte": "Grâce aux lois de Jules Ferry, l’école publique devient gratuite en 1881, puis laïque et obligatoire en 1882.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e2:0",
+  "qui": "annonce",
+  "texte": "1881, 1884, 1901. Les grandes lois de liberté.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e2:d",
+  "qui": "narrateur",
+  "texte": "La loi du 29 juillet 1881 sur la liberté de la presse, la loi du 21 mars 1884 autorisant les syndicats, la loi du 1er juillet 1901 sur la liberté d’association.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e3:0",
+  "qui": "annonce",
+  "texte": "1889. La tour Eiffel.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e3:d",
+  "qui": "narrateur",
+  "texte": "L’ingénieur Gustave Eiffel conçoit la tour pour l’Exposition universelle de 1889.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e3:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Elle est devenue un symbole de Paris.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e4:0",
+  "qui": "annonce",
+  "texte": "9 décembre 1905. La laïcité.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:e4:d",
+  "qui": "narrateur",
+  "texte": "La loi sur la séparation des Églises et de l’État est adoptée : c’est la loi sur la laïcité.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d:0",
+  "qui": "narratrice",
+  "texte": "1870 : Début de la Troisième République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d:1",
+  "qui": "narratrice",
+  "texte": "1880 : Le 14 juillet, fête nationale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d:2",
+  "qui": "narratrice",
+  "texte": "1881 : École publique gratuite ; liberté de la presse (29 juillet).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d:3",
+  "qui": "narratrice",
+  "texte": "1882 : École laïque et obligatoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d:4",
+  "qui": "narratrice",
+  "texte": "1905 : Séparation des Églises et de l’État (9 décembre).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:d:5",
+  "qui": "narratrice",
+  "texte": "1940 : Fin de la Troisième République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "troisieme:t",
+  "qui": "narrateur",
+  "texte": "En juillet 1914, la guerre éclate en Europe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:g",
+  "qui": "annonce",
+  "texte": "Épisode 10. La Première Guerre mondiale. 1914 à 1918.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:c:0",
+  "qui": "narrateur",
+  "texte": "La Première Guerre mondiale, aussi appelée « la grande guerre », implique d’abord les puissances européennes, dont la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:c:1",
+  "qui": "narrateur",
+  "texte": "Elle s’étend ensuite à plusieurs continents.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:p:0",
+  "qui": "narratrice",
+  "texte": "Georges Clemenceau. Président du Conseil, il dirige la France jusqu’à la victoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e0:0",
+  "qui": "annonce",
+  "texte": "Juillet 1914. La guerre éclate.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e0:d",
+  "qui": "narrateur",
+  "texte": "Le conflit commence entre les puissances européennes, dont la France, puis s’étend à plusieurs continents.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e1:0",
+  "qui": "annonce",
+  "texte": "11 novembre 1918. L’armistice.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e1:d",
+  "qui": "narrateur",
+  "texte": "La guerre s’achève par la victoire de la France, dirigée par Georges Clemenceau, et de ses alliés (Grande-Bretagne, Italie et États-Unis) sur l’empire allemand et ses alliés (empire austro-hongrois et empire ottoman).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Chaque année, le 11 novembre est un jour férié : on commémore l’Armistice, la victoire, la paix, et on rend hommage à tous les morts pour la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e2:0",
+  "qui": "annonce",
+  "texte": "Bilan. Une Europe bouleversée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e2:d",
+  "qui": "narrateur",
+  "texte": "La guerre cause la mort de 10 millions de personnes, dont 1,45 million pour la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e2:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : L’Europe sort durablement affaiblie : frontières modifiées, nouveaux pays, révolution bolchévique en Russie (qui devient l’URSS), montée en puissance des États-Unis.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e3:0",
+  "qui": "annonce",
+  "texte": "28 juin 1919. Le traité de Versailles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e3:d",
+  "qui": "narrateur",
+  "texte": "Le traité de Versailles met fin à la guerre et prévoit la création de la Société des Nations.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:e3:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : La Société des Nations a inspiré plus tard l’Organisation des Nations Unies.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:d:0",
+  "qui": "narratrice",
+  "texte": "Juillet 1914 : Début de la Première Guerre mondiale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:d:1",
+  "qui": "narratrice",
+  "texte": "11 novembre 1918 : Armistice : victoire de la France et de ses alliés.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:d:2",
+  "qui": "narratrice",
+  "texte": "28 juin 1919 : Traité de Versailles ; Société des Nations.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww1:t",
+  "qui": "narrateur",
+  "texte": "Vingt ans plus tard, en 1939, une nouvelle guerre mondiale éclate.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:g",
+  "qui": "annonce",
+  "texte": "Épisode 11. La Seconde Guerre mondiale, l’Occupation et la Résistance. 1939 à 1945.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:c:0",
+  "qui": "narrateur",
+  "texte": "La Seconde Guerre mondiale, de 1939 à 1945, est déclenchée par Adolf Hitler, dictateur nazi au pouvoir en Allemagne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:p:0",
+  "qui": "narratrice",
+  "texte": "Le maréchal Pétain. Après la défaite, il met en place un régime autoritaire non démocratique, dont la capitale est Vichy.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:p:1",
+  "qui": "narratrice",
+  "texte": "Jean Moulin. Missionné par le Général de Gaulle, il unifie la Résistance ; il sera arrêté et torturé à mort par les nazis.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:p:2",
+  "qui": "narratrice",
+  "texte": "Le Général de Gaulle, 1890-1970. Chef de la France libre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:p:3",
+  "qui": "narratrice",
+  "texte": "Joséphine Baker, 1906-1975. Chanteuse, danseuse et meneuse de revue, elle s’illustra dans la Résistance.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e0:0",
+  "qui": "annonce",
+  "texte": "1940. L’invasion.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e0:d",
+  "qui": "narrateur",
+  "texte": "Hitler envahit notamment la France, qui est occupée d’abord partiellement, puis totalement à partir de 1942.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e1:0",
+  "qui": "annonce",
+  "texte": "1940-1944. Le régime de Vichy.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e1:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? La France est défaite face à l’Allemagne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e1:d",
+  "qui": "narrateur",
+  "texte": "Le maréchal Pétain met en place un régime autoritaire non démocratique, dont la capitale est Vichy.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Le régime collabore avec l’Allemagne nazie et porte une part de responsabilité dans la déportation des Juifs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e2:0",
+  "qui": "annonce",
+  "texte": "1939-1945. La Shoah.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e2:d",
+  "qui": "narrateur",
+  "texte": "Dans les territoires qu’ils contrôlent, les nazis persécutent les opposants politiques et exterminent des millions de Juifs, ainsi que des milliers de Tsiganes, d’homosexuels et d’handicapés.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e3:0",
+  "qui": "annonce",
+  "texte": "La Résistance. Résister.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e3:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Une partie de la population n’accepte pas la collaboration du régime de Vichy avec l’occupant allemand.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e3:d",
+  "qui": "narrateur",
+  "texte": "Elle résiste à l’occupation. La Résistance s’unifie sous la direction de Jean Moulin, missionné par le Général de Gaulle, chef de la France libre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e3:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Jean Moulin sera arrêté et torturé à mort par les nazis.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e4:0",
+  "qui": "annonce",
+  "texte": "Bilan. Plus de 50 millions de morts.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:e4:d",
+  "qui": "narrateur",
+  "texte": "Les historiens estiment que la guerre a fait plus de 50 millions de morts, dont une majorité de civils.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:d:0",
+  "qui": "narratrice",
+  "texte": "1939 : Début de la Seconde Guerre mondiale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:d:1",
+  "qui": "narratrice",
+  "texte": "1940 : La France envahie ; régime de Vichy.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:d:2",
+  "qui": "narratrice",
+  "texte": "18 juin 1940 : Appel du Général de Gaulle (épisode suivant).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:d:3",
+  "qui": "narratrice",
+  "texte": "1945 : Fin de la guerre.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "ww2:t",
+  "qui": "narrateur",
+  "texte": "Dès 1940, un appel lancé à la radio britannique a marqué le début de la Résistance : celui du Général de Gaulle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:g",
+  "qui": "annonce",
+  "texte": "Épisode 12. Charles de Gaulle et la Libération. 1940 à 1946.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:c:0",
+  "qui": "narrateur",
+  "texte": "Charles de Gaulle (1890-1970) est le chef de la résistance française contre les armées allemandes qui occupent la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:c:1",
+  "qui": "narrateur",
+  "texte": "Avec les Alliés, il est l’artisan de la libération de la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:p:0",
+  "qui": "narratrice",
+  "texte": "Charles de Gaulle, 1890-1970. Chef de la France libre et de la résistance française ; il dirige la France à la Libération.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e0:0",
+  "qui": "annonce",
+  "texte": "18 juin 1940. L’appel du 18 juin.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e0:d",
+  "qui": "narrateur",
+  "texte": "Le Général de Gaulle lance un appel via la radio britannique, la BBC.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e0:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Cet appel marque le début de la Résistance.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e1:0",
+  "qui": "annonce",
+  "texte": "Avril 1944. Le vote des femmes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e1:d",
+  "qui": "narrateur",
+  "texte": "Les femmes françaises obtiennent le droit de vote.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Elles votent pour la première fois un an plus tard, en avril 1945.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e2:0",
+  "qui": "annonce",
+  "texte": "6 juin 1944. Le débarquement.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e2:d",
+  "qui": "narrateur",
+  "texte": "Les Alliés (États-Unis, URSS, Grande-Bretagne et France) débarquent en Normandie, appuyés par les forces de la Résistance française.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e2:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : C’est le début de la libération de la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e3:0",
+  "qui": "annonce",
+  "texte": "25 août 1944. Paris libérée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e3:d",
+  "qui": "narrateur",
+  "texte": "La ville de Paris est libérée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e4:0",
+  "qui": "annonce",
+  "texte": "8 mai 1945. La capitulation.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e4:d",
+  "qui": "narrateur",
+  "texte": "L’Allemagne capitule face aux Alliés.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Le 8 mai est un jour férié, qui commémore la fin de la Seconde Guerre mondiale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e5:0",
+  "qui": "annonce",
+  "texte": "1944-1946. Le Gouvernement provisoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:e5:d",
+  "qui": "narrateur",
+  "texte": "De Gaulle prend la tête du gouvernement de la République française jusqu’au 20 janvier 1946. Sur la grande frise du livret, la Sécurité sociale apparaît à cette époque.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:d:0",
+  "qui": "narratrice",
+  "texte": "18 juin 1940 : Appel du Général de Gaulle (BBC).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:d:1",
+  "qui": "narratrice",
+  "texte": "Avril 1944 : Droit de vote des femmes.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:d:2",
+  "qui": "narratrice",
+  "texte": "6 juin 1944 : Débarquement en Normandie.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:d:3",
+  "qui": "narratrice",
+  "texte": "25 août 1944 : Libération de Paris.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:d:4",
+  "qui": "narratrice",
+  "texte": "8 mai 1945 : Capitulation de l’Allemagne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "liberation:t",
+  "qui": "narrateur",
+  "texte": "En 1946, une nouvelle République commence : la Quatrième.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:g",
+  "qui": "annonce",
+  "texte": "Épisode 13. La Quatrième République. 1946 à 1958.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:c:0",
+  "qui": "narrateur",
+  "texte": "La Quatrième République débute en 1946.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:c:1",
+  "qui": "narrateur",
+  "texte": "La France est l’un des pays à l’origine de la construction européenne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:p:0",
+  "qui": "narratrice",
+  "texte": "Robert Schuman. Ministre français des affaires étrangères, il présente le 9 mai 1950 les bases de la coopération européenne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e0:0",
+  "qui": "annonce",
+  "texte": "1946. Une nouvelle Constitution.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e0:d",
+  "qui": "narrateur",
+  "texte": "La Constitution de la IVe République est marquée par l’importance du pouvoir législatif, détenu par le Parlement, par rapport au pouvoir exécutif, incarné par le président du Conseil.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e1:0",
+  "qui": "annonce",
+  "texte": "1946-1954. La guerre d’Indochine.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e1:d",
+  "qui": "narrateur",
+  "texte": "Un conflit meurtrier éclate concernant la décolonisation de l’Indochine.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Le pays obtient son indépendance à l’issue de ce conflit.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e2:0",
+  "qui": "annonce",
+  "texte": "9 mai 1950. La déclaration Schuman.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e2:d",
+  "qui": "narrateur",
+  "texte": "Robert Schuman présente les bases de la coopération européenne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e2:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Elle sera considérée comme l’acte de naissance de l’Union européenne ; le 9 mai est aujourd’hui la journée de l’Europe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e3:0",
+  "qui": "annonce",
+  "texte": "1951. La CECA.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e3:d",
+  "qui": "narrateur",
+  "texte": "La Communauté européenne du charbon et de l’acier est créée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e4:0",
+  "qui": "annonce",
+  "texte": "1954. La guerre d’Algérie.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e4:d",
+  "qui": "narrateur",
+  "texte": "Un autre conflit meurtrier éclate, concernant la décolonisation de l’Algérie (1954-1962).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e5:0",
+  "qui": "annonce",
+  "texte": "1957. Le traité de Rome.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e5:d",
+  "qui": "narrateur",
+  "texte": "Il instaure la Communauté économique européenne entre six pays fondateurs : France, Allemagne, Italie, Belgique, Pays-Bas, Luxembourg.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e5:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Objectif : une union solide entre les peuples européens et la paix en Europe après la Seconde Guerre mondiale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e6:0",
+  "qui": "annonce",
+  "texte": "1958. L’effondrement.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e6:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Le déséquilibre entre les pouvoirs et l’absence de majorité au Parlement entraînent une instabilité du gouvernement.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e6:d",
+  "qui": "narrateur",
+  "texte": "Le régime est affaibli.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:e6:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : La IVe République s’effondre en 1958.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:d:0",
+  "qui": "narratrice",
+  "texte": "1946 : Début de la IVe République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:d:1",
+  "qui": "narratrice",
+  "texte": "9 mai 1950 : Déclaration Schuman.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:d:2",
+  "qui": "narratrice",
+  "texte": "1957 : Traité de Rome : CEE à six pays.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:d:3",
+  "qui": "narratrice",
+  "texte": "1958 : Effondrement de la IVe République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "quatrieme:t",
+  "qui": "narrateur",
+  "texte": "En 1958, face à la crise, on rappelle le Général de Gaulle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:g",
+  "qui": "annonce",
+  "texte": "Épisode 14. La Cinquième République depuis 1958. 1958 – ….",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:c:0",
+  "qui": "narrateur",
+  "texte": "Face à la crise liée à la guerre d’Algérie et à l’instabilité de la IVe République, le Général de Gaulle est appelé au pouvoir à l’été 1958.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:p:0",
+  "qui": "narratrice",
+  "texte": "Charles de Gaulle, 1890-1970. Il est à l’origine de nos institutions actuelles et devient le premier Président de la Ve République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:p:1",
+  "qui": "narratrice",
+  "texte": "Georges Pompidou, président à partir de 1969. Seul président de la Ve République décédé au cours de son mandat.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e0:0",
+  "qui": "annonce",
+  "texte": "Été 1958. Le retour de De Gaulle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e0:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Une crise politique majeure, liée à la guerre d’Algérie et à l’instabilité de la IVe République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e0:d",
+  "qui": "narrateur",
+  "texte": "De Gaulle est appelé au pouvoir comme président du Conseil, avec pour mission de rédiger une nouvelle constitution.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e1:0",
+  "qui": "annonce",
+  "texte": "28 septembre et 4 octobre 1958. La Constitution.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e1:d",
+  "qui": "narrateur",
+  "texte": "Adoptée par référendum le 28 septembre 1958, la Constitution de la Ve République est promulguée le 4 octobre 1958.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Elle installe un pouvoir exécutif fort, avec un président doté de pouvoirs importants, et limite les cas où l’Assemblée nationale peut renverser le Gouvernement.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e2:0",
+  "qui": "annonce",
+  "texte": "1959. Le premier Président.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e2:d",
+  "qui": "narrateur",
+  "texte": "Le Général de Gaulle devient le premier Président de la Ve République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e3:0",
+  "qui": "annonce",
+  "texte": "Années 1950-1960. La décolonisation.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e3:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Entre le XVIIe et le XIXe siècle, la France a conquis un vaste empire colonial ; après la Seconde Guerre mondiale, des mouvements nationalistes réclament l’indépendance.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e3:d",
+  "qui": "narrateur",
+  "texte": "La plupart des colonies obtiennent leur indépendance dans le cadre de processus négociés.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e3:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Deux conflits meurtriers éclatent : l’Indochine (1946-1954) et l’Algérie (1954-1962), qui obtiennent leur indépendance à l’issue de ces conflits.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e4:0",
+  "qui": "annonce",
+  "texte": "Mai 1968. Mai 68.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e4:c",
+  "qui": "narrateur",
+  "texte": "Pourquoi ? Des étudiants réclament de meilleures conditions d’études et davantage de libertés.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e4:d",
+  "qui": "narrateur",
+  "texte": "Le mouvement est amplifié par les salariés et les syndicats d’ouvriers ; les grèves et manifestations sont parmi les plus importantes du XXe siècle.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Des avancées sociales importantes, comme l’augmentation du salaire minimum, et une transformation importante de la société.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:d:0",
+  "qui": "narratrice",
+  "texte": "28 septembre 1958 : Référendum sur la Constitution.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:d:1",
+  "qui": "narratrice",
+  "texte": "4 octobre 1958 : Promulgation de la Constitution de la Ve République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:d:2",
+  "qui": "narratrice",
+  "texte": "1959 : De Gaulle, premier Président de la Ve République.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:d:3",
+  "qui": "narratrice",
+  "texte": "1962 : Fin de la guerre d’Algérie.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:d:4",
+  "qui": "narratrice",
+  "texte": "Mai 1968 : Mai 68.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "cinquieme:t",
+  "qui": "narrateur",
+  "texte": "La Ve République est encore aujourd’hui le régime politique de la France. Voyons comment elle a fait avancer les droits.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:g",
+  "qui": "annonce",
+  "texte": "Épisode 15. La France contemporaine. De 1974 à aujourd’hui.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:c:0",
+  "qui": "narrateur",
+  "texte": "La Ve République est encore aujourd’hui le régime politique de la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:c:1",
+  "qui": "narrateur",
+  "texte": "En 2025, la France compte 68,6 millions d’habitants, en métropole et outre-mer.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:p:0",
+  "qui": "narratrice",
+  "texte": "Valéry Giscard d’Estaing, président à partir de 1974. L’abaissement de la majorité à 18 ans est l’une de ses premières décisions.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:p:1",
+  "qui": "narratrice",
+  "texte": "Simone Veil. Ministre de la Santé, elle présente et soutient la loi du 17 janvier 1975.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:p:2",
+  "qui": "narratrice",
+  "texte": "Robert Badinter. Ministre de la Justice de François Mitterrand, il soutient l’abolition de la peine de mort en 1981.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:p:3",
+  "qui": "narratrice",
+  "texte": "Christiane Taubira. Ministre de la Justice sous François Hollande, elle soutient la loi de 2013 sur le mariage pour tous.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e0:0",
+  "qui": "annonce",
+  "texte": "1974. La majorité à 18 ans.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e0:d",
+  "qui": "narrateur",
+  "texte": "Toutes les lois qui imposent un âge minimum de 21 ans pour exercer les droits civiques, comme le vote, sont modifiées : l’âge minimum passe à 18 ans.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e1:0",
+  "qui": "annonce",
+  "texte": "17 janvier 1975. La loi Veil.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e1:d",
+  "qui": "narrateur",
+  "texte": "L’avortement est dépénalisé : il n’est plus condamnable par la loi.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e1:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Une avancée importante pour le droit des femmes à disposer librement de leur corps, dans la continuité de la loi Neuwirth de 1967 sur la contraception.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e2:0",
+  "qui": "annonce",
+  "texte": "1981. L’abolition de la peine de mort.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e2:d",
+  "qui": "narrateur",
+  "texte": "La peine de mort est interdite par la loi.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e2:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Un tournant symbolique fort dans l’histoire des droits de l’homme ; c’est aujourd’hui un pilier des valeurs républicaines et un symbole du respect de la dignité humaine.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e3:0",
+  "qui": "annonce",
+  "texte": "1992 et 2002. L’Europe au quotidien.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e3:d",
+  "qui": "narrateur",
+  "texte": "En 1992, le traité de Maastricht crée l’Union européenne et la citoyenneté européenne. Depuis le 1er janvier 2002, les pièces et billets en euros circulent.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e4:0",
+  "qui": "annonce",
+  "texte": "17 mai 2013. Le mariage pour tous.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e4:d",
+  "qui": "narrateur",
+  "texte": "Une loi permet aux couples homosexuels de se marier et d’adopter des enfants.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e4:q",
+  "qui": "narrateur",
+  "texte": "Conséquence : Le premier mariage homosexuel en France est célébré à la mairie de Montpellier, le 29 mai 2013.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e5:0",
+  "qui": "annonce",
+  "texte": "1959 à 2022. Les présidents.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:e5:d",
+  "qui": "narrateur",
+  "texte": "De Gaulle (1959), Pompidou (1969), Giscard d’Estaing (1974), Mitterrand (1981, réélu en 1988), Chirac (1995, réélu en 2002), Sarkozy (2007), Hollande (2012), Macron (2017, réélu en 2022).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:d",
+  "qui": "narratrice",
+  "texte": "Les dates indispensables.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:d:0",
+  "qui": "narratrice",
+  "texte": "1974 : Majorité à 18 ans.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:d:1",
+  "qui": "narratrice",
+  "texte": "17 janvier 1975 : Loi Veil.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:d:2",
+  "qui": "narratrice",
+  "texte": "1981 : Abolition de la peine de mort ; Mitterrand président.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:d:3",
+  "qui": "narratrice",
+  "texte": "1992 : Traité de Maastricht : Union européenne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:d:4",
+  "qui": "narratrice",
+  "texte": "17 mai 2013 : Mariage pour tous.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "contemporaine:t",
+  "qui": "narrateur",
+  "texte": "Fin de la série. Tu peux maintenant raconter l’histoire de France dans l’ordre, d’après le Livret du citoyen 2026.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:titre",
+  "qui": "annonce",
+  "texte": "Le volet géographique. Où est la France, et pourquoi sa géographie compte.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:situation",
+  "qui": "narrateur",
+  "texte": "La France métropolitaine est située à l’ouest de l’Europe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:voisins",
+  "qui": "narrateur",
+  "texte": "Elle partage ses frontières terrestres avec 8 pays : Allemagne, Andorre, Belgique, Espagne, Italie, Luxembourg, Monaco et Suisse.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:cotes",
+  "qui": "narrateur",
+  "texte": "Elle dispose de 5 500 kilomètres de côtes, ouvertes sur la Manche, la mer du Nord, l’océan Atlantique et la mer Méditerranée.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:villes:0",
+  "qui": "narrateur",
+  "texte": "Au 1er janvier 2025, les plus grandes villes de France sont Paris, Lyon, Lille, Marseille, Toulouse, Bordeaux, Nantes, Nice et Strasbourg.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:villes:1",
+  "qui": "narrateur",
+  "texte": "Ces neuf villes ont une dimension internationale.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:fleuves",
+  "qui": "narrateur",
+  "texte": "La France est parcourue par plusieurs fleuves importants : la Loire, la Seine, la Garonne, le Rhône et le Rhin.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:loire:0",
+  "qui": "annonce",
+  "texte": "La Loire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:loire:1",
+  "qui": "narrateur",
+  "texte": "Plus long fleuve français, connu notamment pour ses paysages naturels et ses châteaux.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:seine:0",
+  "qui": "annonce",
+  "texte": "La Seine.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:seine:1",
+  "qui": "narrateur",
+  "texte": "Elle traverse Paris, capitale de la France.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:garonne:0",
+  "qui": "annonce",
+  "texte": "La Garonne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:garonne:1",
+  "qui": "narrateur",
+  "texte": "Elle traverse Toulouse (chef-lieu de l'Occitanie) et Bordeaux (chef-lieu de la Nouvelle-Aquitaine).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:rhone:0",
+  "qui": "annonce",
+  "texte": "Le Rhône.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:rhone:1",
+  "qui": "narrateur",
+  "texte": "Il traverse Lyon (chef-lieu de la région Auvergne-Rhône-Alpes).",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:rhin:0",
+  "qui": "annonce",
+  "texte": "Le Rhin.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:f:rhin:1",
+  "qui": "narrateur",
+  "texte": "Il délimite partiellement la frontière entre la France et l'Allemagne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:massifs:0",
+  "qui": "narrateur",
+  "texte": "Les Alpes. Elles séparent notamment la France de l'Italie et sont réputées pour leurs stations de ski. Le Mont-Blanc (4 810 m) est la plus haute montagne de France et d'Europe.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:massifs:1",
+  "qui": "narrateur",
+  "texte": "Les Pyrénées. Elles se situent entre la France et l'Espagne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:massifs:2",
+  "qui": "narrateur",
+  "texte": "Le Massif central, le Jura et les Vosges sont d’autres massifs.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:ports:0",
+  "qui": "narrateur",
+  "texte": "Les plus grands ports maritimes commerciaux français sont Le Havre, Marseille-Fos, Dunkerque et Nantes-Saint-Nazaire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:ports:1",
+  "qui": "narrateur",
+  "texte": "Plus de 90 % du commerce international de marchandises se fait par bateau.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:0:0",
+  "qui": "annonce",
+  "texte": "Pourquoi c’est important : des frontières naturelles.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:0:1",
+  "qui": "narrateur",
+  "texte": "Les Alpes séparent notamment la France de l’Italie ; les Pyrénées se situent entre la France et l’Espagne ; le Rhin délimite partiellement la frontière entre la France et l’Allemagne.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:1:0",
+  "qui": "annonce",
+  "texte": "Pourquoi c’est important : la mer, une porte ouverte.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:1:1",
+  "qui": "narrateur",
+  "texte": "La position géographique de la France, avec plusieurs façades maritimes et un accès aux grandes routes commerciales, est un atout pour son économie : plus de 90 % du commerce international de marchandises se fait par bateau.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:2:0",
+  "qui": "annonce",
+  "texte": "Pourquoi c’est important : les ports dans l’histoire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:2:1",
+  "qui": "narrateur",
+  "texte": "Nantes était le principal port français impliqué dans la traite transatlantique. Aujourd’hui, les plus grands ports sont Le Havre, Marseille-Fos, Dunkerque et Nantes-Saint-Nazaire.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:3:0",
+  "qui": "annonce",
+  "texte": "Pourquoi c’est important : un fleuve et un palais.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:3:1",
+  "qui": "narrateur",
+  "texte": "Le Palais des Papes, chef-d’œuvre gothique du XIVe siècle, est situé à Avignon, sur les rives du Rhône.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:4:0",
+  "qui": "annonce",
+  "texte": "Pourquoi c’est important : débarquer pour libérer.",
+  "émotion": null,
+  "officiel": false
+ },
+ {
+  "clé": "geo:pq:4:1",
+  "qui": "narrateur",
+  "texte": "La libération de la France débute par le débarquement des Alliés en Normandie, sur la côte de la Manche, le 6 juin 1944.",
+  "émotion": null,
+  "officiel": false
+ }
+]

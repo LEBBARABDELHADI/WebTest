@@ -2,7 +2,8 @@
 # un jeu par personnage, ajustés selon l'émotion.
 #   python generer.py 6       → court-métrage « expérience cinéma » de la page 6
 #   python generer.py film7   → épisode 🍿 Film de la page 7
-import asyncio, json, os, re, subprocess, sys
+#   python generer.py immersion → « Immersion dans le Livret du citoyen 2026 »
+import asyncio, hashlib, json, os, re, subprocess, sys
 import certifi
 # Derrière un proxy TLS (ex. session cloud) : CA_PROXY=/chemin/ca.crt pour que
 # la vérification TLS reste active avec le certificat du proxy.
@@ -13,8 +14,13 @@ import edge_tts
 ICI = os.path.dirname(os.path.abspath(__file__))
 ARG = sys.argv[1] if len(sys.argv) > 1 else '10'
 FILM = ARG.startswith('film')
+IMMERSION = ARG == 'immersion'
 PAGE = ARG[4:] if FILM else ARG
-if FILM:  # épisodes 🍿 Film (lib/livret2026/films)
+if IMMERSION:  # Immersion : bande-annonce, frise, épisodes, géographie (lib/livret2026/immersion)
+    DOSSIER, LIGNES, NOM = 'immersion', 'lignes-immersion.json', 'VOIX_IMMERSION'
+    MANIFESTE = os.path.join(ICI, '../../src/lib/livret2026/immersion/voixImmersion.js')
+    QUOI = "l'Immersion dans le Livret du citoyen 2026"
+elif FILM:  # épisodes 🍿 Film (lib/livret2026/films)
     DOSSIER, LIGNES, NOM = f'film{PAGE}', f'lignes-film{PAGE}.json', f'VOIX_FILM{PAGE}'
     MANIFESTE = os.path.join(ICI, f'../../src/lib/livret2026/films/voixFilm{PAGE}.js')
     QUOI = f"l'épisode 🍿 Film de la page {PAGE}"
@@ -41,6 +47,9 @@ CASTING = {
     'yanis': ('fr-FR-EloiseNeural', 8, -10),
     'diallo': ('fr-FR-DeniseNeural', -2, -3),
     'thomas': ('fr-CH-FabriceNeural', 4, -3),
+    # Immersion : voix grave de la bande-annonce et des intertitres, narratrice.
+    'annonce': ('fr-FR-HenriNeural', -9, -7),
+    'narratrice': ('fr-FR-VivienneMultilingualNeural', -4, -1),
 }
 # Personnages propres à une page (épisodes construits automatiquement) : une
 # voix selon le genre et le rang du personnage dans l'épisode.
@@ -66,31 +75,48 @@ def dire(texte):
     t = re.sub(r'\b([IVX]+)(re|er|e)\b', arabe, t)
     return re.sub(r'\s+', ' ', t).strip()
 
-async def main():
-    os.makedirs(SORTIE, exist_ok=True)
-    lignes = json.load(open(os.path.join(ICI, LIGNES)))
-    manifeste = {}
-    for l in lignes:
-        g = VOIX_GENRE.get(l.get('genre') or '')
-        voix, r, p = CASTING[l['qui']] if l['qui'] in CASTING else g[(l.get('rang') or 0) % len(g)]
-        er, ep = ÉMOTIONS.get(l.get('émotion') or 'neutre', (0, 0))
-        if l.get('officiel'): r -= 6
-        if l['texte'].rstrip().endswith('?'): ep += 3
-        nom = l['clé'].replace(':', '-') + '.mp3'
-        chemin = os.path.join(SORTIE, nom)
+async def une(l, sem):
+    g = VOIX_GENRE.get(l.get('genre') or '')
+    voix, r, p = CASTING[l['qui']] if l['qui'] in CASTING else g[(l.get('rang') or 0) % len(g)]
+    er, ep = ÉMOTIONS.get(l.get('émotion') or 'neutre', (0, 0))
+    if l.get('officiel'): r -= 6
+    if l['texte'].rstrip().endswith('?'): ep += 3
+    texte = dire(l['texte'])
+    nom = l['clé'].replace(':', '-')
+    # Immersion : l'empreinte du texte et de la voix dans le nom du fichier, pour
+    # qu'un texte modifié soit redit (et jamais servi depuis un ancien cache).
+    if IMMERSION: nom += '-' + hashlib.sha1(f'{voix}|{r + er}|{p + ep}|{texte}'.encode()).hexdigest()[:6]
+    nom += '.mp3'
+    chemin = os.path.join(SORTIE, nom)
+    async with sem:
         déjà = os.path.exists(chemin) and os.path.getsize(chemin) > 2000
         for essai in range(0 if déjà else 7):
             try:
-                await edge_tts.Communicate(dire(l['texte']), voix, rate=f'{r + er:+d}%', pitch=f'{p + ep:+d}Hz').save(chemin)
-                break
+                await edge_tts.Communicate(texte, voix, rate=f'{r + er:+d}%', pitch=f'{p + ep:+d}Hz').save(chemin)
+                if os.path.getsize(chemin) > 2000: break
             except Exception as e:
-                print('  nouvel essai', nom, e); await asyncio.sleep(3 + essai * 4)
-        d = float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', chemin], capture_output=True, text=True).stdout or 0)
-        manifeste[l['clé']] = {'f': nom, 'd': round(d, 2), 'voix': voix.split('-')[2].replace('MultilingualNeural', '').replace('Neural', '')}
-        print(f"{l['clé']:<16} {manifeste[l['clé']]['voix']:<9} {d:5.1f}s")
-        await asyncio.sleep(0.3)
+                print('  nouvel essai', nom, e)
+            await asyncio.sleep(3 + essai * 4)
+        if not déjà: await asyncio.sleep(0.3)
+    if not (os.path.exists(chemin) and os.path.getsize(chemin) > 2000):
+        print('  ÉCHEC', l['clé'], '(voix de l\'appareil à la place)')
+        return l['clé'], None
+    d = float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', chemin], capture_output=True, text=True).stdout or 0)
+    v = {'f': nom, 'd': round(d, 2), 'voix': voix.split('-')[2].replace('MultilingualNeural', '').replace('Neural', '')}
+    print(f"{l['clé']:<22} {v['voix']:<9} {d:5.1f}s")
+    return l['clé'], v
+
+async def main():
+    os.makedirs(SORTIE, exist_ok=True)
+    lignes = json.load(open(os.path.join(ICI, LIGNES)))
+    sem = asyncio.Semaphore(5 if IMMERSION else 1)
+    manifeste = {k: v for k, v in await asyncio.gather(*(une(l, sem) for l in lignes)) if v}
+    if IMMERSION:  # fichiers d'anciennes versions des textes
+        gardés = {v['f'] for v in manifeste.values()}
+        for f in os.listdir(SORTIE):
+            if f.endswith('.mp3') and f not in gardés: os.remove(os.path.join(SORTIE, f))
     with open(MANIFESTE, 'w') as f:
         f.write(f'// Voix générées pour {QUOI} (edge-tts, voix « Natural »\n// de Microsoft) : fichier, durée (s), voix. Produit par un script, ne pas modifier à la main.\n')
         f.write(f'export const {NOM} = ' + json.dumps({'base': f'livret2026/voix/{DOSSIER}/', 'lignes': manifeste}, ensure_ascii=False, indent=1) + '\n')
-    print('total', round(sum(v['d'] for v in manifeste.values()), 1), 's')
+    print(len(manifeste), '/', len(lignes), 'voix · total', round(sum(v['d'] for v in manifeste.values()), 1), 's')
 asyncio.run(main())
