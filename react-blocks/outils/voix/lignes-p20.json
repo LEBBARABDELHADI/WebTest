@@ -1,0 +1,140 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Dimanche soir, Lina appelle son amie Inès, à La Réunion.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "ines",
+  "texte": "Tu es à la page 20 ? C'est ma page : l'outre-mer !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "ouverture:2",
+  "qui": "lina",
+  "texte": "Oui ! Tu me fais faire le tour ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "carton-d:0",
+  "qui": "narrateur",
+  "texte": "Dernière partie du chapitre : l'outre-mer.",
+  "émotion": null
+ },
+ {
+  "clé": "douze:0",
+  "qui": "lina",
+  "texte": "Combien y a-t-il de territoires d'outre-mer ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "douze:1",
+  "qui": "ines",
+  "texte": "La France en compte 12, situés en dehors de la France métropolitaine.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "douze:2",
+  "qui": "narrateur",
+  "texte": "La France compte 12 territoires d'outre-mer (situés en dehors de la France métropolitaine).",
+  "officiel": true
+ },
+ {
+  "clé": "drom:0",
+  "qui": "ines",
+  "texte": "Cinq sont à la fois des départements et des régions.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "drom:1",
+  "qui": "ines",
+  "texte": "La Guadeloupe, la Martinique, Mayotte, la Guyane… et La Réunion, chez moi !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "drom:2",
+  "qui": "narrateur",
+  "texte": "5 sont à la fois des départements et des régions : Guadeloupe, Martinique, Mayotte, Guyane, La Réunion",
+  "officiel": true
+ },
+ {
+  "clé": "souvenir:0",
+  "qui": "ines",
+  "texte": "Tu te souviens de la page 19 ?",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "souvenir:1",
+  "qui": "lina",
+  "texte": "Oui : 5 départements et 5 régions en outre-mer. Ce sont ces cinq territoires !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "souvenir:2",
+  "qui": "ines",
+  "texte": "Bravo !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "com:0",
+  "qui": "lina",
+  "texte": "Et les sept autres territoires ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "com:1",
+  "qui": "ines",
+  "texte": "Ce sont des collectivités d'outre-mer à statut particulier.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "com:2",
+  "qui": "ines",
+  "texte": "La Nouvelle-Calédonie, la Polynésie française, Saint-Martin, Saint-Barthélemy, Saint-Pierre-et-Miquelon, les Terres australes et antarctiques françaises, et Wallis-et-Futuna.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "com:3",
+  "qui": "narrateur",
+  "texte": "7 sont des collectivités d'outre-mer à statut particulier : Nouvelle-Calédonie, Polynésie française, Saint-Martin, Saint-Barthélemy, Saint-Pierre-et-Miquelon, Terres australes et antarctiques françaises, Wallis-et-Futuna",
+  "officiel": true
+ },
+ {
+  "clé": "antilles:0",
+  "qui": "lina",
+  "texte": "Et les Antilles françaises, alors ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "antilles:1",
+  "qui": "ines",
+  "texte": "Ce sont des îles : la Martinique, la Guadeloupe, Saint-Martin et Saint-Barthélemy.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "antilles:2",
+  "qui": "narrateur",
+  "texte": "La Martinique, La Guadeloupe, Saint-Martin et Saint-Barthélemy sont des îles qui constituent les Antilles françaises.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "12 territoires : 5 départements et régions, et 7 collectivités à statut particulier.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:1",
+  "qui": "ines",
+  "texte": "Parfait ! La prochaine fois, je te montre La Réunion pour de vrai.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : la carte administrative, page 21.",
+  "émotion": null
+ }
+]

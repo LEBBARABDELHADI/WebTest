@@ -29,12 +29,12 @@ function useTaille(ref) {
 
 // Cadre à montrer : la carte entière, ou les points à suivre (avec une marge),
 // au format du conteneur ; « remplir » recadre (plein écran) au lieu d'ajouter des bords.
-function cadrer(V, points, lPx, hPx, remplir, zmax) {
+function cadrer(V, points, lPx, hPx, remplir, zmax, marge = V.l * 0.1) {
   const ar = lPx && hPx ? lPx / hPx : V.l / V.h
   let x0 = 0, y0 = 0, x1 = V.l, y1 = V.h
   if (points.length) {
     const xs = points.map(p => p[0]), ys = points.map(p => p[1])
-    const mx = Math.max(V.l * 0.1, (Math.max(...xs) - Math.min(...xs)) * 0.3), my = Math.max(V.h * 0.1, (Math.max(...ys) - Math.min(...ys)) * 0.3)
+    const mx = Math.max(marge, (Math.max(...xs) - Math.min(...xs)) * 0.3), my = Math.max(marge * (V.h / V.l), (Math.max(...ys) - Math.min(...ys)) * 0.3)
     x0 = Math.min(...xs) - mx; x1 = Math.max(...xs) + mx; y0 = Math.min(...ys) - my; y1 = Math.max(...ys) + my
     const minL = V.l / zmax, minH = V.h / zmax
     if (x1 - x0 < minL) { const c = (x0 + x1) / 2; x0 = c - minL / 2; x1 = c + minL / 2 }
@@ -90,7 +90,7 @@ const Terres = memo(function Terres({ vue, pays, couleur }) {
 
 export default function Carte({
   vue = 'france', pays = ['France'], lieux = [], actifs = [], flèches = [], fleuves = [], trace = null, couches = [], massif = null,
-  couleur = OR, focus = null, remplir = false, légende = true, onLieu, onFleuve, sélection = null, style, étiquette = '', marges = null,
+  couleur = OR, focus = null, remplir = false, légende = true, onLieu, onFleuve, sélection = null, style, étiquette = '', marges = null, zoomMax = null, numéros = null,
 }) {
   const V = CARTES[vue] || CARTES.france
   const id = useId().replace(/[^a-zA-Z0-9]/g, '')
@@ -101,7 +101,9 @@ export default function Carte({
   const { l: lPx, h: hPx } = useTaille(zone)
   const tracé = trace ? CARTES.france.fleuves?.[trace] : null
   // Partie visible (une fiche peut couvrir la droite ou le bas de la carte).
-  const lVis = Math.max(120, lPx - (marges?.droite || 0)), hVis = Math.max(120, hPx - (marges?.bas || 0))
+  // Marges en pixels, ou en fraction de la taille de la carte (valeur < 1).
+  const px = (v, total) => (!v ? 0 : v < 1 ? v * total : v)
+  const lVis = Math.max(120, lPx - px(marges?.droite, lPx)), hVis = Math.max(120, hPx - px(marges?.bas, hPx))
 
   // Points suivis par la caméra.
   const àSuivre = focus ?? actifs
@@ -109,11 +111,11 @@ export default function Carte({
   const cible = useMemo(() => {
     const pts = àSuivre.map(id => V.lieux[id]).filter(Boolean)
     if (tracé) pts.push(tracé.source, tracé.embouchure, tracé.étiquette)
-    const b = cadrer(V, pts, lPx ? lVis : 0, hPx ? hVis : 0, remplir, ZOOM_MAX[vue] || 2)
+    const b = cadrer(V, pts, lPx ? lVis : 0, hPx ? hVis : 0, remplir, zoomMax || ZOOM_MAX[vue] || 2, zoomMax ? (V.l / zoomMax) * 0.35 : V.l * 0.1)
     if (!lPx || !hPx) return b
     const k = b.w / lVis
     return { x: b.x, y: b.y, w: lPx * k, h: hPx * k }
-  }, [cléFocus, lPx, hPx, lVis, hVis, remplir]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cléFocus, lPx, hPx, lVis, hVis, remplir, zoomMax]) // eslint-disable-line react-hooks/exhaustive-deps
   const u = lPx ? cible.w / lPx : V.l / 600
 
   useLayoutEffect(() => {
@@ -152,6 +154,8 @@ export default function Carte({
     montrés.map(id => {
       const L = LIEUX[id], [sx, sy] = écran(V.lieux[id])
       const sans = SANS_POINT.has(L.type)
+      // Avec « numéros », un chiffre remplace le nom (légende ailleurs) : carte lisible même chargée.
+      if (numéros?.[id]) return { id, sx, sy, texte: String(numéros[id]), fs: 15, centré: false, type: L.type }
       const texte = `${ICÔNE[L.type] || ''}${sans && L.type !== 'région' ? L.nom.toUpperCase() : L.nom}`
       return { id, sx, sy, texte, fs: actif.has(id) ? 15 : sans ? 11 : 13, centré: sans, type: L.type }
     }).sort((a, b) => Number(actif.has(b.id)) - Number(actif.has(a.id))),
