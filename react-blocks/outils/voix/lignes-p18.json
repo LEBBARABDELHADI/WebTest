@@ -1,0 +1,272 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Samedi matin, sur la place de la mairie.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Zoé a une nouvelle question pour son exposé : aux élections, qui élit qui ?",
+  "émotion": null
+ },
+ {
+  "clé": "carton:0",
+  "qui": "narrateur",
+  "texte": "Les principales élections en France.",
+  "émotion": null
+ },
+ {
+  "clé": "citoyens:0",
+  "qui": "zoe",
+  "texte": "Papi, aux élections, qui vote ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "citoyens:1",
+  "qui": "arnaud",
+  "texte": "Les citoyens : toutes les Françaises et tous les Français âgés de plus de 18 ans…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "citoyens:2",
+  "qui": "arnaud",
+  "texte": "… et qui n'ont pas été privés du droit de vote par une décision de justice.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "citoyens:3",
+  "qui": "narrateur",
+  "texte": "Les principales élections en France :\nCitoyens (Tous les Françaises et Français âgés de plus de 18 ans et qui n'ont pas été privés du droit de vote par une décision de justice)",
+  "officiel": true
+ },
+ {
+  "clé": "citoyens:4",
+  "qui": "zoe",
+  "texte": "Et les citoyens, ils élisent qui ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "communes:0",
+  "qui": "narrateur",
+  "texte": "À la mairie, Mme Roux les accueille.",
+  "émotion": null
+ },
+ {
+  "clé": "communes:1",
+  "qui": "agente",
+  "texte": "Ici, c'est la commune. Les citoyens élisent le maire et les conseillers municipaux.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "communes:2",
+  "qui": "zoe",
+  "texte": "Pour combien de temps ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "communes:3",
+  "qui": "agente",
+  "texte": "Pour 6 ans.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "communes:4",
+  "qui": "narrateur",
+  "texte": "Citoyens → Élisent → Communes : Maire, conseillers municipaux élus pour 6 ans",
+  "officiel": true
+ },
+ {
+  "clé": "territoires:0",
+  "qui": "narrateur",
+  "texte": "L'après-midi, Lina les rejoint à la médiathèque.",
+  "émotion": null
+ },
+ {
+  "clé": "territoires:1",
+  "qui": "lina",
+  "texte": "Et pour les départements et les régions ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "territoires:2",
+  "qui": "arnaud",
+  "texte": "Les citoyens élisent les conseillers départementaux, pour 6 ans.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "territoires:3",
+  "qui": "narrateur",
+  "texte": "Citoyens → Élisent → Départements : Conseillers départementaux, élus pour 6 ans",
+  "officiel": true
+ },
+ {
+  "clé": "territoires:4",
+  "qui": "arnaud",
+  "texte": "Et les conseillers régionaux, élus eux aussi pour 6 ans.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "territoires:5",
+  "qui": "narrateur",
+  "texte": "Citoyens → Élisent → Régions : Conseillers régionaux, élus pour 6 ans",
+  "officiel": true
+ },
+ {
+  "clé": "territoires:6",
+  "qui": "lina",
+  "texte": "Communes, départements, régions : 6 ans à chaque fois.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "senateurs:0",
+  "qui": "narrateur",
+  "texte": "Sur l'affiche de Zoé, l'hémicycle réapparaît.",
+  "émotion": null
+ },
+ {
+  "clé": "senateurs:1",
+  "qui": "zoe",
+  "texte": "Et les sénateurs, qui les élit ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "senateurs:2",
+  "qui": "arnaud",
+  "texte": "Sur le schéma, une flèche part des régions, des départements et des communes. Elle dit : « élisent les sénateurs ».",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "senateurs:3",
+  "qui": "narrateur",
+  "texte": "Régions, Départements, Communes → Élisent les sénateurs → Sénat",
+  "officiel": true
+ },
+ {
+  "clé": "assemblee:0",
+  "qui": "lina",
+  "texte": "Et l'Assemblée nationale ? Une autre flèche « élisent » part des citoyens, et va jusqu'à elle.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "assemblee:1",
+  "qui": "narrateur",
+  "texte": "Citoyens → Élisent → Assemblée nationale",
+  "officiel": true
+ },
+ {
+  "clé": "assemblee:2",
+  "qui": "lina",
+  "texte": "Le Parlement est composé de l'Assemblée nationale et du Sénat. Il vote les lois au nom du peuple.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "assemblee:3",
+  "qui": "narrateur",
+  "texte": "Parlement : Vote les lois au nom du peuple. Il est composé de : Assemblée nationale, Sénat",
+  "officiel": true
+ },
+ {
+  "clé": "assemblee:4",
+  "qui": "zoe",
+  "texte": "Au nom du peuple : comme sur la page d'avant !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "president:0",
+  "qui": "zoe",
+  "texte": "Et la troisième flèche des citoyens ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "president:1",
+  "qui": "arnaud",
+  "texte": "Elle va vers le Président de la République, élu pour 5 ans.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "president:2",
+  "qui": "narrateur",
+  "texte": "Citoyens → Élisent → Président de la République, élu pour 5 ans",
+  "officiel": true
+ },
+ {
+  "clé": "gouvernement:0",
+  "qui": "arnaud",
+  "texte": "Ensuite, le Président nomme le Premier ministre.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "gouvernement:1",
+  "qui": "lina",
+  "texte": "Et le Gouvernement détermine et conduit la politique de la Nation.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "gouvernement:2",
+  "qui": "narrateur",
+  "texte": "Président de la République → Nomme le Premier ministre → Gouvernement : Détermine et conduit la politique de la Nation",
+  "officiel": true
+ },
+ {
+  "clé": "controle:0",
+  "qui": "zoe",
+  "texte": "Et le Gouvernement, qui le contrôle ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "controle:1",
+  "qui": "arnaud",
+  "texte": "Le Parlement. Sur le schéma, la flèche « contrôle » va du Parlement au Gouvernement.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "controle:2",
+  "qui": "narrateur",
+  "texte": "Parlement → Contrôle → Gouvernement",
+  "officiel": true
+ },
+ {
+  "clé": "schema:0",
+  "qui": "narrateur",
+  "texte": "Voici le schéma complet des principales élections en France.",
+  "émotion": null
+ },
+ {
+  "clé": "schema:1",
+  "qui": "narrateur",
+  "texte": "Des citoyens partent trois flèches « élisent » : vers les régions, les départements et les communes ; vers l'Assemblée nationale ; et vers le Président de la République.",
+  "émotion": null
+ },
+ {
+  "clé": "schema:2",
+  "qui": "narrateur",
+  "texte": "Les régions, les départements et les communes élisent les sénateurs. Le Président nomme le Premier ministre. Le Parlement contrôle le Gouvernement.",
+  "émotion": null
+ },
+ {
+  "clé": "final:0",
+  "qui": "zoe",
+  "texte": "Mon exposé a son schéma : qui élit qui !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:1",
+  "qui": "lina",
+  "texte": "Régions, départements, communes : 6 ans. Le Président de la République : 5 ans.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Bravo à toutes les deux.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : l'organisation territoriale de la République, page 19.",
+  "émotion": null
+ }
+]
