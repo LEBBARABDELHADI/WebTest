@@ -12,7 +12,7 @@ const Cinéma = lazy(() => import('../components/livret/cinema/Cinema'))
 // Prototypes « expérience cinéma » : uniquement les pages pilotes validées une à une.
 // « Immersion » : l'histoire de France comme un film (d'après le livret), chargée à la demande.
 const Immersion = lazy(() => import('../components/livret/immersion/Immersion'))
-const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 7: () => import('../lib/livret2026/cinema/p7'), 8: () => import('../lib/livret2026/cinema/p8'), 10: () => import('../lib/livret2026/cinema/p10'), 11: () => import('../lib/livret2026/cinema/p11'), 12: () => import('../lib/livret2026/cinema/p12'), 13: () => import('../lib/livret2026/cinema/p13'), 14: () => import('../lib/livret2026/cinema/p14') }
+const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 7: () => import('../lib/livret2026/cinema/p7'), 8: () => import('../lib/livret2026/cinema/p8'), 10: () => import('../lib/livret2026/cinema/p10'), 11: () => import('../lib/livret2026/cinema/p11'), 12: () => import('../lib/livret2026/cinema/p12'), 13: () => import('../lib/livret2026/cinema/p13'), 14: () => import('../lib/livret2026/cinema/p14'), 15: () => import('../lib/livret2026/cinema/p15') }
 import Leçon from '../components/livret/Lecon'
 import Maison from '../components/livret/Maison'
 import Frise from '../components/livret/Frise'
@@ -302,6 +302,11 @@ function OngletPages({ T, S, data, setData, cartesMémo, page, setPage }) {
                   <button onClick={() => setAnime(true)} style={{ ...S.bouton(true), width: '100%', marginTop: 12 }}>▶ Animer la page</button>
                   {PAGES_FILM.has(n) && <button onClick={() => ouvrirFilm(n)} style={{ ...S.bouton(false), width: '100%', marginTop: 8, borderColor: T.text }}>🍿 Mode film : l'épisode de la page {n}</button>}
                   {CINÉMAS[n] && <button onClick={ouvrirCinéma} style={{ ...S.bouton(false), width: '100%', marginTop: 8, borderColor: '#ffd166', background: 'linear-gradient(135deg, #1b1630, #3a2a12)', color: '#ffd166' }}>🎞️ Expérience cinéma (prototype)</button>}
+                </>
+              ) : CINÉMAS[n] ? (
+                <>
+                  <p style={{ ...S.discret, margin: '8px 0 0' }}>📌 {p.résumé}</p>
+                  <button onClick={ouvrirCinéma} style={{ ...S.bouton(false), width: '100%', marginTop: 10, borderColor: '#ffd166', background: 'linear-gradient(135deg, #1b1630, #3a2a12)', color: '#ffd166' }}>🎞️ Expérience cinéma (prototype)</button>
                 </>
               ) : <p style={S.discret}>Page de garde (titre ou sommaire) : rien à animer.</p>}
             </div>

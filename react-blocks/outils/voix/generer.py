@@ -73,7 +73,10 @@ def dire(texte):
         v = [rom[c] for c in m.group(1)]
         return str(sum(-x if i + 1 < len(v) and x < v[i + 1] else x for i, x in enumerate(v))) + m.group(2)
     t = re.sub(r'\b([IVX]+)ème\b', r'\1e', t)  # « Vème République » → « Ve »
+    # Numéros de chapitre d'un sommaire (« I. », « II. » en début de ligne).
+    t = re.sub(r'(^|\n)(III|II|I)\. ', lambda m: m.group(1) + {'I': 'Chapitre un', 'II': 'Chapitre deux', 'III': 'Chapitre trois'}[m.group(2)] + '. ', t)
     t = re.sub(r'\b([IVX]+)(re|er|e)\b', arabe, t)
+    t = re.sub(r'([^.,;:!?\n])[ \t]*\n', r'\1.\n', t)  # une ligne de liste = une pause
     return re.sub(r'\s+', ' ', t).strip()
 
 async def une(l, sem):

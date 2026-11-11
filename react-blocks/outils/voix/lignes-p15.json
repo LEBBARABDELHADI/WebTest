@@ -1,0 +1,158 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Un soir, à la médiathèque.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Lina a terminé la première partie du livret. M. Arnaud ouvre la deuxième.",
+  "émotion": null
+ },
+ {
+  "clé": "partie-2:0",
+  "qui": "arnaud",
+  "texte": "Deuxième partie : le système institutionnel et politique.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "partie-2:1",
+  "qui": "narrateur",
+  "texte": "Partie 2 - Système institutionnel et politique",
+  "officiel": true
+ },
+ {
+  "clé": "partie-2:2",
+  "qui": "lina",
+  "texte": "C'est long ! Par où commencer ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "partie-2:3",
+  "qui": "arnaud",
+  "texte": "Par le sommaire. Regarde : il y a trois chapitres.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "carton-1:0",
+  "qui": "narrateur",
+  "texte": "Premier chapitre : démocratie et État de droit.",
+  "émotion": null
+ },
+ {
+  "clé": "chap-1:0",
+  "qui": "arnaud",
+  "texte": "Ce chapitre commence par les principales institutions de l'État, à la page 16.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "chap-1:1",
+  "qui": "arnaud",
+  "texte": "Puis vient le droit de vote, à la page 17.",
+  "émotion": null
+ },
+ {
+  "clé": "chap-1:2",
+  "qui": "narrateur",
+  "texte": "I. Démocratie et État de droit – page 16\nA. Les principales institutions de l'État – page 16\nB. Le droit de vote – page 17",
+  "officiel": true
+ },
+ {
+  "clé": "chap-1:3",
+  "qui": "lina",
+  "texte": "Les institutions, puis le vote : je note.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "carton-2:0",
+  "qui": "narrateur",
+  "texte": "Deuxième chapitre : l'organisation territoriale de la République.",
+  "émotion": null
+ },
+ {
+  "clé": "chap-2:0",
+  "qui": "narrateur",
+  "texte": "Lina appelle son amie Inès, qui vit à La Réunion.",
+  "émotion": null
+ },
+ {
+  "clé": "chap-2:1",
+  "qui": "lina",
+  "texte": "Inès ! Le deuxième chapitre parle de l'organisation territoriale de la République.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "chap-2:2",
+  "qui": "ines",
+  "texte": "Les communes, les départements, les régions… Tout ça à la page 19 ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "chap-2:3",
+  "qui": "lina",
+  "texte": "Oui. Et l'outre-mer est à la page 20 : ça te concerne !",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "chap-2:4",
+  "qui": "narrateur",
+  "texte": "II. Organisation territoriale de la République – page 19\nA. Les communes – page 19\nB. Les départements – page 19\nC. Les régions – page 19\nD. L'outre-mer – page 20",
+  "officiel": true
+ },
+ {
+  "clé": "chap-2:5",
+  "qui": "ines",
+  "texte": "Alors on la lira ensemble !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "carton-3:0",
+  "qui": "narrateur",
+  "texte": "Troisième chapitre : l'Union européenne et ses institutions.",
+  "émotion": null
+ },
+ {
+  "clé": "chap-3:0",
+  "qui": "arnaud",
+  "texte": "À la page 22 : les pays membres de l'Union européenne, et leur date d'entrée, ou de sortie, dans l'Union.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "chap-3:1",
+  "qui": "arnaud",
+  "texte": "À la page 23 : les étapes clés de la construction européenne.",
+  "émotion": null
+ },
+ {
+  "clé": "chap-3:2",
+  "qui": "narrateur",
+  "texte": "III. L'Union européenne et ses institutions – page 22\nA. Les pays membres de l'Union européenne et leur date d'entrée (ou de sortie) dans l'Union – page 22\nB. Les étapes clés de la construction européenne – page 23",
+  "officiel": true
+ },
+ {
+  "clé": "chap-3:3",
+  "qui": "lina",
+  "texte": "Entrée ou sortie : il faudra être attentive aux dates.",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Démocratie et État de droit, organisation territoriale, Union européenne : trois chapitres.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "De la page 16 à la page 23. Tu as la carte du voyage.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : démocratie et État de droit, page 16.",
+  "émotion": null
+ }
+]
