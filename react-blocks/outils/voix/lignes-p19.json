@@ -1,0 +1,296 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Lundi matin, devant l'hôtel de ville.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Lina vient déposer un document. M. Arnaud l'accompagne.",
+  "émotion": null
+ },
+ {
+  "clé": "carton-ii:0",
+  "qui": "narrateur",
+  "texte": "Deuxième chapitre : l'organisation territoriale de la République.",
+  "émotion": null
+ },
+ {
+  "clé": "decentralisation:0",
+  "qui": "lina",
+  "texte": "C'est la mairie qui décide de tout ici ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "decentralisation:1",
+  "qui": "arnaud",
+  "texte": "En France, dans le cadre de la décentralisation, l'État transfère des compétences et des moyens à d'autres autorités.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "decentralisation:2",
+  "qui": "lina",
+  "texte": "Quelles autorités ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "decentralisation:3",
+  "qui": "arnaud",
+  "texte": "On les appelle les collectivités territoriales. Il en existe plusieurs niveaux : les communes, les départements, les régions et les collectivités d'outre-mer.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "decentralisation:4",
+  "qui": "narrateur",
+  "texte": "En France, dans le cadre de la décentralisation, l'État transfère des compétences et des moyens à d'autres autorités, appelées collectivités territoriales. Il en existe plusieurs niveaux : les communes, les départements, les régions et les collectivités d'outre-mer.",
+  "officiel": true
+ },
+ {
+  "clé": "prefets:0",
+  "qui": "lina",
+  "texte": "Et l'État, il est encore présent dans ces territoires ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "prefets:1",
+  "qui": "arnaud",
+  "texte": "Oui : il y est représenté par les préfets de région et de département.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "prefets:2",
+  "qui": "arnaud",
+  "texte": "Ou, dans certaines collectivités d'outre-mer, par les hauts commissaires.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "prefets:3",
+  "qui": "narrateur",
+  "texte": "Dans ces territoires, l'État est représenté par les préfets de région et de département (ou par les hauts commissaires dans certaines collectivités d'outre-mer).",
+  "officiel": true
+ },
+ {
+  "clé": "carton-a:0",
+  "qui": "narrateur",
+  "texte": "Premier niveau : les communes.",
+  "émotion": null
+ },
+ {
+  "clé": "communes:0",
+  "qui": "narrateur",
+  "texte": "À l'accueil, Mme Roux les reçoit.",
+  "émotion": null
+ },
+ {
+  "clé": "communes:1",
+  "qui": "agente",
+  "texte": "La France compte 34 875 communes au 1er janvier 2025.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "communes:2",
+  "qui": "narrateur",
+  "texte": "La France compte 34 875 communes au 1er janvier 2025.",
+  "officiel": true
+ },
+ {
+  "clé": "communes:3",
+  "qui": "lina",
+  "texte": "Et qui gère une commune ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "communes:4",
+  "qui": "agente",
+  "texte": "Un maire et un conseil municipal, élu pour six ans.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "communes:5",
+  "qui": "agente",
+  "texte": "Aux élections municipales, les citoyens français et les ressortissants de l'Union européenne peuvent voter, et se présenter comme candidats.",
+  "émotion": null
+ },
+ {
+  "clé": "communes:6",
+  "qui": "narrateur",
+  "texte": "Chaque commune est gérée par un maire et un conseil municipal élu pour six ans. Les élections municipales permettent aux citoyens français et aux ressortissants de l'Union européenne de voter et de se présenter comme candidats.",
+  "officiel": true
+ },
+ {
+  "clé": "missions-communes:0",
+  "qui": "agente",
+  "texte": "Les communes sont responsables notamment des écoles primaires publiques, maternelles et élémentaires.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "missions-communes:1",
+  "qui": "agente",
+  "texte": "Mais aussi des activités sportives et culturelles, et de l'entretien des routes communales.",
+  "émotion": null
+ },
+ {
+  "clé": "missions-communes:2",
+  "qui": "lina",
+  "texte": "Et ce guichet, « état civil » ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "missions-communes:3",
+  "qui": "agente",
+  "texte": "Les communes tiennent les registres de l'état civil : elles enregistrent les naissances, les mariages, les décès.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "missions-communes:4",
+  "qui": "narrateur",
+  "texte": "Les communes sont responsables notamment des écoles primaires publiques (maternelles et élémentaires), des activités sportives et culturelles, de l'entretien des routes communales. Elles tiennent les registres de l'état civil, c'est-à-dire qu'elles enregistrent les naissances, les mariages, les décès.",
+  "officiel": true
+ },
+ {
+  "clé": "intercommunalites:0",
+  "qui": "arnaud",
+  "texte": "Enfin, les communes sont regroupées en intercommunalités : des communautés de communes, des métropoles…",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "intercommunalites:1",
+  "qui": "arnaud",
+  "texte": "Elles gèrent des services publics : l'eau, l'assainissement, les déchets, les transports urbains…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "intercommunalites:2",
+  "qui": "narrateur",
+  "texte": "Enfin, les communes sont regroupées en intercommunalités (communautés de communes, métropoles…), qui gèrent des services publics : eau, assainissement, déchets, transports urbains…",
+  "officiel": true
+ },
+ {
+  "clé": "carton-b:0",
+  "qui": "narrateur",
+  "texte": "Deuxième niveau : les départements.",
+  "émotion": null
+ },
+ {
+  "clé": "departements:0",
+  "qui": "narrateur",
+  "texte": "Sur le chemin du retour, ils passent devant un collège.",
+  "émotion": null
+ },
+ {
+  "clé": "departements:1",
+  "qui": "arnaud",
+  "texte": "Les départements sont administrés par les conseils départementaux.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "departements:2",
+  "qui": "arnaud",
+  "texte": "Ils sont notamment responsables des collèges publics, de l'action sociale, de l'entretien des routes départementales…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "departements:3",
+  "qui": "arnaud",
+  "texte": "… de la protection de l'enfance, et de l'aide aux personnes âgées.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "departements:4",
+  "qui": "narrateur",
+  "texte": "Ils sont administrés par les conseils départementaux. Ils sont notamment responsables des collèges publics, de l'action sociale, de l'entretien des routes départementales, de la protection de l'enfance et de l'aide aux personnes âgées.",
+  "officiel": true
+ },
+ {
+  "clé": "cent-un:0",
+  "qui": "lina",
+  "texte": "Combien y a-t-il de départements ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "cent-un:1",
+  "qui": "arnaud",
+  "texte": "101 : 96 en métropole et 5 en outre-mer.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "cent-un:2",
+  "qui": "arnaud",
+  "texte": "Le plus récent est Mayotte, créé en 2011.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "cent-un:3",
+  "qui": "narrateur",
+  "texte": "La France compte 101 départements, dont 96 en métropole et 5 en outre-mer. Le département le plus récent est Mayotte, créé en 2011.",
+  "officiel": true
+ },
+ {
+  "clé": "carton-c:0",
+  "qui": "narrateur",
+  "texte": "Troisième niveau : les régions.",
+  "émotion": null
+ },
+ {
+  "clé": "regions:0",
+  "qui": "narrateur",
+  "texte": "Plus loin, un bus s'arrête devant un lycée.",
+  "émotion": null
+ },
+ {
+  "clé": "regions:1",
+  "qui": "arnaud",
+  "texte": "La France compte 13 régions métropolitaines, administrées par les conseils régionaux, et 5 régions en outre-mer.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "regions:2",
+  "qui": "lina",
+  "texte": "Soit 18 régions en tout.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "regions:3",
+  "qui": "narrateur",
+  "texte": "La France compte 13 régions métropolitaines administrées par les conseils régionaux et 5 régions en outre-mer, soit 18 régions en tout.",
+  "officiel": true
+ },
+ {
+  "clé": "missions-regions:0",
+  "qui": "arnaud",
+  "texte": "Les régions sont chargées notamment des transports publics, du développement économique, de la formation professionnelle…",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "missions-regions:1",
+  "qui": "arnaud",
+  "texte": "… et de la construction et de l'entretien des lycées publics.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "missions-regions:2",
+  "qui": "narrateur",
+  "texte": "Elles sont chargées notamment des transports publics, du développement économique, de la formation professionnelle et de la construction et l'entretien des lycées publics.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "L'école primaire pour la commune, le collège pour le département, le lycée pour la région.",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "arnaud",
+  "texte": "Exactement. Et chaque niveau a ses autres missions.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:2",
+  "qui": "narrateur",
+  "texte": "À suivre : l'outre-mer, page 20.",
+  "émotion": null
+ }
+]

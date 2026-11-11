@@ -28,8 +28,11 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .d14-passant, .d14-pas, .d14-banderole, .d14-rideau, .d14-feuillage { animation: none } }
 `
 
+// Styles des passants et du feuillage, pour les décors qui réutilisent la rue.
+export const StyleRue = () => <style>{CSS}</style>
+
 // Ciel du matin, nuages, soleil.
-function Ciel({ id }) {
+export function Ciel({ id }) {
   return (
     <>
       <linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5fa8f0" /><stop offset=".68" stopColor="#cbe8ff" /><stop offset="1" stopColor="#f4f0e0" /></linearGradient>
@@ -41,7 +44,7 @@ function Ciel({ id }) {
 }
 
 // Silhouettes de passants (arrière-plan), qui traversent la scène.
-function Passants({ y = 700, n = 3, échelle = 0.9, teintes = ['#47506a', '#6b4f6b', '#3f5f5a'] }) {
+export function Passants({ y = 700, n = 3, échelle = 0.9, teintes = ['#47506a', '#6b4f6b', '#3f5f5a'] }) {
   return Array.from({ length: n }, (_, i) => (
     <g key={i} className="d14-passant" style={{ animationDuration: `${26 + i * 9}s`, animationDelay: `${-i * 11}s` }}>
       <g transform={`translate(0,${y}) scale(${échelle * (0.85 + h(i, 3) * 0.3)})`}>
@@ -55,7 +58,7 @@ function Passants({ y = 700, n = 3, échelle = 0.9, teintes = ['#47506a', '#6b4f
   ))
 }
 
-function Arbre({ x, sol = 720, r = 62, feuilles = ['#4f8a46', '#5f9e52', '#3f7339'] }) {
+export function Arbre({ x, sol = 720, r = 62, feuilles = ['#4f8a46', '#5f9e52', '#3f7339'] }) {
   return (
     <g>
       <rect x={x - 10} y={sol - 170} width="20" height="170" fill="#4a3424" />
@@ -67,7 +70,7 @@ function Arbre({ x, sol = 720, r = 62, feuilles = ['#4f8a46', '#5f9e52', '#3f733
   )
 }
 
-function Réverbère({ x, sol = 720 }) {
+export function Lampadaire({ x, sol = 720 }) {
   return (
     <g>
       <rect x={x - 5} y={sol - 250} width="10" height="250" fill="#2f3542" />
@@ -79,7 +82,7 @@ function Réverbère({ x, sol = 720 }) {
 }
 
 // Trottoir, bordure, chaussée et passage piéton.
-function Sol({ sol = 720 }) {
+export function Sol({ sol = 720 }) {
   return (
     <g>
       <rect y={sol} width="1600" height={900 - sol} fill="#cfc4ae" />
@@ -150,8 +153,8 @@ function ÉcoleVote({ couche }) {
         {/* Panneaux d'affichage (sans affiches) */}
         {[1060, 1130].map(x => <g key={x}><rect x={x} y="596" width="58" height="80" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="3" /><rect x={x + 26} y="676" width="6" height="44" fill="#6b7280" /></g>)}
       </g>
-      <Réverbère x={300} />
-      <Réverbère x={1290} />
+      <Lampadaire x={300} />
+      <Lampadaire x={1290} />
       <Passants y={716} n={3} échelle={0.62} />
     </svg>
   )
@@ -234,7 +237,7 @@ function BureauVote({ couche, visuel }) {
 }
 
 // ---------- La rue : résidence, bureau de l'emploi, centre de santé ----------
-function Horizon() {
+export function Horizon() {
   return (
     <g opacity=".55">
       {Array.from({ length: 11 }, (_, i) => { const x = i * 150 - 30, hh = 220 + h(i, 7) * 200; return <rect key={i} x={x} y={720 - hh} width="120" height={hh} fill={['#9fb4cc', '#b3c4d8', '#8fa6c0'][i % 3]} /> })}
@@ -328,7 +331,7 @@ function Rue({ couche, bâtiment }) {
       <Immeuble x={1330} l={330} hh={420} sol={720} teinte="#efe3cc" />
       <Arbre x={340} r={58} />
       <Arbre x={1260} r={62} />
-      <Réverbère x={420} />
+      <Lampadaire x={420} />
       <Passants y={716} n={2} échelle={0.6} />
     </svg>
   )
