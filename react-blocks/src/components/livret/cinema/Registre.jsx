@@ -19,6 +19,7 @@ import Visuels14 from './Visuels14'
 import Visuels15 from './Visuels15'
 import Decors16 from './Decors16'
 import Visuels16 from './Visuels16'
+import Visuels17 from './Visuels17'
 
 const DÉCORS_6 = new Set(['place-mairie', 'place-mairie-soir', 'parc', 'agence', 'immeubles-nuit'])
 const DÉCORS_7 = new Set(['mur-quartier', 'bureau', 'place-collecte'])
@@ -35,6 +36,7 @@ const VISUELS_14 = new Set(['souverainete', 'article-3', 'elus', 'direct-indirec
 const VISUELS_15 = new Set(['partie-2', 'chapitre-1', 'chapitre-2', 'chapitre-3', 'carte-partie-2'])
 const DÉCORS_16 = new Set(['palais', 'hemicycle'])
 const VISUELS_16 = new Set(['etat-droit', 'article-2', 'constitution', 'modifier', 'preambule', 'principes', 'trois-pouvoirs', 'partis', 'administration', 'president', 'parrainages', 'gouvernement', 'parlement', 'deputes-senateurs', 'recap-16'])
+const VISUELS_17 = new Set(['justice', 'conseil-constitutionnel', 'droit-vote', 'frise-vote', 'conditions', 'privation', 'vote-secret', 'isoloir', 'piece-identite', 'panneaux', 'recap-17'])
 const VISUELS_6 = new Set(['devise', 'libres', 'nuisance', 'tableau', 'memes', 'balance', 'femmes-hommes', 'definition', 'loi'])
 const VISUELS_7 = new Set(['haines', 'pro-perso', 'mains', 'formes', 'collective', 'generations', 'inegalites', 'collecte', 'trois-mots'])
 
@@ -51,6 +53,7 @@ export function Décor(props) {
 }
 
 export function VisuelScène(props) {
+  if (VISUELS_17.has(props.nom)) return <Visuels17 {...props} />
   if (VISUELS_16.has(props.nom)) return <Visuels16 {...props} />
   if (VISUELS_15.has(props.nom)) return <Visuels15 {...props} />
   if (VISUELS_14.has(props.nom)) return <Visuels14 {...props} />

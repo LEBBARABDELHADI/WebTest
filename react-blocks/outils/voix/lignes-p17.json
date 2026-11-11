@@ -1,0 +1,368 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Jeudi soir, à la médiathèque.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Lina tourne la page : la page 17. M. Arnaud s'assoit à côté d'elle.",
+  "émotion": null
+ },
+ {
+  "clé": "justice:0",
+  "qui": "lina",
+  "texte": "Qui rend la justice, en France ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "justice:1",
+  "qui": "arnaud",
+  "texte": "La justice est rendue par les juges.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "justice:2",
+  "qui": "arnaud",
+  "texte": "Elle règle les litiges entre les particuliers ou les entreprises, et entre les citoyens et l'administration.",
+  "émotion": null
+ },
+ {
+  "clé": "justice:3",
+  "qui": "lina",
+  "texte": "Et quand quelqu'un ne respecte pas les règles ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "justice:4",
+  "qui": "arnaud",
+  "texte": "Elle sanctionne les infractions aux règles de droit, par des peines prévues par la loi : par exemple, l'emprisonnement ou l'amende.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "justice:5",
+  "qui": "narrateur",
+  "texte": "La justice est rendue par les juges. Elle règle les litiges entre les particuliers ou les entreprises, et entre les citoyens et l'administration. Elle sanctionne les infractions aux règles de droit par des peines prévues par la loi (exemples : emprisonnement, amende…).",
+  "officiel": true
+ },
+ {
+  "clé": "conseil:0",
+  "qui": "arnaud",
+  "texte": "Il existe aussi une institution spécifique : le Conseil constitutionnel.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "conseil:1",
+  "qui": "arnaud",
+  "texte": "Il est chargé de veiller à la conformité des lois avec la Constitution.",
+  "émotion": null
+ },
+ {
+  "clé": "conseil:2",
+  "qui": "lina",
+  "texte": "Et il contrôle aussi la régularité des élections nationales, c'est écrit ici.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "conseil:3",
+  "qui": "narrateur",
+  "texte": "Une institution spécifique, le Conseil constitutionnel, est chargé de veiller à la conformité des lois avec la Constitution. Il contrôle aussi la régularité des élections nationales.",
+  "officiel": true
+ },
+ {
+  "clé": "carton-b:0",
+  "qui": "narrateur",
+  "texte": "Deuxième partie du chapitre : le droit de vote.",
+  "émotion": null
+ },
+ {
+  "clé": "droit-vote:0",
+  "qui": "arnaud",
+  "texte": "Le droit de vote est le droit reconnu aux citoyens d'exprimer leur volonté à l'occasion d'une élection.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "droit-vote:1",
+  "qui": "narrateur",
+  "texte": "Le droit de vote est le droit reconnu aux citoyens d'exprimer leur volonté à l'occasion d'une élection.",
+  "officiel": true
+ },
+ {
+  "clé": "droit-vote:2",
+  "qui": "lina",
+  "texte": "Et en France, le suffrage est universel : l'ensemble des citoyens vote.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "droit-vote:3",
+  "qui": "narrateur",
+  "texte": "En France, le suffrage est universel, c'est-à-dire que l'ensemble des citoyens vote.",
+  "officiel": true
+ },
+ {
+  "clé": "histoire:0",
+  "qui": "lina",
+  "texte": "Ça a toujours été le cas ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "histoire:1",
+  "qui": "arnaud",
+  "texte": "Le premier vote au suffrage universel a eu lieu en 1848. Mais il ne concernait que les hommes en âge de voter.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "histoire:2",
+  "qui": "lina",
+  "texte": "Et les femmes ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "histoire:3",
+  "qui": "arnaud",
+  "texte": "Les femmes françaises n'ont obtenu le droit de vote qu'en avril 1944.",
+  "émotion": "tendre"
+ },
+ {
+  "clé": "histoire:4",
+  "qui": "arnaud",
+  "texte": "Elles ont voté pour la première fois un an plus tard, en avril 1945.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "histoire:5",
+  "qui": "narrateur",
+  "texte": "Le premier vote au suffrage universel a eu lieu en 1848 mais ne concernait que les hommes en âge de voter. Les femmes françaises n'ont obtenu le droit de vote qu'en avril 1944 et ont voté pour la première fois un an plus tard, en avril 1945.",
+  "officiel": true
+ },
+ {
+  "clé": "conditions:0",
+  "qui": "lina",
+  "texte": "Et à ce jour, pour voter, que faut-il ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "conditions:1",
+  "qui": "arnaud",
+  "texte": "Avoir la nationalité française. Ou être ressortissant d'un État membre de l'Union européenne, pour les élections municipales ou les élections du Parlement européen.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "conditions:2",
+  "qui": "arnaud",
+  "texte": "Être majeur : avoir au moins 18 ans.",
+  "émotion": null
+ },
+ {
+  "clé": "conditions:3",
+  "qui": "narrateur",
+  "texte": "À ce jour pour voter, il faut :\nAvoir la nationalité française (ou être ressortissant d'un État membre de l'Union européenne pour les élections municipales ou les élections du Parlement européen),\nÊtre majeur (avoir au moins 18 ans),",
+  "officiel": true
+ },
+ {
+  "clé": "conditions-2:0",
+  "qui": "arnaud",
+  "texte": "Il faut aussi ne pas avoir été privé de ses droits civiques.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "conditions-2:1",
+  "qui": "arnaud",
+  "texte": "Et être inscrit sur les listes électorales : sur internet, ou à la mairie de son lieu de résidence.",
+  "émotion": null
+ },
+ {
+  "clé": "conditions-2:2",
+  "qui": "narrateur",
+  "texte": "Ne pas avoir été privé de ses droits civiques,\nÊtre inscrit sur les listes électorales (possibilité de s'inscrire sur internet ou à la mairie de son lieu de résidence).",
+  "officiel": true
+ },
+ {
+  "clé": "conditions-2:3",
+  "qui": "lina",
+  "texte": "Et s'il manque une condition ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "conditions-2:4",
+  "qui": "arnaud",
+  "texte": "Alors la personne ne pourra pas voter.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "conditions-2:5",
+  "qui": "narrateur",
+  "texte": "Si l'une de ces conditions n'est pas remplie, la personne ne pourra pas voter.",
+  "officiel": true
+ },
+ {
+  "clé": "privation:0",
+  "qui": "lina",
+  "texte": "Être privé de ses droits civiques, qu'est-ce que ça veut dire ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "privation:1",
+  "qui": "arnaud",
+  "texte": "C'est une sanction pour des infractions graves.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "privation:2",
+  "qui": "arnaud",
+  "texte": "Elle retire à une personne certains de ses droits fondamentaux, comme le droit de vote, ou celui de se présenter à une élection.",
+  "émotion": null
+ },
+ {
+  "clé": "privation:3",
+  "qui": "narrateur",
+  "texte": "La privation des droits civiques est une sanction pour des infractions graves, qui consiste à retirer à une personne certains de ses droits fondamentaux, tels que le droit de vote ou de se présenter à une élection.",
+  "officiel": true
+ },
+ {
+  "clé": "bureau:0",
+  "qui": "narrateur",
+  "texte": "Dimanche, Lina accompagne M. Arnaud au bureau de vote.",
+  "émotion": null
+ },
+ {
+  "clé": "bureau:1",
+  "qui": "arnaud",
+  "texte": "Le vote est personnel et secret.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "bureau:2",
+  "qui": "arnaud",
+  "texte": "Je passe par l'isoloir, je mets mon bulletin dans une enveloppe, puis je la dépose dans l'urne.",
+  "émotion": null
+ },
+ {
+  "clé": "bureau:3",
+  "qui": "narrateur",
+  "texte": "Le vote est personnel et secret. Il se déroule dans un bureau de vote, en passant par un isoloir afin de mettre son bulletin de vote dans une enveloppe, qui est ensuite déposée dans une urne.",
+  "officiel": true
+ },
+ {
+  "clé": "isoloir:0",
+  "qui": "lina",
+  "texte": "Je peux venir avec vous dans l'isoloir ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "isoloir:1",
+  "qui": "arnaud",
+  "texte": "Non. Il est interdit d'entrer à plusieurs dans un isoloir.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "isoloir:2",
+  "qui": "arnaud",
+  "texte": "Il est aussi interdit de communiquer avec une personne située dans un autre isoloir.",
+  "émotion": null
+ },
+ {
+  "clé": "isoloir:3",
+  "qui": "narrateur",
+  "texte": "Il est interdit d'entrer à plusieurs dans un isoloir ainsi que de communiquer avec une personne située dans un autre isoloir.",
+  "officiel": true
+ },
+ {
+  "clé": "identite:0",
+  "qui": "lina",
+  "texte": "En arrivant, vous avez montré un document. Lequel ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "identite:1",
+  "qui": "arnaud",
+  "texte": "Les Français ou les ressortissants de l'Union européenne doivent présenter une pièce d'identité.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "identite:2",
+  "qui": "narrateur",
+  "texte": "Pour voter, quel document dois-je présenter à mon arrivée en bureau de vote ?\nLes Français ou les ressortissants de l'Union européenne doivent présenter une pièce d'identité (plus d'informations sur le site : https://www.service-public.gouv.fr/particuliers/vosdroits/F1361).",
+  "officiel": true
+ },
+ {
+  "clé": "identite:3",
+  "qui": "arnaud",
+  "texte": "Elle n'est pas obligatoire dans les communes de moins de 1 000 habitants.",
+  "émotion": null
+ },
+ {
+  "clé": "identite:4",
+  "qui": "arnaud",
+  "texte": "Mais, en cas de doute, le président du bureau de vote peut demander de prouver son identité par tout moyen.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "identite:5",
+  "qui": "narrateur",
+  "texte": "La pièce d'identité n'est pas obligatoire dans les communes de moins de 1 000 habitants. Mais, en cas de doute, le président du bureau de vote peut vous demander de prouver votre identité par tout moyen.",
+  "officiel": true
+ },
+ {
+  "clé": "panneaux:0",
+  "qui": "narrateur",
+  "texte": "En sortant, ils passent devant les panneaux d'affichage.",
+  "émotion": null
+ },
+ {
+  "clé": "panneaux:1",
+  "qui": "arnaud",
+  "texte": "Lors des élections, les candidats disposent, dans chaque commune, de panneaux d'affichage électoral.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "panneaux:2",
+  "qui": "arnaud",
+  "texte": "On y trouve leur présentation, afin d'informer les citoyens.",
+  "émotion": null
+ },
+ {
+  "clé": "panneaux:3",
+  "qui": "lina",
+  "texte": "Et on n'a pas le droit de les abîmer ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "panneaux:4",
+  "qui": "arnaud",
+  "texte": "Non : aucune dégradation n'est tolérée sur ces panneaux.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "panneaux:5",
+  "qui": "narrateur",
+  "texte": "Lors des élections, les candidats disposent, dans chaque commune, de panneaux d'affichage électoral, où figure leur présentation afin d'informer les citoyens. Aucune dégradation n'est tolérée sur ces panneaux.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "lina",
+  "texte": "Les juges rendent la justice, le Conseil constitutionnel veille sur les lois et les élections nationales…",
+  "émotion": "joie"
+ },
+ {
+  "clé": "final:1",
+  "qui": "lina",
+  "texte": "… et le vote est personnel et secret, depuis l'isoloir jusqu'à l'urne.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Parfait. Tu es prête pour la suite.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : les principales élections en France, page 18.",
+  "émotion": null
+ }
+]

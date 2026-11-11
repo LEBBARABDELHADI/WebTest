@@ -218,7 +218,7 @@ function BureauVote({ couche, visuel }) {
         <rect x="780" y="482" width="40" height="6" rx="2" fill="#0b1b4a" />
         {[[752, 570, -8], [770, 578, 6], [800, 574, -3], [826, 580, 10], [790, 560, 14]].map(([x, y, a], k) => <rect key={k} x={x} y={y} width="34" height="20" rx="2" fill="#2f6fd6" opacity=".85" transform={`rotate(${a} ${x + 17} ${y + 10})`} />)}
         <rect x="740" y="488" width="120" height="112" rx="6" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="2" />
-        {visuel === 'majorite' && <g className="d14-enveloppe"><rect x="784" y="452" width="32" height="20" rx="2" fill="#2563eb" stroke="#0b1b4a" strokeWidth="2" /></g>}
+        {(visuel === 'majorite' || visuel === 'vote-secret') && <g className="d14-enveloppe"><rect x="784" y="452" width="32" height="20" rx="2" fill="#2563eb" stroke="#0b1b4a" strokeWidth="2" /></g>}
       </g>
       {/* Bulletins et enveloppes sur la table */}
       {[0, 1, 2].map(k => <rect key={k} x={662 + k * 6} y={586 - k * 4} width="52" height="14" fill="#fff" stroke="#cbd5e1" />)}

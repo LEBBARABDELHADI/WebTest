@@ -76,6 +76,8 @@ def dire(texte):
     # Numéros de chapitre d'un sommaire (« I. », « II. » en début de ligne).
     t = re.sub(r'(^|\n)(III|II|I)\. ', lambda m: m.group(1) + {'I': 'Chapitre un', 'II': 'Chapitre deux', 'III': 'Chapitre trois'}[m.group(2)] + '. ', t)
     t = re.sub(r'\b([IVX]+)(re|er|e)\b', arabe, t)
+    t = t.replace(' → ', ', ')  # flèches d'un schéma
+    t = re.sub(r'https?://(?:www\.)?([^/\s)]+)[^\s)]*', r'\1', t)  # une adresse web : seulement le site
     t = re.sub(r'([^.,;:!?\n])[ \t]*\n', r'\1.\n', t)  # une ligne de liste = une pause
     return re.sub(r'\s+', ' ', t).strip()
 
