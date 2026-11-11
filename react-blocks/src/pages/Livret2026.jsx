@@ -12,7 +12,7 @@ const Cinéma = lazy(() => import('../components/livret/cinema/Cinema'))
 // Prototypes « expérience cinéma » : uniquement les pages pilotes validées une à une.
 // « Immersion » : l'histoire de France comme un film (d'après le livret), chargée à la demande.
 const Immersion = lazy(() => import('../components/livret/immersion/Immersion'))
-const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 7: () => import('../lib/livret2026/cinema/p7'), 8: () => import('../lib/livret2026/cinema/p8'), 10: () => import('../lib/livret2026/cinema/p10'), 11: () => import('../lib/livret2026/cinema/p11'), 12: () => import('../lib/livret2026/cinema/p12'), 13: () => import('../lib/livret2026/cinema/p13'), 14: () => import('../lib/livret2026/cinema/p14'), 15: () => import('../lib/livret2026/cinema/p15') }
+const CINÉMAS = { 6: () => import('../lib/livret2026/cinema/p6'), 7: () => import('../lib/livret2026/cinema/p7'), 8: () => import('../lib/livret2026/cinema/p8'), 10: () => import('../lib/livret2026/cinema/p10'), 11: () => import('../lib/livret2026/cinema/p11'), 12: () => import('../lib/livret2026/cinema/p12'), 13: () => import('../lib/livret2026/cinema/p13'), 14: () => import('../lib/livret2026/cinema/p14'), 15: () => import('../lib/livret2026/cinema/p15'), 16: () => import('../lib/livret2026/cinema/p16') }
 import Leçon from '../components/livret/Lecon'
 import Maison from '../components/livret/Maison'
 import Frise from '../components/livret/Frise'

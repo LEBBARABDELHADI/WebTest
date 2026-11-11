@@ -1,0 +1,428 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Mercredi après-midi, à la médiathèque.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Zoé prépare un exposé pour l'école. Son sujet : la démocratie.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:2",
+  "qui": "narrateur",
+  "texte": "Lina et M. Arnaud l'aident, le livret ouvert à la page 16.",
+  "émotion": null
+ },
+ {
+  "clé": "carton-i:0",
+  "qui": "narrateur",
+  "texte": "Premier chapitre : démocratie et État de droit.",
+  "émotion": null
+ },
+ {
+  "clé": "etat-droit:0",
+  "qui": "zoe",
+  "texte": "Papi, c'est quoi, un État de droit ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "etat-droit:1",
+  "qui": "arnaud",
+  "texte": "C'est un système dans lequel la loi doit être respectée par tous, y compris par l'État.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "etat-droit:2",
+  "qui": "arnaud",
+  "texte": "L'État de droit est une condition de la démocratie. C'est le contraire de l'État arbitraire.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "etat-droit:3",
+  "qui": "narrateur",
+  "texte": "La France est une démocratie et un État de droit, c'est-à-dire un système dans lequel la loi doit être respectée par tous, y compris par l'État. L'État de droit est une condition de la démocratie, en opposition à l'État arbitraire.",
+  "officiel": true
+ },
+ {
+  "clé": "etat-droit:4",
+  "qui": "zoe",
+  "texte": "Même l'État doit respecter la loi !",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "article-2:0",
+  "qui": "lina",
+  "texte": "Et le principe de la démocratie est inscrit à l'article 2 de la Constitution de 1958.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "article-2:1",
+  "qui": "arnaud",
+  "texte": "« Le Gouvernement du peuple, par le peuple et pour le peuple. »",
+  "émotion": "fier"
+ },
+ {
+  "clé": "article-2:2",
+  "qui": "narrateur",
+  "texte": "Le principe de la démocratie est inscrit à l'article 2 de la Constitution de 1958 : « le Gouvernement du peuple, par le peuple et pour le peuple ».",
+  "officiel": true
+ },
+ {
+  "clé": "constitution:0",
+  "qui": "arnaud",
+  "texte": "Ce pouvoir s'exerce à travers un système institutionnel, structuré par la Constitution.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "constitution:1",
+  "qui": "zoe",
+  "texte": "Et la Constitution, qui l'a choisie ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "constitution:2",
+  "qui": "arnaud",
+  "texte": "En France, elle est approuvée par référendum : un vote où les citoyens sont consultés directement.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "constitution:3",
+  "qui": "narrateur",
+  "texte": "Ce pouvoir s'exerce à travers un système institutionnel structuré par la Constitution qui, en France, est approuvée par référendum, c'est-à-dire par un vote où les citoyens sont consultés directement.",
+  "officiel": true
+ },
+ {
+  "clé": "constitution:4",
+  "qui": "arnaud",
+  "texte": "Notre Constitution actuelle est celle de la Ve République, adoptée en 1958.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "constitution:5",
+  "qui": "narrateur",
+  "texte": "Notre Constitution actuelle est celle de la Vème République, adoptée en 1958.",
+  "officiel": true
+ },
+ {
+  "clé": "modifier:0",
+  "qui": "zoe",
+  "texte": "Et si on veut la changer, la Constitution ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "modifier:1",
+  "qui": "lina",
+  "texte": "Les modifications de la Constitution doivent être approuvées par référendum, ou par le Parlement réuni en Congrès.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "modifier:2",
+  "qui": "narrateur",
+  "texte": "Les modifications de la Constitution doivent être approuvées par référendum ou par le Parlement réuni en Congrès.",
+  "officiel": true
+ },
+ {
+  "clé": "modifier:3",
+  "qui": "zoe",
+  "texte": "Deux chemins : le référendum, ou le Congrès.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "preambule:0",
+  "qui": "arnaud",
+  "texte": "Les décisions de l'État respectent la Constitution française, et la Déclaration des droits de l'homme et du citoyen de 1789.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "preambule:1",
+  "qui": "lina",
+  "texte": "La Déclaration de 1789 est citée dans le préambule de la Constitution.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "preambule:2",
+  "qui": "arnaud",
+  "texte": "Oui. Et la Constitution définit aussi l'organisation de l'État.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "preambule:3",
+  "qui": "narrateur",
+  "texte": "Les décisions de l'État respectent la Constitution française et la Déclaration des droits de l'homme et du citoyen de 1789, citée dans le préambule de la Constitution, où est aussi définie l'organisation de l'État.",
+  "officiel": true
+ },
+ {
+  "clé": "principes:0",
+  "qui": "zoe",
+  "texte": "Pour mon affiche : quels sont les principes de l'État de droit ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "principes:1",
+  "qui": "arnaud",
+  "texte": "La protection des libertés fondamentales.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "principes:2",
+  "qui": "arnaud",
+  "texte": "La séparation des trois pouvoirs.",
+  "émotion": null
+ },
+ {
+  "clé": "principes:3",
+  "qui": "arnaud",
+  "texte": "Et l'indépendance de la justice.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "principes:4",
+  "qui": "narrateur",
+  "texte": "Les principes de l'État de droit sont la protection des libertés fondamentales, la séparation des trois pouvoirs et l'indépendance de la justice.",
+  "officiel": true
+ },
+ {
+  "clé": "pouvoirs:0",
+  "qui": "zoe",
+  "texte": "Trois pouvoirs ? Lesquels ?",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "pouvoirs:1",
+  "qui": "lina",
+  "texte": "Le pouvoir législatif : élaborer et voter des lois. Ce sont les députés et les sénateurs.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "pouvoirs:2",
+  "qui": "lina",
+  "texte": "Le pouvoir exécutif : définir la politique de la Nation et mettre en œuvre les lois. C'est le gouvernement.",
+  "émotion": null
+ },
+ {
+  "clé": "pouvoirs:3",
+  "qui": "lina",
+  "texte": "Et le pouvoir judiciaire : rendre la justice. Ce sont les juges.",
+  "émotion": null
+ },
+ {
+  "clé": "pouvoirs:4",
+  "qui": "narrateur",
+  "texte": "Les trois pouvoirs sont :\nle pouvoir législatif : élaborer et voter des lois (députés et sénateurs) ;\nle pouvoir exécutif : définir la politique de la Nation et mettre en œuvre les lois (gouvernement) ;\nle pouvoir judiciaire : rendre la justice (les juges).",
+  "officiel": true
+ },
+ {
+  "clé": "pouvoirs:5",
+  "qui": "zoe",
+  "texte": "Trois pouvoirs, bien séparés !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "partis:0",
+  "qui": "arnaud",
+  "texte": "Par ailleurs, les partis politiques se forment et exercent leur activité librement.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "partis:1",
+  "qui": "narrateur",
+  "texte": "Par ailleurs, les partis politiques se forment et exercent leur activité librement.",
+  "officiel": true
+ },
+ {
+  "clé": "partis:2",
+  "qui": "zoe",
+  "texte": "Librement : je l'écris en gros sur mon affiche !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "administration:0",
+  "qui": "narrateur",
+  "texte": "Le lendemain, à la mairie, Zoé interroge Mme Roux pour son exposé.",
+  "émotion": null
+ },
+ {
+  "clé": "administration:1",
+  "qui": "zoe",
+  "texte": "Madame Roux, l'administration, elle doit respecter quoi ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "administration:2",
+  "qui": "agente",
+  "texte": "Elle exerce ses missions dans le respect de la Constitution, des lois et des principes républicains.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "administration:3",
+  "qui": "agente",
+  "texte": "Et elle agit sous le contrôle du juge.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "administration:4",
+  "qui": "narrateur",
+  "texte": "L'administration exerce également ses missions dans le respect de la Constitution, des lois et des principes républicains. Elle agit sous le contrôle du juge.",
+  "officiel": true
+ },
+ {
+  "clé": "carton-a:0",
+  "qui": "narrateur",
+  "texte": "Sur l'affiche de Zoé, les principales institutions de l'État prennent vie.",
+  "émotion": null
+ },
+ {
+  "clé": "president:0",
+  "qui": "zoe",
+  "texte": "Première case : le Président de la République !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "president:1",
+  "qui": "arnaud",
+  "texte": "Il est le chef de l'État et des armées.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "president:2",
+  "qui": "arnaud",
+  "texte": "Il est élu au suffrage universel direct, pour cinq ans, renouvelables une fois.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "president:3",
+  "qui": "narrateur",
+  "texte": "Le Président de la République, chef de l'État et des armées, est élu au suffrage universel direct pour cinq ans, renouvelables une fois.",
+  "officiel": true
+ },
+ {
+  "clé": "parrainages:0",
+  "qui": "lina",
+  "texte": "Et pour être candidat à l'élection présidentielle ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "parrainages:1",
+  "qui": "arnaud",
+  "texte": "Seuls les candidats qui ont obtenu 500 parrainages d'élus peuvent se présenter.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "parrainages:2",
+  "qui": "narrateur",
+  "texte": "Seuls les candidats qui ont obtenu 500 parrainages d'élus peuvent se présenter à l'élection présidentielle.",
+  "officiel": true
+ },
+ {
+  "clé": "gouvernement:0",
+  "qui": "zoe",
+  "texte": "Et les ministres, qui les choisit ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "gouvernement:1",
+  "qui": "arnaud",
+  "texte": "Le Président nomme le Gouvernement, c'est-à-dire les ministres, sur proposition du Premier ministre.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "gouvernement:2",
+  "qui": "arnaud",
+  "texte": "Le Gouvernement est issu de la majorité aux élections législatives. Et le Premier ministre en dirige l'action.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "gouvernement:3",
+  "qui": "narrateur",
+  "texte": "Il nomme le Gouvernement (les ministres), issu de la majorité aux élections législatives, sur proposition du Premier ministre qui en dirige l'action.",
+  "officiel": true
+ },
+ {
+  "clé": "parlement:0",
+  "qui": "narrateur",
+  "texte": "Dernière case de l'affiche : le Parlement.",
+  "émotion": null
+ },
+ {
+  "clé": "parlement:1",
+  "qui": "lina",
+  "texte": "Le Parlement est composé de l'Assemblée nationale et du Sénat.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "parlement:2",
+  "qui": "lina",
+  "texte": "Il vote les lois, et il contrôle le Gouvernement.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "parlement:3",
+  "qui": "narrateur",
+  "texte": "Le Parlement, composé de l'Assemblée nationale et du Sénat, vote les lois, et contrôle le Gouvernement.",
+  "officiel": true
+ },
+ {
+  "clé": "deputes-senateurs:0",
+  "qui": "zoe",
+  "texte": "Combien de députés, à l'Assemblée nationale ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "deputes-senateurs:1",
+  "qui": "arnaud",
+  "texte": "577. Ils sont élus au suffrage universel direct, tous les cinq ans, lors des élections législatives.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "deputes-senateurs:2",
+  "qui": "narrateur",
+  "texte": "Les députés (Assemblée nationale), au nombre de 577, sont élus au suffrage universel direct tous les cinq ans lors des élections législatives.",
+  "officiel": true
+ },
+ {
+  "clé": "deputes-senateurs:3",
+  "qui": "zoe",
+  "texte": "Et les sénateurs ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "deputes-senateurs:4",
+  "qui": "arnaud",
+  "texte": "Ils sont 348, élus au suffrage universel indirect, pour un mandat de six ans.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "deputes-senateurs:5",
+  "qui": "narrateur",
+  "texte": "Les sénateurs (Sénat), au nombre de 348, sont élus au suffrage universel indirect pour un mandat de six ans.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "zoe",
+  "texte": "Mon affiche est finie : l'État de droit, les trois pouvoirs, le Président et le Parlement !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:1",
+  "qui": "lina",
+  "texte": "Et dans un État de droit, la loi doit être respectée par tous, y compris par l'État.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Bravo, toutes les deux.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : la justice, le Conseil constitutionnel et le droit de vote, page 17.",
+  "émotion": null
+ }
+]
