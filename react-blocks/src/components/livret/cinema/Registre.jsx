@@ -25,6 +25,8 @@ import Decors19 from './Decors19'
 import Visuels19 from './Visuels19'
 import Decors20 from './Decors20'
 import Visuels20 from './Visuels20'
+import Decors21 from './Decors21'
+import Visuels21 from './Visuels21'
 
 const DÉCORS_6 = new Set(['place-mairie', 'place-mairie-soir', 'parc', 'agence', 'immeubles-nuit'])
 const DÉCORS_7 = new Set(['mur-quartier', 'bureau', 'place-collecte'])
@@ -45,12 +47,14 @@ const VISUELS_17 = new Set(['justice', 'conseil-constitutionnel', 'droit-vote', 
 const VISUELS_18 = new Set(['citoyens-18', 'communes-18', 'territoires-18', 'senateurs-18', 'assemblee-18', 'president-18', 'gouvernement-18', 'controle-18', 'schema-18', 'recap-18'])
 const DÉCORS_19 = new Set(['college', 'lycee'])
 const VISUELS_19 = new Set(['decentralisation', 'prefets', 'communes-19', 'missions-communes', 'intercommunalites', 'missions-departements', 'departements-101', 'regions-18', 'missions-regions', 'recap-19'])
-const DÉCORS_20 = new Set(['outremer-monde', 'outremer-drom', 'outremer-com', 'antilles'])
+const DÉCORS_20 = new Set(['outremer-monde', 'outremer-drom', 'outremer-com', 'antilles', 'outremer-codes-drom', 'outremer-codes-com'])
 const VISUELS_20 = new Set(['douze-territoires', 'cinq-drom', 'sept-com', 'antilles-fr', 'recap-20'])
+const VISUELS_21 = new Set(['legende-21', 'outremer-21-drom', 'outremer-21-com', 'recap-21'])
 const VISUELS_6 = new Set(['devise', 'libres', 'nuisance', 'tableau', 'memes', 'balance', 'femmes-hommes', 'definition', 'loi'])
 const VISUELS_7 = new Set(['haines', 'pro-perso', 'mains', 'formes', 'collective', 'generations', 'inegalites', 'collecte', 'trois-mots'])
 
 export function Décor(props) {
+  if (props.nom?.startsWith('admin-')) return <Decors21 {...props} />
   if (DÉCORS_20.has(props.nom)) return <Decors20 {...props} />
   if (DÉCORS_19.has(props.nom)) return <Decors19 {...props} />
   if (DÉCORS_16.has(props.nom)) return <Decors16 {...props} />
@@ -65,6 +69,7 @@ export function Décor(props) {
 }
 
 export function VisuelScène(props) {
+  if (VISUELS_21.has(props.nom) || props.nom?.startsWith('region-21-')) return <Visuels21 {...props} />
   if (VISUELS_20.has(props.nom)) return <Visuels20 {...props} />
   if (VISUELS_19.has(props.nom)) return <Visuels19 {...props} />
   if (VISUELS_18.has(props.nom)) return <Visuels18 {...props} />

@@ -16,6 +16,9 @@ const VUES = {
   'outremer-drom': { lieux: DROM, focus: DROM, actifs: DROM },
   'outremer-com': { lieux: COM, focus: COM, actifs: COM, numéros: numéroter(COM) },
   antilles: { lieux: ANTILLES, focus: ANTILLES, actifs: ANTILLES, zoomMax: 40 },
+  // Page 21 : les numéros de la carte administrative.
+  'outremer-codes-drom': { lieux: DROM, focus: DROM, numéros: { guadeloupe: 971, martinique: 972, guyane: 973, reunion: 974, mayotte: 976 } },
+  'outremer-codes-com': { lieux: COM, focus: COM, numéros: { 'saint-pierre-et-miquelon': 975, 'saint-barthelemy': 977, 'saint-martin': 978, taaf: 984, 'wallis-et-futuna': 986, polynesie: 987, 'nouvelle-caledonie': 988 } },
 }
 
 export default function Decors20({ nom, couche }) {
@@ -28,7 +31,7 @@ export default function Decors20({ nom, couche }) {
         <Carte vue="monde" pays={['France']} lieux={v.lieux} actifs={v.actifs || []} focus={v.focus} zoomMax={v.zoomMax || null} numéros={v.numéros || null}
           couleur="#ffd166" marges={{ bas: 0.36 }} légende={false} étiquette="territoires d'outre-mer" />
       </Suspense>
-      <div style={{ position: 'absolute', left: 10, bottom: 'calc(36% + 4px)', fontSize: 10.5, color: 'rgba(226,232,240,.62)', textShadow: '0 1px 2px #000', pointerEvents: 'none' }}>Frontières actuelles, pour se repérer</div>
+      <div style={{ position: 'absolute', left: 'calc(4.545% + 10px)', bottom: 'calc(36% + 4px)', fontSize: 10.5, color: 'rgba(226,232,240,.62)', textShadow: '0 1px 2px #000', pointerEvents: 'none' }}>Frontières actuelles, pour se repérer</div>
     </div>
   )
 }

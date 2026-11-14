@@ -1,0 +1,770 @@
+{
+ "10": {
+  "nom": "Troyes",
+  "commune": "Troyes",
+  "ll": [
+   4.076,
+   48.292
+  ]
+ },
+ "11": {
+  "nom": "Carcassonne",
+  "commune": "Carcassonne",
+  "ll": [
+   2.349,
+   43.208
+  ]
+ },
+ "12": {
+  "nom": "Rodez",
+  "commune": "Rodez",
+  "ll": [
+   2.57,
+   44.359
+  ]
+ },
+ "13": {
+  "nom": "Marseille",
+  "commune": "Marseille",
+  "ll": [
+   5.381,
+   43.28
+  ]
+ },
+ "14": {
+  "nom": "Caen",
+  "commune": "Caen",
+  "ll": [
+   -0.372,
+   49.185
+  ]
+ },
+ "15": {
+  "nom": "Aurillac",
+  "commune": "Aurillac",
+  "ll": [
+   2.442,
+   44.928
+  ]
+ },
+ "16": {
+  "nom": "Angoulême",
+  "commune": "Angoulême",
+  "ll": [
+   0.145,
+   45.646
+  ]
+ },
+ "17": {
+  "nom": "La Rochelle",
+  "commune": "La Rochelle",
+  "ll": [
+   -1.176,
+   46.162
+  ]
+ },
+ "18": {
+  "nom": "Bourges",
+  "commune": "Bourges",
+  "ll": [
+   2.398,
+   47.078
+  ]
+ },
+ "19": {
+  "nom": "Tulle",
+  "commune": "Tulle",
+  "ll": [
+   1.766,
+   45.269
+  ]
+ },
+ "21": {
+  "nom": "Dijon",
+  "commune": "Dijon",
+  "ll": [
+   5.032,
+   47.332
+  ]
+ },
+ "22": {
+  "nom": "Saint-Brieuc",
+  "commune": "Saint-Brieuc",
+  "ll": [
+   -2.766,
+   48.511
+  ]
+ },
+ "23": {
+  "nom": "Guéret",
+  "commune": "Guéret",
+  "ll": [
+   1.871,
+   46.159
+  ]
+ },
+ "24": {
+  "nom": "Périgueux",
+  "commune": "Périgueux",
+  "ll": [
+   0.711,
+   45.194
+  ]
+ },
+ "25": {
+  "nom": "Besançon",
+  "commune": "Besançon",
+  "ll": [
+   6.012,
+   47.26
+  ]
+ },
+ "26": {
+  "nom": "Valence",
+  "commune": "Valence",
+  "ll": [
+   4.916,
+   44.923
+  ]
+ },
+ "27": {
+  "nom": "Évreux",
+  "commune": "Évreux",
+  "ll": [
+   1.141,
+   49.018
+  ]
+ },
+ "28": {
+  "nom": "Chartres",
+  "commune": "Chartres",
+  "ll": [
+   1.505,
+   48.448
+  ]
+ },
+ "29": {
+  "nom": "Quimper",
+  "commune": "Quimper",
+  "ll": [
+   -4.097,
+   47.998
+  ]
+ },
+ "30": {
+  "nom": "Nîmes",
+  "commune": "Nîmes",
+  "ll": [
+   4.343,
+   43.832
+  ]
+ },
+ "31": {
+  "nom": "Toulouse",
+  "commune": "Toulouse",
+  "ll": [
+   1.433,
+   43.601
+  ]
+ },
+ "32": {
+  "nom": "Auch",
+  "commune": "Auch",
+  "ll": [
+   0.567,
+   43.66
+  ]
+ },
+ "33": {
+  "nom": "Bordeaux",
+  "commune": "Bordeaux",
+  "ll": [
+   -0.585,
+   44.862
+  ]
+ },
+ "34": {
+  "nom": "Montpellier",
+  "commune": "Montpellier",
+  "ll": [
+   3.874,
+   43.61
+  ]
+ },
+ "35": {
+  "nom": "Rennes",
+  "commune": "Rennes",
+  "ll": [
+   -1.688,
+   48.116
+  ]
+ },
+ "36": {
+  "nom": "Châteauroux",
+  "commune": "Châteauroux",
+  "ll": [
+   1.69,
+   46.802
+  ]
+ },
+ "37": {
+  "nom": "Tours",
+  "commune": "Tours",
+  "ll": [
+   0.695,
+   47.394
+  ]
+ },
+ "38": {
+  "nom": "Grenoble",
+  "commune": "Grenoble",
+  "ll": [
+   5.716,
+   45.184
+  ]
+ },
+ "39": {
+  "nom": "Lons-le-Saunier",
+  "commune": "Lons-le-Saunier",
+  "ll": [
+   5.557,
+   46.676
+  ]
+ },
+ "40": {
+  "nom": "Mont-de-Marsan",
+  "commune": "Mont-de-Marsan",
+  "ll": [
+   -0.501,
+   43.893
+  ]
+ },
+ "41": {
+  "nom": "Blois",
+  "commune": "Blois",
+  "ll": [
+   1.305,
+   47.581
+  ]
+ },
+ "42": {
+  "nom": "Saint-Étienne",
+  "commune": "Saint-Étienne",
+  "ll": [
+   4.367,
+   45.424
+  ]
+ },
+ "43": {
+  "nom": "Le Puy-en-Velay",
+  "commune": "Le Puy-en-Velay",
+  "ll": [
+   3.897,
+   45.028
+  ]
+ },
+ "44": {
+  "nom": "Nantes",
+  "commune": "Nantes",
+  "ll": [
+   -1.56,
+   47.238
+  ]
+ },
+ "45": {
+  "nom": "Orléans",
+  "commune": "Orléans",
+  "ll": [
+   1.912,
+   47.873
+  ]
+ },
+ "46": {
+  "nom": "Cahors",
+  "commune": "Cahors",
+  "ll": [
+   1.439,
+   44.457
+  ]
+ },
+ "47": {
+  "nom": "Agen",
+  "commune": "Agen",
+  "ll": [
+   0.63,
+   44.201
+  ]
+ },
+ "48": {
+  "nom": "Mende",
+  "commune": "Mende",
+  "ll": [
+   3.491,
+   44.535
+  ]
+ },
+ "49": {
+  "nom": "Angers",
+  "commune": "Angers",
+  "ll": [
+   -0.563,
+   47.482
+  ]
+ },
+ "50": {
+  "nom": "Saint-Lô",
+  "commune": "Saint-Lô",
+  "ll": [
+   -1.081,
+   49.112
+  ]
+ },
+ "51": {
+  "nom": "Châlons-en-Champagne",
+  "commune": "Châlons-en-Champagne",
+  "ll": [
+   4.38,
+   48.966
+  ]
+ },
+ "52": {
+  "nom": "Chaumont",
+  "commune": "Chaumont",
+  "ll": [
+   5.157,
+   48.097
+  ]
+ },
+ "53": {
+  "nom": "Laval",
+  "commune": "Laval",
+  "ll": [
+   -0.769,
+   48.058
+  ]
+ },
+ "54": {
+  "nom": "Nancy",
+  "commune": "Nancy",
+  "ll": [
+   6.173,
+   48.688
+  ]
+ },
+ "55": {
+  "nom": "Bar-le-Duc",
+  "commune": "Bar-le-Duc",
+  "ll": [
+   5.173,
+   48.763
+  ]
+ },
+ "56": {
+  "nom": "Vannes",
+  "commune": "Vannes",
+  "ll": [
+   -2.748,
+   47.658
+  ]
+ },
+ "57": {
+  "nom": "Metz",
+  "commune": "Metz",
+  "ll": [
+   6.196,
+   49.105
+  ]
+ },
+ "58": {
+  "nom": "Nevers",
+  "commune": "Nevers",
+  "ll": [
+   3.16,
+   46.985
+  ]
+ },
+ "59": {
+  "nom": "Lille",
+  "commune": "Lille",
+  "ll": [
+   3.047,
+   50.631
+  ]
+ },
+ "60": {
+  "nom": "Beauvais",
+  "commune": "Beauvais",
+  "ll": [
+   2.088,
+   49.443
+  ]
+ },
+ "61": {
+  "nom": "Alençon",
+  "commune": "Alençon",
+  "ll": [
+   0.092,
+   48.431
+  ]
+ },
+ "62": {
+  "nom": "Arras",
+  "commune": "Arras",
+  "ll": [
+   2.768,
+   50.289
+  ]
+ },
+ "63": {
+  "nom": "Clermont-Ferrand",
+  "commune": "Clermont-Ferrand",
+  "ll": [
+   3.113,
+   45.787
+  ]
+ },
+ "64": {
+  "nom": "Pau",
+  "commune": "Pau",
+  "ll": [
+   -0.343,
+   43.322
+  ]
+ },
+ "65": {
+  "nom": "Tarbes",
+  "commune": "Tarbes",
+  "ll": [
+   0.065,
+   43.239
+  ]
+ },
+ "66": {
+  "nom": "Perpignan",
+  "commune": "Perpignan",
+  "ll": [
+   2.905,
+   42.699
+  ]
+ },
+ "67": {
+  "nom": "Strasbourg",
+  "commune": "Strasbourg",
+  "ll": [
+   7.762,
+   48.569
+  ]
+ },
+ "68": {
+  "nom": "Colmar",
+  "commune": "Colmar",
+  "ll": [
+   7.392,
+   48.112
+  ]
+ },
+ "69": {
+  "nom": "Lyon",
+  "commune": "Lyon",
+  "ll": [
+   4.835,
+   45.758
+  ]
+ },
+ "70": {
+  "nom": "Vesoul",
+  "commune": "Vesoul",
+  "ll": [
+   6.152,
+   47.632
+  ]
+ },
+ "71": {
+  "nom": "Mâcon",
+  "commune": "Mâcon",
+  "ll": [
+   4.808,
+   46.327
+  ]
+ },
+ "72": {
+  "nom": "Le Mans",
+  "commune": "Le Mans",
+  "ll": [
+   0.196,
+   47.982
+  ]
+ },
+ "73": {
+  "nom": "Chambéry",
+  "commune": "Chambéry",
+  "ll": [
+   5.906,
+   45.582
+  ]
+ },
+ "74": {
+  "nom": "Annecy",
+  "commune": "Annecy",
+  "ll": [
+   6.126,
+   45.902
+  ]
+ },
+ "75": {
+  "nom": "Paris",
+  "commune": "Paris",
+  "ll": [
+   2.347,
+   48.859
+  ]
+ },
+ "76": {
+  "nom": "Rouen",
+  "commune": "Rouen",
+  "ll": [
+   1.091,
+   49.441
+  ]
+ },
+ "77": {
+  "nom": "Melun",
+  "commune": "Melun",
+  "ll": [
+   2.655,
+   48.542
+  ]
+ },
+ "78": {
+  "nom": "Versailles",
+  "commune": "Versailles",
+  "ll": [
+   2.119,
+   48.804
+  ]
+ },
+ "79": {
+  "nom": "Niort",
+  "commune": "Niort",
+  "ll": [
+   -0.461,
+   46.327
+  ]
+ },
+ "80": {
+  "nom": "Amiens",
+  "commune": "Amiens",
+  "ll": [
+   2.285,
+   49.899
+  ]
+ },
+ "81": {
+  "nom": "Albi",
+  "commune": "Albi",
+  "ll": [
+   2.132,
+   43.929
+  ]
+ },
+ "82": {
+  "nom": "Montauban",
+  "commune": "Montauban",
+  "ll": [
+   1.365,
+   44.022
+  ]
+ },
+ "83": {
+  "nom": "Toulon",
+  "commune": "Toulon",
+  "ll": [
+   5.933,
+   43.136
+  ]
+ },
+ "84": {
+  "nom": "Avignon",
+  "commune": "Avignon",
+  "ll": [
+   4.833,
+   43.942
+  ]
+ },
+ "85": {
+  "nom": "La Roche-sur-Yon",
+  "commune": "La Roche-sur-Yon",
+  "ll": [
+   -1.416,
+   46.666
+  ]
+ },
+ "86": {
+  "nom": "Poitiers",
+  "commune": "Poitiers",
+  "ll": [
+   0.372,
+   46.585
+  ]
+ },
+ "87": {
+  "nom": "Limoges",
+  "commune": "Limoges",
+  "ll": [
+   1.226,
+   45.857
+  ]
+ },
+ "88": {
+  "nom": "Épinal",
+  "commune": "Épinal",
+  "ll": [
+   6.487,
+   48.164
+  ]
+ },
+ "89": {
+  "nom": "Auxerre",
+  "commune": "Auxerre",
+  "ll": [
+   3.582,
+   47.794
+  ]
+ },
+ "90": {
+  "nom": "Belfort",
+  "commune": "Belfort",
+  "ll": [
+   6.841,
+   47.646
+  ]
+ },
+ "91": {
+  "nom": "Évry",
+  "commune": "Évry-Courcouronnes",
+  "ll": [
+   2.431,
+   48.629
+  ]
+ },
+ "92": {
+  "nom": "Nanterre",
+  "commune": "Nanterre",
+  "ll": [
+   2.202,
+   48.897
+  ]
+ },
+ "93": {
+  "nom": "Bobigny",
+  "commune": "Bobigny",
+  "ll": [
+   2.443,
+   48.907
+  ]
+ },
+ "94": {
+  "nom": "Créteil",
+  "commune": "Créteil",
+  "ll": [
+   2.452,
+   48.785
+  ]
+ },
+ "95": {
+  "nom": "Cergy",
+  "commune": "Cergy",
+  "ll": [
+   2.046,
+   49.037
+  ]
+ },
+ "02": {
+  "nom": "Laon",
+  "commune": "Laon",
+  "ll": [
+   3.613,
+   49.571
+  ]
+ },
+ "08": {
+  "nom": "Charleville-Mézières",
+  "commune": "Charleville-Mézières",
+  "ll": [
+   4.73,
+   49.78
+  ]
+ },
+ "09": {
+  "nom": "Foix",
+  "commune": "Foix",
+  "ll": [
+   1.609,
+   42.97
+  ]
+ },
+ "01": {
+  "nom": "Bourg-en-Bresse",
+  "commune": "Bourg-en-Bresse",
+  "ll": [
+   5.247,
+   46.203
+  ]
+ },
+ "03": {
+  "nom": "Moulins",
+  "commune": "Moulins",
+  "ll": [
+   3.326,
+   46.559
+  ]
+ },
+ "07": {
+  "nom": "Privas",
+  "commune": "Privas",
+  "ll": [
+   4.595,
+   44.721
+  ]
+ },
+ "04": {
+  "nom": "Digne-les-Bains",
+  "commune": "Digne-les-Bains",
+  "ll": [
+   6.25,
+   44.095
+  ]
+ },
+ "05": {
+  "nom": "Gap",
+  "commune": "Gap",
+  "ll": [
+   6.062,
+   44.58
+  ]
+ },
+ "06": {
+  "nom": "Nice",
+  "commune": "Nice",
+  "ll": [
+   7.253,
+   43.703
+  ]
+ },
+ "2A": {
+  "nom": "Ajaccio",
+  "commune": "Ajaccio",
+  "ll": [
+   8.706,
+   41.923
+  ]
+ },
+ "2B": {
+  "nom": "Bastia",
+  "commune": "Bastia",
+  "ll": [
+   9.424,
+   42.686
+  ]
+ }
+}

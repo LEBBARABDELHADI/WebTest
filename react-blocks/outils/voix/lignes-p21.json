@@ -1,0 +1,338 @@
+[
+ {
+  "clé": "ouverture:0",
+  "qui": "narrateur",
+  "texte": "Mercredi, à la médiathèque, une grande carte de France est accrochée au mur.",
+  "émotion": null
+ },
+ {
+  "clé": "ouverture:1",
+  "qui": "narrateur",
+  "texte": "Zoé lance un jeu : retrouver chaque région, sa préfecture et ses départements.",
+  "émotion": null
+ },
+ {
+  "clé": "legende:0",
+  "qui": "arnaud",
+  "texte": "Voici la carte administrative de la France.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "legende:1",
+  "qui": "arnaud",
+  "texte": "Un carré marque une préfecture de région. Un point, une préfecture de département. Et chaque département a son numéro.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "legende:2",
+  "qui": "narrateur",
+  "texte": "Carte administrative de la France :\n■ Préfecture de région\n• Préfecture de département",
+  "officiel": true
+ },
+ {
+  "clé": "legende:3",
+  "qui": "zoe",
+  "texte": "En métropole, je compte 13 régions. On commence le tour !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-11:0",
+  "qui": "zoe",
+  "texte": "L'Île-de-France !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-11:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Paris.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-11:2",
+  "qui": "narrateur",
+  "texte": "Île-de-France ■ Paris\nParis 75 • Paris · Seine-et-Marne 77 • Melun · Yvelines 78 • Versailles · Essonne 91 • Évry · Hauts-de-Seine 92 • Nanterre · Seine-Saint-Denis 93 • Bobigny · Val-de-Marne 94 • Créteil · Val-d'Oise 95 • Cergy",
+  "officiel": true
+ },
+ {
+  "clé": "r-32:0",
+  "qui": "lina",
+  "texte": "Les Hauts-de-France !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-32:1",
+  "qui": "arnaud",
+  "texte": "Sa préfecture de région : Lille.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-32:2",
+  "qui": "narrateur",
+  "texte": "Hauts-de-France ■ Lille\nAisne 02 • Laon · Nord 59 • Lille · Oise 60 • Beauvais · Pas-de-Calais 62 • Arras · Somme 80 • Amiens",
+  "officiel": true
+ },
+ {
+  "clé": "r-28:0",
+  "qui": "zoe",
+  "texte": "La Normandie !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-28:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Rouen.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-28:2",
+  "qui": "narrateur",
+  "texte": "Normandie ■ Rouen\nCalvados 14 • Caen · Eure 27 • Évreux · Manche 50 • Saint-Lô · Orne 61 • Alençon · Seine-Maritime 76 • Rouen",
+  "officiel": true
+ },
+ {
+  "clé": "r-53:0",
+  "qui": "lina",
+  "texte": "La Bretagne !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-53:1",
+  "qui": "arnaud",
+  "texte": "Sa préfecture de région : Rennes.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-53:2",
+  "qui": "narrateur",
+  "texte": "Bretagne ■ Rennes\nCôtes-d'Armor 22 • Saint-Brieuc · Finistère 29 • Quimper · Ille-et-Vilaine 35 • Rennes · Morbihan 56 • Vannes",
+  "officiel": true
+ },
+ {
+  "clé": "r-52:0",
+  "qui": "zoe",
+  "texte": "Les Pays de la Loire !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-52:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Nantes.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-52:2",
+  "qui": "narrateur",
+  "texte": "Pays-de-la-Loire ■ Nantes\nLoire-Atlantique 44 • Nantes · Maine-et-Loire 49 • Angers · Mayenne 53 • Laval · Sarthe 72 • Le Mans · Vendée 85 • La Roche-sur-Yon",
+  "officiel": true
+ },
+ {
+  "clé": "r-24:0",
+  "qui": "lina",
+  "texte": "Le Centre-Val de Loire !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-24:1",
+  "qui": "arnaud",
+  "texte": "Sa préfecture de région : Orléans.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-24:2",
+  "qui": "narrateur",
+  "texte": "Centre-Val de Loire ■ Orléans\nCher 18 • Bourges · Eure-et-Loir 28 • Chartres · Indre 36 • Châteauroux · Indre-et-Loire 37 • Tours · Loir-et-Cher 41 • Blois · Loiret 45 • Orléans",
+  "officiel": true
+ },
+ {
+  "clé": "r-44:0",
+  "qui": "zoe",
+  "texte": "Le Grand Est !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-44:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Strasbourg.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-44:2",
+  "qui": "narrateur",
+  "texte": "Grand-Est ■ Strasbourg\nArdennes 08 • Charleville-Mézières · Aube 10 • Troyes · Marne 51 • Châlons-en-Champagne · Haute-Marne 52 • Chaumont · Meurthe-et-Moselle 54 • Nancy · Meuse 55 • Bar-le-Duc · Moselle 57 • Metz · Bas-Rhin 67 • Strasbourg · Haut-Rhin 68 • Colmar · Vosges 88 • Épinal",
+  "officiel": true
+ },
+ {
+  "clé": "r-27:0",
+  "qui": "lina",
+  "texte": "La Bourgogne-Franche-Comté !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-27:1",
+  "qui": "arnaud",
+  "texte": "Sa préfecture de région : Dijon.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-27:2",
+  "qui": "narrateur",
+  "texte": "Bourgogne-Franche-Comté ■ Dijon\nCôte-d'Or 21 • Dijon · Doubs 25 • Besançon · Jura 39 • Lons-le-Saunier · Nièvre 58 • Nevers · Haute-Saône 70 • Vesoul · Saône-et-Loire 71 • Mâcon · Yonne 89 • Auxerre · Territoire de Belfort 90 • Belfort",
+  "officiel": true
+ },
+ {
+  "clé": "r-84:0",
+  "qui": "zoe",
+  "texte": "L'Auvergne-Rhône-Alpes !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-84:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Lyon.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-84:2",
+  "qui": "narrateur",
+  "texte": "Auvergne-Rhône-Alpes ■ Lyon\nAin 01 • Bourg-en-Bresse · Allier 03 • Moulins · Ardèche 07 • Privas · Cantal 15 • Aurillac · Drôme 26 • Valence · Isère 38 • Grenoble · Loire 42 • Saint-Étienne · Haute-Loire 43 • Le Puy-en-Velay · Puy-de-Dôme 63 • Clermont-Ferrand · Rhône 69 • Lyon · Savoie 73 • Chambéry · Haute-Savoie 74 • Annecy",
+  "officiel": true
+ },
+ {
+  "clé": "r-75:0",
+  "qui": "lina",
+  "texte": "La Nouvelle-Aquitaine !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-75:1",
+  "qui": "arnaud",
+  "texte": "Sa préfecture de région : Bordeaux.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-75:2",
+  "qui": "narrateur",
+  "texte": "Nouvelle-Aquitaine ■ Bordeaux\nCharente 16 • Angoulême · Charente-Maritime 17 • La Rochelle · Corrèze 19 • Tulle · Creuse 23 • Guéret · Dordogne 24 • Périgueux · Gironde 33 • Bordeaux · Landes 40 • Mont-de-Marsan · Lot-et-Garonne 47 • Agen · Pyrénées-Atlantiques 64 • Pau · Deux-Sèvres 79 • Niort · Vienne 86 • Poitiers · Haute-Vienne 87 • Limoges",
+  "officiel": true
+ },
+ {
+  "clé": "r-76:0",
+  "qui": "zoe",
+  "texte": "L'Occitanie !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-76:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Toulouse.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-76:2",
+  "qui": "narrateur",
+  "texte": "Occitanie ■ Toulouse\nAriège 09 • Foix · Aude 11 • Carcassonne · Aveyron 12 • Rodez · Gard 30 • Nîmes · Haute-Garonne 31 • Toulouse · Gers 32 • Auch · Hérault 34 • Montpellier · Lot 46 • Cahors · Lozère 48 • Mende · Hautes-Pyrénées 65 • Tarbes · Pyrénées-Orientales 66 • Perpignan · Tarn 81 • Albi · Tarn-et-Garonne 82 • Montauban",
+  "officiel": true
+ },
+ {
+  "clé": "r-93:0",
+  "qui": "lina",
+  "texte": "La Provence-Alpes-Côte d'Azur !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-93:1",
+  "qui": "arnaud",
+  "texte": "Sa préfecture de région : Marseille.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-93:2",
+  "qui": "narrateur",
+  "texte": "Provence-Alpes-Côte-d'Azur ■ Marseille\nAlpes-de-Haute-Provence 04 • Digne-les-Bains · Hautes-Alpes 05 • Gap · Alpes-Maritimes 06 • Nice · Bouches-du-Rhône 13 • Marseille · Var 83 • Toulon · Vaucluse 84 • Avignon",
+  "officiel": true
+ },
+ {
+  "clé": "r-94:0",
+  "qui": "zoe",
+  "texte": "La Corse !",
+  "émotion": "joie"
+ },
+ {
+  "clé": "r-94:1",
+  "qui": "lina",
+  "texte": "Sa préfecture de région : Ajaccio.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "r-94:2",
+  "qui": "narrateur",
+  "texte": "Corse ■ Ajaccio\nCorse-du-Sud 2A • Ajaccio · Haute-Corse 2B • Bastia",
+  "officiel": true
+ },
+ {
+  "clé": "outremer-drom:0",
+  "qui": "lina",
+  "texte": "Et l'outre-mer, sur la carte ?",
+  "émotion": "réflexion"
+ },
+ {
+  "clé": "outremer-drom:1",
+  "qui": "arnaud",
+  "texte": "Chaque territoire a son encadré et son numéro.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "outremer-drom:2",
+  "qui": "narrateur",
+  "texte": "Guadeloupe 971 ■ Basse-Terre · Martinique 972 ■ Fort-de-France · Guyane 973 ■ Cayenne · La Réunion 974 ■ Saint-Denis · Mayotte 976 ■ Mamoudzou",
+  "officiel": true
+ },
+ {
+  "clé": "outremer-com:0",
+  "qui": "narrateur",
+  "texte": "Saint-Pierre et Miquelon 975 · Saint-Barthélemy 977 · Saint-Martin 978 · Terres Australes et Antarctiques Françaises (984) · Wallis-et-Futuna 986 · Polynésie française 987 · Nouvelle-Calédonie 988",
+  "officiel": true
+ },
+ {
+  "clé": "outremer-com:1",
+  "qui": "zoe",
+  "texte": "Ces encadrés-là ne sont pas colorés !",
+  "émotion": "surprise"
+ },
+ {
+  "clé": "outremer-com:2",
+  "qui": "arnaud",
+  "texte": "Sur la carte, les départements non colorés, hors Île-de-France, sont les collectivités d'outre-mer à statut particulier.",
+  "émotion": "neutre"
+ },
+ {
+  "clé": "outremer-com:3",
+  "qui": "narrateur",
+  "texte": "Les départements non colorés ci-dessus (hors Île-De-France) sont les collectivités d'outre-mer à statut particulier.",
+  "officiel": true
+ },
+ {
+  "clé": "final:0",
+  "qui": "zoe",
+  "texte": "13 régions, et toutes leurs préfectures : j'ai gagné !",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:1",
+  "qui": "lina",
+  "texte": "Et l'outre-mer, de 971 à 988.",
+  "émotion": "sourire"
+ },
+ {
+  "clé": "final:2",
+  "qui": "arnaud",
+  "texte": "Bravo à toutes les deux.",
+  "émotion": "fier"
+ },
+ {
+  "clé": "final:3",
+  "qui": "narrateur",
+  "texte": "À suivre : l'Union européenne et ses institutions, page 22.",
+  "émotion": null
+ }
+]
