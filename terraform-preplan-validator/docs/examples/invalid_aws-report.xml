@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="tfpv" tests="53" failures="22" skipped="1">
+  <testsuite name="scanner" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.scanner" name="tfpv Terraform scanner (variables, modules, references) executed"/>
+  </testsuite>
+  <testsuite name="terraform_fmt" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.terraform_fmt" name="terraform fmt -check executed"/>
+  </testsuite>
+  <testsuite name="terraform_init" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.terraform_init" name="terraform init -backend=false executed"/>
+  </testsuite>
+  <testsuite name="terraform_validate" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.terraform_validate" name="terraform validate executed"/>
+  </testsuite>
+  <testsuite name="tflint" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.tflint" name="TFLint (terraform ruleset) executed"/>
+  </testsuite>
+  <testsuite name="tflint_aws" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.tflint_aws" name="TFLint AWS ruleset executed"/>
+  </testsuite>
+  <testsuite name="checkov" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.checkov" name="Checkov (security) executed"/>
+  </testsuite>
+  <testsuite name="aws_static" tests="1" failures="0" skipped="0">
+    <testcase classname="tfpv.aws_static" name="tfpv AWS validator (static) executed"/>
+  </testsuite>
+  <testsuite name="aws_external" tests="1" failures="0" skipped="1">
+    <testcase classname="tfpv.aws_external" name="AWS API checks (AMI, instance type offering, RDS engine version)"><skipped message="opt-in: use --aws-checks (needs AWS credentials, read-only calls)"/></testcase>
+  </testsuite>
+  <testsuite name="findings" tests="44" failures="22" skipped="0">
+    <testcase classname="iam.tf" name="[CRITICAL] IAM_FULL_ADMIN aws_iam_policy.admin (iam.tf:3)"><failure type="CRITICAL" message="IAM policy grants full administrator privileges">The policy allows Action "*" on Resource "*" (or full IAM privileges).
+
+Recommendation: Grant only the actions needed on the resources needed; start from AWS managed job-function policies or IAM Access Analyzer policy generation.
+Engine message: Ensure IAM policies that allow full "*-*" administrative privileges are not created</failure></testcase>
+    <testcase classname="iam.tf" name="[HIGH] IAM_INVALID_PRINCIPAL aws_iam_role.app (iam.tf:15)"><failure type="HIGH" message="Invalid principal in policy">A principal does not have a valid format; IAM rejects the policy (MalformedPolicyDocument: Invalid principal in policy).
+
+Recommendation: Use service principals like "ec2.amazonaws.com", 12-digit account IDs or full ARNs (arn:aws:iam::123456789012:role/name).
+Engine message: "ec2.amazon.com" is not a valid service principal (did you mean "ec2.amazonaws.com"?).</failure></testcase>
+    <testcase classname="main.tf" name="[HIGH] AWS_INVALID_INSTANCE_TYPE aws_instance.example (main.tf:3)"><failure type="HIGH" message="Invalid AWS instance type">The specified EC2 instance type is not recognized. ("t3.invalid" is an invalid value as instance_type)
+
+Recommendation: Verify that the instance type exists in the selected AWS region and is supported by the selected architecture and AMI: `aws ec2 describe-instance-type-offerings --location-type region --filters Name=instance-type,Values=&lt;type&gt; --region &lt;region&gt;` (or run tfpv with --aws-checks). `terraform plan` does not catch this: the error appears at apply.
+Engine message: "t3.invalid" is an invalid value as instance_type</failure></testcase>
+    <testcase classname="main.tf" name="[HIGH] EC2_AMI_ID_MALFORMED aws_instance.bad_ami (main.tf:13)"><failure type="HIGH" message="Malformed AMI ID">The AMI ID does not match the format ami-xxxxxxxx (8 or 17 hexadecimal characters); AWS returns InvalidAMIID.Malformed.
+
+Recommendation: Use a real AMI ID, or resolve it with the aws_ami data source (most_recent + filters).
+Engine message: "ami-xyz" is not a valid AMI ID (expected ami- followed by 8 or 17 hex characters).</failure></testcase>
+    <testcase classname="network.tf" name="[HIGH] NET_SUBNET_OVERLAP aws_subnet.public_b (network.tf:12)"><failure type="HIGH" message="Overlapping subnets">Two subnets of the same VPC have overlapping CIDR blocks; AWS rejects the second one (InvalidSubnet.Conflict).
+
+Recommendation: Give each subnet a distinct, non-overlapping CIDR (e.g. cidrsubnet with distinct netnum values).
+Engine message: Subnet CIDR 10.0.1.128/25 overlaps aws_subnet.public_a (10.0.1.0/24) in aws_vpc.main.</failure></testcase>
+    <testcase classname="network.tf" name="[HIGH] NET_SUBNET_OUTSIDE_VPC aws_subnet.outside (network.tf:17)"><failure type="HIGH" message="Subnet outside the VPC CIDR">The subnet CIDR is not contained in any CIDR block of its VPC; AWS rejects it (InvalidSubnet.Range). `terraform plan` does not detect it.
+
+Recommendation: Derive subnets from the VPC CIDR (`cidrsubnet(aws_vpc.main.cidr_block, 8, n)`) or associate a secondary CIDR (aws_vpc_ipv4_cidr_block_association).
+Engine message: Subnet CIDR 10.1.0.0/24 is not inside the CIDR block(s) of aws_vpc.main (10.0.0.0/16).</failure></testcase>
+    <testcase classname="network.tf" name="[HIGH] SG_PORT_RANGE_INVALID aws_security_group.web (network.tf:32)"><failure type="HIGH" message="Invalid security group port range">from_port is greater than to_port, or a port is outside 0-65535.
+
+Recommendation: Use from_port &lt;= to_port within 0-65535 (for a single port, set both to the same value).
+Engine message: Invalid port range from_port=443 to_port=80 for protocol tcp.</failure></testcase>
+    <testcase classname="network.tf" name="[HIGH] TF_UNDECLARED_REFERENCE aws_route_table.rt (network.tf:47)"><failure type="HIGH" message="Reference to an undeclared object">An expression references a resource, data source, variable, local or module that is not declared in this module. Terraform says: A managed resource "aws_vpc" "mian" has not been declared in the root module.
+
+Recommendation: Fix the name or declare the object. Objects of other modules are only reachable through their outputs (module.&lt;name&gt;.&lt;output&gt;).
+Engine message: Reference to undeclared resource</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] EBS_SIZE_BELOW_MINIMUM aws_ebs_volume.logs (storage.tf:7)"><failure type="HIGH" message="Volume smaller than the minimum size">The volume size is below the minimum for its type (st1/sc1: 125 GiB, io1/io2: 4 GiB, gp2/gp3/standard: 1 GiB).
+
+Recommendation: Increase the size to at least the minimum for the type, or change the type.
+Engine message: Volume size 50 GiB is below the 125 GiB minimum for "st1".</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] EBS_IOPS_NOT_SUPPORTED aws_ebs_volume.logs (storage.tf:9)"><failure type="HIGH" message="iops set on a volume type that does not support it">Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan ("'iops' must not be set when 'type' is ...").
+
+Recommendation: Remove `iops`, or switch the volume to gp3/io1/io2.
+Engine message: iops is set but volume type "st1" does not support provisioned IOPS.</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] RDS_MAX_STORAGE_BELOW_ALLOCATED aws_db_instance.db (storage.tf:18)"><failure type="HIGH" message="max_allocated_storage lower than allocated_storage">Storage autoscaling requires max_allocated_storage to be greater than allocated_storage; AWS rejects the value.
+
+Recommendation: Set max_allocated_storage above allocated_storage, or to 0 to disable autoscaling.
+Engine message: max_allocated_storage (50) is lower than allocated_storage (100).</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] RDS_IOPS_STORAGE_TYPE_CONFLICT aws_db_instance.db (storage.tf:20)"><failure type="HIGH" message="iops incompatible with the storage type">Provisioned IOPS are not supported with gp2/standard storage, and are required for io1/io2.
+
+Recommendation: Use storage_type io1/io2/gp3 with iops, or remove iops for gp2/standard.
+Engine message: iops is set but storage_type "gp2" does not support provisioned IOPS.</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] RDS_MULTI_AZ_WITH_AZ aws_db_instance.db (storage.tf:22)"><failure type="HIGH" message="multi_az combined with availability_zone">A specific availability zone cannot be requested for a Multi-AZ instance (InvalidParameterCombination).
+
+Recommendation: Remove availability_zone when multi_az = true.
+Engine message: multi_az = true cannot be combined with availability_zone.</failure></testcase>
+    <testcase classname="terraform.tfvars" name="[HIGH] TF_VARIABLE_TYPE_MISMATCH var.instance_count (terraform.tfvars:1)"><failure type="HIGH" message="Variable value does not match its type">The value assigned to the variable cannot be converted to the declared type constraint; `terraform validate` does not check variable values.
+
+Recommendation: Assign a value of the declared type, or change the type constraint if the value is the intended one.
+Engine message: Invalid value for variable "instance_count" in terraform.tfvars: a number is required, got string 'three' (declared type: number, in variables.tf:11).</failure></testcase>
+    <testcase classname="variables.tf" name="[HIGH] TF_MISSING_VARIABLE_VALUE var.environment (variables.tf:20)"><failure type="HIGH" message="Required variable has no value">The variable has no default and no value was found in terraform.tfvars, *.auto.tfvars, the --var-file/--var options or TF_VAR_ environment variables.
+
+Recommendation: Provide the value (tfvars file, `-var-file`, or `TF_VAR_&lt;name&gt;` in CI) or add a default. With `-input=false`, plan fails with "No value for required variable". If the value is passed at runtime, give the same file to tfpv with --var-file.
+Engine message: Variable "environment" has no default and no value is provided (tfvars, --var-file, --var, TF_VAR_environment).</failure></testcase>
+    <testcase classname="iam.tf" name="[HIGH] IAM_EXCESSIVE_PERMISSIONS aws_iam_policy.admin (iam.tf:3)"><failure type="HIGH" message="IAM policy allows sensitive permissions without constraints">The policy allows privilege escalation, credentials exposure, data exfiltration or permissions management without constraints.
+
+Recommendation: Remove sensitive actions or constrain them with resources and conditions.
+Engine message: Ensure IAM policies does not allow privilege escalation</failure></testcase>
+    <testcase classname="iam.tf" name="[HIGH] IAM_WILDCARD_ACTION aws_iam_policy.admin (iam.tf:3)"><failure type="HIGH" message="IAM policy uses wildcard actions">A statement allows "*" (or service:*) actions.
+
+Recommendation: List explicit actions.
+Engine message: Ensure no IAM policies documents allow "*" as a statement's actions</failure></testcase>
+    <testcase classname="network.tf" name="[HIGH] SG_SSH_OPEN_TO_INTERNET aws_security_group.web (network.tf:25)"><failure type="HIGH" message="SSH open to the Internet">A security group allows ingress on port 22 from 0.0.0.0/0.
+
+Recommendation: Restrict the source to known CIDRs, or use SSM Session Manager instead of SSH.
+Engine message: Ensure no security groups allow ingress from 0.0.0.0:0 to port 22</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] S3_PUBLIC_ACCESS_BLOCK aws_s3_bucket.data (storage.tf:1)"><failure type="HIGH" message="S3 bucket without Public Access Block">Public access is not explicitly blocked at bucket level; an ACL or policy change can expose data.
+
+Recommendation: Add aws_s3_bucket_public_access_block with the four settings set to true (unless the bucket must be public).
+Engine message: Ensure that S3 bucket has a Public Access block</failure></testcase>
+    <testcase classname="storage.tf" name="[HIGH] RDS_UNENCRYPTED aws_db_instance.db (storage.tf:12)"><failure type="HIGH" message="RDS storage not encrypted">storage_encrypted is not enabled; encryption cannot be enabled later without recreating the instance.
+
+Recommendation: Set storage_encrypted = true (and kms_key_id if required) before the first apply.
+Engine message: Ensure all data stored in the RDS is securely encrypted at rest</failure></testcase>
+    <testcase classname="main.tf" name="[MEDIUM] EBS_IOPS_NOT_SUPPORTED aws_instance.example (main.tf:8)"><failure type="MEDIUM" message="iops set on a volume type that does not support it">Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan ("'iops' must not be set when 'type' is ...").
+
+Recommendation: Remove `iops`, or switch the volume to gp3/io1/io2.
+Engine message: iops is set but volume type "gp2" does not support provisioned IOPS.</failure></testcase>
+    <testcase classname="network.tf" name="[MEDIUM] SG_ALL_PROTOCOL_WITH_PORTS aws_security_group.web (network.tf:39)"><failure type="MEDIUM" message="Ports set with protocol -1 (all)">With protocol "-1" (all traffic), from_port and to_port must both be 0; the rule otherwise does not do what it says (all ports are opened) and the AWS provider rejects it.
+
+Recommendation: Set protocol to "tcp"/"udp" for a port range, or set from_port = 0 and to_port = 0 with protocol "-1".
+Engine message: protocol "-1" (all traffic) with from_port=22 and to_port=22: all ports are opened, not the ones written, and the provider expects 0/0.</failure></testcase>
+    <testcase classname="iam.tf" name="[MEDIUM] IAM_UNCONSTRAINED_WRITE aws_iam_policy.admin (iam.tf:3)"><system-out>Write actions are allowed on all resources.
+
+Recommendation: Scope write actions to specific resources.
+Engine message: Ensure IAM policies does not allow write access without constraints</system-out></testcase>
+    <testcase classname="iam.tf" name="[MEDIUM] IAM_WILDCARD_RESOURCE aws_iam_policy.admin (iam.tf:3)"><system-out>A statement allows actions on Resource "*" for actions that support resource-level permissions.
+
+Recommendation: Scope resources with ARNs (or ARN prefixes) wherever the action supports it.
+Engine message: Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions</system-out></testcase>
+    <testcase classname="main.tf" name="[MEDIUM] EC2_IMDSV1_ENABLED aws_instance.example (main.tf:1)"><system-out>The instance metadata service accepts IMDSv1 requests (SSRF risk).
+
+Recommendation: Set metadata_options { http_tokens = "***REDACTED***" }.
+Engine message: Ensure Instance Metadata Service Version 1 is not enabled</system-out></testcase>
+    <testcase classname="main.tf" name="[MEDIUM] EBS_UNENCRYPTED aws_instance.bad_ami (main.tf:12)"><system-out>The volume (or instance root/EBS block device) is not encrypted.
+
+Recommendation: Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.
+Engine message: Ensure all data stored in the Launch configuration or instance Elastic Blocks Store is securely encrypted</system-out></testcase>
+    <testcase classname="main.tf" name="[MEDIUM] EC2_IMDSV1_ENABLED aws_instance.bad_ami (main.tf:12)"><system-out>The instance metadata service accepts IMDSv1 requests (SSRF risk).
+
+Recommendation: Set metadata_options { http_tokens = "***REDACTED***" }.
+Engine message: Ensure Instance Metadata Service Version 1 is not enabled</system-out></testcase>
+    <testcase classname="storage.tf" name="[MEDIUM] S3_BUCKET_VERSIONING aws_s3_bucket.data (storage.tf:1)"><system-out>Versioning is not enabled: deleted or overwritten objects cannot be recovered.
+
+Recommendation: Enable versioning with aws_s3_bucket_versioning (status = "Enabled").
+Engine message: Ensure all data stored in the S3 bucket have versioning enabled</system-out></testcase>
+    <testcase classname="storage.tf" name="[MEDIUM] EBS_UNENCRYPTED aws_ebs_volume.logs (storage.tf:5)"><system-out>The volume (or instance root/EBS block device) is not encrypted.
+
+Recommendation: Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.
+Engine message: Ensure EBS Volume is encrypted by KMS using a customer managed Key (CMK)</system-out></testcase>
+    <testcase classname="main.tf" name="[LOW] EC2_HARDENING aws_instance.example (main.tf:1)"><system-out>Best practice not applied (detailed monitoring, EBS optimization).
+
+Recommendation: Enable the options when your monitoring or performance policy requires them.
+Engine message: Ensure that EC2 is EBS optimized</system-out></testcase>
+    <testcase classname="main.tf" name="[LOW] IAM_HYGIENE aws_instance.example (main.tf:1)"><system-out>Best practice not applied (policy attached directly to a user, instance without IAM role).
+
+Recommendation: Attach policies to groups/roles and give instances an instance profile.
+Engine message: Ensure an IAM role is attached to EC2 instance</system-out></testcase>
+    <testcase classname="main.tf" name="[LOW] EC2_HARDENING aws_instance.bad_ami (main.tf:12)"><system-out>Best practice not applied (detailed monitoring, EBS optimization).
+
+Recommendation: Enable the options when your monitoring or performance policy requires them.
+Engine message: Ensure that EC2 is EBS optimized</system-out></testcase>
+    <testcase classname="main.tf" name="[LOW] IAM_HYGIENE aws_instance.bad_ami (main.tf:12)"><system-out>Best practice not applied (policy attached directly to a user, instance without IAM role).
+
+Recommendation: Attach policies to groups/roles and give instances an instance profile.
+Engine message: Ensure an IAM role is attached to EC2 instance</system-out></testcase>
+    <testcase classname="network.tf" name="[LOW] SG_HYGIENE aws_vpc.main (network.tf:1)"><system-out>Best practice not applied (rule description, unattached group, unrestricted egress, default security group).
+
+Recommendation: Add descriptions, remove unused groups, restrict egress where possible.
+Engine message: Ensure the default security group of every VPC restricts all traffic</system-out></testcase>
+    <testcase classname="network.tf" name="[LOW] VPC_FLOW_LOGS aws_vpc.main (network.tf:1)"><system-out>VPC flow logs are not enabled.
+
+Recommendation: Enable flow logs to CloudWatch or S3 for network forensics.
+Engine message: Ensure VPC flow logging is enabled in all VPCs</system-out></testcase>
+    <testcase classname="network.tf" name="[LOW] SG_HYGIENE aws_security_group.web (network.tf:38)"><system-out>Best practice not applied (rule description, unattached group, unrestricted egress, default security group).
+
+Recommendation: Add descriptions, remove unused groups, restrict egress where possible.
+Engine message: Ensure every security group and rule has a description</system-out></testcase>
+    <testcase classname="storage.tf" name="[LOW] S3_ACCESS_LOGGING aws_s3_bucket.data (storage.tf:1)"><system-out>Server access logging is not configured.
+
+Recommendation: Enable access logging if you need an audit trail of requests.
+Engine message: Ensure the S3 bucket has access logging enabled</system-out></testcase>
+    <testcase classname="storage.tf" name="[LOW] S3_BUCKET_KMS_ENCRYPTION aws_s3_bucket.data (storage.tf:1)"><system-out>The bucket is not configured to use SSE-KMS by default (S3 still applies SSE-S3 since 2023).
+
+Recommendation: Use SSE-KMS when you need key-level access control and audit (CloudTrail).
+Engine message: Ensure that S3 buckets are encrypted with KMS by default</system-out></testcase>
+    <testcase classname="storage.tf" name="[LOW] S3_OPTIONAL_HARDENING aws_s3_bucket.data (storage.tf:1)"><system-out>Best practice not applied (cross-region replication, event notifications or lifecycle configuration).
+
+Recommendation: Apply it when your data protection or cost policy requires it; otherwise ignore the rule in .tfpv.toml.
+Engine message: Ensure S3 buckets should have event notifications enabled</system-out></testcase>
+    <testcase classname="storage.tf" name="[LOW] RDS_HARDENING aws_db_instance.db (storage.tf:14)"><system-out>Best practice not applied (deletion protection, Multi-AZ, monitoring, logs, IAM auth, minor upgrades, copy tags).
+
+Recommendation: Enable the options required by your availability and audit policy.
+Engine message: Ensure that AWS database instances have deletion protection enabled</system-out></testcase>
+    <testcase classname="terraform.tfvars" name="[LOW] TF_UNDECLARED_VARIABLE_VALUE  (terraform.tfvars:3)"><system-out>A variable definitions file sets a variable that the root module does not declare; Terraform only warns.
+
+Recommendation: Rename or remove the value, or declare the variable.
+Engine message: "terraform.tfvars" sets "unknown_var", which is not declared by the root module.</system-out></testcase>
+    <testcase classname="unformatted.tf" name="[LOW] AWS_HYGIENE aws_eip.ip (unformatted.tf:1)"><system-out>A resource is allocated but not attached (e.g. an Elastic IP without instance), which costs money.
+
+Recommendation: Attach it or remove it.
+Engine message: Ensure that all EIP addresses allocated to a VPC are attached to EC2 instances</system-out></testcase>
+    <testcase classname="unformatted.tf" name="[LOW] TF_FORMAT aws_eip.ip (unformatted.tf:1)"><system-out>`terraform fmt -check` reports that the file does not follow the canonical style.
+
+Recommendation: Run `terraform fmt` (tfpv never rewrites files) and add `terraform fmt -check` to your CI.
+Engine message: File is not in canonical format</system-out></testcase>
+    <testcase classname="variables.tf" name="[LOW] TF_UNUSED_DECLARATION var.instance_count (variables.tf:11)"><system-out>A variable, local, data source or provider requirement is declared but never used.
+
+Recommendation: Remove it, or use it if it was meant to be referenced.
+Engine message: variable "instance_count" is declared but not used</system-out></testcase>
+  </testsuite>
+</testsuites>

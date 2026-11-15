@@ -1,0 +1,398 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terraform Pre-Plan Report</title><style>
+:root{--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--code:#f1f5f9;--hl:#fef3c7}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1120;--card:#111827;--text:#e5e7eb;--muted:#9ca3af;--border:#1f2937;--code:#0f172a;--hl:#3f3416}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 60px}h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:26px 0 10px}
+.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0}
+.status{display:inline-block;padding:6px 12px;border-radius:999px;color:#fff;font-weight:800;letter-spacing:.03em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
+.kpi b{display:block;font-size:24px}.sev{display:inline-block;min-width:76px;text-align:center;padding:2px 8px;border-radius:6px;color:#fff;font-weight:800;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.tag{display:inline-block;padding:1px 7px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-right:4px}
+details{background:var(--card);border:1px solid var(--border);border-radius:12px;margin:8px 0;padding:10px 12px}summary{cursor:pointer;font-weight:700}
+pre{background:var(--code);border-radius:8px;padding:8px 10px;overflow-x:auto;font-size:13px;margin:6px 0}pre .hl{background:var(--hl);display:block}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.filters label{border:1px solid var(--border);border-radius:999px;padding:4px 10px;background:var(--card);cursor:pointer}
+input[type=search]{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);min-width:200px}
+a{color:#2563eb;word-break:break-all}.file{margin-top:18px;font-family:ui-monospace,Menlo,monospace;font-weight:700}
+</style></head><body><main>
+<h1>Terraform Pre-Plan Validation Report</h1><p class="muted">Project <b>invalid_aws</b> · 2026-11-15T15:47:16Z · 19.62s</p>
+<div class="card"><span class="status" style="background:#dc2626">FAILED</span> <span>22 finding(s) blocking or at/above HIGH</span></div>
+<div class="grid"><div class="kpi"><span class="muted">Total checks</span><b>119</b></div><div class="kpi"><span class="muted">Passed</span><b>75</b></div><div class="kpi"><span class="muted">Failed</span><b>22</b></div><div class="kpi"><span class="muted">Warnings</span><b>22</b></div><div class="kpi"><span class="muted">Blocking</span><b>16</b></div><div class="kpi"><span class="muted">Not run</span><b>0</b></div></div>
+<h2>Checks</h2><div class="card" style="overflow-x:auto"><table><tr><th>Check</th><th>Tier</th><th>Status</th><th>Findings</th><th>Notes</th></tr><tr><td>tfpv Terraform scanner (variables, modules, references)</td><td><span class='tag'>static</span></td><td><b>failed</b></td><td>4</td><td class='muted'></td></tr><tr><td>terraform fmt -check</td><td><span class='tag'>static</span></td><td><b>failed</b></td><td>1</td><td class='muted'></td></tr><tr><td>terraform init -backend=false</td><td><span class='tag'>providers</span></td><td><b>passed</b></td><td>0</td><td class='muted'></td></tr><tr><td>terraform validate</td><td><span class='tag'>providers</span></td><td><b>failed</b></td><td>1</td><td class='muted'></td></tr><tr><td>TFLint (terraform ruleset)</td><td><span class='tag'>static</span></td><td><b>failed</b></td><td>1</td><td class='muted'></td></tr><tr><td>TFLint AWS ruleset</td><td><span class='tag'>static</span></td><td><b>failed</b></td><td>1</td><td class='muted'></td></tr><tr><td>Checkov (security)</td><td><span class='tag'>static</span></td><td><b>failed</b></td><td>42</td><td class='muted'></td></tr><tr><td>tfpv AWS validator (static)</td><td><span class='tag'>static</span></td><td><b>failed</b></td><td>12</td><td class='muted'>1 evaluation(s) depend on values known only at apply time</td></tr><tr><td>AWS API checks (AMI, instance type offering, RDS engine version)</td><td><span class='tag'>aws</span></td><td><b>skipped</b></td><td>0</td><td class='muted'>opt-in: use --aws-checks (needs AWS credentials, read-only calls)</td></tr></table></div>
+<h2>Findings (44)</h2><div class="filters"><label><input type="checkbox" data-sev="CRITICAL" checked> <span class="sev" style="background:#b91c1c">CRITICAL</span> 1</label><label><input type="checkbox" data-sev="HIGH" checked> <span class="sev" style="background:#dc2626">HIGH</span> 19</label><label><input type="checkbox" data-sev="MEDIUM" checked> <span class="sev" style="background:#d97706">MEDIUM</span> 9</label><label><input type="checkbox" data-sev="LOW" checked> <span class="sev" style="background:#2563eb">LOW</span> 15</label><input id="q" type="search" placeholder="Filter (rule, file, resource)…"></div>
+<div class="file">📄 iam.tf</div><details class="finding" data-sev="CRITICAL"><summary><span class="sev" style="background:#b91c1c">CRITICAL</span> IAM_FULL_ADMIN — IAM policy grants full administrator privileges</summary>
+<p><b>Resource</b> <code>aws_iam_policy.admin</code> · <b>Line</b> 3</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_62, CKV2_AWS_40</span></p>
+<pre><span>   1 | resource &quot;aws_iam_policy&quot; &quot;admin&quot; {</span>
+<span>   2 |   name = &quot;too-broad&quot;</span>
+<span class="hl">   3 |   policy = jsonencode({</span>
+<span>   4 |     Version = &quot;2012-10-17&quot;</span>
+<span>   5 |     Statement = [{</span>
+<span>   6 |       Effect   = &quot;Allow&quot;</span></pre><p><b>Description</b><br>The policy allows Action &quot;*&quot; on Resource &quot;*&quot; (or full IAM privileges).</p><p><b>Probable cause</b><br>Policy written for convenience during development.</p>
+<p><b>Recommendation</b><br>Grant only the actions needed on the resources needed; start from AWS managed job-function policies or IAM Access Analyzer policy generation.</p><p class="muted"><b>Engine message</b> Ensure IAM policies that allow full &quot;*-*&quot; administrative privileges are not created</p><ul><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege" rel="noopener">https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege</a></li><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> IAM_INVALID_PRINCIPAL — Invalid principal in policy</summary>
+<p><b>Resource</b> <code>aws_iam_role.app</code> · <b>Line</b> 15 · <b>Current value</b> <code>ec2.amazon.com</code></p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: iam_invalid_principal</span></p>
+<pre><span>  12 | </span>
+<span>  13 | resource &quot;aws_iam_role&quot; &quot;app&quot; {</span>
+<span>  14 |   name = &quot;app&quot;</span>
+<span class="hl">  15 |   assume_role_policy = jsonencode({</span>
+<span>  16 |     Version = &quot;2012-10-17&quot;</span>
+<span>  17 |     Statement = [{</span>
+<span>  18 |       Effect    = &quot;Allow&quot;</span></pre><p><b>Description</b><br>A principal does not have a valid format; IAM rejects the policy (MalformedPolicyDocument: Invalid principal in policy).</p><p><b>Probable cause</b><br>Typo in a service principal (amazon.com instead of amazonaws.com), account ID that is not 12 digits, or malformed ARN.</p>
+<p><b>Recommendation</b><br>Use service principals like &quot;ec2.amazonaws.com&quot;, 12-digit account IDs or full ARNs (arn:aws:iam::123456789012:role/name).</p><p class="muted"><b>Engine message</b> &quot;ec2.amazon.com&quot; is not a valid service principal (did you mean &quot;ec2.amazonaws.com&quot;?).</p><ul><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html" rel="noopener">https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> IAM_EXCESSIVE_PERMISSIONS — IAM policy allows sensitive permissions without constraints</summary>
+<p><b>Resource</b> <code>aws_iam_policy.admin</code> · <b>Line</b> 3</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_286, CKV_AWS_288, CKV_AWS_289, CKV_AWS_287</span></p>
+<pre><span>   1 | resource &quot;aws_iam_policy&quot; &quot;admin&quot; {</span>
+<span>   2 |   name = &quot;too-broad&quot;</span>
+<span class="hl">   3 |   policy = jsonencode({</span>
+<span>   4 |     Version = &quot;2012-10-17&quot;</span>
+<span>   5 |     Statement = [{</span>
+<span>   6 |       Effect   = &quot;Allow&quot;</span></pre><p><b>Description</b><br>The policy allows privilege escalation, credentials exposure, data exfiltration or permissions management without constraints.</p><p><b>Probable cause</b><br>Wildcards on sensitive services (iam, sts, kms, s3, secretsmanager).</p>
+<p><b>Recommendation</b><br>Remove sensitive actions or constrain them with resources and conditions.</p><p class="muted"><b>Engine message</b> Ensure IAM policies does not allow privilege escalation</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> IAM_WILDCARD_ACTION — IAM policy uses wildcard actions</summary>
+<p><b>Resource</b> <code>aws_iam_policy.admin</code> · <b>Line</b> 3</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_63</span></p>
+<pre><span>   1 | resource &quot;aws_iam_policy&quot; &quot;admin&quot; {</span>
+<span>   2 |   name = &quot;too-broad&quot;</span>
+<span class="hl">   3 |   policy = jsonencode({</span>
+<span>   4 |     Version = &quot;2012-10-17&quot;</span>
+<span>   5 |     Statement = [{</span>
+<span>   6 |       Effect   = &quot;Allow&quot;</span></pre><p><b>Description</b><br>A statement allows &quot;*&quot; (or service:*) actions.</p><p><b>Probable cause</b><br>Broad action list.</p>
+<p><b>Recommendation</b><br>List explicit actions.</p><p class="muted"><b>Engine message</b> Ensure no IAM policies documents allow &quot;*&quot; as a statement&#x27;s actions</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> IAM_UNCONSTRAINED_WRITE — IAM policy allows write access without constraints</summary>
+<p><b>Resource</b> <code>aws_iam_policy.admin</code> · <b>Line</b> 3</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_290</span></p>
+<pre><span>   1 | resource &quot;aws_iam_policy&quot; &quot;admin&quot; {</span>
+<span>   2 |   name = &quot;too-broad&quot;</span>
+<span class="hl">   3 |   policy = jsonencode({</span>
+<span>   4 |     Version = &quot;2012-10-17&quot;</span>
+<span>   5 |     Statement = [{</span>
+<span>   6 |       Effect   = &quot;Allow&quot;</span></pre><p><b>Description</b><br>Write actions are allowed on all resources.</p><p><b>Probable cause</b><br>Resource &quot;*&quot; on write actions.</p>
+<p><b>Recommendation</b><br>Scope write actions to specific resources.</p><p class="muted"><b>Engine message</b> Ensure IAM policies does not allow write access without constraints</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> IAM_WILDCARD_RESOURCE — IAM policy uses wildcard resources</summary>
+<p><b>Resource</b> <code>aws_iam_policy.admin</code> · <b>Line</b> 3</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_355</span></p>
+<pre><span>   1 | resource &quot;aws_iam_policy&quot; &quot;admin&quot; {</span>
+<span>   2 |   name = &quot;too-broad&quot;</span>
+<span class="hl">   3 |   policy = jsonencode({</span>
+<span>   4 |     Version = &quot;2012-10-17&quot;</span>
+<span>   5 |     Statement = [{</span>
+<span>   6 |       Effect   = &quot;Allow&quot;</span></pre><p><b>Description</b><br>A statement allows actions on Resource &quot;*&quot; for actions that support resource-level permissions.</p><p><b>Probable cause</b><br>Resources not scoped.</p>
+<p><b>Recommendation</b><br>Scope resources with ARNs (or ARN prefixes) wherever the action supports it.</p><p class="muted"><b>Engine message</b> Ensure no IAM policies documents allow &quot;*&quot; as a statement&#x27;s resource for restrictable actions</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><div class="file">📄 main.tf</div><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> AWS_INVALID_INSTANCE_TYPE — Invalid AWS instance type</summary>
+<p><b>Resource</b> <code>aws_instance.example</code> · <b>Line</b> 3 · <b>Current value</b> <code>t3.invalid</code></p><p><span class="tag">AWS_VALIDITY</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">tflint: aws_instance_invalid_type</span></p>
+<pre><span>   1 | resource &quot;aws_instance&quot; &quot;example&quot; {</span>
+<span>   2 |   ami           = &quot;ami-12345678&quot;</span>
+<span class="hl">   3 |   instance_type = &quot;t3.invalid&quot;</span>
+<span>   4 |   subnet_id     = aws_subnet.public_a.id</span>
+<span>   5 | </span>
+<span>   6 |   root_block_device {</span></pre><p><b>Description</b><br>The specified EC2 instance type is not recognized. (&quot;t3.invalid&quot; is an invalid value as instance_type)</p><p><b>Probable cause</b><br>Typo or non-existent size. A type released after the TFLint AWS ruleset version can also be unknown to it.</p>
+<p><b>Recommendation</b><br>Verify that the instance type exists in the selected AWS region and is supported by the selected architecture and AMI: `aws ec2 describe-instance-type-offerings --location-type region --filters Name=instance-type,Values=&lt;type&gt; --region &lt;region&gt;` (or run tfpv with --aws-checks). `terraform plan` does not catch this: the error appears at apply.</p><p class="muted"><b>Engine message</b> &quot;t3.invalid&quot; is an invalid value as instance_type</p><ul><li><a href="https://github.com/terraform-linters/tflint-ruleset-aws/blob/v0.50.0/docs/rules/aws_instance_invalid_type.md" rel="noopener">https://github.com/terraform-linters/tflint-ruleset-aws/blob/v0.50.0/docs/rules/aws_instance_invalid_type.md</a></li><li><a href="https://aws.amazon.com/ec2/instance-types/" rel="noopener">https://aws.amazon.com/ec2/instance-types/</a></li><li><a href="https://github.com/terraform-linters/tflint-ruleset-aws/blob/master/docs/rules/aws_instance_invalid_type.md" rel="noopener">https://github.com/terraform-linters/tflint-ruleset-aws/blob/master/docs/rules/aws_instance_invalid_type.md</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> EC2_AMI_ID_MALFORMED — Malformed AMI ID</summary>
+<p><b>Resource</b> <code>aws_instance.bad_ami</code> · <b>Line</b> 13 · <b>Current value</b> <code>ami-xyz</code></p><p><span class="tag">AWS_VALIDITY</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: ec2_ami_id_malformed</span></p>
+<pre><span>  10 | }</span>
+<span>  11 | </span>
+<span>  12 | resource &quot;aws_instance&quot; &quot;bad_ami&quot; {</span>
+<span class="hl">  13 |   ami           = &quot;ami-xyz&quot;</span>
+<span>  14 |   instance_type = &quot;t3.micro&quot;</span>
+<span>  15 | }</span></pre><p><b>Description</b><br>The AMI ID does not match the format ami-xxxxxxxx (8 or 17 hexadecimal characters); AWS returns InvalidAMIID.Malformed.</p><p><b>Probable cause</b><br>Typo, placeholder value, or AMI name used instead of the ID.</p>
+<p><b>Recommendation</b><br>Use a real AMI ID, or resolve it with the aws_ami data source (most_recent + filters).</p><p><b>Suggested fix</b></p><pre>data &quot;aws_ami&quot; &quot;al2023&quot; {
+  most_recent = true
+  owners      = [&quot;amazon&quot;]
+  filter {
+    name   = &quot;name&quot;
+    values = [&quot;al2023-ami-*-x86_64&quot;]
+  }
+}</pre><p class="muted"><b>Engine message</b> &quot;ami-xyz&quot; is not a valid AMI ID (expected ami- followed by 8 or 17 hex characters).</p><ul><li><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html" rel="noopener">https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> EBS_IOPS_NOT_SUPPORTED — iops set on a volume type that does not support it</summary>
+<p><b>Resource</b> <code>aws_instance.example</code> · <b>Line</b> 8 · <b>Current value</b> <code>3000</code></p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">confidence: medium</span><span class="tag">aws: ebs_iops_not_supported</span></p>
+<pre><span>   5 | </span>
+<span>   6 |   root_block_device {</span>
+<span>   7 |     volume_type = &quot;gp2&quot;</span>
+<span class="hl">   8 |     iops        = 3000</span>
+<span>   9 |   }</span>
+<span>  10 | }</span>
+<span>  11 | </span></pre><p><b>Description</b><br>Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan (&quot;&#x27;iops&#x27; must not be set when &#x27;type&#x27; is ...&quot;).</p><p><b>Probable cause</b><br>Volume type changed without removing iops, or iops copied from an io1/gp3 example.</p>
+<p><b>Recommendation</b><br>Remove `iops`, or switch the volume to gp3/io1/io2.</p><p><b>Suggested fix</b></p><pre>type = &quot;gp3&quot;
+iops = 3000</pre><p class="muted"><b>Engine message</b> iops is set but volume type &quot;gp2&quot; does not support provisioned IOPS.</p><ul><li><a href="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html" rel="noopener">https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> EC2_IMDSV1_ENABLED — IMDSv1 enabled</summary>
+<p><b>Resource</b> <code>aws_instance.example</code> · <b>Line</b> 1</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_79</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_instance&quot; &quot;example&quot; {</span>
+<span>   2 |   ami           = &quot;ami-12345678&quot;</span>
+<span>   3 |   instance_type = &quot;t3.invalid&quot;</span>
+<span>   4 |   subnet_id     = aws_subnet.public_a.id</span></pre><p><b>Description</b><br>The instance metadata service accepts IMDSv1 requests (SSRF risk).</p><p><b>Probable cause</b><br>metadata_options.http_tokens not set to &quot;required&quot;.</p>
+<p><b>Recommendation</b><br>Set metadata_options { http_tokens = &quot;***REDACTED***&quot; }.</p><p><b>Suggested fix</b></p><pre>metadata_options {
+  http_tokens = &quot;***REDACTED***&quot;
+}</pre><p class="muted"><b>Engine message</b> Ensure Instance Metadata Service Version 1 is not enabled</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> EBS_UNENCRYPTED — EBS volume not encrypted</summary>
+<p><b>Resource</b> <code>aws_instance.bad_ami</code> · <b>Line</b> 12</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_8</span></p>
+<pre><span>   9 |   }</span>
+<span>  10 | }</span>
+<span>  11 | </span>
+<span class="hl">  12 | resource &quot;aws_instance&quot; &quot;bad_ami&quot; {</span>
+<span>  13 |   ami           = &quot;ami-xyz&quot;</span>
+<span>  14 |   instance_type = &quot;t3.micro&quot;</span>
+<span>  15 | }</span></pre><p><b>Description</b><br>The volume (or instance root/EBS block device) is not encrypted.</p><p><b>Probable cause</b><br>encrypted not set and no account-level default encryption assumed.</p>
+<p><b>Recommendation</b><br>Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.</p><p class="muted"><b>Engine message</b> Ensure all data stored in the Launch configuration or instance Elastic Blocks Store is securely encrypted</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> EC2_IMDSV1_ENABLED — IMDSv1 enabled</summary>
+<p><b>Resource</b> <code>aws_instance.bad_ami</code> · <b>Line</b> 12</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_79</span></p>
+<pre><span>   9 |   }</span>
+<span>  10 | }</span>
+<span>  11 | </span>
+<span class="hl">  12 | resource &quot;aws_instance&quot; &quot;bad_ami&quot; {</span>
+<span>  13 |   ami           = &quot;ami-xyz&quot;</span>
+<span>  14 |   instance_type = &quot;t3.micro&quot;</span>
+<span>  15 | }</span></pre><p><b>Description</b><br>The instance metadata service accepts IMDSv1 requests (SSRF risk).</p><p><b>Probable cause</b><br>metadata_options.http_tokens not set to &quot;required&quot;.</p>
+<p><b>Recommendation</b><br>Set metadata_options { http_tokens = &quot;***REDACTED***&quot; }.</p><p><b>Suggested fix</b></p><pre>metadata_options {
+  http_tokens = &quot;***REDACTED***&quot;
+}</pre><p class="muted"><b>Engine message</b> Ensure Instance Metadata Service Version 1 is not enabled</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> EC2_HARDENING — Optional EC2 hardening</summary>
+<p><b>Resource</b> <code>aws_instance.example</code> · <b>Line</b> 1</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_135, CKV_AWS_126</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_instance&quot; &quot;example&quot; {</span>
+<span>   2 |   ami           = &quot;ami-12345678&quot;</span>
+<span>   3 |   instance_type = &quot;t3.invalid&quot;</span>
+<span>   4 |   subnet_id     = aws_subnet.public_a.id</span></pre><p><b>Description</b><br>Best practice not applied (detailed monitoring, EBS optimization).</p><p><b>Probable cause</b><br>Option not set.</p>
+<p><b>Recommendation</b><br>Enable the options when your monitoring or performance policy requires them.</p><p class="muted"><b>Engine message</b> Ensure that EC2 is EBS optimized</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> IAM_HYGIENE — IAM hygiene</summary>
+<p><b>Resource</b> <code>aws_instance.example</code> · <b>Line</b> 1</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_41</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_instance&quot; &quot;example&quot; {</span>
+<span>   2 |   ami           = &quot;ami-12345678&quot;</span>
+<span>   3 |   instance_type = &quot;t3.invalid&quot;</span>
+<span>   4 |   subnet_id     = aws_subnet.public_a.id</span></pre><p><b>Description</b><br>Best practice not applied (policy attached directly to a user, instance without IAM role).</p><p><b>Probable cause</b><br>IAM design shortcut.</p>
+<p><b>Recommendation</b><br>Attach policies to groups/roles and give instances an instance profile.</p><p class="muted"><b>Engine message</b> Ensure an IAM role is attached to EC2 instance</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> EC2_HARDENING — Optional EC2 hardening</summary>
+<p><b>Resource</b> <code>aws_instance.bad_ami</code> · <b>Line</b> 12</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_135, CKV_AWS_126</span></p>
+<pre><span>   9 |   }</span>
+<span>  10 | }</span>
+<span>  11 | </span>
+<span class="hl">  12 | resource &quot;aws_instance&quot; &quot;bad_ami&quot; {</span>
+<span>  13 |   ami           = &quot;ami-xyz&quot;</span>
+<span>  14 |   instance_type = &quot;t3.micro&quot;</span>
+<span>  15 | }</span></pre><p><b>Description</b><br>Best practice not applied (detailed monitoring, EBS optimization).</p><p><b>Probable cause</b><br>Option not set.</p>
+<p><b>Recommendation</b><br>Enable the options when your monitoring or performance policy requires them.</p><p class="muted"><b>Engine message</b> Ensure that EC2 is EBS optimized</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> IAM_HYGIENE — IAM hygiene</summary>
+<p><b>Resource</b> <code>aws_instance.bad_ami</code> · <b>Line</b> 12</p><p><span class="tag">IAM</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_41</span></p>
+<pre><span>   9 |   }</span>
+<span>  10 | }</span>
+<span>  11 | </span>
+<span class="hl">  12 | resource &quot;aws_instance&quot; &quot;bad_ami&quot; {</span>
+<span>  13 |   ami           = &quot;ami-xyz&quot;</span>
+<span>  14 |   instance_type = &quot;t3.micro&quot;</span>
+<span>  15 | }</span></pre><p><b>Description</b><br>Best practice not applied (policy attached directly to a user, instance without IAM role).</p><p><b>Probable cause</b><br>IAM design shortcut.</p>
+<p><b>Recommendation</b><br>Attach policies to groups/roles and give instances an instance profile.</p><p class="muted"><b>Engine message</b> Ensure an IAM role is attached to EC2 instance</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><div class="file">📄 network.tf</div><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> NET_SUBNET_OVERLAP — Overlapping subnets</summary>
+<p><b>Resource</b> <code>aws_subnet.public_b</code> · <b>Line</b> 12 · <b>Current value</b> <code>10.0.1.128/25</code></p><p><span class="tag">NETWORK</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: net_subnet_overlap</span></p>
+<pre><span>   9 | </span>
+<span>  10 | resource &quot;aws_subnet&quot; &quot;public_b&quot; {</span>
+<span>  11 |   vpc_id     = aws_vpc.main.id</span>
+<span class="hl">  12 |   cidr_block = &quot;10.0.1.128/25&quot;</span>
+<span>  13 | }</span>
+<span>  14 | </span>
+<span>  15 | resource &quot;aws_subnet&quot; &quot;outside&quot; {</span></pre><p><b>Description</b><br>Two subnets of the same VPC have overlapping CIDR blocks; AWS rejects the second one (InvalidSubnet.Conflict).</p><p><b>Probable cause</b><br>Copy/paste of a CIDR, or inconsistent netnum values in cidrsubnet().</p>
+<p><b>Recommendation</b><br>Give each subnet a distinct, non-overlapping CIDR (e.g. cidrsubnet with distinct netnum values).</p><p class="muted"><b>Engine message</b> Subnet CIDR 10.0.1.128/25 overlaps aws_subnet.public_a (10.0.1.0/24) in aws_vpc.main.</p><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html" rel="noopener">https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> NET_SUBNET_OUTSIDE_VPC — Subnet outside the VPC CIDR</summary>
+<p><b>Resource</b> <code>aws_subnet.outside</code> · <b>Line</b> 17 · <b>Current value</b> <code>10.1.0.0/24</code></p><p><span class="tag">NETWORK</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: net_subnet_outside_vpc</span></p>
+<pre><span>  14 | </span>
+<span>  15 | resource &quot;aws_subnet&quot; &quot;outside&quot; {</span>
+<span>  16 |   vpc_id     = aws_vpc.main.id</span>
+<span class="hl">  17 |   cidr_block = &quot;10.1.0.0/24&quot;</span>
+<span>  18 | }</span>
+<span>  19 | </span>
+<span>  20 | resource &quot;aws_security_group&quot; &quot;web&quot; {</span></pre><p><b>Description</b><br>The subnet CIDR is not contained in any CIDR block of its VPC; AWS rejects it (InvalidSubnet.Range). `terraform plan` does not detect it.</p><p><b>Probable cause</b><br>Wrong base address, VPC CIDR changed, or secondary CIDR association missing.</p>
+<p><b>Recommendation</b><br>Derive subnets from the VPC CIDR (`cidrsubnet(aws_vpc.main.cidr_block, 8, n)`) or associate a secondary CIDR (aws_vpc_ipv4_cidr_block_association).</p><p><b>Suggested fix</b></p><pre>cidr_block = cidrsubnet(aws_vpc.main.cidr_block, 8, 1)</pre><p class="muted"><b>Engine message</b> Subnet CIDR 10.1.0.0/24 is not inside the CIDR block(s) of aws_vpc.main (10.0.0.0/16).</p><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html" rel="noopener">https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> SG_PORT_RANGE_INVALID — Invalid security group port range</summary>
+<p><b>Resource</b> <code>aws_security_group.web</code> · <b>Line</b> 32 · <b>Current value</b> <code>{&quot;from_port&quot;: 443, &quot;to_port&quot;: 80}</code></p><p><span class="tag">NETWORK</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: sg_port_range_invalid</span></p>
+<pre><span>  29 |   }</span>
+<span>  30 | </span>
+<span>  31 |   ingress {</span>
+<span class="hl">  32 |     from_port   = 443</span>
+<span>  33 |     to_port     = 80</span>
+<span>  34 |     protocol    = &quot;tcp&quot;</span>
+<span>  35 |     cidr_blocks = [&quot;10.0.0.0/8&quot;]</span></pre><p><b>Description</b><br>from_port is greater than to_port, or a port is outside 0-65535.</p><p><b>Probable cause</b><br>Ports inverted or typo.</p>
+<p><b>Recommendation</b><br>Use from_port &lt;= to_port within 0-65535 (for a single port, set both to the same value).</p><p class="muted"><b>Engine message</b> Invalid port range from_port=443 to_port=80 for protocol tcp.</p><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html" rel="noopener">https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> TF_UNDECLARED_REFERENCE — Reference to an undeclared object</summary>
+<p><b>Resource</b> <code>aws_route_table.rt</code> · <b>Line</b> 47</p><p><span class="tag">CONFIGURATION</span><span class="tag">providers</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at validate</span><span class="tag">terraform: validate:Reference to undeclared resource</span></p>
+<pre><span>  44 | }</span>
+<span>  45 | </span>
+<span>  46 | resource &quot;aws_route_table&quot; &quot;rt&quot; {</span>
+<span class="hl">  47 |   vpc_id = aws_vpc.mian.id</span>
+<span>  48 | }</span></pre><p><b>Description</b><br>An expression references a resource, data source, variable, local or module that is not declared in this module. Terraform says: A managed resource &quot;aws_vpc&quot; &quot;mian&quot; has not been declared in the root module.</p><p><b>Probable cause</b><br>Typo in the name, object removed or renamed, or reference to an object of another module.</p>
+<p><b>Recommendation</b><br>Fix the name or declare the object. Objects of other modules are only reachable through their outputs (module.&lt;name&gt;.&lt;output&gt;).</p><p class="muted"><b>Engine message</b> Reference to undeclared resource</p><ul><li><a href="https://developer.hashicorp.com/terraform/language/expressions/references" rel="noopener">https://developer.hashicorp.com/terraform/language/expressions/references</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> SG_SSH_OPEN_TO_INTERNET — SSH open to the Internet</summary>
+<p><b>Resource</b> <code>aws_security_group.web</code> · <b>Line</b> 25</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_24</span></p>
+<pre><span>  22 |   vpc_id = aws_vpc.main.id</span>
+<span>  23 | </span>
+<span>  24 |   ingress {</span>
+<span class="hl">  25 |     from_port   = 22</span>
+<span>  26 |     to_port     = 22</span>
+<span>  27 |     protocol    = &quot;tcp&quot;</span>
+<span>  28 |     cidr_blocks = [&quot;0.0.0.0/0&quot;]</span></pre><p><b>Description</b><br>A security group allows ingress on port 22 from 0.0.0.0/0.</p><p><b>Probable cause</b><br>Rule opened for debugging or convenience.</p>
+<p><b>Recommendation</b><br>Restrict the source to known CIDRs, or use SSM Session Manager instead of SSH.</p><p class="muted"><b>Engine message</b> Ensure no security groups allow ingress from 0.0.0.0:0 to port 22</p><ul><li><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html" rel="noopener">https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html</a></li><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> SG_ALL_PROTOCOL_WITH_PORTS — Ports set with protocol -1 (all)</summary>
+<p><b>Resource</b> <code>aws_security_group.web</code> · <b>Line</b> 39 · <b>Current value</b> <code>{&quot;protocol&quot;: &quot;-1&quot;, &quot;from_port&quot;: 22, &quot;to_port&quot;: 22}</code></p><p><span class="tag">NETWORK</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">confidence: medium</span><span class="tag">aws: sg_all_protocol_with_ports</span></p>
+<pre><span>  36 |   }</span>
+<span>  37 | </span>
+<span>  38 |   egress {</span>
+<span class="hl">  39 |     from_port   = 22</span>
+<span>  40 |     to_port     = 22</span>
+<span>  41 |     protocol    = &quot;-1&quot;</span>
+<span>  42 |     cidr_blocks = [&quot;0.0.0.0/0&quot;]</span></pre><p><b>Description</b><br>With protocol &quot;-1&quot; (all traffic), from_port and to_port must both be 0; the rule otherwise does not do what it says (all ports are opened) and the AWS provider rejects it.</p><p><b>Probable cause</b><br>Intent was a single port but the protocol was set to all.</p>
+<p><b>Recommendation</b><br>Set protocol to &quot;tcp&quot;/&quot;udp&quot; for a port range, or set from_port = 0 and to_port = 0 with protocol &quot;-1&quot;.</p><p class="muted"><b>Engine message</b> protocol &quot;-1&quot; (all traffic) with from_port=22 and to_port=22: all ports are opened, not the ones written, and the provider expects 0/0.</p><ul><li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group" rel="noopener">https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> SG_HYGIENE — Security group hygiene</summary>
+<p><b>Resource</b> <code>aws_vpc.main</code> · <b>Line</b> 1</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_12</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_vpc&quot; &quot;main&quot; {</span>
+<span>   2 |   cidr_block = var.vpc_cidr</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>Best practice not applied (rule description, unattached group, unrestricted egress, default security group).</p><p><b>Probable cause</b><br>Missing description or unused group.</p>
+<p><b>Recommendation</b><br>Add descriptions, remove unused groups, restrict egress where possible.</p><p class="muted"><b>Engine message</b> Ensure the default security group of every VPC restricts all traffic</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> VPC_FLOW_LOGS — VPC flow logs disabled</summary>
+<p><b>Resource</b> <code>aws_vpc.main</code> · <b>Line</b> 1</p><p><span class="tag">NETWORK</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_11</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_vpc&quot; &quot;main&quot; {</span>
+<span>   2 |   cidr_block = var.vpc_cidr</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>VPC flow logs are not enabled.</p><p><b>Probable cause</b><br>No aws_flow_log for the VPC.</p>
+<p><b>Recommendation</b><br>Enable flow logs to CloudWatch or S3 for network forensics.</p><p class="muted"><b>Engine message</b> Ensure VPC flow logging is enabled in all VPCs</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> SG_HYGIENE — Security group hygiene</summary>
+<p><b>Resource</b> <code>aws_security_group.web</code> · <b>Line</b> 38</p><p><span class="tag">SECURITY</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_23, CKV2_AWS_5</span></p>
+<pre><span>  35 |     cidr_blocks = [&quot;10.0.0.0/8&quot;]</span>
+<span>  36 |   }</span>
+<span>  37 | </span>
+<span class="hl">  38 |   egress {</span>
+<span>  39 |     from_port   = 22</span>
+<span>  40 |     to_port     = 22</span>
+<span>  41 |     protocol    = &quot;-1&quot;</span></pre><p><b>Description</b><br>Best practice not applied (rule description, unattached group, unrestricted egress, default security group).</p><p><b>Probable cause</b><br>Missing description or unused group.</p>
+<p><b>Recommendation</b><br>Add descriptions, remove unused groups, restrict egress where possible.</p><p class="muted"><b>Engine message</b> Ensure every security group and rule has a description</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><div class="file">📄 storage.tf</div><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> EBS_SIZE_BELOW_MINIMUM — Volume smaller than the minimum size</summary>
+<p><b>Resource</b> <code>aws_ebs_volume.logs</code> · <b>Line</b> 7 · <b>Current value</b> <code>50</code></p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: ebs_size_below_minimum</span></p>
+<pre><span>   4 | </span>
+<span>   5 | resource &quot;aws_ebs_volume&quot; &quot;logs&quot; {</span>
+<span>   6 |   availability_zone = &quot;eu-west-3a&quot;</span>
+<span class="hl">   7 |   size              = 50</span>
+<span>   8 |   type              = &quot;st1&quot;</span>
+<span>   9 |   iops              = 500</span>
+<span>  10 | }</span></pre><p><b>Description</b><br>The volume size is below the minimum for its type (st1/sc1: 125 GiB, io1/io2: 4 GiB, gp2/gp3/standard: 1 GiB).</p><p><b>Probable cause</b><br>Size copied from another volume type.</p>
+<p><b>Recommendation</b><br>Increase the size to at least the minimum for the type, or change the type.</p><p class="muted"><b>Engine message</b> Volume size 50 GiB is below the 125 GiB minimum for &quot;st1&quot;.</p><ul><li><a href="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html" rel="noopener">https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> EBS_IOPS_NOT_SUPPORTED — iops set on a volume type that does not support it</summary>
+<p><b>Resource</b> <code>aws_ebs_volume.logs</code> · <b>Line</b> 9 · <b>Current value</b> <code>500</code></p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at plan</span><span class="tag">aws: ebs_iops_not_supported</span></p>
+<pre><span>   6 |   availability_zone = &quot;eu-west-3a&quot;</span>
+<span>   7 |   size              = 50</span>
+<span>   8 |   type              = &quot;st1&quot;</span>
+<span class="hl">   9 |   iops              = 500</span>
+<span>  10 | }</span>
+<span>  11 | </span>
+<span>  12 | resource &quot;aws_db_instance&quot; &quot;db&quot; {</span></pre><p><b>Description</b><br>Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan (&quot;&#x27;iops&#x27; must not be set when &#x27;type&#x27; is ...&quot;).</p><p><b>Probable cause</b><br>Volume type changed without removing iops, or iops copied from an io1/gp3 example.</p>
+<p><b>Recommendation</b><br>Remove `iops`, or switch the volume to gp3/io1/io2.</p><p><b>Suggested fix</b></p><pre>type = &quot;gp3&quot;
+iops = 3000</pre><p class="muted"><b>Engine message</b> iops is set but volume type &quot;st1&quot; does not support provisioned IOPS.</p><ul><li><a href="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html" rel="noopener">https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> RDS_MAX_STORAGE_BELOW_ALLOCATED — max_allocated_storage lower than allocated_storage</summary>
+<p><b>Resource</b> <code>aws_db_instance.db</code> · <b>Line</b> 18 · <b>Current value</b> <code>50</code></p><p><span class="tag">DATABASE</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: rds_max_storage_below_allocated</span></p>
+<pre><span>  15 |   engine_version        = &quot;16.4&quot;</span>
+<span>  16 |   instance_class        = &quot;db.t3.micro&quot;</span>
+<span>  17 |   allocated_storage     = 100</span>
+<span class="hl">  18 |   max_allocated_storage = 50</span>
+<span>  19 |   storage_type          = &quot;gp2&quot;</span>
+<span>  20 |   iops                  = 1000</span>
+<span>  21 |   multi_az              = true</span></pre><p><b>Description</b><br>Storage autoscaling requires max_allocated_storage to be greater than allocated_storage; AWS rejects the value.</p><p><b>Probable cause</b><br>Values inverted or allocated_storage increased without updating the maximum.</p>
+<p><b>Recommendation</b><br>Set max_allocated_storage above allocated_storage, or to 0 to disable autoscaling.</p><p class="muted"><b>Engine message</b> max_allocated_storage (50) is lower than allocated_storage (100).</p><ul><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.Autoscaling" rel="noopener">https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.Autoscaling</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> RDS_IOPS_STORAGE_TYPE_CONFLICT — iops incompatible with the storage type</summary>
+<p><b>Resource</b> <code>aws_db_instance.db</code> · <b>Line</b> 20 · <b>Current value</b> <code>1000</code></p><p><span class="tag">DATABASE</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: rds_iops_storage_type_conflict</span></p>
+<pre><span>  17 |   allocated_storage     = 100</span>
+<span>  18 |   max_allocated_storage = 50</span>
+<span>  19 |   storage_type          = &quot;gp2&quot;</span>
+<span class="hl">  20 |   iops                  = 1000</span>
+<span>  21 |   multi_az              = true</span>
+<span>  22 |   availability_zone     = &quot;eu-west-3a&quot;</span>
+<span>  23 |   username              = &quot;app&quot;</span></pre><p><b>Description</b><br>Provisioned IOPS are not supported with gp2/standard storage, and are required for io1/io2.</p><p><b>Probable cause</b><br>storage_type and iops not aligned.</p>
+<p><b>Recommendation</b><br>Use storage_type io1/io2/gp3 with iops, or remove iops for gp2/standard.</p><p class="muted"><b>Engine message</b> iops is set but storage_type &quot;gp2&quot; does not support provisioned IOPS.</p><ul><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html" rel="noopener">https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> RDS_MULTI_AZ_WITH_AZ — multi_az combined with availability_zone</summary>
+<p><b>Resource</b> <code>aws_db_instance.db</code> · <b>Line</b> 22 · <b>Current value</b> <code>eu-west-3a</code></p><p><span class="tag">DATABASE</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at apply</span><span class="tag">aws: rds_multi_az_with_az</span></p>
+<pre><span>  19 |   storage_type          = &quot;gp2&quot;</span>
+<span>  20 |   iops                  = 1000</span>
+<span>  21 |   multi_az              = true</span>
+<span class="hl">  22 |   availability_zone     = &quot;eu-west-3a&quot;</span>
+<span>  23 |   username              = &quot;app&quot;</span>
+<span>  24 |   password              = var.db_password</span>
+<span>  25 |   skip_final_snapshot   = true</span></pre><p><b>Description</b><br>A specific availability zone cannot be requested for a Multi-AZ instance (InvalidParameterCombination).</p><p><b>Probable cause</b><br>availability_zone kept after enabling multi_az.</p>
+<p><b>Recommendation</b><br>Remove availability_zone when multi_az = true.</p><p class="muted"><b>Engine message</b> multi_az = true cannot be combined with availability_zone.</p><ul><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html" rel="noopener">https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> S3_PUBLIC_ACCESS_BLOCK — S3 bucket without Public Access Block</summary>
+<p><b>Resource</b> <code>aws_s3_bucket.data</code> · <b>Line</b> 1</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_6</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_s3_bucket&quot; &quot;data&quot; {</span>
+<span>   2 |   bucket = &quot;my-company-data-${var.environment}&quot;</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>Public access is not explicitly blocked at bucket level; an ACL or policy change can expose data.</p><p><b>Probable cause</b><br>No aws_s3_bucket_public_access_block, or one of its four settings disabled.</p>
+<p><b>Recommendation</b><br>Add aws_s3_bucket_public_access_block with the four settings set to true (unless the bucket must be public).</p><p><b>Suggested fix</b></p><pre>resource &quot;aws_s3_bucket_public_access_block&quot; &quot;this&quot; {
+  bucket                  = aws_s3_bucket.data.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}</pre><p class="muted"><b>Engine message</b> Ensure that S3 bucket has a Public Access block</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> RDS_UNENCRYPTED — RDS storage not encrypted</summary>
+<p><b>Resource</b> <code>aws_db_instance.db</code> · <b>Line</b> 12</p><p><span class="tag">DATABASE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_16</span></p>
+<pre><span>   9 |   iops              = 500</span>
+<span>  10 | }</span>
+<span>  11 | </span>
+<span class="hl">  12 | resource &quot;aws_db_instance&quot; &quot;db&quot; {</span>
+<span>  13 |   identifier            = &quot;app-db&quot;</span>
+<span>  14 |   engine                = &quot;postgres&quot;</span>
+<span>  15 |   engine_version        = &quot;16.4&quot;</span></pre><p><b>Description</b><br>storage_encrypted is not enabled; encryption cannot be enabled later without recreating the instance.</p><p><b>Probable cause</b><br>storage_encrypted omitted.</p>
+<p><b>Recommendation</b><br>Set storage_encrypted = true (and kms_key_id if required) before the first apply.</p><p class="muted"><b>Engine message</b> Ensure all data stored in the RDS is securely encrypted at rest</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> S3_BUCKET_VERSIONING — S3 bucket versioning disabled</summary>
+<p><b>Resource</b> <code>aws_s3_bucket.data</code> · <b>Line</b> 1</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_21</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_s3_bucket&quot; &quot;data&quot; {</span>
+<span>   2 |   bucket = &quot;my-company-data-${var.environment}&quot;</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>Versioning is not enabled: deleted or overwritten objects cannot be recovered.</p><p><b>Probable cause</b><br>No aws_s3_bucket_versioning resource.</p>
+<p><b>Recommendation</b><br>Enable versioning with aws_s3_bucket_versioning (status = &quot;Enabled&quot;).</p><p><b>Suggested fix</b></p><pre>resource &quot;aws_s3_bucket_versioning&quot; &quot;this&quot; {
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration {
+    status = &quot;Enabled&quot;
+  }
+}</pre><p class="muted"><b>Engine message</b> Ensure all data stored in the S3 bucket have versioning enabled</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="MEDIUM"><summary><span class="sev" style="background:#d97706">MEDIUM</span> EBS_UNENCRYPTED — EBS volume not encrypted</summary>
+<p><b>Resource</b> <code>aws_ebs_volume.logs</code> · <b>Line</b> 5</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_189, CKV_AWS_3</span></p>
+<pre><span>   2 |   bucket = &quot;my-company-data-${var.environment}&quot;</span>
+<span>   3 | }</span>
+<span>   4 | </span>
+<span class="hl">   5 | resource &quot;aws_ebs_volume&quot; &quot;logs&quot; {</span>
+<span>   6 |   availability_zone = &quot;eu-west-3a&quot;</span>
+<span>   7 |   size              = 50</span>
+<span>   8 |   type              = &quot;st1&quot;</span></pre><p><b>Description</b><br>The volume (or instance root/EBS block device) is not encrypted.</p><p><b>Probable cause</b><br>encrypted not set and no account-level default encryption assumed.</p>
+<p><b>Recommendation</b><br>Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.</p><p class="muted"><b>Engine message</b> Ensure EBS Volume is encrypted by KMS using a customer managed Key (CMK)</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> S3_ACCESS_LOGGING — S3 access logging disabled</summary>
+<p><b>Resource</b> <code>aws_s3_bucket.data</code> · <b>Line</b> 1</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_18</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_s3_bucket&quot; &quot;data&quot; {</span>
+<span>   2 |   bucket = &quot;my-company-data-${var.environment}&quot;</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>Server access logging is not configured.</p><p><b>Probable cause</b><br>No aws_s3_bucket_logging.</p>
+<p><b>Recommendation</b><br>Enable access logging if you need an audit trail of requests.</p><p class="muted"><b>Engine message</b> Ensure the S3 bucket has access logging enabled</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> S3_BUCKET_KMS_ENCRYPTION — S3 bucket not encrypted with KMS</summary>
+<p><b>Resource</b> <code>aws_s3_bucket.data</code> · <b>Line</b> 1</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_145</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_s3_bucket&quot; &quot;data&quot; {</span>
+<span>   2 |   bucket = &quot;my-company-data-${var.environment}&quot;</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>The bucket is not configured to use SSE-KMS by default (S3 still applies SSE-S3 since 2023).</p><p><b>Probable cause</b><br>No KMS default encryption configured.</p>
+<p><b>Recommendation</b><br>Use SSE-KMS when you need key-level access control and audit (CloudTrail).</p><p class="muted"><b>Engine message</b> Ensure that S3 buckets are encrypted with KMS by default</p><ul><li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html" rel="noopener">https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html</a></li><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> S3_OPTIONAL_HARDENING — Optional S3 hardening</summary>
+<p><b>Resource</b> <code>aws_s3_bucket.data</code> · <b>Line</b> 1</p><p><span class="tag">STORAGE</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_62, CKV2_AWS_61, CKV_AWS_144</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_s3_bucket&quot; &quot;data&quot; {</span>
+<span>   2 |   bucket = &quot;my-company-data-${var.environment}&quot;</span>
+<span>   3 | }</span>
+<span>   4 | </span></pre><p><b>Description</b><br>Best practice not applied (cross-region replication, event notifications or lifecycle configuration).</p><p><b>Probable cause</b><br>Feature not configured.</p>
+<p><b>Recommendation</b><br>Apply it when your data protection or cost policy requires it; otherwise ignore the rule in .tfpv.toml.</p><p class="muted"><b>Engine message</b> Ensure S3 buckets should have event notifications enabled</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> RDS_HARDENING — Optional RDS hardening</summary>
+<p><b>Resource</b> <code>aws_db_instance.db</code> · <b>Line</b> 14</p><p><span class="tag">DATABASE</span><span class="tag">static</span><span class="tag">checkov: CKV_AWS_293, CKV_AWS_353, CKV_AWS_118, CKV_AWS_226, CKV_AWS_129, CKV_AWS_161, CKV2_AWS_60, CKV2_AWS_30</span></p>
+<pre><span>  11 | </span>
+<span>  12 | resource &quot;aws_db_instance&quot; &quot;db&quot; {</span>
+<span>  13 |   identifier            = &quot;app-db&quot;</span>
+<span class="hl">  14 |   engine                = &quot;postgres&quot;</span>
+<span>  15 |   engine_version        = &quot;16.4&quot;</span>
+<span>  16 |   instance_class        = &quot;db.t3.micro&quot;</span>
+<span>  17 |   allocated_storage     = 100</span></pre><p><b>Description</b><br>Best practice not applied (deletion protection, Multi-AZ, monitoring, logs, IAM auth, minor upgrades, copy tags).</p><p><b>Probable cause</b><br>Option not set.</p>
+<p><b>Recommendation</b><br>Enable the options required by your availability and audit policy.</p><p class="muted"><b>Engine message</b> Ensure that AWS database instances have deletion protection enabled</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><div class="file">📄 terraform.tfvars</div><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> TF_VARIABLE_TYPE_MISMATCH — Variable value does not match its type</summary>
+<p><b>Resource</b> <code>var.instance_count</code> · <b>Line</b> 1 · <b>Current value</b> <code>three</code></p><p><span class="tag">VARIABLES</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at plan</span><span class="tag">scanner: variable_type</span></p>
+<pre><span class="hl">   1 | instance_count = &quot;three&quot;</span>
+<span>   2 | db_password    = &quot;***REDACTED***&quot;</span>
+<span>   3 | unknown_var    = &quot;x&quot;</span></pre><p><b>Description</b><br>The value assigned to the variable cannot be converted to the declared type constraint; `terraform validate` does not check variable values.</p><p><b>Probable cause</b><br>Wrong value type in a tfvars file (e.g. a word instead of a number) or an object missing a required attribute.</p>
+<p><b>Recommendation</b><br>Assign a value of the declared type, or change the type constraint if the value is the intended one.</p><p class="muted"><b>Engine message</b> Invalid value for variable &quot;instance_count&quot; in terraform.tfvars: a number is required, got string &#x27;three&#x27; (declared type: number, in variables.tf:11).</p><ul><li><a href="https://developer.hashicorp.com/terraform/language/values/variables#type-constraints" rel="noopener">https://developer.hashicorp.com/terraform/language/values/variables#type-constraints</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> TF_UNDECLARED_VARIABLE_VALUE — Value set for an undeclared variable</summary>
+<p><b>Line</b> 3</p><p><span class="tag">VARIABLES</span><span class="tag">static</span><span class="tag">scanner: undeclared_variable_value</span></p>
+<pre><span>   1 | instance_count = &quot;three&quot;</span>
+<span>   2 | db_password    = &quot;***REDACTED***&quot;</span>
+<span class="hl">   3 | unknown_var    = &quot;x&quot;</span></pre><p><b>Description</b><br>A variable definitions file sets a variable that the root module does not declare; Terraform only warns.</p><p><b>Probable cause</b><br>Typo in the variable name, or a variable removed from the configuration.</p>
+<p><b>Recommendation</b><br>Rename or remove the value, or declare the variable.</p><p class="muted"><b>Engine message</b> &quot;terraform.tfvars&quot; sets &quot;unknown_var&quot;, which is not declared by the root module.</p><ul><li><a href="https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files" rel="noopener">https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files</a></li></ul></details><div class="file">📄 variables.tf</div><details class="finding" data-sev="HIGH"><summary><span class="sev" style="background:#dc2626">HIGH</span> TF_MISSING_VARIABLE_VALUE — Required variable has no value</summary>
+<p><b>Resource</b> <code>var.environment</code> · <b>Line</b> 20</p><p><span class="tag">VARIABLES</span><span class="tag">static</span><span class="tag" style="border-color:#dc2626;color:#dc2626">blocking · fails at plan</span><span class="tag">confidence: medium</span><span class="tag">scanner: required_variable</span></p>
+<pre><span>  17 |   sensitive = true</span>
+<span>  18 | }</span>
+<span>  19 | </span>
+<span class="hl">  20 | variable &quot;environment&quot; {</span>
+<span>  21 |   type = string</span>
+<span>  22 | }</span></pre><p><b>Description</b><br>The variable has no default and no value was found in terraform.tfvars, *.auto.tfvars, the --var-file/--var options or TF_VAR_ environment variables.</p><p><b>Probable cause</b><br>The value is expected from the command line or the CI and is not provided to this run.</p>
+<p><b>Recommendation</b><br>Provide the value (tfvars file, `-var-file`, or `TF_VAR_&lt;name&gt;` in CI) or add a default. With `-input=false`, plan fails with &quot;No value for required variable&quot;. If the value is passed at runtime, give the same file to tfpv with --var-file.</p><p class="muted"><b>Engine message</b> Variable &quot;environment&quot; has no default and no value is provided (tfvars, --var-file, --var, TF_VAR_environment).</p><ul><li><a href="https://developer.hashicorp.com/terraform/language/values/variables#assigning-values-to-root-module-variables" rel="noopener">https://developer.hashicorp.com/terraform/language/values/variables#assigning-values-to-root-module-variables</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> TF_UNUSED_DECLARATION — Unused declaration</summary>
+<p><b>Resource</b> <code>var.instance_count</code> · <b>Line</b> 11</p><p><span class="tag">STYLE</span><span class="tag">static</span><span class="tag">tflint: terraform_unused_declarations</span></p>
+<pre><span>   8 |   default = &quot;10.0.0.0/16&quot;</span>
+<span>   9 | }</span>
+<span>  10 | </span>
+<span class="hl">  11 | variable &quot;instance_count&quot; {</span>
+<span>  12 |   type = number</span>
+<span>  13 | }</span>
+<span>  14 | </span></pre><p><b>Description</b><br>A variable, local, data source or provider requirement is declared but never used.</p><p><b>Probable cause</b><br>Leftover after refactoring.</p>
+<p><b>Recommendation</b><br>Remove it, or use it if it was meant to be referenced.</p><p class="muted"><b>Engine message</b> variable &quot;instance_count&quot; is declared but not used</p><ul><li><a href="https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.17.0/docs/rules/terraform_unused_declarations.md" rel="noopener">https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.17.0/docs/rules/terraform_unused_declarations.md</a></li></ul></details><div class="file">📄 unformatted.tf</div><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> AWS_HYGIENE — Unused or unattached resource</summary>
+<p><b>Resource</b> <code>aws_eip.ip</code> · <b>Line</b> 1</p><p><span class="tag">NETWORK</span><span class="tag">static</span><span class="tag">checkov: CKV2_AWS_19</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_eip&quot; &quot;ip&quot; {</span>
+<span>   2 |     domain=&quot;vpc&quot;</span>
+<span>   3 | }</span></pre><p><b>Description</b><br>A resource is allocated but not attached (e.g. an Elastic IP without instance), which costs money.</p><p><b>Probable cause</b><br>Leftover resource.</p>
+<p><b>Recommendation</b><br>Attach it or remove it.</p><p class="muted"><b>Engine message</b> Ensure that all EIP addresses allocated to a VPC are attached to EC2 instances</p><ul><li><a href="https://www.checkov.io/5.Policy%20Index/terraform.html" rel="noopener">https://www.checkov.io/5.Policy%20Index/terraform.html</a></li></ul></details><details class="finding" data-sev="LOW"><summary><span class="sev" style="background:#2563eb">LOW</span> TF_FORMAT — File not in canonical format</summary>
+<p><b>Resource</b> <code>aws_eip.ip</code> · <b>Line</b> 1</p><p><span class="tag">STYLE</span><span class="tag">static</span><span class="tag">terraform: fmt:File is not in canonical format</span></p>
+<pre><span class="hl">   1 | resource &quot;aws_eip&quot; &quot;ip&quot; {</span>
+<span>   2 |     domain=&quot;vpc&quot;</span>
+<span>   3 | }</span></pre><p><b>Description</b><br>`terraform fmt -check` reports that the file does not follow the canonical style.</p><p><b>Probable cause</b><br>Manual edits not formatted (indentation, alignment of &#x27;=&#x27;).</p>
+<p><b>Recommendation</b><br>Run `terraform fmt` (tfpv never rewrites files) and add `terraform fmt -check` to your CI.</p><p><b>Suggested fix</b></p><pre>terraform fmt -recursive</pre><p class="muted"><b>Engine message</b> File is not in canonical format</p><ul><li><a href="https://developer.hashicorp.com/terraform/cli/commands/fmt" rel="noopener">https://developer.hashicorp.com/terraform/cli/commands/fmt</a></li></ul></details>
+
+
+<p class="muted" style="margin-top:30px">tfpv 1.0.0 · terraform Terraform 1.17.2 · tflint 0.66.0 (aws 0.50.0, terraform 0.17.0-bundled) · tflint_config tfpv · checkov 3.4.5 · python 3.11.18 · os Linux x86_64<br>Generated by tfpv — never runs terraform plan/apply; secrets are redacted.</p>
+</main><script>
+const boxes=[...document.querySelectorAll('input[data-sev]')],q=document.getElementById('q');
+function apply(){const on=new Set(boxes.filter(b=>b.checked).map(b=>b.dataset.sev)),t=(q.value||'').toLowerCase();
+document.querySelectorAll('details.finding').forEach(d=>{d.style.display=on.has(d.dataset.sev)&&(!t||d.textContent.toLowerCase().includes(t))?'':'none'});
+document.querySelectorAll('.file').forEach(h=>{let n=h.nextElementSibling,vis=false;while(n&&n.classList.contains('finding')){if(n.style.display!=='none')vis=true;n=n.nextElementSibling}h.style.display=vis?'':'none'})}
+boxes.forEach(b=>b.addEventListener('change',apply));q.addEventListener('input',apply);
+</script></body></html>

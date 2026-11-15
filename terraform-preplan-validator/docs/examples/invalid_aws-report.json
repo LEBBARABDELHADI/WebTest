@@ -1,0 +1,2345 @@
+{
+  "schema_version": "1.0",
+  "tool": {
+    "name": "terraform-preplan-validator",
+    "version": "1.0.0"
+  },
+  "project": {
+    "name": "invalid_aws",
+    "path": "tests/fixtures/invalid_aws",
+    "var_files": []
+  },
+  "generated_at": "2026-11-15T15:47:16Z",
+  "duration_s": 19.62,
+  "status": "FAILED",
+  "status_reason": "22 finding(s) blocking or at/above HIGH",
+  "fail_on": "HIGH",
+  "summary": {
+    "total_checks": 119,
+    "passed": 75,
+    "failed": 22,
+    "warnings": 22,
+    "blocking": 16,
+    "not_run": 0,
+    "not_evaluated": 1,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 19,
+      "MEDIUM": 9,
+      "LOW": 15
+    },
+    "by_category": {
+      "AWS_VALIDITY": 2,
+      "CONFIGURATION": 1,
+      "DATABASE": 5,
+      "IAM": 8,
+      "NETWORK": 6,
+      "SECURITY": 7,
+      "STORAGE": 10,
+      "STYLE": 2,
+      "VARIABLES": 3
+    },
+    "files_with_findings": 7,
+    "suppressed": 0
+  },
+  "environment": {
+    "tfpv": "1.0.0",
+    "terraform": "Terraform 1.17.2",
+    "tflint": "0.66.0 (aws 0.50.0, terraform 0.17.0-bundled)",
+    "tflint_config": "tfpv",
+    "checkov": "3.4.5",
+    "aws_cli": null,
+    "python": "3.11.18",
+    "os": "Linux x86_64"
+  },
+  "checks": [
+    {
+      "id": "scanner",
+      "name": "tfpv Terraform scanner (variables, modules, references)",
+      "engine": "tfpv",
+      "tier": "static",
+      "required": true,
+      "status": "failed",
+      "reason": "",
+      "duration_s": 0.0,
+      "passed_count": 13,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": null,
+      "findings": 4
+    },
+    {
+      "id": "terraform_fmt",
+      "name": "terraform fmt -check",
+      "engine": "terraform",
+      "tier": "static",
+      "required": true,
+      "status": "failed",
+      "reason": "",
+      "duration_s": 0.04,
+      "passed_count": 7,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/terraform fmt -check -list=true -no-color <8 files>",
+      "version": "1.17.2",
+      "findings": 1
+    },
+    {
+      "id": "terraform_init",
+      "name": "terraform init -backend=false",
+      "engine": "terraform",
+      "tier": "providers",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 13.74,
+      "passed_count": 1,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/terraform init -backend=false -input=false -no-color -json (shadow copy)",
+      "version": "1.17.2",
+      "findings": 0
+    },
+    {
+      "id": "terraform_validate",
+      "name": "terraform validate",
+      "engine": "terraform",
+      "tier": "providers",
+      "required": true,
+      "status": "failed",
+      "reason": "",
+      "duration_s": 2.96,
+      "passed_count": 0,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/terraform validate -json -no-color (shadow copy)",
+      "version": "1.17.2",
+      "findings": 1
+    },
+    {
+      "id": "tflint",
+      "name": "TFLint (terraform ruleset)",
+      "engine": "tflint",
+      "tier": "static",
+      "required": true,
+      "status": "failed",
+      "reason": "",
+      "duration_s": 0.6,
+      "passed_count": 0,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/tflint --config=/tmp/tfpv-run-rkqdhtqm/tflint.hcl --format=json --no-color",
+      "version": "0.66.0",
+      "findings": 1
+    },
+    {
+      "id": "tflint_aws",
+      "name": "TFLint AWS ruleset",
+      "engine": "tflint",
+      "tier": "static",
+      "required": true,
+      "status": "failed",
+      "reason": "",
+      "duration_s": 0.0,
+      "passed_count": 0,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": "0.66.0",
+      "findings": 1
+    },
+    {
+      "id": "checkov",
+      "name": "Checkov (security)",
+      "engine": "checkov",
+      "tier": "static",
+      "required": true,
+      "status": "failed",
+      "reason": "",
+      "duration_s": 3.15,
+      "passed_count": 32,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/venv-checkov/bin/checkov -d /home/user/WebTest/terraform-preplan-validator/tests/fixtures/invalid_aws --framework terraform -o json --compact --quiet --skip-download --soft-fail",
+      "version": "3.4.5",
+      "findings": 42
+    },
+    {
+      "id": "aws_static",
+      "name": "tfpv AWS validator (static)",
+      "engine": "tfpv",
+      "tier": "static",
+      "required": true,
+      "status": "failed",
+      "reason": "1 evaluation(s) depend on values known only at apply time",
+      "duration_s": 0.0,
+      "passed_count": 22,
+      "not_evaluated": 1,
+      "partial": false,
+      "command": null,
+      "version": null,
+      "findings": 12
+    },
+    {
+      "id": "aws_external",
+      "name": "AWS API checks (AMI, instance type offering, RDS engine version)",
+      "engine": "aws",
+      "tier": "aws",
+      "required": false,
+      "status": "skipped",
+      "reason": "opt-in: use --aws-checks (needs AWS credentials, read-only calls)",
+      "duration_s": 0.0,
+      "passed_count": 0,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": null,
+      "findings": 0
+    }
+  ],
+  "inventory": {
+    "files": {
+      "tf": 7,
+      "tf_json": 0,
+      "tfvars": 1,
+      "lock_file": false,
+      "skipped_too_large": []
+    },
+    "auto_loaded_var_files": [
+      "terraform.tfvars"
+    ],
+    "extra_var_files": [],
+    "required_version": ">= 1.6",
+    "backend": null,
+    "providers": [
+      {
+        "name": "aws",
+        "source": "hashicorp/aws",
+        "versions": [
+          "~> 6.0"
+        ]
+      }
+    ],
+    "modules": [
+      {
+        "dir": ".",
+        "files": 7,
+        "resources": 14,
+        "data_sources": 0,
+        "variables": 5,
+        "outputs": 0,
+        "module_calls": []
+      }
+    ],
+    "resources_by_type": {
+      "aws_db_instance": 1,
+      "aws_ebs_volume": 1,
+      "aws_eip": 1,
+      "aws_iam_policy": 1,
+      "aws_iam_role": 1,
+      "aws_instance": 2,
+      "aws_route_table": 1,
+      "aws_s3_bucket": 1,
+      "aws_security_group": 1,
+      "aws_subnet": 3,
+      "aws_vpc": 1
+    },
+    "variables": [
+      {
+        "name": "db_password",
+        "type": "string",
+        "required": true,
+        "sensitive": true,
+        "value_source": "terraform.tfvars",
+        "file": "variables.tf",
+        "line": 15
+      },
+      {
+        "name": "environment",
+        "type": "string",
+        "required": true,
+        "sensitive": false,
+        "value_source": null,
+        "file": "variables.tf",
+        "line": 20
+      },
+      {
+        "name": "instance_count",
+        "type": "number",
+        "required": true,
+        "sensitive": false,
+        "value_source": "terraform.tfvars",
+        "file": "variables.tf",
+        "line": 11
+      },
+      {
+        "name": "region",
+        "type": "string",
+        "required": false,
+        "sensitive": false,
+        "value_source": "default",
+        "file": "variables.tf",
+        "line": 1
+      },
+      {
+        "name": "vpc_cidr",
+        "type": "string",
+        "required": false,
+        "sensitive": false,
+        "value_source": "default",
+        "file": "variables.tf",
+        "line": 6
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "d06447e89b",
+      "rule_id": "IAM_FULL_ADMIN",
+      "title": "IAM policy grants full administrator privileges",
+      "severity": "CRITICAL",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "iam.tf",
+      "line": 3,
+      "resource": "aws_iam_policy.admin",
+      "attribute": null,
+      "value": null,
+      "description": "The policy allows Action \"*\" on Resource \"*\" (or full IAM privileges).",
+      "cause": "Policy written for convenience during development.",
+      "recommendation": "Grant only the actions needed on the resources needed; start from AWS managed job-function policies or IAM Access Analyzer policy generation.",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege",
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_62",
+        "CKV2_AWS_40"
+      ],
+      "message": "Ensure IAM policies that allow full \"*-*\" administrative privileges are not created",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "resource \"aws_iam_policy\" \"admin\" {",
+          "  name = \"too-broad\"",
+          "  policy = jsonencode({",
+          "    Version = \"2012-10-17\"",
+          "    Statement = [{",
+          "      Effect   = \"Allow\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "af2708c672",
+      "rule_id": "IAM_INVALID_PRINCIPAL",
+      "title": "Invalid principal in policy",
+      "severity": "HIGH",
+      "category": "IAM",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "iam.tf",
+      "line": 15,
+      "resource": "aws_iam_role.app",
+      "attribute": "assume_role_policy",
+      "value": "ec2.amazon.com",
+      "description": "A principal does not have a valid format; IAM rejects the policy (MalformedPolicyDocument: Invalid principal in policy).",
+      "cause": "Typo in a service principal (amazon.com instead of amazonaws.com), account ID that is not 12 digits, or malformed ARN.",
+      "recommendation": "Use service principals like \"ec2.amazonaws.com\", 12-digit account IDs or full ARNs (arn:aws:iam::123456789012:role/name).",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "iam_invalid_principal"
+      ],
+      "message": "\"ec2.amazon.com\" is not a valid service principal (did you mean \"ec2.amazonaws.com\"?).",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 12,
+        "highlight": 15,
+        "lines": [
+          "",
+          "resource \"aws_iam_role\" \"app\" {",
+          "  name = \"app\"",
+          "  assume_role_policy = jsonencode({",
+          "    Version = \"2012-10-17\"",
+          "    Statement = [{",
+          "      Effect    = \"Allow\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "891a140489",
+      "rule_id": "AWS_INVALID_INSTANCE_TYPE",
+      "title": "Invalid AWS instance type",
+      "severity": "HIGH",
+      "category": "AWS_VALIDITY",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "main.tf",
+      "line": 3,
+      "resource": "aws_instance.example",
+      "attribute": "instance_type",
+      "value": "t3.invalid",
+      "description": "The specified EC2 instance type is not recognized. (\"t3.invalid\" is an invalid value as instance_type)",
+      "cause": "Typo or non-existent size. A type released after the TFLint AWS ruleset version can also be unknown to it.",
+      "recommendation": "Verify that the instance type exists in the selected AWS region and is supported by the selected architecture and AMI: `aws ec2 describe-instance-type-offerings --location-type region --filters Name=instance-type,Values=<type> --region <region>` (or run tfpv with --aws-checks). `terraform plan` does not catch this: the error appears at apply.",
+      "fix": null,
+      "references": [
+        "https://github.com/terraform-linters/tflint-ruleset-aws/blob/v0.50.0/docs/rules/aws_instance_invalid_type.md",
+        "https://aws.amazon.com/ec2/instance-types/",
+        "https://github.com/terraform-linters/tflint-ruleset-aws/blob/master/docs/rules/aws_instance_invalid_type.md"
+      ],
+      "engines": [
+        "tflint"
+      ],
+      "engine_rules": [
+        "aws_instance_invalid_type"
+      ],
+      "message": "\"t3.invalid\" is an invalid value as instance_type",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": 3,
+      "column": 19,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "resource \"aws_instance\" \"example\" {",
+          "  ami           = \"ami-12345678\"",
+          "  instance_type = \"t3.invalid\"",
+          "  subnet_id     = aws_subnet.public_a.id",
+          "",
+          "  root_block_device {"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "f1dce569dc",
+      "rule_id": "EC2_AMI_ID_MALFORMED",
+      "title": "Malformed AMI ID",
+      "severity": "HIGH",
+      "category": "AWS_VALIDITY",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "main.tf",
+      "line": 13,
+      "resource": "aws_instance.bad_ami",
+      "attribute": "ami",
+      "value": "ami-xyz",
+      "description": "The AMI ID does not match the format ami-xxxxxxxx (8 or 17 hexadecimal characters); AWS returns InvalidAMIID.Malformed.",
+      "cause": "Typo, placeholder value, or AMI name used instead of the ID.",
+      "recommendation": "Use a real AMI ID, or resolve it with the aws_ami data source (most_recent + filters).",
+      "fix": "data \"aws_ami\" \"al2023\" {\n  most_recent = true\n  owners      = [\"amazon\"]\n  filter {\n    name   = \"name\"\n    values = [\"al2023-ami-*-x86_64\"]\n  }\n}",
+      "references": [
+        "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "ec2_ami_id_malformed"
+      ],
+      "message": "\"ami-xyz\" is not a valid AMI ID (expected ami- followed by 8 or 17 hex characters).",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 10,
+        "highlight": 13,
+        "lines": [
+          "}",
+          "",
+          "resource \"aws_instance\" \"bad_ami\" {",
+          "  ami           = \"ami-xyz\"",
+          "  instance_type = \"t3.micro\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "f5dfee9aaa",
+      "rule_id": "NET_SUBNET_OVERLAP",
+      "title": "Overlapping subnets",
+      "severity": "HIGH",
+      "category": "NETWORK",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "network.tf",
+      "line": 12,
+      "resource": "aws_subnet.public_b",
+      "attribute": "cidr_block",
+      "value": "10.0.1.128/25",
+      "description": "Two subnets of the same VPC have overlapping CIDR blocks; AWS rejects the second one (InvalidSubnet.Conflict).",
+      "cause": "Copy/paste of a CIDR, or inconsistent netnum values in cidrsubnet().",
+      "recommendation": "Give each subnet a distinct, non-overlapping CIDR (e.g. cidrsubnet with distinct netnum values).",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "net_subnet_overlap"
+      ],
+      "message": "Subnet CIDR 10.0.1.128/25 overlaps aws_subnet.public_a (10.0.1.0/24) in aws_vpc.main.",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 9,
+        "highlight": 12,
+        "lines": [
+          "",
+          "resource \"aws_subnet\" \"public_b\" {",
+          "  vpc_id     = aws_vpc.main.id",
+          "  cidr_block = \"10.0.1.128/25\"",
+          "}",
+          "",
+          "resource \"aws_subnet\" \"outside\" {"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "74c79fed48",
+      "rule_id": "NET_SUBNET_OUTSIDE_VPC",
+      "title": "Subnet outside the VPC CIDR",
+      "severity": "HIGH",
+      "category": "NETWORK",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "network.tf",
+      "line": 17,
+      "resource": "aws_subnet.outside",
+      "attribute": "cidr_block",
+      "value": "10.1.0.0/24",
+      "description": "The subnet CIDR is not contained in any CIDR block of its VPC; AWS rejects it (InvalidSubnet.Range). `terraform plan` does not detect it.",
+      "cause": "Wrong base address, VPC CIDR changed, or secondary CIDR association missing.",
+      "recommendation": "Derive subnets from the VPC CIDR (`cidrsubnet(aws_vpc.main.cidr_block, 8, n)`) or associate a secondary CIDR (aws_vpc_ipv4_cidr_block_association).",
+      "fix": "cidr_block = cidrsubnet(aws_vpc.main.cidr_block, 8, 1)",
+      "references": [
+        "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "net_subnet_outside_vpc"
+      ],
+      "message": "Subnet CIDR 10.1.0.0/24 is not inside the CIDR block(s) of aws_vpc.main (10.0.0.0/16).",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 14,
+        "highlight": 17,
+        "lines": [
+          "",
+          "resource \"aws_subnet\" \"outside\" {",
+          "  vpc_id     = aws_vpc.main.id",
+          "  cidr_block = \"10.1.0.0/24\"",
+          "}",
+          "",
+          "resource \"aws_security_group\" \"web\" {"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "01d1f79a27",
+      "rule_id": "SG_PORT_RANGE_INVALID",
+      "title": "Invalid security group port range",
+      "severity": "HIGH",
+      "category": "NETWORK",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "network.tf",
+      "line": 32,
+      "resource": "aws_security_group.web",
+      "attribute": "from_port",
+      "value": {
+        "from_port": 443,
+        "to_port": 80
+      },
+      "description": "from_port is greater than to_port, or a port is outside 0-65535.",
+      "cause": "Ports inverted or typo.",
+      "recommendation": "Use from_port <= to_port within 0-65535 (for a single port, set both to the same value).",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "sg_port_range_invalid"
+      ],
+      "message": "Invalid port range from_port=443 to_port=80 for protocol tcp.",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 29,
+        "highlight": 32,
+        "lines": [
+          "  }",
+          "",
+          "  ingress {",
+          "    from_port   = 443",
+          "    to_port     = 80",
+          "    protocol    = \"tcp\"",
+          "    cidr_blocks = [\"10.0.0.0/8\"]"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "9d18288e20",
+      "rule_id": "TF_UNDECLARED_REFERENCE",
+      "title": "Reference to an undeclared object",
+      "severity": "HIGH",
+      "category": "CONFIGURATION",
+      "blocking": true,
+      "fails_at": "validate",
+      "file": "network.tf",
+      "line": 47,
+      "resource": "aws_route_table.rt",
+      "attribute": null,
+      "value": null,
+      "description": "An expression references a resource, data source, variable, local or module that is not declared in this module. Terraform says: A managed resource \"aws_vpc\" \"mian\" has not been declared in the root module.",
+      "cause": "Typo in the name, object removed or renamed, or reference to an object of another module.",
+      "recommendation": "Fix the name or declare the object. Objects of other modules are only reachable through their outputs (module.<name>.<output>).",
+      "fix": null,
+      "references": [
+        "https://developer.hashicorp.com/terraform/language/expressions/references"
+      ],
+      "engines": [
+        "terraform"
+      ],
+      "engine_rules": [
+        "validate:Reference to undeclared resource"
+      ],
+      "message": "Reference to undeclared resource",
+      "tier": "providers",
+      "confidence": "high",
+      "end_line": 47,
+      "column": 12,
+      "snippet": {
+        "start_line": 44,
+        "highlight": 47,
+        "lines": [
+          "}",
+          "",
+          "resource \"aws_route_table\" \"rt\" {",
+          "  vpc_id = aws_vpc.mian.id",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "293eed75e3",
+      "rule_id": "EBS_SIZE_BELOW_MINIMUM",
+      "title": "Volume smaller than the minimum size",
+      "severity": "HIGH",
+      "category": "STORAGE",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "storage.tf",
+      "line": 7,
+      "resource": "aws_ebs_volume.logs",
+      "attribute": "size",
+      "value": 50,
+      "description": "The volume size is below the minimum for its type (st1/sc1: 125 GiB, io1/io2: 4 GiB, gp2/gp3/standard: 1 GiB).",
+      "cause": "Size copied from another volume type.",
+      "recommendation": "Increase the size to at least the minimum for the type, or change the type.",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "ebs_size_below_minimum"
+      ],
+      "message": "Volume size 50 GiB is below the 125 GiB minimum for \"st1\".",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 4,
+        "highlight": 7,
+        "lines": [
+          "",
+          "resource \"aws_ebs_volume\" \"logs\" {",
+          "  availability_zone = \"eu-west-3a\"",
+          "  size              = 50",
+          "  type              = \"st1\"",
+          "  iops              = 500",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "7aafdd0ed6",
+      "rule_id": "EBS_IOPS_NOT_SUPPORTED",
+      "title": "iops set on a volume type that does not support it",
+      "severity": "HIGH",
+      "category": "STORAGE",
+      "blocking": true,
+      "fails_at": "plan",
+      "file": "storage.tf",
+      "line": 9,
+      "resource": "aws_ebs_volume.logs",
+      "attribute": "iops",
+      "value": 500,
+      "description": "Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan (\"'iops' must not be set when 'type' is ...\").",
+      "cause": "Volume type changed without removing iops, or iops copied from an io1/gp3 example.",
+      "recommendation": "Remove `iops`, or switch the volume to gp3/io1/io2.",
+      "fix": "type = \"gp3\"\niops = 3000",
+      "references": [
+        "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "ebs_iops_not_supported"
+      ],
+      "message": "iops is set but volume type \"st1\" does not support provisioned IOPS.",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 6,
+        "highlight": 9,
+        "lines": [
+          "  availability_zone = \"eu-west-3a\"",
+          "  size              = 50",
+          "  type              = \"st1\"",
+          "  iops              = 500",
+          "}",
+          "",
+          "resource \"aws_db_instance\" \"db\" {"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "70bcfb05be",
+      "rule_id": "RDS_MAX_STORAGE_BELOW_ALLOCATED",
+      "title": "max_allocated_storage lower than allocated_storage",
+      "severity": "HIGH",
+      "category": "DATABASE",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "storage.tf",
+      "line": 18,
+      "resource": "aws_db_instance.db",
+      "attribute": "max_allocated_storage",
+      "value": 50,
+      "description": "Storage autoscaling requires max_allocated_storage to be greater than allocated_storage; AWS rejects the value.",
+      "cause": "Values inverted or allocated_storage increased without updating the maximum.",
+      "recommendation": "Set max_allocated_storage above allocated_storage, or to 0 to disable autoscaling.",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.Autoscaling"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "rds_max_storage_below_allocated"
+      ],
+      "message": "max_allocated_storage (50) is lower than allocated_storage (100).",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 15,
+        "highlight": 18,
+        "lines": [
+          "  engine_version        = \"16.4\"",
+          "  instance_class        = \"db.t3.micro\"",
+          "  allocated_storage     = 100",
+          "  max_allocated_storage = 50",
+          "  storage_type          = \"gp2\"",
+          "  iops                  = 1000",
+          "  multi_az              = true"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "24be0b719d",
+      "rule_id": "RDS_IOPS_STORAGE_TYPE_CONFLICT",
+      "title": "iops incompatible with the storage type",
+      "severity": "HIGH",
+      "category": "DATABASE",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "storage.tf",
+      "line": 20,
+      "resource": "aws_db_instance.db",
+      "attribute": "iops",
+      "value": 1000,
+      "description": "Provisioned IOPS are not supported with gp2/standard storage, and are required for io1/io2.",
+      "cause": "storage_type and iops not aligned.",
+      "recommendation": "Use storage_type io1/io2/gp3 with iops, or remove iops for gp2/standard.",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "rds_iops_storage_type_conflict"
+      ],
+      "message": "iops is set but storage_type \"gp2\" does not support provisioned IOPS.",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 17,
+        "highlight": 20,
+        "lines": [
+          "  allocated_storage     = 100",
+          "  max_allocated_storage = 50",
+          "  storage_type          = \"gp2\"",
+          "  iops                  = 1000",
+          "  multi_az              = true",
+          "  availability_zone     = \"eu-west-3a\"",
+          "  username              = \"app\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "fe00045c10",
+      "rule_id": "RDS_MULTI_AZ_WITH_AZ",
+      "title": "multi_az combined with availability_zone",
+      "severity": "HIGH",
+      "category": "DATABASE",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "storage.tf",
+      "line": 22,
+      "resource": "aws_db_instance.db",
+      "attribute": "availability_zone",
+      "value": "eu-west-3a",
+      "description": "A specific availability zone cannot be requested for a Multi-AZ instance (InvalidParameterCombination).",
+      "cause": "availability_zone kept after enabling multi_az.",
+      "recommendation": "Remove availability_zone when multi_az = true.",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "rds_multi_az_with_az"
+      ],
+      "message": "multi_az = true cannot be combined with availability_zone.",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 19,
+        "highlight": 22,
+        "lines": [
+          "  storage_type          = \"gp2\"",
+          "  iops                  = 1000",
+          "  multi_az              = true",
+          "  availability_zone     = \"eu-west-3a\"",
+          "  username              = \"app\"",
+          "  password              = var.db_password",
+          "  skip_final_snapshot   = true"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "792807caf5",
+      "rule_id": "TF_VARIABLE_TYPE_MISMATCH",
+      "title": "Variable value does not match its type",
+      "severity": "HIGH",
+      "category": "VARIABLES",
+      "blocking": true,
+      "fails_at": "plan",
+      "file": "terraform.tfvars",
+      "line": 1,
+      "resource": "var.instance_count",
+      "attribute": "instance_count",
+      "value": "three",
+      "description": "The value assigned to the variable cannot be converted to the declared type constraint; `terraform validate` does not check variable values.",
+      "cause": "Wrong value type in a tfvars file (e.g. a word instead of a number) or an object missing a required attribute.",
+      "recommendation": "Assign a value of the declared type, or change the type constraint if the value is the intended one.",
+      "fix": null,
+      "references": [
+        "https://developer.hashicorp.com/terraform/language/values/variables#type-constraints"
+      ],
+      "engines": [
+        "scanner"
+      ],
+      "engine_rules": [
+        "variable_type"
+      ],
+      "message": "Invalid value for variable \"instance_count\" in terraform.tfvars: a number is required, got string 'three' (declared type: number, in variables.tf:11).",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "instance_count = \"three\"",
+          "db_password    = \"***REDACTED***\"",
+          "unknown_var    = \"x\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "49b79770ab",
+      "rule_id": "TF_MISSING_VARIABLE_VALUE",
+      "title": "Required variable has no value",
+      "severity": "HIGH",
+      "category": "VARIABLES",
+      "blocking": true,
+      "fails_at": "plan",
+      "file": "variables.tf",
+      "line": 20,
+      "resource": "var.environment",
+      "attribute": "environment",
+      "value": null,
+      "description": "The variable has no default and no value was found in terraform.tfvars, *.auto.tfvars, the --var-file/--var options or TF_VAR_ environment variables.",
+      "cause": "The value is expected from the command line or the CI and is not provided to this run.",
+      "recommendation": "Provide the value (tfvars file, `-var-file`, or `TF_VAR_<name>` in CI) or add a default. With `-input=false`, plan fails with \"No value for required variable\". If the value is passed at runtime, give the same file to tfpv with --var-file.",
+      "fix": null,
+      "references": [
+        "https://developer.hashicorp.com/terraform/language/values/variables#assigning-values-to-root-module-variables"
+      ],
+      "engines": [
+        "scanner"
+      ],
+      "engine_rules": [
+        "required_variable"
+      ],
+      "message": "Variable \"environment\" has no default and no value is provided (tfvars, --var-file, --var, TF_VAR_environment).",
+      "tier": "static",
+      "confidence": "medium",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 17,
+        "highlight": 20,
+        "lines": [
+          "  sensitive = true",
+          "}",
+          "",
+          "variable \"environment\" {",
+          "  type = string",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "7493be4ab1",
+      "rule_id": "IAM_EXCESSIVE_PERMISSIONS",
+      "title": "IAM policy allows sensitive permissions without constraints",
+      "severity": "HIGH",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "iam.tf",
+      "line": 3,
+      "resource": "aws_iam_policy.admin",
+      "attribute": null,
+      "value": null,
+      "description": "The policy allows privilege escalation, credentials exposure, data exfiltration or permissions management without constraints.",
+      "cause": "Wildcards on sensitive services (iam, sts, kms, s3, secretsmanager).",
+      "recommendation": "Remove sensitive actions or constrain them with resources and conditions.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_286",
+        "CKV_AWS_288",
+        "CKV_AWS_289",
+        "CKV_AWS_287"
+      ],
+      "message": "Ensure IAM policies does not allow privilege escalation",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "resource \"aws_iam_policy\" \"admin\" {",
+          "  name = \"too-broad\"",
+          "  policy = jsonencode({",
+          "    Version = \"2012-10-17\"",
+          "    Statement = [{",
+          "      Effect   = \"Allow\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "484571bd7b",
+      "rule_id": "IAM_WILDCARD_ACTION",
+      "title": "IAM policy uses wildcard actions",
+      "severity": "HIGH",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "iam.tf",
+      "line": 3,
+      "resource": "aws_iam_policy.admin",
+      "attribute": null,
+      "value": null,
+      "description": "A statement allows \"*\" (or service:*) actions.",
+      "cause": "Broad action list.",
+      "recommendation": "List explicit actions.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_63"
+      ],
+      "message": "Ensure no IAM policies documents allow \"*\" as a statement's actions",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "resource \"aws_iam_policy\" \"admin\" {",
+          "  name = \"too-broad\"",
+          "  policy = jsonencode({",
+          "    Version = \"2012-10-17\"",
+          "    Statement = [{",
+          "      Effect   = \"Allow\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "e6547c2446",
+      "rule_id": "SG_SSH_OPEN_TO_INTERNET",
+      "title": "SSH open to the Internet",
+      "severity": "HIGH",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "network.tf",
+      "line": 25,
+      "resource": "aws_security_group.web",
+      "attribute": null,
+      "value": null,
+      "description": "A security group allows ingress on port 22 from 0.0.0.0/0.",
+      "cause": "Rule opened for debugging or convenience.",
+      "recommendation": "Restrict the source to known CIDRs, or use SSM Session Manager instead of SSH.",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html",
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_24"
+      ],
+      "message": "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 22,
+        "highlight": 25,
+        "lines": [
+          "  vpc_id = aws_vpc.main.id",
+          "",
+          "  ingress {",
+          "    from_port   = 22",
+          "    to_port     = 22",
+          "    protocol    = \"tcp\"",
+          "    cidr_blocks = [\"0.0.0.0/0\"]"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "115291cce4",
+      "rule_id": "S3_PUBLIC_ACCESS_BLOCK",
+      "title": "S3 bucket without Public Access Block",
+      "severity": "HIGH",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 1,
+      "resource": "aws_s3_bucket.data",
+      "attribute": null,
+      "value": null,
+      "description": "Public access is not explicitly blocked at bucket level; an ACL or policy change can expose data.",
+      "cause": "No aws_s3_bucket_public_access_block, or one of its four settings disabled.",
+      "recommendation": "Add aws_s3_bucket_public_access_block with the four settings set to true (unless the bucket must be public).",
+      "fix": "resource \"aws_s3_bucket_public_access_block\" \"this\" {\n  bucket                  = aws_s3_bucket.data.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}",
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_6"
+      ],
+      "message": "Ensure that S3 bucket has a Public Access block",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_s3_bucket\" \"data\" {",
+          "  bucket = \"my-company-data-${var.environment}\"",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "bfee8efeed",
+      "rule_id": "RDS_UNENCRYPTED",
+      "title": "RDS storage not encrypted",
+      "severity": "HIGH",
+      "category": "DATABASE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 12,
+      "resource": "aws_db_instance.db",
+      "attribute": null,
+      "value": null,
+      "description": "storage_encrypted is not enabled; encryption cannot be enabled later without recreating the instance.",
+      "cause": "storage_encrypted omitted.",
+      "recommendation": "Set storage_encrypted = true (and kms_key_id if required) before the first apply.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_16"
+      ],
+      "message": "Ensure all data stored in the RDS is securely encrypted at rest",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 9,
+        "highlight": 12,
+        "lines": [
+          "  iops              = 500",
+          "}",
+          "",
+          "resource \"aws_db_instance\" \"db\" {",
+          "  identifier            = \"app-db\"",
+          "  engine                = \"postgres\"",
+          "  engine_version        = \"16.4\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "93bd09af4d",
+      "rule_id": "EBS_IOPS_NOT_SUPPORTED",
+      "title": "iops set on a volume type that does not support it",
+      "severity": "MEDIUM",
+      "category": "STORAGE",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "main.tf",
+      "line": 8,
+      "resource": "aws_instance.example",
+      "attribute": "iops",
+      "value": 3000,
+      "description": "Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan (\"'iops' must not be set when 'type' is ...\").",
+      "cause": "Volume type changed without removing iops, or iops copied from an io1/gp3 example.",
+      "recommendation": "Remove `iops`, or switch the volume to gp3/io1/io2.",
+      "fix": "type = \"gp3\"\niops = 3000",
+      "references": [
+        "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "ebs_iops_not_supported"
+      ],
+      "message": "iops is set but volume type \"gp2\" does not support provisioned IOPS.",
+      "tier": "static",
+      "confidence": "medium",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 5,
+        "highlight": 8,
+        "lines": [
+          "",
+          "  root_block_device {",
+          "    volume_type = \"gp2\"",
+          "    iops        = 3000",
+          "  }",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "4a746cf607",
+      "rule_id": "SG_ALL_PROTOCOL_WITH_PORTS",
+      "title": "Ports set with protocol -1 (all)",
+      "severity": "MEDIUM",
+      "category": "NETWORK",
+      "blocking": true,
+      "fails_at": "apply",
+      "file": "network.tf",
+      "line": 39,
+      "resource": "aws_security_group.web",
+      "attribute": "protocol",
+      "value": {
+        "protocol": "-1",
+        "from_port": 22,
+        "to_port": 22
+      },
+      "description": "With protocol \"-1\" (all traffic), from_port and to_port must both be 0; the rule otherwise does not do what it says (all ports are opened) and the AWS provider rejects it.",
+      "cause": "Intent was a single port but the protocol was set to all.",
+      "recommendation": "Set protocol to \"tcp\"/\"udp\" for a port range, or set from_port = 0 and to_port = 0 with protocol \"-1\".",
+      "fix": null,
+      "references": [
+        "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group"
+      ],
+      "engines": [
+        "aws"
+      ],
+      "engine_rules": [
+        "sg_all_protocol_with_ports"
+      ],
+      "message": "protocol \"-1\" (all traffic) with from_port=22 and to_port=22: all ports are opened, not the ones written, and the provider expects 0/0.",
+      "tier": "static",
+      "confidence": "medium",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 36,
+        "highlight": 39,
+        "lines": [
+          "  }",
+          "",
+          "  egress {",
+          "    from_port   = 22",
+          "    to_port     = 22",
+          "    protocol    = \"-1\"",
+          "    cidr_blocks = [\"0.0.0.0/0\"]"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "a42f19bf87",
+      "rule_id": "IAM_UNCONSTRAINED_WRITE",
+      "title": "IAM policy allows write access without constraints",
+      "severity": "MEDIUM",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "iam.tf",
+      "line": 3,
+      "resource": "aws_iam_policy.admin",
+      "attribute": null,
+      "value": null,
+      "description": "Write actions are allowed on all resources.",
+      "cause": "Resource \"*\" on write actions.",
+      "recommendation": "Scope write actions to specific resources.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_290"
+      ],
+      "message": "Ensure IAM policies does not allow write access without constraints",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "resource \"aws_iam_policy\" \"admin\" {",
+          "  name = \"too-broad\"",
+          "  policy = jsonencode({",
+          "    Version = \"2012-10-17\"",
+          "    Statement = [{",
+          "      Effect   = \"Allow\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "2067f72ff6",
+      "rule_id": "IAM_WILDCARD_RESOURCE",
+      "title": "IAM policy uses wildcard resources",
+      "severity": "MEDIUM",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "iam.tf",
+      "line": 3,
+      "resource": "aws_iam_policy.admin",
+      "attribute": null,
+      "value": null,
+      "description": "A statement allows actions on Resource \"*\" for actions that support resource-level permissions.",
+      "cause": "Resources not scoped.",
+      "recommendation": "Scope resources with ARNs (or ARN prefixes) wherever the action supports it.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_355"
+      ],
+      "message": "Ensure no IAM policies documents allow \"*\" as a statement's resource for restrictable actions",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "resource \"aws_iam_policy\" \"admin\" {",
+          "  name = \"too-broad\"",
+          "  policy = jsonencode({",
+          "    Version = \"2012-10-17\"",
+          "    Statement = [{",
+          "      Effect   = \"Allow\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "5265a24510",
+      "rule_id": "EC2_IMDSV1_ENABLED",
+      "title": "IMDSv1 enabled",
+      "severity": "MEDIUM",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 1,
+      "resource": "aws_instance.example",
+      "attribute": null,
+      "value": null,
+      "description": "The instance metadata service accepts IMDSv1 requests (SSRF risk).",
+      "cause": "metadata_options.http_tokens not set to \"required\".",
+      "recommendation": "Set metadata_options { http_tokens = \"***REDACTED***\" }.",
+      "fix": "metadata_options {\n  http_tokens = \"***REDACTED***\"\n}",
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_79"
+      ],
+      "message": "Ensure Instance Metadata Service Version 1 is not enabled",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_instance\" \"example\" {",
+          "  ami           = \"ami-12345678\"",
+          "  instance_type = \"t3.invalid\"",
+          "  subnet_id     = aws_subnet.public_a.id"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "8cd4657f28",
+      "rule_id": "EBS_UNENCRYPTED",
+      "title": "EBS volume not encrypted",
+      "severity": "MEDIUM",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 12,
+      "resource": "aws_instance.bad_ami",
+      "attribute": null,
+      "value": null,
+      "description": "The volume (or instance root/EBS block device) is not encrypted.",
+      "cause": "encrypted not set and no account-level default encryption assumed.",
+      "recommendation": "Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_8"
+      ],
+      "message": "Ensure all data stored in the Launch configuration or instance Elastic Blocks Store is securely encrypted",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 9,
+        "highlight": 12,
+        "lines": [
+          "  }",
+          "}",
+          "",
+          "resource \"aws_instance\" \"bad_ami\" {",
+          "  ami           = \"ami-xyz\"",
+          "  instance_type = \"t3.micro\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "c4e682e742",
+      "rule_id": "EC2_IMDSV1_ENABLED",
+      "title": "IMDSv1 enabled",
+      "severity": "MEDIUM",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 12,
+      "resource": "aws_instance.bad_ami",
+      "attribute": null,
+      "value": null,
+      "description": "The instance metadata service accepts IMDSv1 requests (SSRF risk).",
+      "cause": "metadata_options.http_tokens not set to \"required\".",
+      "recommendation": "Set metadata_options { http_tokens = \"***REDACTED***\" }.",
+      "fix": "metadata_options {\n  http_tokens = \"***REDACTED***\"\n}",
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_79"
+      ],
+      "message": "Ensure Instance Metadata Service Version 1 is not enabled",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 9,
+        "highlight": 12,
+        "lines": [
+          "  }",
+          "}",
+          "",
+          "resource \"aws_instance\" \"bad_ami\" {",
+          "  ami           = \"ami-xyz\"",
+          "  instance_type = \"t3.micro\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "3c96c5f92d",
+      "rule_id": "S3_BUCKET_VERSIONING",
+      "title": "S3 bucket versioning disabled",
+      "severity": "MEDIUM",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 1,
+      "resource": "aws_s3_bucket.data",
+      "attribute": null,
+      "value": null,
+      "description": "Versioning is not enabled: deleted or overwritten objects cannot be recovered.",
+      "cause": "No aws_s3_bucket_versioning resource.",
+      "recommendation": "Enable versioning with aws_s3_bucket_versioning (status = \"Enabled\").",
+      "fix": "resource \"aws_s3_bucket_versioning\" \"this\" {\n  bucket = aws_s3_bucket.data.id\n  versioning_configuration {\n    status = \"Enabled\"\n  }\n}",
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_21"
+      ],
+      "message": "Ensure all data stored in the S3 bucket have versioning enabled",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_s3_bucket\" \"data\" {",
+          "  bucket = \"my-company-data-${var.environment}\"",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "17646ebc9a",
+      "rule_id": "EBS_UNENCRYPTED",
+      "title": "EBS volume not encrypted",
+      "severity": "MEDIUM",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 5,
+      "resource": "aws_ebs_volume.logs",
+      "attribute": null,
+      "value": null,
+      "description": "The volume (or instance root/EBS block device) is not encrypted.",
+      "cause": "encrypted not set and no account-level default encryption assumed.",
+      "recommendation": "Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_189",
+        "CKV_AWS_3"
+      ],
+      "message": "Ensure EBS Volume is encrypted by KMS using a customer managed Key (CMK)",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 2,
+        "highlight": 5,
+        "lines": [
+          "  bucket = \"my-company-data-${var.environment}\"",
+          "}",
+          "",
+          "resource \"aws_ebs_volume\" \"logs\" {",
+          "  availability_zone = \"eu-west-3a\"",
+          "  size              = 50",
+          "  type              = \"st1\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "931a548da3",
+      "rule_id": "EC2_HARDENING",
+      "title": "Optional EC2 hardening",
+      "severity": "LOW",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 1,
+      "resource": "aws_instance.example",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (detailed monitoring, EBS optimization).",
+      "cause": "Option not set.",
+      "recommendation": "Enable the options when your monitoring or performance policy requires them.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_135",
+        "CKV_AWS_126"
+      ],
+      "message": "Ensure that EC2 is EBS optimized",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_instance\" \"example\" {",
+          "  ami           = \"ami-12345678\"",
+          "  instance_type = \"t3.invalid\"",
+          "  subnet_id     = aws_subnet.public_a.id"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "40e1d16228",
+      "rule_id": "IAM_HYGIENE",
+      "title": "IAM hygiene",
+      "severity": "LOW",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 1,
+      "resource": "aws_instance.example",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (policy attached directly to a user, instance without IAM role).",
+      "cause": "IAM design shortcut.",
+      "recommendation": "Attach policies to groups/roles and give instances an instance profile.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_41"
+      ],
+      "message": "Ensure an IAM role is attached to EC2 instance",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_instance\" \"example\" {",
+          "  ami           = \"ami-12345678\"",
+          "  instance_type = \"t3.invalid\"",
+          "  subnet_id     = aws_subnet.public_a.id"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "3dbae3d7da",
+      "rule_id": "EC2_HARDENING",
+      "title": "Optional EC2 hardening",
+      "severity": "LOW",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 12,
+      "resource": "aws_instance.bad_ami",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (detailed monitoring, EBS optimization).",
+      "cause": "Option not set.",
+      "recommendation": "Enable the options when your monitoring or performance policy requires them.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_135",
+        "CKV_AWS_126"
+      ],
+      "message": "Ensure that EC2 is EBS optimized",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 9,
+        "highlight": 12,
+        "lines": [
+          "  }",
+          "}",
+          "",
+          "resource \"aws_instance\" \"bad_ami\" {",
+          "  ami           = \"ami-xyz\"",
+          "  instance_type = \"t3.micro\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "3a9d9719fd",
+      "rule_id": "IAM_HYGIENE",
+      "title": "IAM hygiene",
+      "severity": "LOW",
+      "category": "IAM",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "main.tf",
+      "line": 12,
+      "resource": "aws_instance.bad_ami",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (policy attached directly to a user, instance without IAM role).",
+      "cause": "IAM design shortcut.",
+      "recommendation": "Attach policies to groups/roles and give instances an instance profile.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_41"
+      ],
+      "message": "Ensure an IAM role is attached to EC2 instance",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 9,
+        "highlight": 12,
+        "lines": [
+          "  }",
+          "}",
+          "",
+          "resource \"aws_instance\" \"bad_ami\" {",
+          "  ami           = \"ami-xyz\"",
+          "  instance_type = \"t3.micro\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "68a00a26a7",
+      "rule_id": "SG_HYGIENE",
+      "title": "Security group hygiene",
+      "severity": "LOW",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "network.tf",
+      "line": 1,
+      "resource": "aws_vpc.main",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (rule description, unattached group, unrestricted egress, default security group).",
+      "cause": "Missing description or unused group.",
+      "recommendation": "Add descriptions, remove unused groups, restrict egress where possible.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_12"
+      ],
+      "message": "Ensure the default security group of every VPC restricts all traffic",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_vpc\" \"main\" {",
+          "  cidr_block = var.vpc_cidr",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "b2aa33efed",
+      "rule_id": "VPC_FLOW_LOGS",
+      "title": "VPC flow logs disabled",
+      "severity": "LOW",
+      "category": "NETWORK",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "network.tf",
+      "line": 1,
+      "resource": "aws_vpc.main",
+      "attribute": null,
+      "value": null,
+      "description": "VPC flow logs are not enabled.",
+      "cause": "No aws_flow_log for the VPC.",
+      "recommendation": "Enable flow logs to CloudWatch or S3 for network forensics.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_11"
+      ],
+      "message": "Ensure VPC flow logging is enabled in all VPCs",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_vpc\" \"main\" {",
+          "  cidr_block = var.vpc_cidr",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "2323c4df1a",
+      "rule_id": "SG_HYGIENE",
+      "title": "Security group hygiene",
+      "severity": "LOW",
+      "category": "SECURITY",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "network.tf",
+      "line": 38,
+      "resource": "aws_security_group.web",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (rule description, unattached group, unrestricted egress, default security group).",
+      "cause": "Missing description or unused group.",
+      "recommendation": "Add descriptions, remove unused groups, restrict egress where possible.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_23",
+        "CKV2_AWS_5"
+      ],
+      "message": "Ensure every security group and rule has a description",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 35,
+        "highlight": 38,
+        "lines": [
+          "    cidr_blocks = [\"10.0.0.0/8\"]",
+          "  }",
+          "",
+          "  egress {",
+          "    from_port   = 22",
+          "    to_port     = 22",
+          "    protocol    = \"-1\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "32b25f3b8b",
+      "rule_id": "S3_ACCESS_LOGGING",
+      "title": "S3 access logging disabled",
+      "severity": "LOW",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 1,
+      "resource": "aws_s3_bucket.data",
+      "attribute": null,
+      "value": null,
+      "description": "Server access logging is not configured.",
+      "cause": "No aws_s3_bucket_logging.",
+      "recommendation": "Enable access logging if you need an audit trail of requests.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_18"
+      ],
+      "message": "Ensure the S3 bucket has access logging enabled",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_s3_bucket\" \"data\" {",
+          "  bucket = \"my-company-data-${var.environment}\"",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "0dd4652c1b",
+      "rule_id": "S3_BUCKET_KMS_ENCRYPTION",
+      "title": "S3 bucket not encrypted with KMS",
+      "severity": "LOW",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 1,
+      "resource": "aws_s3_bucket.data",
+      "attribute": null,
+      "value": null,
+      "description": "The bucket is not configured to use SSE-KMS by default (S3 still applies SSE-S3 since 2023).",
+      "cause": "No KMS default encryption configured.",
+      "recommendation": "Use SSE-KMS when you need key-level access control and audit (CloudTrail).",
+      "fix": null,
+      "references": [
+        "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html",
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_145"
+      ],
+      "message": "Ensure that S3 buckets are encrypted with KMS by default",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_s3_bucket\" \"data\" {",
+          "  bucket = \"my-company-data-${var.environment}\"",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "23ad841879",
+      "rule_id": "S3_OPTIONAL_HARDENING",
+      "title": "Optional S3 hardening",
+      "severity": "LOW",
+      "category": "STORAGE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 1,
+      "resource": "aws_s3_bucket.data",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (cross-region replication, event notifications or lifecycle configuration).",
+      "cause": "Feature not configured.",
+      "recommendation": "Apply it when your data protection or cost policy requires it; otherwise ignore the rule in .tfpv.toml.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_62",
+        "CKV2_AWS_61",
+        "CKV_AWS_144"
+      ],
+      "message": "Ensure S3 buckets should have event notifications enabled",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_s3_bucket\" \"data\" {",
+          "  bucket = \"my-company-data-${var.environment}\"",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "f6ce0a73fa",
+      "rule_id": "RDS_HARDENING",
+      "title": "Optional RDS hardening",
+      "severity": "LOW",
+      "category": "DATABASE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "storage.tf",
+      "line": 14,
+      "resource": "aws_db_instance.db",
+      "attribute": null,
+      "value": null,
+      "description": "Best practice not applied (deletion protection, Multi-AZ, monitoring, logs, IAM auth, minor upgrades, copy tags).",
+      "cause": "Option not set.",
+      "recommendation": "Enable the options required by your availability and audit policy.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV_AWS_293",
+        "CKV_AWS_353",
+        "CKV_AWS_118",
+        "CKV_AWS_226",
+        "CKV_AWS_129",
+        "CKV_AWS_161",
+        "CKV2_AWS_60",
+        "CKV2_AWS_30"
+      ],
+      "message": "Ensure that AWS database instances have deletion protection enabled",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 11,
+        "highlight": 14,
+        "lines": [
+          "",
+          "resource \"aws_db_instance\" \"db\" {",
+          "  identifier            = \"app-db\"",
+          "  engine                = \"postgres\"",
+          "  engine_version        = \"16.4\"",
+          "  instance_class        = \"db.t3.micro\"",
+          "  allocated_storage     = 100"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "dc33118e21",
+      "rule_id": "TF_UNDECLARED_VARIABLE_VALUE",
+      "title": "Value set for an undeclared variable",
+      "severity": "LOW",
+      "category": "VARIABLES",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "terraform.tfvars",
+      "line": 3,
+      "resource": null,
+      "attribute": "unknown_var",
+      "value": null,
+      "description": "A variable definitions file sets a variable that the root module does not declare; Terraform only warns.",
+      "cause": "Typo in the variable name, or a variable removed from the configuration.",
+      "recommendation": "Rename or remove the value, or declare the variable.",
+      "fix": null,
+      "references": [
+        "https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files"
+      ],
+      "engines": [
+        "scanner"
+      ],
+      "engine_rules": [
+        "undeclared_variable_value"
+      ],
+      "message": "\"terraform.tfvars\" sets \"unknown_var\", which is not declared by the root module.",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 3,
+        "lines": [
+          "instance_count = \"three\"",
+          "db_password    = \"***REDACTED***\"",
+          "unknown_var    = \"x\""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "413df844ac",
+      "rule_id": "AWS_HYGIENE",
+      "title": "Unused or unattached resource",
+      "severity": "LOW",
+      "category": "NETWORK",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "unformatted.tf",
+      "line": 1,
+      "resource": "aws_eip.ip",
+      "attribute": null,
+      "value": null,
+      "description": "A resource is allocated but not attached (e.g. an Elastic IP without instance), which costs money.",
+      "cause": "Leftover resource.",
+      "recommendation": "Attach it or remove it.",
+      "fix": null,
+      "references": [
+        "https://www.checkov.io/5.Policy%20Index/terraform.html"
+      ],
+      "engines": [
+        "checkov"
+      ],
+      "engine_rules": [
+        "CKV2_AWS_19"
+      ],
+      "message": "Ensure that all EIP addresses allocated to a VPC are attached to EC2 instances",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_eip\" \"ip\" {",
+          "    domain=\"vpc\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "5145dda33b",
+      "rule_id": "TF_FORMAT",
+      "title": "File not in canonical format",
+      "severity": "LOW",
+      "category": "STYLE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "unformatted.tf",
+      "line": 1,
+      "resource": "aws_eip.ip",
+      "attribute": null,
+      "value": null,
+      "description": "`terraform fmt -check` reports that the file does not follow the canonical style.",
+      "cause": "Manual edits not formatted (indentation, alignment of '=').",
+      "recommendation": "Run `terraform fmt` (tfpv never rewrites files) and add `terraform fmt -check` to your CI.",
+      "fix": "terraform fmt -recursive",
+      "references": [
+        "https://developer.hashicorp.com/terraform/cli/commands/fmt"
+      ],
+      "engines": [
+        "terraform"
+      ],
+      "engine_rules": [
+        "fmt:File is not in canonical format"
+      ],
+      "message": "File is not in canonical format",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": null,
+      "column": null,
+      "snippet": {
+        "start_line": 1,
+        "highlight": 1,
+        "lines": [
+          "resource \"aws_eip\" \"ip\" {",
+          "    domain=\"vpc\"",
+          "}"
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    },
+    {
+      "id": "0f74d9fa68",
+      "rule_id": "TF_UNUSED_DECLARATION",
+      "title": "Unused declaration",
+      "severity": "LOW",
+      "category": "STYLE",
+      "blocking": false,
+      "fails_at": "none",
+      "file": "variables.tf",
+      "line": 11,
+      "resource": "var.instance_count",
+      "attribute": null,
+      "value": null,
+      "description": "A variable, local, data source or provider requirement is declared but never used.",
+      "cause": "Leftover after refactoring.",
+      "recommendation": "Remove it, or use it if it was meant to be referenced.",
+      "fix": null,
+      "references": [
+        "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.17.0/docs/rules/terraform_unused_declarations.md"
+      ],
+      "engines": [
+        "tflint"
+      ],
+      "engine_rules": [
+        "terraform_unused_declarations"
+      ],
+      "message": "variable \"instance_count\" is declared but not used",
+      "tier": "static",
+      "confidence": "high",
+      "end_line": 11,
+      "column": 1,
+      "snippet": {
+        "start_line": 8,
+        "highlight": 11,
+        "lines": [
+          "  default = \"10.0.0.0/16\"",
+          "}",
+          "",
+          "variable \"instance_count\" {",
+          "  type = number",
+          "}",
+          ""
+        ]
+      },
+      "suppressed": false,
+      "suppression_reason": null
+    }
+  ],
+  "suppressed": [],
+  "redaction": {
+    "applied": true,
+    "masked_values": 6
+  },
+  "notes": []
+}

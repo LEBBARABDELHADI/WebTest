@@ -1,0 +1,280 @@
+{
+  "schema_version": "1.0",
+  "tool": {
+    "name": "terraform-preplan-validator",
+    "version": "1.0.0"
+  },
+  "project": {
+    "name": "valid_basic",
+    "path": "tests/fixtures/valid_basic",
+    "var_files": []
+  },
+  "generated_at": "2026-11-15T15:47:35Z",
+  "duration_s": 19.23,
+  "status": "PASSED",
+  "status_reason": "All checks executed; no finding",
+  "fail_on": "HIGH",
+  "summary": {
+    "total_checks": 72,
+    "passed": 72,
+    "failed": 0,
+    "warnings": 0,
+    "blocking": 0,
+    "not_run": 0,
+    "not_evaluated": 0,
+    "by_severity": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "by_category": {},
+    "files_with_findings": 0,
+    "suppressed": 1
+  },
+  "environment": {
+    "tfpv": "1.0.0",
+    "terraform": "Terraform 1.17.2",
+    "tflint": "0.66.0 (aws 0.50.0, terraform 0.17.0-bundled)",
+    "tflint_config": "tfpv",
+    "checkov": "3.4.5",
+    "aws_cli": null,
+    "python": "3.11.18",
+    "os": "Linux x86_64"
+  },
+  "checks": [
+    {
+      "id": "scanner",
+      "name": "tfpv Terraform scanner (variables, modules, references)",
+      "engine": "tfpv",
+      "tier": "static",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 0.0,
+      "passed_count": 12,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": null,
+      "findings": 0
+    },
+    {
+      "id": "terraform_fmt",
+      "name": "terraform fmt -check",
+      "engine": "terraform",
+      "tier": "static",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 0.06,
+      "passed_count": 6,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/terraform fmt -check -list=true -no-color <6 files>",
+      "version": "1.17.2",
+      "findings": 0
+    },
+    {
+      "id": "terraform_init",
+      "name": "terraform init -backend=false",
+      "engine": "terraform",
+      "tier": "providers",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 13.08,
+      "passed_count": 1,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/terraform init -backend=false -input=false -no-color -json (shadow copy)",
+      "version": "1.17.2",
+      "findings": 0
+    },
+    {
+      "id": "terraform_validate",
+      "name": "terraform validate",
+      "engine": "terraform",
+      "tier": "providers",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 3.14,
+      "passed_count": 1,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/terraform validate -json -no-color (shadow copy)",
+      "version": "1.17.2",
+      "findings": 0
+    },
+    {
+      "id": "tflint",
+      "name": "TFLint (terraform ruleset)",
+      "engine": "tflint",
+      "tier": "static",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 0.58,
+      "passed_count": 1,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/bin/tflint --config=/tmp/tfpv-run-x7rjdsjn/tflint.hcl --format=json --no-color",
+      "version": "0.66.0",
+      "findings": 0
+    },
+    {
+      "id": "tflint_aws",
+      "name": "TFLint AWS ruleset",
+      "engine": "tflint",
+      "tier": "static",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 0.0,
+      "passed_count": 1,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": "0.66.0",
+      "findings": 0
+    },
+    {
+      "id": "checkov",
+      "name": "Checkov (security)",
+      "engine": "checkov",
+      "tier": "static",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 2.76,
+      "passed_count": 36,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": "/tmp/claude-0/-home-user-WebTest/1e7f24a9-8b3b-5b69-99b2-3cac08bb7877/scratchpad/tfpv-outils/venv-checkov/bin/checkov -d /home/user/WebTest/terraform-preplan-validator/tests/fixtures/valid_basic --framework terraform -o json --compact --quiet --skip-download --soft-fail",
+      "version": "3.4.5",
+      "findings": 0
+    },
+    {
+      "id": "aws_static",
+      "name": "tfpv AWS validator (static)",
+      "engine": "tfpv",
+      "tier": "static",
+      "required": true,
+      "status": "passed",
+      "reason": "",
+      "duration_s": 0.0,
+      "passed_count": 14,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": null,
+      "findings": 0
+    },
+    {
+      "id": "aws_external",
+      "name": "AWS API checks (AMI, instance type offering, RDS engine version)",
+      "engine": "aws",
+      "tier": "aws",
+      "required": false,
+      "status": "skipped",
+      "reason": "opt-in: use --aws-checks (needs AWS credentials, read-only calls)",
+      "duration_s": 0.0,
+      "passed_count": 0,
+      "not_evaluated": 0,
+      "partial": false,
+      "command": null,
+      "version": null,
+      "findings": 0
+    }
+  ],
+  "inventory": {
+    "files": {
+      "tf": 5,
+      "tf_json": 0,
+      "tfvars": 1,
+      "lock_file": false,
+      "skipped_too_large": []
+    },
+    "auto_loaded_var_files": [
+      "terraform.tfvars"
+    ],
+    "extra_var_files": [],
+    "required_version": ">= 1.6",
+    "backend": null,
+    "providers": [
+      {
+        "name": "aws",
+        "source": "hashicorp/aws",
+        "versions": [
+          "~> 6.0"
+        ]
+      }
+    ],
+    "modules": [
+      {
+        "dir": ".",
+        "files": 5,
+        "resources": 8,
+        "data_sources": 1,
+        "variables": 4,
+        "outputs": 4,
+        "module_calls": []
+      }
+    ],
+    "resources_by_type": {
+      "aws_default_security_group": 1,
+      "aws_iam_role": 1,
+      "aws_iam_role_policy": 1,
+      "aws_network_interface": 1,
+      "aws_security_group": 1,
+      "aws_subnet": 2,
+      "aws_vpc": 1
+    },
+    "variables": [
+      {
+        "name": "environment",
+        "type": "string",
+        "required": true,
+        "sensitive": false,
+        "value_source": "terraform.tfvars",
+        "file": "variables.tf",
+        "line": 13
+      },
+      {
+        "name": "private_subnet_count",
+        "type": "number",
+        "required": false,
+        "sensitive": false,
+        "value_source": "terraform.tfvars",
+        "file": "variables.tf",
+        "line": 18
+      },
+      {
+        "name": "region",
+        "type": "string",
+        "required": false,
+        "sensitive": false,
+        "value_source": "default",
+        "file": "variables.tf",
+        "line": 1
+      },
+      {
+        "name": "vpc_cidr",
+        "type": "string",
+        "required": false,
+        "sensitive": false,
+        "value_source": "default",
+        "file": "variables.tf",
+        "line": 7
+      }
+    ]
+  },
+  "findings": [],
+  "suppressed": [],
+  "redaction": {
+    "applied": true,
+    "masked_values": 0
+  },
+  "notes": []
+}

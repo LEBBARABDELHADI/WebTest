@@ -1,0 +1,17 @@
+
+Error: Invalid expression
+
+  on broken.tf line 2, in resource "aws_instance" "x":
+   2:   ami = 
+   3: }
+
+Expected the start of an expression, but found an invalid expression token.
+
+
+Error: Invalid multi-line string
+
+  on broken.tf line 6, in resource "y" "z":
+   6:   a = "unterminated
+   7: }
+
+Quoted strings may not be split over multiple lines.

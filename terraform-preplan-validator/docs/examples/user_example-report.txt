@@ -1,0 +1,190 @@
+Terraform Pre-Plan Validation Report
+
+Project: user_example
+Status: FAILED
+Reason: 1 finding(s) blocking or at/above HIGH
+
+Summary:
+
+* Total checks: 14
+* Passed: 7
+* Failed: 1
+* Warnings: 6
+
+Checks:
+
+* [PASSED ] tfpv Terraform scanner (variables, modules, references) (static)
+* [PASSED ] terraform fmt -check (static)
+* [PASSED ] terraform init -backend=false (providers)
+* [PASSED ] terraform validate (providers)
+* [FAILED ] TFLint (terraform ruleset) (static)
+* [FAILED ] TFLint AWS ruleset (static)
+* [FAILED ] Checkov (security) (static)
+* [PASSED ] tfpv AWS validator (static) (static)
+* [SKIPPED] AWS API checks (AMI, instance type offering, RDS engine version) (aws) — opt-in: use --aws-checks (needs AWS credentials, read-only calls)
+
+Findings:
+
+[HIGH] AWS_INVALID_INSTANCE_TYPE  (blocking: fails at apply)
+
+File: main.tf
+Line: 3
+Resource: aws_instance.example
+Current value: t3.invalid
+Detected by: tflint (aws_instance_invalid_type)
+
+Description:
+The specified EC2 instance type is not recognized. ("t3.invalid" is an invalid value as instance_type)
+
+Probable cause:
+Typo or non-existent size. A type released after the TFLint AWS ruleset version can also be unknown to it.
+
+Recommendation:
+Verify that the instance type exists in the selected AWS region and is supported by the selected architecture and AMI: `aws ec2 describe-instance-type-offerings --location-type region --filters Name=instance-type,Values=<type> --region <region>` (or run tfpv with --aws-checks). `terraform plan` does not catch this: the error appears at apply.
+
+Reference: https://github.com/terraform-linters/tflint-ruleset-aws/blob/v0.50.0/docs/rules/aws_instance_invalid_type.md
+
+------------------------------------------------------------------------
+
+[MEDIUM] EBS_UNENCRYPTED
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV_AWS_8)
+
+Description:
+The volume (or instance root/EBS block device) is not encrypted.
+
+Probable cause:
+encrypted not set and no account-level default encryption assumed.
+
+Recommendation:
+Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] EC2_IMDSV1_ENABLED
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV_AWS_79)
+
+Description:
+The instance metadata service accepts IMDSv1 requests (SSRF risk).
+
+Probable cause:
+metadata_options.http_tokens not set to "required".
+
+Recommendation:
+Set metadata_options { http_tokens = "***REDACTED***" }.
+
+Suggested fix:
+    metadata_options {
+      http_tokens = "***REDACTED***"
+    }
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] TF_MISSING_PROVIDER_CONSTRAINT
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: tflint (terraform_required_providers)
+
+Description:
+A provider is used without `required_providers` source/version constraints.
+
+Probable cause:
+Constraint forgotten; a new provider major version can be selected silently and break the plan.
+
+Recommendation:
+Declare the provider in `required_providers` with a version constraint and commit .terraform.lock.hcl.
+
+Suggested fix:
+    terraform {
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 6.0"
+        }
+      }
+    }
+
+Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.17.0/docs/rules/terraform_required_providers.md
+
+------------------------------------------------------------------------
+
+[LOW] EC2_HARDENING
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV_AWS_135, CKV_AWS_126)
+
+Description:
+Best practice not applied (detailed monitoring, EBS optimization).
+
+Probable cause:
+Option not set.
+
+Recommendation:
+Enable the options when your monitoring or performance policy requires them.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] IAM_HYGIENE
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV2_AWS_41)
+
+Description:
+Best practice not applied (policy attached directly to a user, instance without IAM role).
+
+Probable cause:
+IAM design shortcut.
+
+Recommendation:
+Attach policies to groups/roles and give instances an instance profile.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] TF_MISSING_REQUIRED_VERSION
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: tflint (terraform_required_version)
+
+Description:
+The configuration does not constrain the Terraform version.
+
+Probable cause:
+`required_version` missing in the terraform block.
+
+Recommendation:
+Add `required_version` so that every environment uses a compatible Terraform.
+
+Suggested fix:
+    terraform {
+      required_version = ">= 1.6"
+    }
+
+Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.17.0/docs/rules/terraform_required_version.md
+
+------------------------------------------------------------------------
+
+Final result:
+FAILED - Terraform configuration requires corrections.

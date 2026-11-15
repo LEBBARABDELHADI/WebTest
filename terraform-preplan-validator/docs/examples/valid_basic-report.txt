@@ -1,0 +1,29 @@
+Terraform Pre-Plan Validation Report
+
+Project: valid_basic
+Status: PASSED
+Reason: All checks executed; no finding
+
+Summary:
+
+* Total checks: 72
+* Passed: 72
+* Failed: 0
+* Warnings: 0
+
+Checks:
+
+* [PASSED ] tfpv Terraform scanner (variables, modules, references) (static)
+* [PASSED ] terraform fmt -check (static)
+* [PASSED ] terraform init -backend=false (providers)
+* [PASSED ] terraform validate (providers)
+* [PASSED ] TFLint (terraform ruleset) (static)
+* [PASSED ] TFLint AWS ruleset (static)
+* [PASSED ] Checkov (security) (static)
+* [PASSED ] tfpv AWS validator (static) (static)
+* [SKIPPED] AWS API checks (AMI, instance type offering, RDS engine version) (aws) — opt-in: use --aws-checks (needs AWS credentials, read-only calls)
+
+Findings: none
+
+Final result:
+PASSED - All checks executed and no issue was found.

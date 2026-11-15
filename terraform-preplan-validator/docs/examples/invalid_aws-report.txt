@@ -1,0 +1,974 @@
+Terraform Pre-Plan Validation Report
+
+Project: invalid_aws
+Status: FAILED
+Reason: 22 finding(s) blocking or at/above HIGH
+
+Summary:
+
+* Total checks: 119
+* Passed: 75
+* Failed: 22
+* Warnings: 22
+* Not evaluable statically: 1
+
+Checks:
+
+* [FAILED ] tfpv Terraform scanner (variables, modules, references) (static)
+* [FAILED ] terraform fmt -check (static)
+* [PASSED ] terraform init -backend=false (providers)
+* [FAILED ] terraform validate (providers)
+* [FAILED ] TFLint (terraform ruleset) (static)
+* [FAILED ] TFLint AWS ruleset (static)
+* [FAILED ] Checkov (security) (static)
+* [FAILED ] tfpv AWS validator (static) (static) — 1 evaluation(s) depend on values known only at apply time
+* [SKIPPED] AWS API checks (AMI, instance type offering, RDS engine version) (aws) — opt-in: use --aws-checks (needs AWS credentials, read-only calls)
+
+Findings:
+
+[CRITICAL] IAM_FULL_ADMIN
+
+File: iam.tf
+Line: 3
+Resource: aws_iam_policy.admin
+Detected by: checkov (CKV_AWS_62, CKV2_AWS_40)
+
+Description:
+The policy allows Action "*" on Resource "*" (or full IAM privileges).
+
+Probable cause:
+Policy written for convenience during development.
+
+Recommendation:
+Grant only the actions needed on the resources needed; start from AWS managed job-function policies or IAM Access Analyzer policy generation.
+
+Reference: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege
+
+------------------------------------------------------------------------
+
+[HIGH] IAM_INVALID_PRINCIPAL  (blocking: fails at apply)
+
+File: iam.tf
+Line: 15
+Resource: aws_iam_role.app
+Current value: ec2.amazon.com
+Detected by: aws (iam_invalid_principal)
+
+Description:
+A principal does not have a valid format; IAM rejects the policy (MalformedPolicyDocument: Invalid principal in policy).
+
+Probable cause:
+Typo in a service principal (amazon.com instead of amazonaws.com), account ID that is not 12 digits, or malformed ARN.
+
+Recommendation:
+Use service principals like "ec2.amazonaws.com", 12-digit account IDs or full ARNs (arn:aws:iam::123456789012:role/name).
+
+Reference: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html
+
+------------------------------------------------------------------------
+
+[HIGH] AWS_INVALID_INSTANCE_TYPE  (blocking: fails at apply)
+
+File: main.tf
+Line: 3
+Resource: aws_instance.example
+Current value: t3.invalid
+Detected by: tflint (aws_instance_invalid_type)
+
+Description:
+The specified EC2 instance type is not recognized. ("t3.invalid" is an invalid value as instance_type)
+
+Probable cause:
+Typo or non-existent size. A type released after the TFLint AWS ruleset version can also be unknown to it.
+
+Recommendation:
+Verify that the instance type exists in the selected AWS region and is supported by the selected architecture and AMI: `aws ec2 describe-instance-type-offerings --location-type region --filters Name=instance-type,Values=<type> --region <region>` (or run tfpv with --aws-checks). `terraform plan` does not catch this: the error appears at apply.
+
+Reference: https://github.com/terraform-linters/tflint-ruleset-aws/blob/v0.50.0/docs/rules/aws_instance_invalid_type.md
+
+------------------------------------------------------------------------
+
+[HIGH] EC2_AMI_ID_MALFORMED  (blocking: fails at apply)
+
+File: main.tf
+Line: 13
+Resource: aws_instance.bad_ami
+Current value: ami-xyz
+Detected by: aws (ec2_ami_id_malformed)
+
+Description:
+The AMI ID does not match the format ami-xxxxxxxx (8 or 17 hexadecimal characters); AWS returns InvalidAMIID.Malformed.
+
+Probable cause:
+Typo, placeholder value, or AMI name used instead of the ID.
+
+Recommendation:
+Use a real AMI ID, or resolve it with the aws_ami data source (most_recent + filters).
+
+Suggested fix:
+    data "aws_ami" "al2023" {
+      most_recent = true
+      owners      = ["amazon"]
+      filter {
+        name   = "name"
+        values = ["al2023-ami-*-x86_64"]
+      }
+    }
+
+Reference: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html
+
+------------------------------------------------------------------------
+
+[HIGH] NET_SUBNET_OVERLAP  (blocking: fails at apply)
+
+File: network.tf
+Line: 12
+Resource: aws_subnet.public_b
+Current value: 10.0.1.128/25
+Detected by: aws (net_subnet_overlap)
+
+Description:
+Two subnets of the same VPC have overlapping CIDR blocks; AWS rejects the second one (InvalidSubnet.Conflict).
+
+Probable cause:
+Copy/paste of a CIDR, or inconsistent netnum values in cidrsubnet().
+
+Recommendation:
+Give each subnet a distinct, non-overlapping CIDR (e.g. cidrsubnet with distinct netnum values).
+
+Reference: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html
+
+------------------------------------------------------------------------
+
+[HIGH] NET_SUBNET_OUTSIDE_VPC  (blocking: fails at apply)
+
+File: network.tf
+Line: 17
+Resource: aws_subnet.outside
+Current value: 10.1.0.0/24
+Detected by: aws (net_subnet_outside_vpc)
+
+Description:
+The subnet CIDR is not contained in any CIDR block of its VPC; AWS rejects it (InvalidSubnet.Range). `terraform plan` does not detect it.
+
+Probable cause:
+Wrong base address, VPC CIDR changed, or secondary CIDR association missing.
+
+Recommendation:
+Derive subnets from the VPC CIDR (`cidrsubnet(aws_vpc.main.cidr_block, 8, n)`) or associate a secondary CIDR (aws_vpc_ipv4_cidr_block_association).
+
+Suggested fix:
+    cidr_block = cidrsubnet(aws_vpc.main.cidr_block, 8, 1)
+
+Reference: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html
+
+------------------------------------------------------------------------
+
+[HIGH] SG_PORT_RANGE_INVALID  (blocking: fails at apply)
+
+File: network.tf
+Line: 32
+Resource: aws_security_group.web
+Current value: {"from_port": 443, "to_port": 80}
+Detected by: aws (sg_port_range_invalid)
+
+Description:
+from_port is greater than to_port, or a port is outside 0-65535.
+
+Probable cause:
+Ports inverted or typo.
+
+Recommendation:
+Use from_port <= to_port within 0-65535 (for a single port, set both to the same value).
+
+Reference: https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html
+
+------------------------------------------------------------------------
+
+[HIGH] TF_UNDECLARED_REFERENCE  (blocking: fails at validate)
+
+File: network.tf
+Line: 47
+Resource: aws_route_table.rt
+Detected by: terraform (validate:Reference to undeclared resource)
+
+Description:
+An expression references a resource, data source, variable, local or module that is not declared in this module. Terraform says: A managed resource "aws_vpc" "mian" has not been declared in the root module.
+
+Probable cause:
+Typo in the name, object removed or renamed, or reference to an object of another module.
+
+Recommendation:
+Fix the name or declare the object. Objects of other modules are only reachable through their outputs (module.<name>.<output>).
+
+Reference: https://developer.hashicorp.com/terraform/language/expressions/references
+
+------------------------------------------------------------------------
+
+[HIGH] EBS_SIZE_BELOW_MINIMUM  (blocking: fails at apply)
+
+File: storage.tf
+Line: 7
+Resource: aws_ebs_volume.logs
+Current value: 50
+Detected by: aws (ebs_size_below_minimum)
+
+Description:
+The volume size is below the minimum for its type (st1/sc1: 125 GiB, io1/io2: 4 GiB, gp2/gp3/standard: 1 GiB).
+
+Probable cause:
+Size copied from another volume type.
+
+Recommendation:
+Increase the size to at least the minimum for the type, or change the type.
+
+Reference: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+
+------------------------------------------------------------------------
+
+[HIGH] EBS_IOPS_NOT_SUPPORTED  (blocking: fails at plan)
+
+File: storage.tf
+Line: 9
+Resource: aws_ebs_volume.logs
+Current value: 500
+Detected by: aws (ebs_iops_not_supported)
+
+Description:
+Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan ("'iops' must not be set when 'type' is ...").
+
+Probable cause:
+Volume type changed without removing iops, or iops copied from an io1/gp3 example.
+
+Recommendation:
+Remove `iops`, or switch the volume to gp3/io1/io2.
+
+Suggested fix:
+    type = "gp3"
+    iops = 3000
+
+Reference: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+
+------------------------------------------------------------------------
+
+[HIGH] RDS_MAX_STORAGE_BELOW_ALLOCATED  (blocking: fails at apply)
+
+File: storage.tf
+Line: 18
+Resource: aws_db_instance.db
+Current value: 50
+Detected by: aws (rds_max_storage_below_allocated)
+
+Description:
+Storage autoscaling requires max_allocated_storage to be greater than allocated_storage; AWS rejects the value.
+
+Probable cause:
+Values inverted or allocated_storage increased without updating the maximum.
+
+Recommendation:
+Set max_allocated_storage above allocated_storage, or to 0 to disable autoscaling.
+
+Reference: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.Autoscaling
+
+------------------------------------------------------------------------
+
+[HIGH] RDS_IOPS_STORAGE_TYPE_CONFLICT  (blocking: fails at apply)
+
+File: storage.tf
+Line: 20
+Resource: aws_db_instance.db
+Current value: 1000
+Detected by: aws (rds_iops_storage_type_conflict)
+
+Description:
+Provisioned IOPS are not supported with gp2/standard storage, and are required for io1/io2.
+
+Probable cause:
+storage_type and iops not aligned.
+
+Recommendation:
+Use storage_type io1/io2/gp3 with iops, or remove iops for gp2/standard.
+
+Reference: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html
+
+------------------------------------------------------------------------
+
+[HIGH] RDS_MULTI_AZ_WITH_AZ  (blocking: fails at apply)
+
+File: storage.tf
+Line: 22
+Resource: aws_db_instance.db
+Current value: eu-west-3a
+Detected by: aws (rds_multi_az_with_az)
+
+Description:
+A specific availability zone cannot be requested for a Multi-AZ instance (InvalidParameterCombination).
+
+Probable cause:
+availability_zone kept after enabling multi_az.
+
+Recommendation:
+Remove availability_zone when multi_az = true.
+
+Reference: https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
+
+------------------------------------------------------------------------
+
+[HIGH] TF_VARIABLE_TYPE_MISMATCH  (blocking: fails at plan)
+
+File: terraform.tfvars
+Line: 1
+Resource: var.instance_count
+Current value: three
+Detected by: scanner (variable_type)
+
+Description:
+The value assigned to the variable cannot be converted to the declared type constraint; `terraform validate` does not check variable values.
+
+Probable cause:
+Wrong value type in a tfvars file (e.g. a word instead of a number) or an object missing a required attribute.
+
+Recommendation:
+Assign a value of the declared type, or change the type constraint if the value is the intended one.
+
+Reference: https://developer.hashicorp.com/terraform/language/values/variables#type-constraints
+
+------------------------------------------------------------------------
+
+[HIGH] TF_MISSING_VARIABLE_VALUE  (blocking: fails at plan)
+
+File: variables.tf
+Line: 20
+Resource: var.environment
+Detected by: scanner (required_variable)
+
+Description:
+The variable has no default and no value was found in terraform.tfvars, *.auto.tfvars, the --var-file/--var options or TF_VAR_ environment variables.
+
+Probable cause:
+The value is expected from the command line or the CI and is not provided to this run.
+
+Recommendation:
+Provide the value (tfvars file, `-var-file`, or `TF_VAR_<name>` in CI) or add a default. With `-input=false`, plan fails with "No value for required variable". If the value is passed at runtime, give the same file to tfpv with --var-file.
+
+Reference: https://developer.hashicorp.com/terraform/language/values/variables#assigning-values-to-root-module-variables
+
+------------------------------------------------------------------------
+
+[HIGH] IAM_EXCESSIVE_PERMISSIONS
+
+File: iam.tf
+Line: 3
+Resource: aws_iam_policy.admin
+Detected by: checkov (CKV_AWS_286, CKV_AWS_288, CKV_AWS_289, CKV_AWS_287)
+
+Description:
+The policy allows privilege escalation, credentials exposure, data exfiltration or permissions management without constraints.
+
+Probable cause:
+Wildcards on sensitive services (iam, sts, kms, s3, secretsmanager).
+
+Recommendation:
+Remove sensitive actions or constrain them with resources and conditions.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[HIGH] IAM_WILDCARD_ACTION
+
+File: iam.tf
+Line: 3
+Resource: aws_iam_policy.admin
+Detected by: checkov (CKV_AWS_63)
+
+Description:
+A statement allows "*" (or service:*) actions.
+
+Probable cause:
+Broad action list.
+
+Recommendation:
+List explicit actions.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[HIGH] SG_SSH_OPEN_TO_INTERNET
+
+File: network.tf
+Line: 25
+Resource: aws_security_group.web
+Detected by: checkov (CKV_AWS_24)
+
+Description:
+A security group allows ingress on port 22 from 0.0.0.0/0.
+
+Probable cause:
+Rule opened for debugging or convenience.
+
+Recommendation:
+Restrict the source to known CIDRs, or use SSM Session Manager instead of SSH.
+
+Reference: https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html
+
+------------------------------------------------------------------------
+
+[HIGH] S3_PUBLIC_ACCESS_BLOCK
+
+File: storage.tf
+Line: 1
+Resource: aws_s3_bucket.data
+Detected by: checkov (CKV2_AWS_6)
+
+Description:
+Public access is not explicitly blocked at bucket level; an ACL or policy change can expose data.
+
+Probable cause:
+No aws_s3_bucket_public_access_block, or one of its four settings disabled.
+
+Recommendation:
+Add aws_s3_bucket_public_access_block with the four settings set to true (unless the bucket must be public).
+
+Suggested fix:
+    resource "aws_s3_bucket_public_access_block" "this" {
+      bucket                  = aws_s3_bucket.data.id
+      block_public_acls       = true
+      block_public_policy     = true
+      ignore_public_acls      = true
+      restrict_public_buckets = true
+    }
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[HIGH] RDS_UNENCRYPTED
+
+File: storage.tf
+Line: 12
+Resource: aws_db_instance.db
+Detected by: checkov (CKV_AWS_16)
+
+Description:
+storage_encrypted is not enabled; encryption cannot be enabled later without recreating the instance.
+
+Probable cause:
+storage_encrypted omitted.
+
+Recommendation:
+Set storage_encrypted = true (and kms_key_id if required) before the first apply.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] EBS_IOPS_NOT_SUPPORTED  (blocking: fails at apply)
+
+File: main.tf
+Line: 8
+Resource: aws_instance.example
+Current value: 3000
+Detected by: aws (ebs_iops_not_supported)
+
+Description:
+Provisioned IOPS can only be set for io1, io2 and gp3 volumes; for this type the AWS provider fails the plan ("'iops' must not be set when 'type' is ...").
+
+Probable cause:
+Volume type changed without removing iops, or iops copied from an io1/gp3 example.
+
+Recommendation:
+Remove `iops`, or switch the volume to gp3/io1/io2.
+
+Suggested fix:
+    type = "gp3"
+    iops = 3000
+
+Reference: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] SG_ALL_PROTOCOL_WITH_PORTS  (blocking: fails at apply)
+
+File: network.tf
+Line: 39
+Resource: aws_security_group.web
+Current value: {"protocol": "-1", "from_port": 22, "to_port": 22}
+Detected by: aws (sg_all_protocol_with_ports)
+
+Description:
+With protocol "-1" (all traffic), from_port and to_port must both be 0; the rule otherwise does not do what it says (all ports are opened) and the AWS provider rejects it.
+
+Probable cause:
+Intent was a single port but the protocol was set to all.
+
+Recommendation:
+Set protocol to "tcp"/"udp" for a port range, or set from_port = 0 and to_port = 0 with protocol "-1".
+
+Reference: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+
+------------------------------------------------------------------------
+
+[MEDIUM] IAM_UNCONSTRAINED_WRITE
+
+File: iam.tf
+Line: 3
+Resource: aws_iam_policy.admin
+Detected by: checkov (CKV_AWS_290)
+
+Description:
+Write actions are allowed on all resources.
+
+Probable cause:
+Resource "*" on write actions.
+
+Recommendation:
+Scope write actions to specific resources.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] IAM_WILDCARD_RESOURCE
+
+File: iam.tf
+Line: 3
+Resource: aws_iam_policy.admin
+Detected by: checkov (CKV_AWS_355)
+
+Description:
+A statement allows actions on Resource "*" for actions that support resource-level permissions.
+
+Probable cause:
+Resources not scoped.
+
+Recommendation:
+Scope resources with ARNs (or ARN prefixes) wherever the action supports it.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] EC2_IMDSV1_ENABLED
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV_AWS_79)
+
+Description:
+The instance metadata service accepts IMDSv1 requests (SSRF risk).
+
+Probable cause:
+metadata_options.http_tokens not set to "required".
+
+Recommendation:
+Set metadata_options { http_tokens = "***REDACTED***" }.
+
+Suggested fix:
+    metadata_options {
+      http_tokens = "***REDACTED***"
+    }
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] EBS_UNENCRYPTED
+
+File: main.tf
+Line: 12
+Resource: aws_instance.bad_ami
+Detected by: checkov (CKV_AWS_8)
+
+Description:
+The volume (or instance root/EBS block device) is not encrypted.
+
+Probable cause:
+encrypted not set and no account-level default encryption assumed.
+
+Recommendation:
+Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] EC2_IMDSV1_ENABLED
+
+File: main.tf
+Line: 12
+Resource: aws_instance.bad_ami
+Detected by: checkov (CKV_AWS_79)
+
+Description:
+The instance metadata service accepts IMDSv1 requests (SSRF risk).
+
+Probable cause:
+metadata_options.http_tokens not set to "required".
+
+Recommendation:
+Set metadata_options { http_tokens = "***REDACTED***" }.
+
+Suggested fix:
+    metadata_options {
+      http_tokens = "***REDACTED***"
+    }
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] S3_BUCKET_VERSIONING
+
+File: storage.tf
+Line: 1
+Resource: aws_s3_bucket.data
+Detected by: checkov (CKV_AWS_21)
+
+Description:
+Versioning is not enabled: deleted or overwritten objects cannot be recovered.
+
+Probable cause:
+No aws_s3_bucket_versioning resource.
+
+Recommendation:
+Enable versioning with aws_s3_bucket_versioning (status = "Enabled").
+
+Suggested fix:
+    resource "aws_s3_bucket_versioning" "this" {
+      bucket = aws_s3_bucket.data.id
+      versioning_configuration {
+        status = "Enabled"
+      }
+    }
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[MEDIUM] EBS_UNENCRYPTED
+
+File: storage.tf
+Line: 5
+Resource: aws_ebs_volume.logs
+Detected by: checkov (CKV_AWS_189, CKV_AWS_3)
+
+Description:
+The volume (or instance root/EBS block device) is not encrypted.
+
+Probable cause:
+encrypted not set and no account-level default encryption assumed.
+
+Recommendation:
+Set encrypted = true (and kms_key_id if required), or enable EBS encryption by default in the account.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] EC2_HARDENING
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV_AWS_135, CKV_AWS_126)
+
+Description:
+Best practice not applied (detailed monitoring, EBS optimization).
+
+Probable cause:
+Option not set.
+
+Recommendation:
+Enable the options when your monitoring or performance policy requires them.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] IAM_HYGIENE
+
+File: main.tf
+Line: 1
+Resource: aws_instance.example
+Detected by: checkov (CKV2_AWS_41)
+
+Description:
+Best practice not applied (policy attached directly to a user, instance without IAM role).
+
+Probable cause:
+IAM design shortcut.
+
+Recommendation:
+Attach policies to groups/roles and give instances an instance profile.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] EC2_HARDENING
+
+File: main.tf
+Line: 12
+Resource: aws_instance.bad_ami
+Detected by: checkov (CKV_AWS_135, CKV_AWS_126)
+
+Description:
+Best practice not applied (detailed monitoring, EBS optimization).
+
+Probable cause:
+Option not set.
+
+Recommendation:
+Enable the options when your monitoring or performance policy requires them.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] IAM_HYGIENE
+
+File: main.tf
+Line: 12
+Resource: aws_instance.bad_ami
+Detected by: checkov (CKV2_AWS_41)
+
+Description:
+Best practice not applied (policy attached directly to a user, instance without IAM role).
+
+Probable cause:
+IAM design shortcut.
+
+Recommendation:
+Attach policies to groups/roles and give instances an instance profile.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] SG_HYGIENE
+
+File: network.tf
+Line: 1
+Resource: aws_vpc.main
+Detected by: checkov (CKV2_AWS_12)
+
+Description:
+Best practice not applied (rule description, unattached group, unrestricted egress, default security group).
+
+Probable cause:
+Missing description or unused group.
+
+Recommendation:
+Add descriptions, remove unused groups, restrict egress where possible.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] VPC_FLOW_LOGS
+
+File: network.tf
+Line: 1
+Resource: aws_vpc.main
+Detected by: checkov (CKV2_AWS_11)
+
+Description:
+VPC flow logs are not enabled.
+
+Probable cause:
+No aws_flow_log for the VPC.
+
+Recommendation:
+Enable flow logs to CloudWatch or S3 for network forensics.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] SG_HYGIENE
+
+File: network.tf
+Line: 38
+Resource: aws_security_group.web
+Detected by: checkov (CKV_AWS_23, CKV2_AWS_5)
+
+Description:
+Best practice not applied (rule description, unattached group, unrestricted egress, default security group).
+
+Probable cause:
+Missing description or unused group.
+
+Recommendation:
+Add descriptions, remove unused groups, restrict egress where possible.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] S3_ACCESS_LOGGING
+
+File: storage.tf
+Line: 1
+Resource: aws_s3_bucket.data
+Detected by: checkov (CKV_AWS_18)
+
+Description:
+Server access logging is not configured.
+
+Probable cause:
+No aws_s3_bucket_logging.
+
+Recommendation:
+Enable access logging if you need an audit trail of requests.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] S3_BUCKET_KMS_ENCRYPTION
+
+File: storage.tf
+Line: 1
+Resource: aws_s3_bucket.data
+Detected by: checkov (CKV_AWS_145)
+
+Description:
+The bucket is not configured to use SSE-KMS by default (S3 still applies SSE-S3 since 2023).
+
+Probable cause:
+No KMS default encryption configured.
+
+Recommendation:
+Use SSE-KMS when you need key-level access control and audit (CloudTrail).
+
+Reference: https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html
+
+------------------------------------------------------------------------
+
+[LOW] S3_OPTIONAL_HARDENING
+
+File: storage.tf
+Line: 1
+Resource: aws_s3_bucket.data
+Detected by: checkov (CKV2_AWS_62, CKV2_AWS_61, CKV_AWS_144)
+
+Description:
+Best practice not applied (cross-region replication, event notifications or lifecycle configuration).
+
+Probable cause:
+Feature not configured.
+
+Recommendation:
+Apply it when your data protection or cost policy requires it; otherwise ignore the rule in .tfpv.toml.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] RDS_HARDENING
+
+File: storage.tf
+Line: 14
+Resource: aws_db_instance.db
+Detected by: checkov (CKV_AWS_293, CKV_AWS_353, CKV_AWS_118, CKV_AWS_226, CKV_AWS_129, CKV_AWS_161, CKV2_AWS_60, CKV2_AWS_30)
+
+Description:
+Best practice not applied (deletion protection, Multi-AZ, monitoring, logs, IAM auth, minor upgrades, copy tags).
+
+Probable cause:
+Option not set.
+
+Recommendation:
+Enable the options required by your availability and audit policy.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] TF_UNDECLARED_VARIABLE_VALUE
+
+File: terraform.tfvars
+Line: 3
+Detected by: scanner (undeclared_variable_value)
+
+Description:
+A variable definitions file sets a variable that the root module does not declare; Terraform only warns.
+
+Probable cause:
+Typo in the variable name, or a variable removed from the configuration.
+
+Recommendation:
+Rename or remove the value, or declare the variable.
+
+Reference: https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files
+
+------------------------------------------------------------------------
+
+[LOW] AWS_HYGIENE
+
+File: unformatted.tf
+Line: 1
+Resource: aws_eip.ip
+Detected by: checkov (CKV2_AWS_19)
+
+Description:
+A resource is allocated but not attached (e.g. an Elastic IP without instance), which costs money.
+
+Probable cause:
+Leftover resource.
+
+Recommendation:
+Attach it or remove it.
+
+Reference: https://www.checkov.io/5.Policy%20Index/terraform.html
+
+------------------------------------------------------------------------
+
+[LOW] TF_FORMAT
+
+File: unformatted.tf
+Line: 1
+Resource: aws_eip.ip
+Detected by: terraform (fmt:File is not in canonical format)
+
+Description:
+`terraform fmt -check` reports that the file does not follow the canonical style.
+
+Probable cause:
+Manual edits not formatted (indentation, alignment of '=').
+
+Recommendation:
+Run `terraform fmt` (tfpv never rewrites files) and add `terraform fmt -check` to your CI.
+
+Suggested fix:
+    terraform fmt -recursive
+
+Reference: https://developer.hashicorp.com/terraform/cli/commands/fmt
+
+------------------------------------------------------------------------
+
+[LOW] TF_UNUSED_DECLARATION
+
+File: variables.tf
+Line: 11
+Resource: var.instance_count
+Detected by: tflint (terraform_unused_declarations)
+
+Description:
+A variable, local, data source or provider requirement is declared but never used.
+
+Probable cause:
+Leftover after refactoring.
+
+Recommendation:
+Remove it, or use it if it was meant to be referenced.
+
+Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.17.0/docs/rules/terraform_unused_declarations.md
+
+------------------------------------------------------------------------
+
+Final result:
+FAILED - Terraform configuration requires corrections.

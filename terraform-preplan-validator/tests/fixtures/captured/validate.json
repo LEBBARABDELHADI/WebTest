@@ -1,0 +1,39 @@
+{
+  "format_version": "1.0",
+  "valid": false,
+  "error_count": 1,
+  "warning_count": 1,
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "summary": "Value for undeclared variable",
+      "detail": "The root module does not declare a variable named \"unknown_var\" but a value was found in file \"terraform.tfvars\". If you meant to use this value, add a \"variable\" block to the configuration.\n\nTo silence these warnings, use TF_VAR_... environment variables to provide certain \"global\" settings to all configurations in your organization. To reduce the verbosity of these warnings, use the -compact-warnings option."
+    },
+    {
+      "severity": "error",
+      "summary": "Reference to undeclared resource",
+      "detail": "A managed resource \"aws_vpc\" \"mian\" has not been declared in the root module.",
+      "range": {
+        "filename": "network.tf",
+        "start": {
+          "line": 47,
+          "column": 12,
+          "byte": 846
+        },
+        "end": {
+          "line": 47,
+          "column": 24,
+          "byte": 858
+        }
+      },
+      "snippet": {
+        "context": "resource \"aws_route_table\" \"rt\"",
+        "code": "  vpc_id = aws_vpc.mian.id",
+        "start_line": 47,
+        "highlight_start_offset": 11,
+        "highlight_end_offset": 23,
+        "values": []
+      }
+    }
+  ]
+}

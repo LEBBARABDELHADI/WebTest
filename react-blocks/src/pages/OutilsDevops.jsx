@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useState, useMemo, lazy, Suspense } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import yaml from 'js-yaml'
 import Icon from '../components/Icon'
 import BlocCode from '../components/BlocCode'
@@ -22,8 +22,14 @@ import { testerLogs, EXEMPLES_LOGS } from '../lib/logs'
 // envoyé) et coffre de commandes à variables (synchronisé avec le dépôt
 // privé, par espace).
 
+// Validation Terraform avant plan (moteur local tfpv) : chargée à la demande.
+const TerraformPrePlan = lazy(() => import('../components/devops/TerraformPrePlan'))
+function OutilTfpv({ T, S }) {
+  return <Suspense fallback={<div style={S.carte}>Chargement…</div>}><TerraformPrePlan T={T} S={S} /></Suspense>
+}
+
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
-const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['docker', '🐳 Dockerfile'], ['gitlab', '🦊 GitLab CI'], ['logs', '🔎 Logs (regex / grok)'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
+const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['tfpv', '🛡️ Terraform · TFLint'], ['docker', '🐳 Dockerfile'], ['gitlab', '🦊 GitLab CI'], ['logs', '🔎 Logs (regex / grok)'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
 const compléterCommandes = d => ({
   commandes: Array.isArray(d?.commandes) ? d.commandes : [],
   profils: Array.isArray(d?.profils) && d.profils.length ? d.profils : [{ id: 'dev', nom: 'dev', valeurs: {} }, { id: 'prod', nom: 'prod', valeurs: {} }],
@@ -742,9 +748,17 @@ export default function OutilsDevops() {
   const config = useMemo(() => ({ id: espace, stockage: `react-blocs-commandes-${espace}`, chemin: `react-blocks/src/data/commandes-${espace}.json`, données: {} }), [espace])
   const { data, setData, token, statut, erreur, connecter, déconnecter } = useDonnéesSynchronisées(config, compléterCommandes)
   const [onglet, setOnglet] = useState(() => { try { return localStorage.getItem('react-blocs-outils-onglet') || 'outils' } catch { return 'outils' } })
-  const [outil, setOutil] = useState('k8s')
+  const [paramsUrl] = useSearchParams()
+  const outilUrl = paramsUrl.get('outil')
+  const [outil, setOutil] = useState(() => (OUTILS.some(([id]) => id === outilUrl) ? outilUrl : 'k8s'))
+  // ?outil=… dans l'adresse (lien de tfpv serve) : choisit l'outil, même page ouverte.
+  const [outilUrlVu, setOutilUrlVu] = useState(outilUrl)
+  if (outilUrl !== outilUrlVu) {
+    setOutilUrlVu(outilUrl)
+    if (OUTILS.some(([id]) => id === outilUrl)) setOutil(outilUrl)
+  }
   const choisirOnglet = o => { setOnglet(o); try { localStorage.setItem('react-blocs-outils-onglet', o) } catch { /* ignore */ } }
-  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, docker: OutilDocker, gitlab: OutilGitlab, logs: OutilLogs, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
+  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, tfpv: OutilTfpv, docker: OutilDocker, gitlab: OutilGitlab, logs: OutilLogs, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '20px 16px 60px', color: T.text }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
@@ -764,7 +778,7 @@ export default function OutilsDevops() {
         {onglet === 'outils' && (
           <>
             <div role="tablist" aria-label="Outil" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 10 }}>
-              {OUTILS.map(([id, nom]) => <button key={id} role="tab" aria-selected={outil === id} onClick={() => setOutil(id)} style={S.puce(outil === id)}>{nom}</button>)}
+              {OUTILS.map(([id, nom]) => <button key={id} role="tab" aria-selected={outil === id} onClick={() => setOutil(id)} style={{ ...S.puce(outil === id), flexShrink: 0 }}>{nom}</button>)}
             </div>
             <Outil T={T} S={S} />
           </>
