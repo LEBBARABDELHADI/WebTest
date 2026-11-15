@@ -1,105 +1,131 @@
 # Terraform Pre-Plan Validator (tfpv)
 
-Valide une configuration Terraform **avant** `terraform plan` : erreurs de syntaxe, ressources et valeurs AWS invalides, variables manquantes ou mal typées, références inexistantes, incohérences réseau (CIDR, sous-réseaux, groupes de sécurité), stockage (EBS, RDS), IAM, et risques de sécurité. Chaque constat est expliqué : règle, fichier, ligne, ressource, valeur, cause probable, gravité, correction et documentation.
+Valide une configuration Terraform **avant** `terraform plan`. Il détecte :
+- les erreurs de syntaxe ;
+- les ressources et valeurs AWS invalides ;
+- les variables manquantes ou mal typées ;
+- les références inexistantes ;
+- les incohérences réseau (CIDR, sous-réseaux, groupes de sécurité), de stockage (EBS, RDS) et d'IAM ;
+- les risques de sécurité.
 
-* tfpv **orchestre les vrais outils** (`terraform fmt/init/validate`, TFLint avec les rulesets terraform et AWS, Checkov) et ajoute ce qu'ils ne vérifient pas. Voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-* Il **ne lance jamais** `terraform plan` ni `apply`, et **ne modifie aucun fichier** : `init` tourne sur une copie temporaire.
-* Il **n'annonce jamais un succès** si un contrôle n'a pas pu tourner. Le statut est alors `INCOMPLETE`.
-* Les secrets sont masqués dans les rapports et les journaux.
-* Les contrôles purement statiques ne demandent **aucun identifiant AWS**.
+Chaque constat est expliqué : règle, fichier, ligne, ressource, valeur, cause probable, gravité, correction et documentation.
 
-Dans React Blocs, c'est le bouton **🛡️ Terraform · TFLint** de la page *Outils DevOps*.
+Deux moteurs partagent la même base de connaissances (115 règles) et le même format de rapport :
 
-## Installation
-
-Prérequis : Python ≥ 3.11 et, dans le `PATH` :
-
-| Outil | Rôle | Installation |
+| | Où | Pour qui |
 |---|---|---|
-| `terraform` (≥ 1.6) | fmt, init, validate | <https://developer.hashicorp.com/terraform/install> |
-| `tflint` (≥ 0.50) | linting terraform + AWS | <https://github.com/terraform-linters/tflint> ; le ruleset AWS est téléchargé par `tflint --init` (tfpv le lance sauf avec `--offline`) |
-| `checkov` | sécurité | `pipx install checkov` (dans son propre environnement) |
-| `aws` (facultatif) | contrôles via l'API AWS (`--aws-checks`) | AWS CLI v2 |
+| **Moteur intégré** (`react-blocks/src/lib/tfpv/moteur`) | Dans React Blocs, bouton **🛡️ Terraform · TFLint** de la page *Outils DevOps* | **Utilisation normale** : rien à installer, aucun fichier envoyé, téléphone et PC |
+| Moteur CLI (ce dossier, Python) | Pipeline CI/CD | Facultatif : exécute les vrais binaires `terraform`, `tflint` et `checkov` |
+
+## Utiliser l'outil dans React Blocs (rien à installer)
+
+Ouvre *Outils DevOps* › 🧰 Boîte à outils › **🛡️ Terraform · TFLint**.
+
+**1 · Projet Terraform**, au choix :
+- **📁 Dossier ou fichiers** :
+  - choisis un dossier ou des fichiers `.tf` / `.tfvars`, une archive `.zip`, ou dépose-les dans la zone ;
+  - sur Chrome et Edge pour ordinateur, un dossier ouvert avec « Choisir un dossier » est **relu à chaque relance** ;
+  - `.terraform`, `.git` et les fichiers d'état sont ignorés.
+- **✍️ Coller du code** : un `main.tf` (et, si besoin, un `terraform.tfvars`). C'est pratique sur téléphone.
+- **🧪 Essayer un exemple** : un projet volontairement fautif.
+- **📄 Ouvrir un rapport** : relire un rapport JSON exporté.
+
+**2 · Réglages** :
+- seuil d'échec ;
+- fichiers de variables utilisés au plan (équivalent de `-var-file`) ;
+- variables fournies par la CI (`TF_VAR_…`), pour ne pas les signaler comme manquantes.
+
+**3 · ▶ Analyser.** Une barre de progression suit les étapes. Les résultats s'affichent fichier par fichier :
+- filtres de gravité et « bloquants seulement » ;
+- code concerné, ligne surlignée ;
+- explication, cause probable, correction, correctif à copier et documentation.
+
+Corrige, puis **🔁 Relancer**. Exports possibles : **JSON**, **HTML** (autonome) et **texte** (format du rapport demandé).
+
+**Ce que vérifie le moteur intégré**, à partir des **références des vrais outils**, embarquées dans l'application :
+
+| Contrôle | Référence | Comparaison avec l'outil réel (fichiers `tests/fixtures`) |
+|---|---|---|
+| Schéma des providers : type de ressource inconnu, argument inattendu ou manquant, attribut calculé renseigné, bloc inattendu ou trop nombreux, type de valeur, attribut référencé inexistant | Schéma officiel de `hashicorp/aws` **6.73.0** (`terraform providers schema -json`) + random, null, tls, local, archive, time, http, external, cloudinit | `schema_errors` : les **7** erreurs de `terraform validate` 1.17.2, aux mêmes lignes, **+2** qu'il ne remonte qu'au passage suivant (vérifié) |
+| Valeurs AWS : 1 364 règles générées depuis l'API AWS, types d'instance et classes RDS, moteurs, runtimes Lambda obsolètes, cibles de routes, noms de buckets | Données de **tflint-ruleset-aws 0.50.0** | `tflint_rules` : les **9** constats de TFLint 0.66.0 |
+| Variables (valeur absente, type des `.tfvars`), références, modules, providers, doublons, sorties sensibles | Règles tfpv | Erreurs que `terraform plan` remonte (vérifié en laboratoire), non vues par `validate` |
+| Cohérence AWS : CIDR, sous-réseau hors VPC ou chevauchement, ports, EBS, RDS, principaux IAM, AMI | Règles tfpv | Échecs à l'apply, non vus par `validate`, TFLint ni Checkov |
+| Sécurité : S3 public ou non chiffré, ports ouverts à Internet, IAM `*`, RDS, EBS, IMDSv2, CloudTrail, EKS, secrets en clair… | Sélection de politiques **équivalentes à Checkov** (ID `CKV_*` conservés ; `#checkov:skip` respecté) | `valid_basic` validé comme avec Checkov 3.4.5 ; `invalid_aws` : les problèmes majeurs vus par Checkov (IAM administrateur, SSH ouvert, S3 sans blocage public, RDS et EBS non chiffrés, IMDSv1) sont retrouvés, pas toutes ses règles de bonnes pratiques |
+| Formatage | Approximation prudente de `terraform fmt -check` | `unformatted.tf` détecté |
+
+**Ce qu'il ne peut pas vérifier**, sans exécuter Terraform ni accéder à AWS :
+- les valeurs connues seulement à l'apply ;
+- l'existence réelle des AMI ou ressources dans le compte ;
+- les validations internes du provider non décrites dans le schéma ;
+- le contenu des **modules distants** (registre, Git) ;
+- les politiques Checkov hors de la sélection.
+
+Si le projet contient un module distant, ou un provider dont le schéma n'est pas embarqué, le statut est **INCOMPLETE** : jamais « validé ».
+
+Statuts :
+
+| Statut | Signification |
+|---|---|
+| ✅ PASSED | Tous les contrôles de l'outil ont tourné, sans constat |
+| 🟡 PASSED_WITH_WARNINGS | Rien de bloquant ; des avertissements sont à revoir |
+| ⛔ FAILED | Au moins un constat bloquant, ou de gravité ≥ seuil |
+| 🟣 INCOMPLETE | Une partie du projet n'a pas pu être analysée |
+
+Pour ignorer un constat, ajoute un commentaire **avec une raison** :
+- tfpv : `# tfpv:ignore RÈGLE -- raison`, sur la ligne ou la ligne précédente ;
+- TFLint : `# tflint-ignore: règle` ;
+- Checkov : `#checkov:skip=CKV_…:raison`.
+
+### Mettre à jour les données de référence
 
 ```bash
-pip install ./terraform-preplan-validator      # ou : pipx install ./terraform-preplan-validator
-tfpv doctor                                    # moteurs détectés et versions
+# dans un dossier avec hashicorp/aws (et un autre avec les petits providers)
+terraform init -backend=false && terraform providers schema -json > aws-schema.json
+python3 terraform-preplan-validator/outils/donnees_navigateur.py \
+  --aws-schema aws-schema.json --aws-version <version> --other-schemas autres-schema.json \
+  --tflint-aws ~/go/pkg/mod/github.com/terraform-linters/tflint-ruleset-aws@v<version>
+cd react-blocks && npm run test:tfpv
 ```
 
-tfpv n'a **aucune dépendance Python** : il n'utilise que la bibliothèque standard.
+Le script écrit :
+- `react-blocks/public/tfpv/` : schémas et règles TFLint, chargés à la demande ;
+- `react-blocks/src/lib/tfpv/donnees/` : base de connaissances et versions.
 
-## Utilisation
+## Moteur CLI pour la CI (facultatif)
+
+Ce dossier contient aussi un moteur en Python, sans dépendance. Il lance les **vrais** outils :
+- `terraform fmt -check`, `init -backend=false` (sur une copie temporaire) et `validate` ;
+- TFLint avec les rulesets terraform et AWS ;
+- Checkov.
+
+Il y ajoute les mêmes contrôles tfpv. Il ne lance jamais `plan` ni `apply` et ne modifie aucun fichier.
 
 ```bash
-tfpv scan infra/                               # rapport texte, code de sortie 0/1/2
-tfpv scan infra/ -f json -f html -f junit -o reports/
-tfpv scan infra/ --var-file env/prod.tfvars --fail-on MEDIUM
-tfpv scan infra/ --offline                     # sans réseau : pas d'init/validate → INCOMPLETE
-tfpv scan infra/ --aws-checks --aws-profile lecture   # + AMI, type d'instance offert, version RDS
-tfpv scan infra/ --watch                       # relance à chaque modification
-tfpv rules                                     # catalogue des règles (docs/RULES.md)
+pip install ./terraform-preplan-validator      # Python ≥ 3.11 ; terraform, tflint, checkov dans le PATH
+tfpv doctor
+tfpv scan infra/ -f text -f json -f html -f junit -o reports/
 ```
 
 | Code de sortie | Statut |
 |---|---|
 | 0 | `PASSED` ou `PASSED_WITH_WARNINGS` |
-| 1 | `FAILED` : au moins un constat bloquant, ou de gravité ≥ `--fail-on` (HIGH par défaut) |
-| 2 | `INCOMPLETE` : un contrôle requis n'a pas tourné. Avec `--allow-incomplete`, le code devient 0 mais le statut reste `INCOMPLETE` |
-| 3 | erreur d'utilisation ou de configuration |
+| 1 | `FAILED` |
+| 2 | `INCOMPLETE` (un contrôle requis n'a pas tourné) |
+| 3 | erreur d'utilisation |
 
-### Configuration `.tfpv.toml` (facultative, à la racine du projet)
+Options utiles :
+- `--var-file`, `--fail-on`, `--offline` ;
+- `--aws-checks` : AMI, type d'instance et version RDS via l'AWS CLI, en lecture seule ;
+- `--watch`, `--skip`, `--ignore` ;
+- fichier de configuration `.tfpv.toml` (`fail_on`, `var_files`, `[ignore] rules`, `[severity]`, `[tflint]`, `[checkov] skip_checks`).
 
-```toml
-fail_on = "HIGH"
-var_files = ["env/prod.tfvars"]
-[ignore]
-rules = ["S3_OPTIONAL_HARDENING", "CKV2_AWS_62"]   # règle tfpv ou identifiant du moteur
-[severity]
-VPC_FLOW_LOGS = "MEDIUM"
-[tflint]
-config = "auto"            # auto (.tflint.hcl du projet s'il existe) | project | tfpv | chemin
-aws_ruleset_version = "0.50.0"
-[checkov]
-skip_checks = ["CKV_AWS_144"]
-```
-
-Pour ignorer un constat dans le code :
-
-* tfpv : `# tfpv:ignore NET_SUBNET_OVERLAP -- raison`, sur la ligne ou la ligne précédente ;
-* TFLint : `# tflint-ignore: règle` ;
-* Checkov : `#checkov:skip=ID:raison`, dans le bloc.
-
-Les constats ignorés restent listés dans le rapport, avec leur raison.
-
-## Bouton « 🛡️ Terraform · TFLint » (React Blocs)
-
-```bash
-tfpv serve --root ~/infra
-```
-
-La commande affiche un **jeton** et un **lien** qui ouvre la page déjà connectée. Le jeton est placé dans le fragment `#` de l'adresse, qui n'est jamais envoyé à un serveur ; la page le retire de l'adresse puis le garde uniquement pour l'onglet.
-
-Une fois connectée, la page permet de :
-* choisir un **dossier** (ses fichiers sont envoyés uniquement à `127.0.0.1`) ou un **chemin** sous `--root` ;
-* lancer le **Scan** et suivre la progression étape par étape ;
-* lire les résultats par fichier, filtrer par gravité ou sur les seuls bloquants, voir le code concerné (ligne surlignée) et les recommandations ;
-* **exporter** en JSON ou HTML, et **relancer** après correction.
-
-Sur téléphone, ou sans moteur, la page **ouvre un rapport JSON** produit en CI. Un exemple réel est intégré.
-
-Sécurité de l'API : écoute sur 127.0.0.1 uniquement, jeton obligatoire, liste d'origines (`--allow-origin` pour en ajouter), contrôle de l'en-tête `Host`, chemins limités à `--root`. Depuis le site publié sur GitHub Pages, le navigateur peut demander l'autorisation d'accéder au « réseau local » ; Safari peut bloquer. Dans ce cas, utiliser l'application en local (`npm run preview`) ou l'import de rapport.
-
-## CI/CD
-
-**Exemples à adapter** : ils n'ont pas été exécutés dans un vrai pipeline. Les commandes `tfpv` qu'ils contiennent sont celles testées localement.
-
-GitLab CI :
+Exemple GitLab CI, à adapter : il n'a pas été exécuté dans un vrai pipeline.
 
 ```yaml
 terraform-preplan:
   image: python:3.12-slim
   variables:
-    TFLINT_PLUGIN_DIR: "$CI_PROJECT_DIR/.tflint.d/plugins"   # mis en cache ci-dessous
+    TFLINT_PLUGIN_DIR: "$CI_PROJECT_DIR/.tflint.d/plugins"
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends curl unzip git
     - curl -fsSLo tf.zip https://releases.hashicorp.com/terraform/1.17.2/terraform_1.17.2_linux_amd64.zip && unzip tf.zip -d /usr/local/bin
@@ -107,73 +133,26 @@ terraform-preplan:
     - pip install pipx && pipx install checkov && export PATH="$HOME/.local/bin:$PATH"
     - pip install ./terraform-preplan-validator
   script:
-    - tfpv scan infra/ -f text -f json -f html -f junit -o reports/
+    - tfpv scan infra/ -f text -f json -f junit -o reports/
   artifacts:
     when: always
     paths: [reports/]
     reports:
       junit: reports/tfpv-report.xml
-  cache:
-    paths: [.tflint.d/plugins]
 ```
 
-`tflint --init` télécharge le ruleset AWS depuis GitHub : en CI, définir `GITHUB_TOKEN` évite la limite de débit de l'API GitHub.
-
-GitHub Actions :
-
-```yaml
-- uses: hashicorp/setup-terraform@v3
-- uses: terraform-linters/setup-tflint@v4
-- run: pipx install checkov && pip install ./terraform-preplan-validator
-- run: tfpv scan infra/ -f text -f junit -o reports/
-- uses: actions/upload-artifact@v4
-  if: always()
-  with: { name: tfpv-report, path: reports/ }
-```
-
-## Rapport
-
-Rapports réels générés sur les fixtures : [`docs/examples/`](docs/examples/) (texte, JSON, HTML, JUnit).
-
-Extrait, pour l'exemple de la demande (`instance_type = "t3.invalid"`) :
-
-```
-[HIGH] AWS_INVALID_INSTANCE_TYPE  (blocking: fails at apply)
-
-File: main.tf
-Line: 3
-Resource: aws_instance.example
-Current value: t3.invalid
-Detected by: tflint (aws_instance_invalid_type)
-
-Description:
-The specified EC2 instance type is not recognized. ("t3.invalid" is an invalid value as instance_type)
-
-Recommendation:
-Verify that the instance type exists in the selected AWS region and is supported by the selected architecture and AMI: ...
-```
-
-Le résumé compte :
-* les contrôles **réussis** que les moteurs publient : étapes Terraform, fichiers formatés, contrôles Checkov réussis, évaluations du validateur AWS. TFLint ne publie que ses échecs : un ruleset sans constat compte pour 1 ;
-* les **échecs** : constats bloquants ou de gravité ≥ seuil ;
-* les **avertissements** : les autres constats ;
-* les contrôles **non exécutés** ;
-* les évaluations **non évaluables** statiquement.
+Un rapport JSON produit en CI peut être rouvert dans l'outil (📄 Ouvrir un rapport). Exemples de rapports réels : [`docs/examples/`](docs/examples/). Architecture et choix techniques : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Catalogue des règles : [`docs/RULES.md`](docs/RULES.md).
 
 ## Tests
 
 ```bash
-pip install pytest
-pytest tests/unit                  # 58 tests, sans aucun outil externe (sorties réelles capturées)
-pytest -m integration              # 8 tests avec terraform, tflint (+ ruleset AWS) et checkov installés
+cd react-blocks && npm run test:tfpv      # moteur intégré : 12 tests, attentes calées sur les vrais outils
+pytest tests/unit                          # moteur CLI : 56 tests, sans outil externe
+pytest -m integration                      # 8 tests avec terraform, tflint (+ AWS) et checkov installés
 ```
 
-Testé avec :
-* Terraform 1.17.2, provider AWS 6.73.0 ;
-* TFLint 0.66.0, ruleset terraform 0.17.0 et ruleset AWS 0.50.0 ;
-* Checkov 3.4.5 ;
-* Python 3.11, sous Linux.
-
-L'écran React a été testé sur téléphone (375 px) et PC (1366 px) avec Playwright et un vrai moteur `tfpv serve`.
-
-**Non testé** : OpenTofu (`--tf-bin tofu`), appels réels à l'API AWS (seulement avec un faux AWS CLI), *deep check* TFLint, Windows et macOS.
+L'écran a été testé avec Playwright sur téléphone (375 px) et PC (1366 px) :
+- l'exemple, le code collé puis corrigé, une archive `.zip`, un dossier ;
+- la relecture d'un dossier à la relance ;
+- les exports ;
+- aucune requête en dehors du site de l'application.

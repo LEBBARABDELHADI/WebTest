@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from 'react'
+import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import yaml from 'js-yaml'
 import Icon from '../components/Icon'
@@ -753,6 +753,13 @@ export default function OutilsDevops() {
   const [outil, setOutil] = useState(() => (OUTILS.some(([id]) => id === outilUrl) ? outilUrl : 'k8s'))
   // ?outil=… dans l'adresse (lien de tfpv serve) : choisit l'outil, même page ouverte.
   const [outilUrlVu, setOutilUrlVu] = useState(outilUrl)
+  const barreOutils = useRef(null)
+  // L'outil choisi reste visible dans la barre (téléphone : barre défilante).
+  useEffect(() => {
+    const actif = barreOutils.current?.querySelector('[aria-selected="true"]')
+    const barre = barreOutils.current
+    if (actif && barre) barre.scrollLeft = Math.max(0, actif.offsetLeft - barre.offsetLeft - 16)
+  }, [outil, onglet])
   if (outilUrl !== outilUrlVu) {
     setOutilUrlVu(outilUrl)
     if (OUTILS.some(([id]) => id === outilUrl)) setOutil(outilUrl)
@@ -777,7 +784,7 @@ export default function OutilsDevops() {
         </div>
         {onglet === 'outils' && (
           <>
-            <div role="tablist" aria-label="Outil" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 10 }}>
+            <div ref={barreOutils} role="tablist" aria-label="Outil" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 10 }}>
               {OUTILS.map(([id, nom]) => <button key={id} role="tab" aria-selected={outil === id} onClick={() => setOutil(id)} style={{ ...S.puce(outil === id), flexShrink: 0 }}>{nom}</button>)}
             </div>
             <Outil T={T} S={S} />

@@ -3,7 +3,10 @@
     tfpv scan [DIR]        validate a Terraform root module (never plan/apply)
     tfpv doctor            show which engines are available
     tfpv rules             print the rule catalogue
-    tfpv serve             local API used by the React Blocs « Terraform · TFLint » page
+
+The React Blocs « Terraform · TFLint » page does not need this CLI: it runs its
+own in-browser engine (react-blocks/src/lib/tfpv/moteur). This CLI runs the real
+engines (terraform, TFLint, Checkov) and is meant for CI pipelines.
 """
 from __future__ import annotations
 
@@ -68,14 +71,6 @@ def _parser() -> argparse.ArgumentParser:
     r = sub.add_parser("rules", help="print the rule catalogue")
     r.add_argument("--format", choices=("text", "json", "markdown"), default="text")
 
-    v = sub.add_parser("serve", help="local API for the React Blocs page (127.0.0.1 only)")
-    v.add_argument("--port", type=int, default=7317)
-    v.add_argument("--root", default=".", help="only directories under this root can be scanned by path (default: .)")
-    v.add_argument("--allow-origin", action="append", default=[], help="extra allowed browser origin")
-    v.add_argument("--token", help="fixed access token (default: random, printed at start-up)")
-    v.add_argument("--app-url", default="https://lebbarabdelhadi.github.io/WebTest/", help="React Blocs URL used for the connection link")
-    for flag in ("--tf-bin", "--tflint-bin", "--checkov-bin", "--aws-bin"):
-        v.add_argument(flag)
     return p
 
 
@@ -201,9 +196,6 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_doctor(a)
     if a.command == "rules":
         return cmd_rules(a)
-    if a.command == "serve":
-        from .server import serve
-        return serve(a)
     return 3
 
 

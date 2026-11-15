@@ -1,10 +1,7 @@
-"""CLI exit codes, local API guards and opt-in AWS checks (fake AWS CLI)."""
+"""CLI exit codes and opt-in AWS checks (fake AWS CLI)."""
 import json
 import os
 import stat
-import threading
-import urllib.error
-import urllib.request
 
 import pytest
 
@@ -12,7 +9,6 @@ from conftest import FIXTURES
 from tfpv import cli
 from tfpv.engines.aws import external
 from tfpv.runner import Runner
-from tfpv.server import App, make_server, sanitize, write_upload
 
 SKIP_ENGINES = ["--skip", "terraform_fmt", "--skip", "terraform_init", "--skip", "terraform_validate", "--skip", "tflint", "--skip", "checkov"]
 
@@ -44,49 +40,6 @@ def test_cli_config_file_and_errors(tmp_path, capsys):
     (tmp_path / ".tfpv.toml").write_text('skip = ["nope"]\n')
     assert cli.main(["scan", str(tmp_path)]) == 3
     assert cli.main(["scan", str(tmp_path / "missing")]) == 3
-
-
-def test_upload_sanitising(tmp_path):
-    for bad in ("../x.tf", "/etc/passwd", "a/../../x.tf", "C:/x.tf", "~/x.tf"):
-        with pytest.raises(ValueError):
-            sanitize(bad)
-    root = write_upload(tmp_path, [{"path": "infra/main.tf", "content": "x"}, {"path": "infra/bin.exe", "content": "x"}])
-    assert root == tmp_path / "infra" and not (tmp_path / "infra" / "bin.exe").exists()
-    with pytest.raises(ValueError):
-        write_upload(tmp_path / "b", [{"path": "README.md", "content": "x"}])
-
-
-@pytest.fixture
-def server(tmp_path):
-    app = App(FIXTURES, "tok", {"https://lebbarabdelhadi.github.io"}, 0, {})
-    srv = make_server(app)
-    app.port = srv.server_address[1]
-    t = threading.Thread(target=srv.serve_forever, daemon=True)
-    t.start()
-    yield app
-    srv.shutdown()
-    srv.server_close()
-
-
-def _call(app, path, method="GET", body=None, headers=None):
-    h = {"Authorization": "Bearer tok", "Content-Type": "application/json", **(headers or {})}
-    req = urllib.request.Request(f"http://127.0.0.1:{app.port}{path}", data=json.dumps(body).encode() if body is not None else None, headers=h, method=method)
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return r.status, json.loads(r.read() or b"{}")
-    except urllib.error.HTTPError as e:
-        return e.code, json.loads(e.read() or b"{}")
-
-
-def test_server_guards(server):
-    assert _call(server, "/api/health", headers={"Authorization": "Bearer wrong"})[0] == 401
-    assert _call(server, "/api/health", headers={"Origin": "https://evil.example"})[0] == 403
-    assert _call(server, "/api/health", headers={"Host": "evil.example"})[0] == 403
-    assert _call(server, "/api/scans", "POST", {"source": {"type": "path", "path": "/etc"}})[0] == 403
-    assert _call(server, "/api/scans", "POST", {"source": {"type": "files", "files": [{"path": "../a.tf", "content": ""}]}})[0] == 400
-    assert _call(server, "/api/scans", "POST", {"source": {"type": "path", "path": "valid_basic"}, "options": {"fail_on": "BAD"}})[0] == 400
-    code, health = _call(server, "/api/health", headers={"Origin": "https://lebbarabdelhadi.github.io"})
-    assert code == 200 and "tools" in health and len(health["steps"]) == 7
 
 
 def _fake_aws(tmp_path):

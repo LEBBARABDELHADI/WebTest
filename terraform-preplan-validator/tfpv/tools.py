@@ -1,5 +1,5 @@
-"""Tool discovery and versions (used by `tfpv doctor`, the server health
-endpoint and the report environment section)."""
+"""Tool discovery and versions (used by `tfpv doctor` and the report
+environment section)."""
 from __future__ import annotations
 
 import json

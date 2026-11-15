@@ -146,6 +146,29 @@ _r("TF_VALIDATE_WARNING", "Terraform validation warning", "LOW", "CONFIGURATION"
 _r("TF_INIT_ERROR", "Terraform init error", "HIGH", "MODULES_PROVIDERS", True, "init",
    "`terraform init -backend=false` failed.", "See the Terraform message.", "Fix the error reported by Terraform.", tier="providers")
 
+_r("TF_UNCONFIGURABLE_ATTRIBUTE", "Attribute cannot be set", "HIGH", "CONFIGURATION", True, "validate",
+   "The attribute is computed by the provider (read-only); Terraform rejects a value for it (\"Value for unconfigurable attribute\").",
+   "Copy of an attribute from the documentation's 'Attributes Reference' (e.g. arn, id) into the arguments.",
+   "Remove the argument; read the value with a reference instead (e.g. aws_vpc.main.arn).")
+_r("TF_BLOCK_COUNT", "Wrong number of nested blocks", "HIGH", "CONFIGURATION", True, "validate",
+   "The nested block appears more often than the provider schema allows, or a required block is missing (\"Too many ... blocks\" / \"Insufficient ... blocks\").",
+   "Block duplicated, or required block forgotten.", "Keep the number of blocks allowed by the resource documentation.")
+_r("TF_COUNT_AND_FOR_EACH", "count and for_each together", "HIGH", "CONFIGURATION", True, "validate",
+   "A resource, data source or module cannot use both count and for_each.", "Refactoring left both meta-arguments.",
+   "Keep only one of them (for_each is usually preferred for stable addresses).")
+_r("TF_INVALID_DEFAULT", "Variable default does not match its type", "HIGH", "VARIABLES", True, "validate",
+   "The default value cannot be converted to the declared type constraint (\"Invalid default value for variable\").",
+   "Type changed without updating the default, or wrong literal.", "Make the default match the type, or fix the type constraint.",
+   references=(f"{TF_DOCS}/language/values/variables#type-constraints",))
+_r("TF_SENSITIVE_OUTPUT", "Output exposes a sensitive value", "HIGH", "VARIABLES", True, "validate",
+   "The output refers to a sensitive variable but is not marked sensitive; Terraform refuses it (\"Output refers to sensitive values\").",
+   "sensitive = true forgotten on the output.", "Add sensitive = true to the output (or stop exposing the value).",
+   fix="sensitive = true", references=(f"{TF_DOCS}/language/values/outputs#sensitive-suppressing-values-in-cli-output",))
+_r("TF_UNDECLARED_PROVIDER", "Reference to an undeclared provider configuration", "HIGH", "MODULES_PROVIDERS", True, "validate",
+   "The provider meta-argument points to an alias that no provider block declares.", "Alias renamed or provider block missing.",
+   "Declare provider \"<name>\" { alias = \"<alias>\" } or fix the reference.",
+   references=(f"{TF_DOCS}/language/providers/configuration#alias-multiple-provider-configurations",))
+
 # TFLint terraform ruleset
 _r("TF_MISSING_REQUIRED_VERSION", "No required_version", "LOW", "MODULES_PROVIDERS", False, "none",
    "The configuration does not constrain the Terraform version.", "`required_version` missing in the terraform block.",
@@ -444,6 +467,41 @@ _sec("PROVIDER_HARDCODED_CREDENTIALS", "Hard-coded AWS credentials", "CRITICAL",
      "Remove the keys, rotate them, and use profiles, SSO or OIDC federation in CI.")
 _sec("KMS_KEY_ROTATION", "KMS key rotation disabled", "MEDIUM", "SECURITY",
      "Automatic rotation is not enabled on the customer managed key.", "enable_key_rotation omitted.", "Set enable_key_rotation = true.")
+_sec("CLOUDTRAIL_HARDENING", "CloudTrail not fully hardened", "MEDIUM", "SECURITY",
+     "The trail is not multi-region, or log file validation / KMS encryption is not enabled.", "Options left at their defaults.",
+     "Set is_multi_region_trail = true, enable_log_file_validation = true and kms_key_id.")
+_sec("ALB_HTTP_LISTENER", "Load balancer listener in plain HTTP", "MEDIUM", "SECURITY",
+     "The listener uses HTTP without redirecting to HTTPS: traffic is not encrypted.", "HTTPS listener and redirection missing.",
+     "Use an HTTPS listener with a TLS 1.2+ policy and redirect HTTP to HTTPS.",
+     fix='default_action {\n  type = "redirect"\n  redirect {\n    port        = "443"\n    protocol    = "HTTPS"\n    status_code = "HTTP_301"\n  }\n}')
+_sec("MESSAGING_UNENCRYPTED", "Queue or topic not encrypted", "MEDIUM", "SECURITY",
+     "The SQS queue or SNS topic has no server-side encryption configured.", "Encryption option not set.",
+     "SQS: sqs_managed_sse_enabled = true or kms_master_key_id; SNS: kms_master_key_id.")
+_sec("DYNAMODB_HARDENING", "DynamoDB backup/encryption options", "LOW", "DATABASE",
+     "Point-in-time recovery is not enabled (or no customer managed key).", "Option not set.",
+     "Add point_in_time_recovery { enabled = true }.")
+_sec("ECR_HARDENING", "ECR repository hardening", "LOW", "SECURITY",
+     "Image tags are mutable or scan on push is disabled.", "Defaults kept.",
+     "Set image_tag_mutability = \"IMMUTABLE\" and image_scanning_configuration { scan_on_push = true }.")
+_sec("EKS_PUBLIC_ENDPOINT", "EKS API endpoint public to the Internet", "HIGH", "SECURITY",
+     "The Kubernetes API endpoint is public and not restricted to known CIDRs (the provider default is public, 0.0.0.0/0).",
+     "vpc_config left at its defaults.", "Set endpoint_public_access = false (private endpoint) or restrict public_access_cidrs.")
+_sec("EKS_SECRETS_ENCRYPTION", "EKS secrets not encrypted with KMS", "MEDIUM", "SECURITY",
+     "Kubernetes secrets are not envelope-encrypted with a KMS key.", "No encryption_config block.",
+     "Add encryption_config { resources = [\"secrets\"] provider { key_arn = ... } }.")
+_sec("ELASTICACHE_UNENCRYPTED", "ElastiCache not encrypted", "MEDIUM", "DATABASE",
+     "At-rest or in-transit encryption is disabled on the replication group.", "Options not set.",
+     "Set at_rest_encryption_enabled = true and transit_encryption_enabled = true.")
+_sec("SECRET_HARDCODED", "Secret written in the configuration", "HIGH", "SECURITY",
+     "A password, token or key is written as a literal value; it ends up in Git history and in the state file.",
+     "Value pasted directly instead of being read from a secret store.",
+     "Use a sensitive variable, aws_secretsmanager_secret_version / SSM data sources, or manage_master_user_password for RDS; rotate the exposed secret.")
+_sec("IAM_TRUST_ANY_PRINCIPAL", "Role can be assumed by anyone", "HIGH", "IAM",
+     "The trust policy allows Principal \"*\" (any AWS account) without restrictive conditions.", "Overly broad trust policy.",
+     "Restrict the principal to specific accounts, roles or services, or add conditions (aws:PrincipalOrgID, sts:ExternalId).")
+_sec("IAM_NOTACTION_ALLOW", "Allow with NotAction", "HIGH", "IAM",
+     "Allow combined with NotAction grants every action except the listed ones, including future ones.", "Shortcut to grant broad access.",
+     "List the allowed actions explicitly with Action.")
 _sec("SECURITY_GENERIC", "Security best practice (Checkov)", "MEDIUM", "SECURITY",
      "Checkov reports a security or compliance issue.", "See the Checkov check name.",
      "Follow the Checkov policy documentation for this check ID.", refs=(CHECKOV_INDEX,))
@@ -525,6 +583,12 @@ CHECKOV_MAP = {
     "CKV_AWS_118": "RDS_HARDENING", "CKV_AWS_353": "RDS_HARDENING", "CKV_AWS_226": "RDS_HARDENING", "CKV_AWS_129": "RDS_HARDENING",
     "CKV_AWS_161": "RDS_HARDENING", "CKV2_AWS_60": "RDS_HARDENING", "CKV2_AWS_30": "RDS_HARDENING",
     "CKV_AWS_41": "PROVIDER_HARDCODED_CREDENTIALS", "CKV_AWS_7": "KMS_KEY_ROTATION",
+    "CKV_AWS_67": "CLOUDTRAIL_HARDENING", "CKV_AWS_36": "CLOUDTRAIL_HARDENING", "CKV_AWS_35": "CLOUDTRAIL_HARDENING",
+    "CKV_AWS_2": "ALB_HTTP_LISTENER", "CKV_AWS_27": "MESSAGING_UNENCRYPTED", "CKV_AWS_26": "MESSAGING_UNENCRYPTED",
+    "CKV_AWS_28": "DYNAMODB_HARDENING", "CKV_AWS_119": "DYNAMODB_HARDENING", "CKV_AWS_51": "ECR_HARDENING", "CKV_AWS_163": "ECR_HARDENING",
+    "CKV_AWS_39": "EKS_PUBLIC_ENDPOINT", "CKV_AWS_38": "EKS_PUBLIC_ENDPOINT", "CKV_AWS_58": "EKS_SECRETS_ENCRYPTION",
+    "CKV_AWS_29": "ELASTICACHE_UNENCRYPTED", "CKV_AWS_30": "ELASTICACHE_UNENCRYPTED", "CKV_AWS_31": "ELASTICACHE_UNENCRYPTED",
+    "CKV_AWS_60": "IAM_TRUST_ANY_PRINCIPAL", "CKV_AWS_61": "IAM_TRUST_ANY_PRINCIPAL", "CKV_AWS_133": "RDS_HARDENING",
 }
 
 
