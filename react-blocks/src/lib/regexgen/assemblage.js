@@ -110,7 +110,8 @@ function construire(spec, piècesBrutes, cible) {
   génériques.forEach(g => étapes.push({ texte: `« ${g.texte} » → ${corps.length || contraintes.length ? 'longueur totale' : 'caractères quelconques'} : ${motif(q(ANY, g.quant.min, g.quant.max))}` }))
 
   const par = { contient: [], sans: [], début: [], fin: [] }
-  for (const c of contraintes) for (const o of c.opérandes) par[c.type].push({ ...o, brutTexte: c.texte })
+  // Plusieurs opérandes dans une même phrase : chacun est décrit par son propre texte.
+  for (const c of contraintes) for (const o of c.opérandes) par[c.type].push({ ...o, brutTexte: c.opérandes.length > 1 ? o.texte : c.texte })
   for (const o of cumulées) par.contient.push({ ...o, brutTexte: o.texte })
 
   if (cible === 'trouver') {
