@@ -8,9 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:tfpv": "node --test outils/tfpv/moteur.test.mjs"
+    "test:tfpv": "node --test outils/tfpv/moteur.test.mjs",
+    "test:querygen": "node --test outils/querygen/moteur.test.mjs"
   },
   "dependencies": {
+    "jmespath": "0.16.0",
+    "jq-wasm": "3.0.0-jq-1.8.2",
     "js-yaml": "^4.1.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
