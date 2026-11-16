@@ -93,6 +93,12 @@ Le moteur est le même dans les tests Node et dans le navigateur.
   - copie, débordement horizontal ;
   - **aucune requête réseau en dehors du site**.
 
+- Gros document : un JSON de 7,3 Mo (12 000 instances EC2) a été mesuré sous Node.
+  - Analyse : 0,3 s.
+  - Génération par description, exécution comprise : 0,4 s.
+  - Génération par l'exemple, avec 3 000 lignes attendues : 1,5 s.
+  - La requête retrouvée est la même que sur le petit exemple.
+
 ## Limites connues
 
 - **Interprétation des descriptions** : ce sont des règles locales, pas un modèle de langage. Elles rapprochent les mots des noms et des valeurs du JSON.

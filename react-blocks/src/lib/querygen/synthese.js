@@ -6,7 +6,7 @@ import { aperçu, cléValeur, compact, comparerJq, contientIteration, dernierNom
 import { correspond } from './comparer.js'
 import { complexité, projeter, tester, texteClé, valeurDe, évaluer } from './plan.js'
 
-const MAX_ÉLÉMENTS = 5000
+const MAX_ÉLÉMENTS = 60000
 const MOTS_ÉTAT = /^(state|status|phase|etat|statut|condition|health|enabled|active|actif|ready|lifecycle)/
 
 // ---- Ressemblance entre une clé attendue et un champ ------------------------
