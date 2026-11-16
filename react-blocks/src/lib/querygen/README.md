@@ -2,7 +2,9 @@
 
 L'outil se trouve dans React Blocs › *Outils DevOps* › 🧰 Boîte à outils › **🧮 Query Generator**. Lien direct : `#/outils/pro?outil=query`.
 
-Il fait trois choses :
+Un second mode, **🔤 Texte → Regex**, génère des expressions régulières : voir [../regexgen/README.md](../regexgen/README.md).
+
+Le mode JSON fait trois choses :
 - il **génère** une requête jq et une requête JMESPath à partir d'un JSON et du résultat voulu ;
 - il les **exécute** avec les vrais moteurs : jq 1.8.2 compilé en WebAssembly, et jmespath.js, l'implémentation de référence ;
 - il **vérifie** le résultat.
