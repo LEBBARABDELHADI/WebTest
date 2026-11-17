@@ -249,8 +249,23 @@ function M2Casc({ T }) {
   )
 }
 
+// Module 3 : l'anatomie d'un job Freestyle, de son déclenchement à ses résultats.
+function M3Freestyle({ T }) {
+  const étapes = [['General', ['description, parameters', 'label, discard old builds'], BLEU], ['Source Code', ['None or Git', '(Module 5)'], BLEU], ['Triggers', ['manual, remote, cron,', 'after other jobs, SCM'], BLEU], ['Environment', ['clean workspace, secrets,', 'timestamps, timeouts'], AMBRE], ['Build Steps', ['shell commands,', 'in order'], ROUGE], ['Post-build', ['archive, reports,', 'notify, chain'], VERT]]
+  return (
+    <svg viewBox="0 0 760 300" role="img" aria-label="The six sections of a Freestyle job in execution order: General, Source Code Management, Triggers, Build Environment, Build Steps and Post-build Actions; the build runs on an agent and leaves a console log, artifacts and a result">
+      <Défs T={T} />
+      {étapes.map(([n, l, c], i) => <Boite key={n} x={10 + (i % 3) * 252} y={i < 3 ? 20 : 150} l={232} h={96} titre={n} lignes={l} couleur={c} T={T} />)}
+      {[0, 1].map(i => <Flèche key={i} d={`M${242 + i * 252},68 L${258 + i * 252},68`} T={T} />)}
+      <Flèche d="M620,116 L620,128 L126,128 L126,146" T={T} />
+      {[0, 1].map(i => <Flèche key={`b${i}`} d={`M${242 + i * 252},198 L${258 + i * 252},198`} T={T} />)}
+      <text x={380} y={276} textAnchor="middle" fontFamily={grotesk} fontSize={13} fill={T.textMuted}>Result: SUCCESS · UNSTABLE · FAILURE · ABORTED — kept with its console log, parameters and artifacts</text>
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

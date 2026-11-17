@@ -43,11 +43,11 @@ export const PLAN = [
     tp: ['Lab 2.1 — Ubuntu VM with apt and systemd', 'Lab 2.2 — A build agent, 0 executors on the controller', 'Lab 2.3 — Users and a role matrix', 'Lab 2.4 — Jenkins behind Nginx with HTTPS', 'Lab 2.5 — A controller rebuilt from code'],
   },
   {
-    id: 'm3', num: 'Module 3', titre: 'Mastering the Jenkins UI', niveau: 'débutant', durée: '3 h',
+    id: 'm3', num: 'Module 3', titre: 'Mastering the Jenkins UI', niveau: 'débutant', durée: '3 h', disponible: true,
     résumé: 'Dashboard, jobs, builds, logs, parameters, environment variables and credentials — with annotated screenshots for every important action.',
     objectifs: ['Navigate the dashboard and views', 'Create and configure a Freestyle project', 'Manage builds, history and console output', 'Use parameters and environment variables', 'Store and use credentials'],
     sujets: ['Dashboard and views', 'New Item', 'Freestyle configuration', 'Builds and history', 'Console output', 'Parameters', 'Environment variables', 'Credentials'],
-    tp: ['A parameterized Freestyle job', 'Use a secret text credential without leaking it'],
+    tp: ['Lab 3.1 — A parameterized Freestyle job', 'Lab 3.2 — Use a secret text credential without leaking it', 'Lab 3.3 — Trigger and follow a build from the command line'],
   },
   {
     id: 'm4', num: 'Module 4', titre: 'Jenkins Pipeline', niveau: 'intermédiaire', durée: '5 h',

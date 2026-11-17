@@ -10,12 +10,13 @@ import { PLAN, LAB } from '../../src/lib/jenkins/plan.js'
 import { LAB0, COMPOSE, SCRIPT_SHELL } from '../../src/lib/jenkins/lab0.js'
 import { MODULE1, JENKINSFILE_HELLO } from '../../src/lib/jenkins/module1.js'
 import MODULE2, { COMPOSE_AGENT, PROXY_SERVICE, NGINX_CONF, DOCKERFILE_CASC, PLUGINS_TXT, CASC_YAML, COMPOSE_CASC, INSTALL_SH, OVERRIDE_CONF } from '../../src/lib/jenkins/module2.js'
+import MODULE3, { BUILD_REPORT_SH } from '../../src/lib/jenkins/module3.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3 }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -149,6 +150,21 @@ test('module 2 : fichiers cohérents entre eux et avec le labo', () => {
   const sortie = [...parcourir(MODULE2)].find(b => b.t === 'cmd' && /hello-jenkins → Build Now/.test(b.where)).out
   assert.ok(sortie.includes('Building remotely on agent-1 (linux)') && sortie.includes('Finished: SUCCESS'))
   assert.equal(MODULE2.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 3 : script, sorties réelles et paramètres cohérents', () => {
+  const tout = [...parcourir(MODULE3)]
+  // Le script lit exactement les paramètres déclarés et la variable globale du labo.
+  for (const v of ['$ENVIRONMENT', '$VERSION', '$DRY_RUN', '$COMPANY', '$REPORT_API_TOKEN', '$BUILD_NUMBER', '$NODE_NAME', '$WORKSPACE']) assert.ok(BUILD_REPORT_SH.includes(v), v)
+  assert.match(BUILD_REPORT_SH, /^#!\/bin\/sh -e\n/)
+  // La sortie réelle du build #1 correspond au script : secret masqué, variable globale, artefact.
+  const s1 = tout.find(b => b.t === 'cmd' && /build-report #1/.test(b.where)).out
+  for (const l of ['Environment : dev', 'Company     : Acme Corp', 'Token value : ****', 'Dry run: report-dev-1.0.0.txt generated, nothing published', 'Archiving artifacts', 'Finished: SUCCESS']) assert.ok(s1.includes(l), l)
+  assert.ok(!/demo-token-not-a-real-secret/.test(JSON.stringify(MODULE3)), 'la valeur du secret de démonstration n\'apparaît jamais')
+  // Échec et interruption réels.
+  assert.ok(tout.some(b => b.t === 'cmd' && b.out?.includes("Invalid VERSION '1.x'") && b.out.includes('Finished: FAILURE')))
+  assert.ok(tout.some(b => b.t === 'cmd' && b.out?.includes('Aborted by Lab Admin') && b.out.includes('Finished: ABORTED')))
+  assert.equal(MODULE3.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {

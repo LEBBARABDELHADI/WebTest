@@ -19,7 +19,8 @@ C'est une formation progressive, du niveau débutant au niveau expert, en **13 m
 | **Lab 0 — Run Jenkins locally** | Rédigé : Docker Compose, déverrouillage, plugins, administrateur, premier job, exploitation, dépannage |
 | **Module 1 — Introduction to Jenkins** | Rédigé : CI/CD, comparatif des outils, architecture, contrôleur et agents, Jenkins + Ansible, 2 TP, 3 exercices, quiz de 10 questions |
 | **Module 2 — Installation and configuration** | Rédigé : prérequis, choix de la méthode, apt + systemd (override), VM Vagrant, plugins, agent WebSocket et 0 exécuteur sur le contrôleur, contrôleur « production » (plugins.txt + JCasC + secrets Docker), utilisateurs et matrice, Nginx HTTPS, CSP, 9 erreurs réelles, 5 TP, 3 exercices, quiz |
-| Modules 3 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
+| **Module 3 — Mastering the Jenkins UI** | Rédigé : tableau de bord (statuts, météo, file d'attente, exécuteurs), vues, New Item, job Freestyle `build-report` section par section, builds suivis, interrompus et en échec, console horodatée, paramètres et API REST avec jeton, variables d'environnement, credentials et limites du masquage, 3 TP, 3 exercices, quiz |
+| Modules 4 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
 
 ## Les captures sont réelles
 
@@ -39,6 +40,10 @@ Les 22 captures viennent d'un vrai **Jenkins 2.580.2 LTS** (image officielle `je
 - Un **contrôleur « production »** sur le port 8081, construit depuis `Dockerfile` + `plugins.txt` (74 plugins avec les dépendances) + `casc.yaml` + un secret Docker. Ses captures portent l'image `lab/jenkins-casc:2.580.2`.
 
 Les blocs de code du module 2 sont **générés depuis les fichiers réellement exécutés** (et non recopiés). Les erreurs réelles rencontrées sont reprises en dépannage : secret illisible par l'uid 1000, faute de frappe JCasC, port déjà pris, volume monté sans droits, Java 17, mauvais secret d'agent, proxy inverse mal réglé.
+
+### Module 3 : le job `build-report`, construit pour de vrai
+
+27 captures du contrôleur du labo pendant la construction du job Freestyle `build-report` : paramètres, label `linux`, variable globale `COMPANY`, identifiant secret `report-api-token` (valeur factice, jamais affichée : masquée dans les captures, absente du contenu, vérifié par les tests), archive des rapports. Sept builds réels : interface, `curl` avec un jeton d'API, un build interrompu (« Aborted by Lab Admin »), un build en échec (`VERSION=1.x`). Le piège réel des artefacts périmés (espace de travail réutilisé) est montré puis corrigé avec *Delete workspace before build starts*. Les erreurs du dépannage ont été reproduites : label inexistant, POST sans crumb (403), jeton invalide (401), secret inversé non masqué.
 
 Particularité de la machine de capture : ses connexions HTTPS passent par un proxy qui réinspecte TLS. Java, dans le conteneur, a donc reçu un magasin de certificats complété par un fichier Compose séparé, absent de la formation. Le message réel obtenu sans ce réglage, `PKIX path building failed`, figure dans le dépannage du Lab 0, avec la correction à appliquer en entreprise.
 
