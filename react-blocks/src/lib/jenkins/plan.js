@@ -85,11 +85,11 @@ export const PLAN = [
     tp: ['Lab 8.1: a cluster that Jenkins can use', 'Lab 8.2: your first pod agent', 'Lab 8.3: deploy, measure, fail safely', 'Lab 8.4: Helm and a canary'],
   },
   {
-    id: 'm9', num: 'Module 9', titre: 'Credentials and security', niveau: 'avancé', durée: '4 h',
-    résumé: 'Secrets, SSH keys, tokens, permissions, authentication and authorization — and how to never leak a secret in a log.',
-    objectifs: ['Choose the right credential type and scope', 'Use SSH keys and tokens in pipelines', 'Configure authentication and authorization', 'Prevent secrets from reaching the logs'],
-    sujets: ['Secrets management', 'Jenkins credentials', 'SSH keys', 'Access tokens', 'Sensitive variables', 'Permissions', 'Authentication and authorization', 'Hardening best practices', 'Masking secrets in logs'],
-    tp: ['Deploy over SSH with a key credential', 'Audit a pipeline that leaks a secret'],
+    id: 'm9', num: 'Module 9', titre: 'Credentials and security', niveau: 'avancé', durée: '4 h', disponible: true,
+    résumé: 'Credentials kinds, scopes and stores, an SSH deployment with a pinned host key, bot tokens, the real limits of log masking (a pipeline that leaks a fake secret five ways), folder-scoped credentials, authorization, the Groovy sandbox and a hardening checklist.',
+    objectifs: ['Choose the right credential type, scope and store', 'Use SSH keys and tokens in pipelines', 'Configure authentication and authorization', 'Prevent secrets from reaching logs and artifacts'],
+    sujets: ['Secrets management', 'Jenkins credentials', 'SSH keys and host keys', 'Access tokens', 'Masking and its limits', 'Folder-scoped credentials', 'Authentication and authorization', 'Script security and the sandbox', 'Hardening best practices'],
+    tp: ['Lab 9.1: deploy over SSH with a key credential', 'Lab 9.2: audit a pipeline that leaks a secret', 'Lab 9.3: credentials and scripts under control'],
   },
   {
     id: 'm10', num: 'Module 10', titre: 'Jenkins and DevOps tools', niveau: 'avancé', durée: '6 h',

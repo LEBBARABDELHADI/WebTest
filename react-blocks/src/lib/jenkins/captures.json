@@ -4902,5 +4902,109 @@
     "h": 2.75
    }
   ]
+ },
+ "m9-01-ssh-credential": {
+  "fichier": "m9-01-ssh-credential.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/credentials/store/system/domain/_/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "ID: web-1-deploy",
+    "x": 30.08,
+    "y": 21,
+    "l": 39.84,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Username on the target: jenkins",
+    "x": 30.08,
+    "y": 42.75,
+    "l": 39.84,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "Private key: entered directly",
+    "x": 30.08,
+    "y": 59.62,
+    "l": 9.45,
+    "h": 2.63
+   },
+   {
+    "n": 4,
+    "libellé": "The private key (hidden by the course)",
+    "x": 32.58,
+    "y": 74.83,
+    "l": 37.34,
+    "h": 22.25
+   }
+  ]
+ },
+ "m9-02-script-approval": {
+  "fichier": "m9-02-script-approval.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/scriptApproval/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The signature the pipeline asked for",
+    "x": 66.17,
+    "y": 21.25,
+    "l": 22.36,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "Approve: never for this one",
+    "x": 28.59,
+    "y": 21,
+    "l": 5.6,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "Deny",
+    "x": 56.51,
+    "y": 21,
+    "l": 3.92,
+    "h": 2.88
+   }
+  ]
+ },
+ "m9-03-folder-credentials": {
+  "fichier": "m9-03-folder-credentials.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/team-stock/credentials/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "A credential stored in the folder",
+    "x": 13.05,
+    "y": 17.25,
+    "l": 9.95,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "Stores scoped to this folder",
+    "x": 9.22,
+    "y": 81,
+    "l": 10.73,
+    "h": 3.25
+   },
+   {
+    "n": 3,
+    "libellé": "Stores from parent: the global credentials",
+    "x": 9.22,
+    "y": 99.75,
+    "l": 11.8,
+    "h": 0.25
+   }
+  ]
  }
 }

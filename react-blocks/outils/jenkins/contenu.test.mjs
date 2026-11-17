@@ -16,6 +16,7 @@ import MODULE5, { COMPOSE_GITEA, JF_INVENTORY, BUILD_SH, TEST_SH } from '../../s
 import MODULE6, { AGENT_DOCKERFILE, COMPOSE_AGENT_BUILD, POM_XML, CI_SETTINGS, JF_API, JF_WEB, JF_PY, PACKAGE_JSON, OSV_TOML, REQUIREMENTS, REQUIREMENTS_V1 } from '../../src/lib/jenkins/module6.js'
 import MODULE7, { COMPOSE_DOCKER, COMPOSE_AGENT1, DOCKERFILE_AGENT_EXTRAIT, DOCKERFILE, JF_SERVICE, DSL_EXTRAIT, DOCKER_CLEANUP } from '../../src/lib/jenkins/module7.js'
 import MODULE8, { KIND_CLUSTER, RBAC_YAML, JF_K8S_HELLO, DEPLOYMENT_YAML, JF_DEPLOY_MANIFESTS, JF_DEPLOY_HELM, JF_DEPLOY_HELM_STAGE, VALUES_YAML, TPL_DEPLOYMENT, TPL_SERVICE } from '../../src/lib/jenkins/module8.js'
+import MODULE9, { COMPOSE_WEB1, DEPLOY_WEB1, SAFE_PIPELINE, LEAKY_PIPELINE, USE_TEAM_TOKEN, SANDBOX_DEMO } from '../../src/lib/jenkins/module9.js'
 import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
 import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
@@ -23,7 +24,7 @@ import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -356,6 +357,34 @@ test('module 8 : cluster kind, RBAC minimal, pods agents, manifestes, Helm et me
   assert.ok(sortie(/k8s-hello #1/).includes('http://localhost:8080/login is not ready'))
   assert.ok(tout.find(b => b.t === 'cmd' && b.cmd.includes('create deployment essai')).out.includes('is forbidden'))
   assert.equal(MODULE8.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 9 : SSH avec clé d’hôte, jetons, limites du masquage, dossiers et sandbox concordent', () => {
+  const tout = [...parcourir(MODULE9)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // La cible SSH : image officielle épinglée, clé publique lue dans .env (jamais de clé privée dans le contenu).
+  assert.match(yaml.load(COMPOSE_WEB1)['web-1'].image, /^jenkins\/ssh-agent:\d+\.\d+\.\d+-jdk21$/)
+  assert.ok(!/PRIVATE KEY/.test(JSON.stringify(MODULE9).replace(/BEGIN\/END/g, '')), 'aucune clé privée')
+  // Le déploiement : clé d’hôte épinglée, pas de StrictHostKeyChecking=no, garde-fou sur VERSION.
+  for (const s of ['sshUserPrivateKey', 'UserKnownHostsFile=known_hosts', '[ -n "$VERSION" ]', 'ln -sfn releases/$VERSION current']) assert.ok(DEPLOY_WEB1.includes(s), s)
+  assert.ok(!DEPLOY_WEB1.includes('StrictHostKeyChecking'))
+  const vérif = tout.find(b => b.t === 'cmd' && b.out.includes('ssh-keyscan')).out
+  assert.equal(new Set(vérif.match(/SHA256:[A-Za-z0-9+/]+/g)).size, 1, 'même empreinte côté serveur et côté agent')
+  assert.ok(DEPLOY_WEB1.includes(vérif.split('\n').at(-1).trim()), 'la clé épinglée est celle qui a été vérifiée')
+  assert.ok(sortie(/deploy-web-1 #1/).includes('Host key verification failed.') && sortie(/deploy-web-1 #4/).includes('Finished: SUCCESS'))
+  // Le masquage : ce que les journaux réels montrent vraiment.
+  const fuite = sortie(/leaky-pipeline #2/)
+  assert.ok(fuite.includes('Groovy String interpolation') && fuite.includes('****Qo=') && fuite.includes('18b5e2c9a3f7-kael-omed') && fuite.includes('demo-leak-7f3a9c2e'))
+  assert.equal(sortie(/Anyone who can read/).trim().split('\n').at(-1), 'token=demo-leak-7f3a9c2e5b81')
+  assert.ok(LEAKY_PIPELINE.includes('sh "echo Calling the API with ${TOKEN}"') && !SAFE_PIPELINE.includes('"${TOKEN}"'))
+  assert.ok(sortie(/safe-pipeline #2/).includes('authenticated as jenkins-bot') && !sortie(/safe-pipeline #2/).includes('demo-'))
+  // Dossiers et sandbox.
+  assert.ok(sortie(/use-team-token #1/).includes('team token available') && sortie(/outside-folder #1/).includes("Could not find credentials entry with ID 'team-stock-token'"))
+  assert.ok(USE_TEAM_TOKEN.includes("credentialsId: 'team-stock-token'") && SANDBOX_DEMO.includes('new File('))
+  assert.ok(sortie(/sandbox-demo #1/).includes('Scripts not permitted to use new java.io.File java.lang.String'))
+  // Les deux captures reprises du Module 2 sont les mêmes blocs.
+  for (const id of ['m2-17-matrix-summary', 'm2-19-access-denied']) assert.ok(tout.some(b => b.t === 'shot' && b.id === id), id)
+  assert.equal(MODULE9.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {
