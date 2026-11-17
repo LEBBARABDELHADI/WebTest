@@ -50,11 +50,11 @@ export const PLAN = [
     tp: ['Lab 3.1 — A parameterized Freestyle job', 'Lab 3.2 — Use a secret text credential without leaking it', 'Lab 3.3 — Trigger and follow a build from the command line'],
   },
   {
-    id: 'm4', num: 'Module 4', titre: 'Jenkins Pipeline', niveau: 'intermédiaire', durée: '5 h',
+    id: 'm4', num: 'Module 4', titre: 'Jenkins Pipeline', niveau: 'intermédiaire', durée: '5 h', disponible: true,
     résumé: 'Pipeline as code: Declarative vs Scripted, the Jenkinsfile structure, variables, when, parameters, error handling and artifacts — with commented Jenkinsfiles.',
     objectifs: ['Write Declarative pipelines from scratch', 'Read and adapt Scripted pipelines', 'Use variables, parameters and when conditions', 'Handle errors with post and try/catch', 'Archive and reuse artifacts'],
     sujets: ['What is a Pipeline?', 'Scripted vs Declarative', 'Jenkinsfile structure', 'pipeline, agent, stages, stage, steps', 'Variables', 'when', 'Parameters', 'post, try/catch', 'Artifacts'],
-    tp: ['Five commented Jenkinsfiles of growing complexity', 'Fix a broken pipeline'],
+    tp: ['Lab 4.1 — Five Jenkinsfiles of growing complexity', 'Lab 4.2 — Fix a broken pipeline'],
   },
   {
     id: 'm5', num: 'Module 5', titre: 'Git integration', niveau: 'intermédiaire', durée: '4 h',

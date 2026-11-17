@@ -11,12 +11,13 @@ import { LAB0, COMPOSE, SCRIPT_SHELL } from '../../src/lib/jenkins/lab0.js'
 import { MODULE1, JENKINSFILE_HELLO } from '../../src/lib/jenkins/module1.js'
 import MODULE2, { COMPOSE_AGENT, PROXY_SERVICE, NGINX_CONF, DOCKERFILE_CASC, PLUGINS_TXT, CASC_YAML, COMPOSE_CASC, INSTALL_SH, OVERRIDE_CONF } from '../../src/lib/jenkins/module2.js'
 import MODULE3, { BUILD_REPORT_SH } from '../../src/lib/jenkins/module3.js'
+import MODULE4, { JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_BROKEN_A, JF_BROKEN_B, JF_FIXED } from '../../src/lib/jenkins/module4.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4 }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -165,6 +166,33 @@ test('module 3 : script, sorties réelles et paramètres cohérents', () => {
   assert.ok(tout.some(b => b.t === 'cmd' && b.out?.includes("Invalid VERSION '1.x'") && b.out.includes('Finished: FAILURE')))
   assert.ok(tout.some(b => b.t === 'cmd' && b.out?.includes('Aborted by Lab Admin') && b.out.includes('Finished: ABORTED')))
   assert.equal(MODULE3.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 4 : chaque Jenkinsfile et sa sortie réelle concordent', () => {
+  const tout = [...parcourir(MODULE4)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Accolades équilibrées dans les Jenkinsfiles valides, déséquilibrées dans la version B cassée.
+  const équilibre = s => [...s.replace(/'[^'\n]*'|"[^"\n]*"/g, '')].reduce((n, c) => n + (c === '{') - (c === '}'), 0)
+  for (const jf of [JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_FIXED]) assert.equal(équilibre(jf), 0)
+  for (const jf of [JF1, JF2, JF3, JF4, JF5, JF_BROKEN_A, JF_BROKEN_B, JF_FIXED]) assert.match(jf, /^(\/\/.*\n)?pipeline \{/)
+  assert.match(JF_SCRIPTED, /\nnode\('linux'\) \{/)
+  // Chaque étape déclarée apparaît dans la sortie réelle correspondante.
+  const étapes = jf => [...jf.matchAll(/stage\('([^']+)'\)/g)].map(m => m[1])
+  const s1 = sortie(/pipeline-basics #2/)
+  for (const é of étapes(JF1)) assert.ok(s1.includes(`{ (${é})`), é)
+  assert.ok(s1.includes('Archiving artifacts') && s1.endsWith('Finished: SUCCESS'))
+  const s2 = sortie(/pipeline-variables #1/)
+  assert.ok(s2.includes('Warning: A secret was passed to "sh" using Groovy String interpolation') && s2.includes('Token: ****'))
+  assert.ok(!JSON.stringify(MODULE4).includes('demo-token-not-a-real-secret'))
+  assert.ok(sortie(/pipeline-parameters #2/).includes('Stage "Approval" skipped due to when conditional'))
+  assert.ok(sortie(/pipeline-parameters #3/).includes('Approved by Lab Admin'))
+  assert.ok(sortie(/pipeline-parameters #4/).includes("VERSION must look like 1.2.3, got '1.x'"))
+  const s4 = sortie(/pipeline-parallel #1/)
+  for (const l of ['Setting overall build result to UNSTABLE', 'Retrying', 'Cancelling nested steps due to timeout', 'finally: this always runs.']) assert.ok(s4.includes(l), l)
+  assert.ok(sortie(/pipeline-artifacts #2/).includes('Recording test results'))
+  assert.ok(sortie(/version A/).includes('Unknown stage section "sh"'))
+  assert.ok(sortie(/version B/).includes("expecting anything but ''\\n''; got it anyway"))
+  assert.equal(MODULE4.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {

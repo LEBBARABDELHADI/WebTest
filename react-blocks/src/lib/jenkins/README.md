@@ -20,7 +20,8 @@ C'est une formation progressive, du niveau débutant au niveau expert, en **13 m
 | **Module 1 — Introduction to Jenkins** | Rédigé : CI/CD, comparatif des outils, architecture, contrôleur et agents, Jenkins + Ansible, 2 TP, 3 exercices, quiz de 10 questions |
 | **Module 2 — Installation and configuration** | Rédigé : prérequis, choix de la méthode, apt + systemd (override), VM Vagrant, plugins, agent WebSocket et 0 exécuteur sur le contrôleur, contrôleur « production » (plugins.txt + JCasC + secrets Docker), utilisateurs et matrice, Nginx HTTPS, CSP, 9 erreurs réelles, 5 TP, 3 exercices, quiz |
 | **Module 3 — Mastering the Jenkins UI** | Rédigé : tableau de bord (statuts, météo, file d'attente, exécuteurs), vues, New Item, job Freestyle `build-report` section par section, builds suivis, interrompus et en échec, console horodatée, paramètres et API REST avec jeton, variables d'environnement, credentials et limites du masquage, 3 TP, 3 exercices, quiz |
-| Modules 4 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
+| **Module 4 — Jenkins Pipeline** | Rédigé : pipeline as code, Declarative vs Scripted, anatomie d'un Jenkinsfile, variables et guillemets, paramètres, `when`, `input`, gestion d'erreurs (`post`, `try/catch`, `catchError`, `retry`, `timeout`), artefacts, `stash`, rapports JUnit, générateurs de syntaxe, Replay, Restart from Stage, 2 TP, 2 exercices, quiz |
+| Modules 5 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
 
 ## Les captures sont réelles
 
@@ -44,6 +45,10 @@ Les blocs de code du module 2 sont **générés depuis les fichiers réellement 
 ### Module 3 : le job `build-report`, construit pour de vrai
 
 27 captures du contrôleur du labo pendant la construction du job Freestyle `build-report` : paramètres, label `linux`, variable globale `COMPANY`, identifiant secret `report-api-token` (valeur factice, jamais affichée : masquée dans les captures, absente du contenu, vérifié par les tests), archive des rapports. Sept builds réels : interface, `curl` avec un jeton d'API, un build interrompu (« Aborted by Lab Admin »), un build en échec (`VERSION=1.x`). Le piège réel des artefacts périmés (espace de travail réutilisé) est montré puis corrigé avec *Delete workspace before build starts*. Les erreurs du dépannage ont été reproduites : label inexistant, POST sans crumb (403), jeton invalide (401), secret inversé non masqué.
+
+### Module 4 : cinq Jenkinsfiles exécutés
+
+Cinq Jenkinsfiles de complexité croissante, leur version Scripted et deux versions cassées ont tourné sur le labo (jobs `pipeline-*`). Le code affiché est généré depuis ces fichiers, et les sorties console sont insérées depuis les vrais journaux (`redaction/assembler.py` dans le bac à sable). Faits réels mis en avant : avertissement « A secret was passed to "sh" using Groovy String interpolation », variables d'environnement vides au premier build d'un pipeline paramétré, ordre fixe des conditions `post`, erreurs de compilation (`Unknown stage section "sh"`, `expecting anything but ''\n''`).
 
 Particularité de la machine de capture : ses connexions HTTPS passent par un proxy qui réinspecte TLS. Java, dans le conteneur, a donc reçu un magasin de certificats complété par un fichier Compose séparé, absent de la formation. Le message réel obtenu sans ce réglage, `PKIX path building failed`, figure dans le dépannage du Lab 0, avec la correction à appliquer en entreprise.
 

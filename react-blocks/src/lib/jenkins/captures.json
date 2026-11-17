@@ -2713,5 +2713,493 @@
     "h": 2.63
    }
   ]
+ },
+ "m4-02-pipeline-config": {
+  "fichier": "m4-02-pipeline-config.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-basics/configure",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Definition: Pipeline script",
+    "x": 28.59,
+    "y": 17.53,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "The Jenkinsfile",
+    "x": 31.09,
+    "y": 29.15,
+    "l": 62.5,
+    "h": 43.75
+   },
+   {
+    "n": 3,
+    "libellé": "Use Groovy Sandbox",
+    "x": 31.09,
+    "y": 76.15,
+    "l": 13.57,
+    "h": 2.75
+   },
+   {
+    "n": 4,
+    "libellé": "Pipeline Syntax",
+    "x": 31.09,
+    "y": 83.15,
+    "l": 8.04,
+    "h": 2.13
+   }
+  ]
+ },
+ "m4-03-graph": {
+  "fichier": "m4-03-graph.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-basics/2/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Stage Build",
+    "x": 32.19,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Stage Test",
+    "x": 43.13,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "Stage Package",
+    "x": 54.06,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 4,
+    "libellé": "post { }",
+    "x": 65,
+    "y": 26.38,
+    "l": 10.47,
+    "h": 4.25
+   }
+  ]
+ },
+ "m4-04-snippet": {
+  "fichier": "m4-04-snippet.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-basics/pipeline-syntax/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Files to archive",
+    "x": 31.09,
+    "y": 7.95,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Generate Pipeline Script",
+    "x": 28.59,
+    "y": 76.07,
+    "l": 15,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "The generated step, ready to paste",
+    "x": 28.59,
+    "y": 82.07,
+    "l": 69.38,
+    "h": 12.88
+   }
+  ]
+ },
+ "m4-05-directive": {
+  "fichier": "m4-05-directive.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-basics/directive-generator/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Directive: agent",
+    "x": 28.59,
+    "y": 8.72,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "label: Run on an agent matching a label",
+    "x": 31.09,
+    "y": 27.32,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "Label: linux",
+    "x": 33.59,
+    "y": 38.95,
+    "l": 64.38,
+    "h": 4.75
+   },
+   {
+    "n": 4,
+    "libellé": "The generated directive",
+    "x": 28.59,
+    "y": 68.7,
+    "l": 69.38,
+    "h": 12.88
+   }
+  ]
+ },
+ "m4-06-globals": {
+  "fichier": "m4-06-globals.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-basics/pipeline-syntax/globals",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "env",
+    "x": 28.59,
+    "y": 11.25,
+    "l": 1.98,
+    "h": 2
+   }
+  ]
+ },
+ "m4-07-build-with-params": {
+  "fichier": "m4-07-build-with-params.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-parameters/build?delay=0sec",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "ENVIRONMENT = prod",
+    "x": 28.59,
+    "y": 28.38,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "VERSION = 1.2.0",
+    "x": 28.59,
+    "y": 43.52,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "RUN_SMOKE_TESTS",
+    "x": 28.59,
+    "y": 51.52,
+    "l": 0.08,
+    "h": 0.13
+   },
+   {
+    "n": 4,
+    "libellé": "Build",
+    "x": 28.59,
+    "y": 64.4,
+    "l": 8.13,
+    "h": 4.75
+   }
+  ]
+ },
+ "m4-08-input": {
+  "fichier": "m4-08-input.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-parameters/3/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The question of the input step",
+    "x": 36.2,
+    "y": 72.19,
+    "l": 18.41,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "Deploy (only admin may click it)",
+    "x": 36.51,
+    "y": 75.46,
+    "l": 3.95,
+    "h": 2
+   },
+   {
+    "n": 3,
+    "libellé": "Abort",
+    "x": 43.09,
+    "y": 75.46,
+    "l": 3.29,
+    "h": 2
+   }
+  ]
+ },
+ "m4-09-when-skipped": {
+  "fichier": "m4-09-when-skipped.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-parameters/2/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Validate",
+    "x": 32.19,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Approval: skipped (not prod)",
+    "x": 43.13,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "Deploy",
+    "x": 54.06,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 4,
+    "libellé": "Smoke tests: skipped (RUN_SMOKE_TESTS=false)",
+    "x": 65,
+    "y": 26.38,
+    "l": 10.47,
+    "h": 4.25
+   }
+  ]
+ },
+ "m4-10-parallel-graph": {
+  "fichier": "m4-10-parallel-graph.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-parallel/1/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Parallel block",
+    "x": 30.13,
+    "y": 23.75,
+    "l": 4.56,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "Unit tests",
+    "x": 32.19,
+    "y": 26.63,
+    "l": 5.58,
+    "h": 12.75
+   },
+   {
+    "n": 3,
+    "libellé": "Lint: unstable (catchError)",
+    "x": 32.19,
+    "y": 35.38,
+    "l": 2.81,
+    "h": 12.75
+   },
+   {
+    "n": 4,
+    "libellé": "Flaky service: retried",
+    "x": 32.19,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 20.63
+   },
+   {
+    "n": 5,
+    "libellé": "Slow step: timeout caught",
+    "x": 43.13,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   }
+  ]
+ },
+ "m4-11-tests": {
+  "fichier": "m4-11-tests.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-artifacts/2/testReport/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Failed tests",
+    "x": 28.28,
+    "y": 19,
+    "l": 9.58,
+    "h": 3.25
+   },
+   {
+    "n": 2,
+    "libellé": "The failed test, failing for 2 builds (Age 2)",
+    "x": 28.75,
+    "y": 30.85,
+    "l": 49.62,
+    "h": 6
+   },
+   {
+    "n": 3,
+    "libellé": "All tests, per package",
+    "x": 28.28,
+    "y": 43.6,
+    "l": 5.69,
+    "h": 3.25
+   }
+  ]
+ },
+ "m4-12-test-trend": {
+  "fichier": "m4-12-test-trend.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-artifacts/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Test Result Trend",
+    "x": 58.91,
+    "y": 21.63,
+    "l": 39.06,
+    "h": 3
+   },
+   {
+    "n": 2,
+    "libellé": "Artifacts",
+    "x": 35.23,
+    "y": 22.25,
+    "l": 13.05,
+    "h": 2.13
+   }
+  ]
+ },
+ "m4-13-replay": {
+  "fichier": "m4-13-replay.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-basics/2/replay/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The script of build #2, editable",
+    "x": 28.59,
+    "y": 19.6,
+    "l": 65,
+    "h": 2.63
+   },
+   {
+    "n": 2,
+    "libellé": "Run: a new build with the modified script",
+    "x": 28.59,
+    "y": 78.2,
+    "l": 8.13,
+    "h": 4.75
+   }
+  ]
+ },
+ "m4-14-restart": {
+  "fichier": "m4-14-restart.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-parallel/1/restart/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Stage to restart from",
+    "x": 28.59,
+    "y": 18.72,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Run",
+    "x": 28.59,
+    "y": 30.47,
+    "l": 8.13,
+    "h": 4.75
+   }
+  ]
+ },
+ "m4-15-syntax-error": {
+  "fichier": "m4-15-syntax-error.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-broken/1/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The first error",
+    "x": 42.12,
+    "y": 23.28,
+    "l": 17.75,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "The second error",
+    "x": 42.12,
+    "y": 37.8,
+    "l": 32.23,
+    "h": 2.75
+   }
+  ]
+ },
+ "m4-16-groovy-warning": {
+  "fichier": "m4-16-groovy-warning.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/pipeline-variables/1/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Safe use (single quotes)",
+    "x": 36.2,
+    "y": 40.01,
+    "l": 18.41,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "The warning",
+    "x": 36.2,
+    "y": 45.81,
+    "l": 59.89,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "Masked, but the secret was in the command line",
+    "x": 36.2,
+    "y": 57.43,
+    "l": 7.87,
+    "h": 2.75
+   }
+  ]
  }
 }

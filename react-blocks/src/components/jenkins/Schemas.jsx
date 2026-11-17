@@ -264,8 +264,46 @@ function M3Freestyle({ T }) {
   )
 }
 
+// Module 4 : la structure d'un Jenkinsfile déclaratif (blocs imbriqués).
+function Cadre({ x, y, l, h, titre, couleur, children }) {
+  return (
+    <g>
+      <rect x={x} y={y} width={l} height={h} rx={10} fill={`${couleur}14`} stroke={couleur} strokeWidth={2} />
+      <text x={x + 12} y={y + 22} fontFamily="ui-monospace, monospace" fontWeight={700} fontSize={14} fill={couleur}>{titre}</text>
+      {children}
+    </g>
+  )
+}
+
+function M4Anatomie({ T }) {
+  const note = (x, y, t) => <text x={x} y={y} fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>{t}</text>
+  return (
+    <svg viewBox="0 0 760 420" role="img" aria-label="Structure of a Declarative Jenkinsfile: the pipeline block contains agent, options, environment and parameters, then stages with one stage per phase, each stage containing steps, and finally a post block with always, success, failure, unstable and cleanup">
+      <Cadre x={10} y={10} l={740} h={400} titre="pipeline {" couleur={ROUGE}>
+        <Cadre x={30} y={44} l={330} h={44} titre="agent { label 'linux' }" couleur={BLEU} />
+        {note(372, 70, 'where the stages run (any, none, label, docker…)')}
+        <Cadre x={30} y={96} l={330} h={44} titre="options / environment" couleur={BLEU} />
+        {note(372, 122, 'timeouts, timestamps, variables, credentials')}
+        <Cadre x={30} y={148} l={330} h={44} titre="parameters / triggers" couleur={BLEU} />
+        {note(372, 174, 'inputs of the build, automatic starts')}
+        <Cadre x={30} y={200} l={700} h={140} titre="stages {" couleur={AMBRE}>
+          <Cadre x={50} y={232} l={320} h={96} titre="stage('Build') {" couleur={VERT}>
+            {note(66, 274, 'when / agent / environment (optional)')}
+            <text x={66} y={300} fontFamily="ui-monospace, monospace" fontSize={13} fill={T.text}>steps {"{"} sh '…' {"}"}</text>
+            {note(66, 320, 'post (optional, per stage)')}
+          </Cadre>
+          <Cadre x={390} y={232} l={320} h={96} titre="stage('Test') { … }" couleur={VERT}>
+            {note(406, 274, 'or parallel { stage … stage … }')}
+          </Cadre>
+        </Cadre>
+        <Cadre x={30} y={350} l={700} h={46} titre="post { always · success · failure · unstable · cleanup }" couleur={BLEU} />
+      </Cadre>
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]
