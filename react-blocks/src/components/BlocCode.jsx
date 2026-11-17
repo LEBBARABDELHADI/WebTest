@@ -6,7 +6,7 @@ const POLICE_CODE = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
 
 // Bloc de code coloré selon le langage, avec numéros de ligne. Toucher un
 // numéro surligne la ligne (si onBasculerLigne est fourni).
-export default function BlocCode({ code, langage, surlignées = [], onBasculerLigne, numéros = true, taille = 12.5 }) {
+export default function BlocCode({ code, langage, surlignées = [], onBasculerLigne, numéros = true, taille = 12.5, libellés = ['Copier', '✓ Copié'] }) {
   const [copié, setCopié] = useState(false)
   const lignes = colorerCode(code || '', langage)
   const marquées = new Set(surlignées)
@@ -26,7 +26,7 @@ export default function BlocCode({ code, langage, surlignées = [], onBasculerLi
         <button onClick={copier} style={{
           padding: '3px 9px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', fontFamily: grotesk,
           background: copié ? '#4ade8033' : '#252836', color: copié ? '#4ade80' : '#94a3b8', border: `1px solid ${copié ? '#4ade80' : '#2d3148'}`,
-        }}>{copié ? '✓ Copié' : 'Copier'}</button>
+        }}>{copié ? libellés[1] : libellés[0]}</button>
       </div>
       <pre style={{ margin: 0, padding: '8px 0', overflowX: 'auto', fontSize: `${taille}px`, lineHeight: 1.65, fontFamily: POLICE_CODE }}>
         <code style={{ display: 'block', minWidth: 'max-content' }}>
