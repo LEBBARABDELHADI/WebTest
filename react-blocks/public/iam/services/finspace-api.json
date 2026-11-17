@@ -1,0 +1,1 @@
+{"p":"finspace-api","nom":"Amazon FinSpace API","cat":"analytics","cles":[],"res":{"credential":"arn:${Partition}:finspace-api:${Region}:${Account}:/credentials/programmatic"},"act":[["GetProgrammaticAccessCredentials",1,"Grants permission to retrieve FinSpace programmatic access credentials",["credential*"],[]]]}

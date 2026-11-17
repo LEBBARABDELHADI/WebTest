@@ -1,0 +1,1 @@
+{"p":"eks-mcp","nom":"Amazon EKS MCP Server","cat":"containers","cles":[],"res":{},"act":[["CallPrivilegedTool",2,"Grants permission to call privileged tools in MCP service",[],[]],["CallReadOnlyTool",1,"Grants permission to call read-only tools in MCP service",[],[]],["InvokeMcp",1,"Grants permission to use MCP service",[],[]]]}

@@ -1,0 +1,1 @@
+{"p":"bcm-recommended-actions","nom":"AWS Billing And Cost Management Recommended Actions","cat":"cloud-financial-management","cles":[],"res":{},"act":[["ListRecommendedActions",0,"Grants permission to list all recommended actions",[],[]]]}

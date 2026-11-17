@@ -1,0 +1,1 @@
+{"p":"marketplacecommerceanalytics","nom":"AWS Marketplace Commerce Analytics Service","cat":"cloud-financial-management","cles":[],"res":{},"act":[["GenerateDataSet",2,"Request a data set to be published to your Amazon S3 bucket.",[],[]],["StartSupportDataExport",2,"Request a support data set to be published to your Amazon S3 bucket.",[],[]]]}

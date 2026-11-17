@@ -34,8 +34,14 @@ function OutilQuery({ T, S }) {
   return <Suspense fallback={<div style={S.carte}>Chargement…</div>}><QueryGenerator T={T} S={S} /></Suspense>
 }
 
+// Règle IAM (assistant, constructeur, validation, simulation, exports) : chargée à la demande.
+const IamBuilder = lazy(() => import('../components/devops/IamBuilder'))
+function OutilIam({ T, S }) {
+  return <Suspense fallback={<div style={S.carte}>Chargement…</div>}><IamBuilder T={T} S={S} /></Suspense>
+}
+
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
-const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['tfpv', '🛡️ Terraform · TFLint'], ['query', '🧮 Query Generator'], ['docker', '🐳 Dockerfile'], ['gitlab', '🦊 GitLab CI'], ['logs', '🔎 Logs (regex / grok)'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
+const OUTILS = [['k8s', '☸️ YAML Kubernetes'], ['tfplan', '🏗️ Plan Terraform'], ['tfpv', '🛡️ Terraform · TFLint'], ['query', '🧮 Query Generator'], ['iam', '🔑 Règle IAM'], ['docker', '🐳 Dockerfile'], ['gitlab', '🦊 GitLab CI'], ['logs', '🔎 Logs (regex / grok)'], ['cidr', '🌐 CIDR'], ['cron', '⏰ Cron'], ['chmod', '🔐 chmod'], ['base64', '🔤 Base64'], ['jwt', '🎫 JWT'], ['temps', '🕒 Horodatage'], ['json', '🧾 JSON / YAML']]
 const compléterCommandes = d => ({
   commandes: Array.isArray(d?.commandes) ? d.commandes : [],
   profils: Array.isArray(d?.profils) && d.profils.length ? d.profils : [{ id: 'dev', nom: 'dev', valeurs: {} }, { id: 'prod', nom: 'prod', valeurs: {} }],
@@ -771,7 +777,7 @@ export default function OutilsDevops() {
     if (OUTILS.some(([id]) => id === outilUrl)) setOutil(outilUrl)
   }
   const choisirOnglet = o => { setOnglet(o); try { localStorage.setItem('react-blocs-outils-onglet', o) } catch { /* ignore */ } }
-  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, tfpv: OutilTfpv, query: OutilQuery, docker: OutilDocker, gitlab: OutilGitlab, logs: OutilLogs, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
+  const Outil = { k8s: OutilK8s, tfplan: OutilTerraform, tfpv: OutilTfpv, query: OutilQuery, iam: OutilIam, docker: OutilDocker, gitlab: OutilGitlab, logs: OutilLogs, cidr: OutilCidr, cron: OutilCron, chmod: OutilChmod, base64: OutilBase64, jwt: OutilJwt, temps: OutilTemps, json: OutilJson }[outil]
   return (
     <div style={{ background: T.bg, minHeight: '100dvh', padding: '20px 16px 60px', color: T.text }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>

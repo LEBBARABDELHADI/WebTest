@@ -1,0 +1,1 @@
+{"p":"geo-maps","nom":"Amazon Location Service Maps","cat":"front-end-web-and-mobile","cles":[],"res":{"provider":"arn:${Partition}:geo-maps:${Region}::provider/default"},"act":[["GetStaticMap",1,"Grants permission to retrieve the static map",["provider*"],[]],["GetTile",1,"Grants permission to retrieve the map tile",["provider*"],[]]]}

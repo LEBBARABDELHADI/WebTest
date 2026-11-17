@@ -1,0 +1,1 @@
+{"p":"sagemaker-unified-studio-mcp","nom":"Amazon SageMaker Unified Studio MCP","cat":"machine-learning-and-ai","cles":[],"res":{},"act":[["AuthorizeVpce",1,"Grants permission to use MCP service VPC endpoint",[],[]]]}

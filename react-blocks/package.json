@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test:tfpv": "node --test outils/tfpv/moteur.test.mjs",
     "test:querygen": "node --test outils/querygen/moteur.test.mjs",
-    "test:regexgen": "node --test outils/regexgen/moteur.test.mjs outils/regexgen/moteurs.test.mjs"
+    "test:regexgen": "node --test outils/regexgen/moteur.test.mjs outils/regexgen/moteurs.test.mjs",
+    "test:iam": "node --test outils/iam/moteur.test.mjs outils/iam/croisement.test.mjs"
   },
   "dependencies": {
     "jmespath": "0.16.0",
