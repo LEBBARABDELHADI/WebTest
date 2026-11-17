@@ -342,8 +342,32 @@ function M5GitFlow({ T }) {
   )
 }
 
+// Module 6 : les étapes d'intégration continue et ce que chacune produit.
+function M6Ci({ T }) {
+  const étapes = [['Checkout', 'git clone'], ['Build', 'compile'], ['Unit tests', 'JUnit XML'], ['Code quality', 'linter'], ['Security', 'OSV-Scanner'], ['Package', 'jar/tgz/whl'], ['Publish', 'mvn deploy']]
+  return (
+    <svg viewBox="0 0 760 300" role="img" aria-label="Continuous integration pipeline of Module 6: checkout, build, unit tests, code quality, security, package and publish. The Git server triggers the build and receives its status; test results and coverage become Jenkins reports; code quality and security feed quality gates that mark the build unstable; the package is archived in Jenkins and builds of main publish it to the Gitea package registry">
+      <Défs T={T} />
+      {étapes.map(([t, s], i) => <Boite key={t} x={6 + i * 108} y={16} l={96} h={66} titre={t} lignes={[s]} couleur={i === 6 ? VERT : BLEU} T={T} taille={13} />)}
+      {étapes.slice(1).map(([t], i) => <Flèche key={t} d={`M${102 + i * 108},49 L${112 + i * 108},49`} T={T} />)}
+      <Boite x={6} y={170} l={150} h={84} titre="Git server" lignes={['webhook → build', 'commit status ←']} couleur={VERT} T={T} taille={14} />
+      <Boite x={195} y={170} l={150} h={84} titre="Test reports" lignes={['junit · coverage', 'trend per build']} couleur={ROUGE} T={T} taille={14} />
+      <Boite x={352} y={170} l={172} h={84} titre="Quality gates" lignes={['warning → UNSTABLE', 'vulnerability → UNSTABLE']} couleur={AMBRE} T={T} taille={14} />
+      <Boite x={530} y={170} l={116} h={84} titre="Jenkins" lignes={['archiveArtifacts', 'fingerprint']} couleur={ROUGE} T={T} taille={14} />
+      <Boite x={652} y={170} l={104} h={84} titre="Registry" lignes={['Gitea Packages', '1.0.<build>']} couleur={VERT} T={T} taille={14} />
+      <Flèche d="M54,166 L54,86" T={T} />
+      <Flèche d="M270,86 L270,166" T={T} />
+      <Flèche d="M378,86 L404,166" T={T} />
+      <Flèche d="M486,86 L468,166" T={T} />
+      <Flèche d="M594,86 L590,166" T={T} />
+      <Flèche d="M702,86 L704,166" T={T} />
+      <text x={380} y={286} textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>FAILURE: a step fails (compile, tests) · UNSTABLE: a quality gate is missed · SUCCESS: all gates pass</text>
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

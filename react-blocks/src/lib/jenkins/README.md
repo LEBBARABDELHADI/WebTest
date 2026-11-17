@@ -22,7 +22,8 @@ C'est une formation progressive, du niveau débutant au niveau expert, en **13 m
 | **Module 3 — Mastering the Jenkins UI** | Rédigé : tableau de bord (statuts, météo, file d'attente, exécuteurs), vues, New Item, job Freestyle `build-report` section par section, builds suivis, interrompus et en échec, console horodatée, paramètres et API REST avec jeton, variables d'environnement, credentials et limites du masquage, 3 TP, 3 exercices, quiz |
 | **Module 4 — Jenkins Pipeline** | Rédigé : pipeline as code, Declarative vs Scripted, anatomie d'un Jenkinsfile, variables et guillemets, paramètres, `when`, `input`, gestion d'erreurs (`post`, `try/catch`, `catchError`, `retry`, `timeout`), artefacts, `stash`, rapports JUnit, générateurs de syntaxe, Replay, Restart from Stage, 2 TP, 2 exercices, quiz |
 | **Module 5 — Git integration** | Rédigé : serveur Gitea 28.4.0 dans le labo, compte robot et jeton, Pipeline script from SCM, GitHub/GitLab/Bitbucket (plugins et URL de webhook vérifiées), webhook réel (échec par la politique de sortie de Gitea 28 puis correction), multibranche, GitFlow, pull requests et statuts de commit, 3 TP, 2 exercices, quiz |
-| Modules 6 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
+| **Module 6 — Continuous Integration** | Rédigé : image d'agent CI (Java 21, Maven, Node.js 26, Python 3.13, OSV-Scanner), trois projets réels (Java/Maven, Node.js, Python) en multibranche, rapports de tests et de couverture, Checkstyle/ESLint/flake8 avec quality gates, analyse de dépendances, artefacts versionnés, publication Maven vers le registre de paquets de Gitea, 10 erreurs réelles, 4 TP, 1 exercice, quiz |
+| Modules 7 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
 
 ## Les captures sont réelles
 
@@ -56,6 +57,12 @@ Cinq Jenkinsfiles de complexité croissante, leur version Scripted et deux versi
 Le labo gagne un service `gitea` (image `docker.gitea.com/gitea:28.4.0`) et le dépôt `lab/inventory` (main, develop, release/1.1, feature/stock-alerts en pull request). Les captures marquées *Gitea 28.4.0* montrent Gitea lui-même. Faits réels repris dans le cours : *Manage hooks* ne crée pas le webhook tant que l'URL de Jenkins est `localhost` ; Gitea 28 refuse les adresses privées (« denied by egress policy ») tant que `[security].ALLOWED_HOST_LIST` ne les autorise pas (l'ancienne option `[webhook]` est dépréciée, un nom d'hôte ne suffit pas) ; `BRANCH_NAME` vaut `null` hors multibranche ; `CHANGE_AUTHOR` reste vide avec la source Gitea. Le scénario du TP 5.3 (commit cassant puis revert) a été joué : contrôle rouge puis vert dans la pull request.
 
 Particularité de la machine de capture : ses connexions HTTPS passent par un proxy qui réinspecte TLS. Java, dans le conteneur, a donc reçu un magasin de certificats complété par un fichier Compose séparé, absent de la formation. Le message réel obtenu sans ce réglage, `PKIX path building failed`, figure dans le dépannage du Lab 0, avec la correction à appliquer en entreprise.
+
+### Module 6 : trois chaînes d'intégration continue exécutées
+
+Les dépôts `lab/stock-api`, `lab/stock-web` et `lab/stock-py` ont été poussés dans Gitea et construits par des jobs multibranches déclenchés par un webhook d'organisation. Les échecs montrés sont ceux qui se sont réellement produits, dans l'ordre : objectif de rapport `checkstyle:checkstyle` en échec (habillage de site non téléchargeable), avertissement Checkstyle → UNSTABLE puis correction, baisse de couverture révélant un cas non testé, test en échec (FAILURE) puis `-Dmaven.test.failure.ignore=true` (UNSTABLE), rapport flake8 périmé conservé dans l'espace de travail (reproduit), dépendances transitives non épinglées résolues autrement par le scanner, exceptions OSV documentées (`effectiveUntil`, l'ancien `ignoreUntil` produisant un avertissement), quality gate de couverture à 95 %, publication `mvn deploy` avec un jeton limité aux paquets, et `409 Conflict` en republiant une version.
+
+Particularités de la machine de capture, absentes de la formation : l'agent y est construit par un `Dockerfile.sandbox` qui copie l'archive de Node.js et un binaire OSV-Scanner compilé localement (`go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.7.1`), car github.com n'y est pas joignable ; Java et Node.js y reçoivent le certificat du proxy TLS. Le `Dockerfile` du cours télécharge ces fichiers depuis leurs sites officiels.
 
 ## Architecture
 

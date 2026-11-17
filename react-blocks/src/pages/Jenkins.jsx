@@ -18,6 +18,7 @@ const CHARGEURS = {
   m3: () => import('../lib/jenkins/module3'),
   m4: () => import('../lib/jenkins/module4'),
   m5: () => import('../lib/jenkins/module5'),
+  m6: () => import('../lib/jenkins/module6'),
 }
 const CLÉ = 'react-blocs-jenkins'
 const ROUGE = '#d24939'

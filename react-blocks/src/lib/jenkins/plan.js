@@ -64,11 +64,11 @@ export const PLAN = [
     tp: ['Lab 5.1 — A Jenkinsfile read from Git', 'Lab 5.2 — A multibranch pipeline triggered by a webhook', 'Lab 5.3 — Status checks on pull requests'],
   },
   {
-    id: 'm6', num: 'Module 6', titre: 'Continuous Integration (CI)', niveau: 'intermédiaire', durée: '5 h',
-    résumé: 'Complete CI pipelines for Java/Maven, Node.js and Python: checkout, build, unit tests, code quality, security analysis, artifacts and published results.',
-    objectifs: ['Build and test Java/Maven, Node.js and Python projects', 'Publish test reports and coverage', 'Add code quality and security analysis', 'Produce versioned artifacts'],
-    sujets: ['Checkout', 'Compilation', 'Unit tests (JUnit reports)', 'Code quality', 'Security analysis', 'Artifacts', 'Publishing results'],
-    tp: ['CI for a Maven app', 'CI for a Node.js app', 'CI for a Python app'],
+    id: 'm6', num: 'Module 6', titre: 'Continuous Integration (CI)', niveau: 'intermédiaire', durée: '5 h', disponible: true,
+    résumé: 'Three real projects — Java/Maven, Node.js, Python — built by multibranch pipelines: checkout, build, unit tests, coverage, code quality, security scan, versioned artifacts and publication to a package registry, with the real failures and their fixes.',
+    objectifs: ['Build and test Java/Maven, Node.js and Python projects', 'Publish test reports and coverage', 'Turn code quality, coverage and vulnerabilities into quality gates', 'Produce versioned artifacts and publish them'],
+    sujets: ['CI build agent', 'Checkout', 'Compilation', 'Unit tests (JUnit reports)', 'Coverage', 'Code quality (Checkstyle, ESLint, flake8)', 'Security analysis (OSV-Scanner)', 'Artifacts and fingerprints', 'Publishing to a registry'],
+    tp: ['Lab 6.1: CI for a Maven project', 'Lab 6.2: quality gates for Node.js and Python', 'Lab 6.3: FAILURE or UNSTABLE when a test fails', 'Lab 6.4: publish to a package registry'],
   },
   {
     id: 'm7', num: 'Module 7', titre: 'Jenkins and Docker', niveau: 'intermédiaire', durée: '4 h',

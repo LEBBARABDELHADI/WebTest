@@ -13,12 +13,13 @@ import MODULE2, { COMPOSE_AGENT, PROXY_SERVICE, NGINX_CONF, DOCKERFILE_CASC, PLU
 import MODULE3, { BUILD_REPORT_SH } from '../../src/lib/jenkins/module3.js'
 import MODULE4, { JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_BROKEN_A, JF_BROKEN_B, JF_FIXED } from '../../src/lib/jenkins/module4.js'
 import MODULE5, { COMPOSE_GITEA, JF_INVENTORY, BUILD_SH, TEST_SH } from '../../src/lib/jenkins/module5.js'
+import MODULE6, { AGENT_DOCKERFILE, COMPOSE_AGENT_BUILD, POM_XML, CI_SETTINGS, JF_API, JF_WEB, JF_PY, PACKAGE_JSON, OSV_TOML, REQUIREMENTS, REQUIREMENTS_V1 } from '../../src/lib/jenkins/module6.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6 }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -217,6 +218,46 @@ test('module 5 : Gitea, Jenkinsfile GitFlow et sorties réelles concordent', () 
   const t = JSON.stringify(MODULE5)
   for (const u of ['/github-webhook/', '/gitlab-webhook/post', '/project/<job>', '/gitea-webhook/post']) assert.ok(t.includes(u), u)
   assert.equal(MODULE5.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 6 : image d’agent, Jenkinsfiles, publication et sorties réelles concordent', () => {
+  const tout = [...parcourir(MODULE6)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // L’image de l’agent : versions épinglées, somme de contrôle de Node.js, utilisateur non privilégié.
+  assert.match(AGENT_DOCKERFILE, /^FROM jenkins\/inbound-agent:\S+-jdk21$/m)
+  for (const s of ['libatomic1', 'sha256sum -c', 'ARG NODE_VERSION=26.', 'ARG OSV_VERSION=']) assert.ok(AGENT_DOCKERFILE.includes(s), s)
+  assert.match(AGENT_DOCKERFILE.trim().split('\n').at(-1), /^USER jenkins$/)
+  assert.ok(COMPOSE_AGENT_BUILD.includes('build: ./agent'))
+  // Les versions affichées par l’agent sont celles de l’image.
+  const outils = sortie(/in ~\/jenkins-lab/)
+  assert.ok(outils.includes('v' + AGENT_DOCKERFILE.match(/NODE_VERSION=(\S+)/)[1]) && outils.includes('osv-scanner version: ' + AGENT_DOCKERFILE.match(/OSV_VERSION=(\S+)/)[1]))
+  // Les trois Jenkinsfiles : mêmes étapes de rapport, quality gates, versions par build, accolades équilibrées.
+  for (const jf of [JF_API, JF_WEB, JF_PY]) {
+    for (const s of ["junit '", 'recordCoverage(', 'recordIssues(', "criticality: 'UNSTABLE'", "catchError(buildResult: 'UNSTABLE'", 'osv-scanner scan source --lockfile', 'archiveArtifacts', 'fingerprint: true']) assert.ok(jf.includes(s), s)
+    assert.equal((jf.match(/\{/g) || []).length, (jf.match(/\}/g) || []).length)
+  }
+  assert.ok(JF_API.includes('VERSION = "1.0.${env.BUILD_NUMBER}"') && JF_API.includes("when { branch 'main' }"))
+  assert.ok(JF_PY.includes('rm -f flake8.txt'), 'le rapport périmé est supprimé')
+  assert.ok(JSON.parse(PACKAGE_JSON).scripts.test.startsWith('mkdir -p test-results'), 'le dossier du rapport junit est créé')
+  // Publication : aucun secret dans le dépôt, l’id du serveur relie settings et pom.
+  assert.ok(CI_SETTINGS.includes('${env.REPO_TOKEN}') && JF_API.includes("passwordVariable: 'REPO_TOKEN'"))
+  assert.ok(POM_XML.includes('<id>gitea</id>') && CI_SETTINGS.includes('<id>gitea</id>') && POM_XML.includes('flatten-maven-plugin'))
+  assert.ok(OSV_TOML.includes('effectiveUntil') && !OSV_TOML.includes('ignoreUntil'))
+  assert.equal(REQUIREMENTS_V1.trim(), 'requests==2.31.0')
+  assert.equal(REQUIREMENTS.split('\n').filter(l => /==/.test(l)).length, 5)
+  // Les journaux réels racontent bien l’histoire du module.
+  assert.ok(sortie(/main #1 → /).includes('Failed to retrieve skin artifact'))
+  assert.ok(sortie(/stock-api » main #2/).includes('Actual value: 1, Quality gate: 1.00') && sortie(/stock-api » main #2/).includes('Finished: UNSTABLE'))
+  assert.ok(sortie(/stock-api » main #3/).includes('Line Coverage: 93.33% (14/15)'))
+  assert.ok(sortie(/restock-rule #1/).includes('Finished: FAILURE') && sortie(/restock-rule #2/).includes('Finished: UNSTABLE'))
+  assert.ok(sortie(/feature\/coverage-gate #1/).includes('Actual value: 89.47%, Quality gate: 95.00'))
+  assert.ok(sortie(/stock-py » main #2/).includes('certifi | 2026.7.22') && sortie(/stock-py » main #3/).includes('found 5 packages'))
+  assert.ok(sortie(/main #5/).includes('Uploaded to gitea') && sortie(/main #5/).includes('Masking supported pattern matches of $REPO_TOKEN'))
+  assert.ok(sortie(/token in REPO_TOKEN/).includes('409 Conflict'))
+  assert.ok(sortie(/old flake8.txt/).includes('exit code: 0') && sortie(/old flake8.txt/).includes("F401 'os' imported but unused"))
+  // Aucun jeton réel ne figure dans le contenu.
+  assert.ok(!/(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])/.test(JSON.stringify(MODULE6)), 'pas de jeton de 40 caractères hexadécimaux')
+  assert.equal(MODULE6.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {

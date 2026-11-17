@@ -3820,5 +3820,458 @@
    "version": "28.4.0",
    "image": "docker.gitea.com/gitea:28.4.0"
   }
+ },
+ "m6-01-build-summary": {
+  "fichier": "m6-01-build-summary.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/main/2/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The versioned jar",
+    "x": 34.14,
+    "y": 16.75,
+    "l": 7.36,
+    "h": 2.13
+   },
+   {
+    "n": 2,
+    "libellé": "Started by the webhook",
+    "x": 34.14,
+    "y": 25.69,
+    "l": 29.72,
+    "h": 2.13
+   },
+   {
+    "n": 3,
+    "libellé": "Tests",
+    "x": 37.35,
+    "y": 44.44,
+    "l": 6.02,
+    "h": 2.88
+   },
+   {
+    "n": 4,
+    "libellé": "Coverage",
+    "x": 40.39,
+    "y": 56.75,
+    "l": 23.56,
+    "h": 2.63
+   },
+   {
+    "n": 5,
+    "libellé": "Code quality: one warning",
+    "x": 40.36,
+    "y": 69.13,
+    "l": 9.23,
+    "h": 3.62
+   },
+   {
+    "n": 6,
+    "libellé": "The quality gate made the build UNSTABLE",
+    "x": 37.27,
+    "y": 73.88,
+    "l": 26.69,
+    "h": 2.63
+   }
+  ]
+ },
+ "m6-02-trends": {
+  "fichier": "m6-02-trends.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/main/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Tests per build",
+    "x": 58.91,
+    "y": 18.38,
+    "l": 39.06,
+    "h": 3
+   },
+   {
+    "n": 2,
+    "libellé": "Coverage per build",
+    "x": 58.91,
+    "y": 46.38,
+    "l": 39.06,
+    "h": 3
+   },
+   {
+    "n": 3,
+    "libellé": "Warnings per build: 1, then 0",
+    "x": 58.91,
+    "y": 74.38,
+    "l": 39.06,
+    "h": 3
+   },
+   {
+    "n": 4,
+    "libellé": "The jar of build #3",
+    "x": 35.23,
+    "y": 20.75,
+    "l": 13.05,
+    "h": 2.13
+   }
+  ]
+ },
+ "m6-03-checkstyle": {
+  "fichier": "m6-03-checkstyle.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/main/2/checkstyle/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "File and line",
+    "x": 35.47,
+    "y": 79.57,
+    "l": 6.9,
+    "h": 2.13
+   },
+   {
+    "n": 2,
+    "libellé": "The rule",
+    "x": 67.28,
+    "y": 79.57,
+    "l": 9.75,
+    "h": 2.13
+   },
+   {
+    "n": 3,
+    "libellé": "Severity",
+    "x": 78.29,
+    "y": 79.57,
+    "l": 2.58,
+    "h": 2.13
+   }
+  ]
+ },
+ "m6-04-issue-source": {
+  "fichier": "m6-04-issue-source.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/main/2/checkstyle/source.6c5e5296-1610-4976-b493-d8dd64ba9402/#16",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The message, on the source line",
+    "x": 36.11,
+    "y": 55.16,
+    "l": 14.12,
+    "h": 2.63
+   }
+  ]
+ },
+ "m6-05-coverage": {
+  "fichier": "m6-05-coverage.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-web/job/main/1/coverage/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Overview",
+    "x": 28.75,
+    "y": 17.75,
+    "l": 7.96,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Lines 90% (18 covered, 2 missed), methods 66.67%, branches 100%",
+    "x": 28.59,
+    "y": 25.5,
+    "l": 27.81,
+    "h": 5.75
+   },
+   {
+    "n": 3,
+    "libellé": "Trend over the builds",
+    "x": 58.28,
+    "y": 25.5,
+    "l": 39.69,
+    "h": 5.75
+   },
+   {
+    "n": 4,
+    "libellé": "Per file, with the source",
+    "x": 59.15,
+    "y": 17.75,
+    "l": 5.39,
+    "h": 4.25
+   }
+  ]
+ },
+ "m6-06-flake8": {
+  "fichier": "m6-06-flake8.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-py/job/main/1/flake8/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "E501: line too long",
+    "x": 30.47,
+    "y": 79.57,
+    "l": 2.5,
+    "h": 2.13
+   },
+   {
+    "n": 2,
+    "libellé": "F401: unused import",
+    "x": 30.47,
+    "y": 84.32,
+    "l": 2.52,
+    "h": 2.13
+   }
+  ]
+ },
+ "m6-07-osv": {
+  "fichier": "m6-07-osv.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-py/job/main/1/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The scan of the dependencies",
+    "x": 37.51,
+    "y": 14.68,
+    "l": 34.21,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "Summary",
+    "x": 56.61,
+    "y": 35.01,
+    "l": 14.45,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "The version that fixes it",
+    "x": 29.61,
+    "y": 52.44,
+    "l": 65.16,
+    "h": 5.65
+   }
+  ]
+ },
+ "m6-08-py-stages": {
+  "fichier": "m6-08-py-stages.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-py/job/main/1/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Unit tests",
+    "x": 43.13,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Code quality: unstable (quality gate)",
+    "x": 54.06,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "Security: unstable (vulnerabilities)",
+    "x": 65,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 4,
+    "libellé": "Package: the wheel is still built",
+    "x": 75.94,
+    "y": 26.38,
+    "l": 10.47,
+    "h": 4.25
+   }
+  ]
+ },
+ "m6-09-py-green": {
+  "fichier": "m6-09-py-green.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-py/job/main/3/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Code quality: passed (old report deleted first)",
+    "x": 54.06,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Security: passed (whole tree pinned)",
+    "x": 65,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "Package",
+    "x": 75.94,
+    "y": 26.38,
+    "l": 10.47,
+    "h": 4.25
+   }
+  ]
+ },
+ "m6-10-gitea-package": {
+  "fichier": "m6-10-gitea-package.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:3000/lab/-/packages/maven/com.example:stock-api/1.0.5",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The package and its version",
+    "x": 2.19,
+    "y": 27.64,
+    "l": 32.12,
+    "h": 5
+   },
+   {
+    "n": 2,
+    "libellé": "Published by the bot account of Jenkins",
+    "x": 15.95,
+    "y": 32.14,
+    "l": 6.45,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "Installation: how other projects use it",
+    "x": 3.28,
+    "y": 38.26,
+    "l": 6.71,
+    "h": 3.13
+   },
+   {
+    "n": 4,
+    "libellé": "The jar and the POM",
+    "x": 78.83,
+    "y": 60.64,
+    "l": 6.01,
+    "h": 2.88
+   },
+   {
+    "n": 5,
+    "libellé": "One version per build of main",
+    "x": 78.83,
+    "y": 74.51,
+    "l": 7.03,
+    "h": 2.88
+   }
+  ],
+  "outil": {
+   "nom": "Gitea",
+   "version": "28.4.0",
+   "image": "docker.gitea.com/gitea:28.4.0"
+  }
+ },
+ "m6-11-publish-stage": {
+  "fichier": "m6-11-publish-stage.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/main/5/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Publish: only on main",
+    "x": 81.41,
+    "y": 26.38,
+    "l": 10.47,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "mvn deploy with the CI settings",
+    "x": 31.17,
+    "y": 48.69,
+    "l": 37.93,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "Version 1.0.5 = build #5",
+    "x": 42.37,
+    "y": 67.24,
+    "l": 16.43,
+    "h": 2.75
+   }
+  ]
+ },
+ "m6-12-test-report": {
+  "fichier": "m6-12-test-report.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/feature%252Frestock-rule/2/testReport/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The failed tests of this build",
+    "x": 28.28,
+    "y": 19,
+    "l": 9.58,
+    "h": 3.25
+   },
+   {
+    "n": 2,
+    "libellé": "The failed test: click it for the details",
+    "x": 32.62,
+    "y": 32.41,
+    "l": 20.99,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "Per package: 1 failed, 0 skipped, 3 passed",
+    "x": 28.28,
+    "y": 43.6,
+    "l": 5.69,
+    "h": 3.25
+   }
+  ]
+ },
+ "m6-13-test-failure": {
+  "fichier": "m6-13-test-failure.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api/job/feature%252Frestock-rule/2/testReport/com.example.stock/StockTest/raisesRestockAlertsBelowTheMinimum/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The assertion: expected true, got false",
+    "x": 29.61,
+    "y": 23.5,
+    "l": 7.07,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "Stack trace: StockTest.java line 40",
+    "x": 29.61,
+    "y": 35.4,
+    "l": 6.83,
+    "h": 2.88
+   }
+  ]
  }
 }
