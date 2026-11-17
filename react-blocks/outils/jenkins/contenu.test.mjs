@@ -15,12 +15,14 @@ import MODULE4, { JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_BROKEN_A, JF_BROKEN_B
 import MODULE5, { COMPOSE_GITEA, JF_INVENTORY, BUILD_SH, TEST_SH } from '../../src/lib/jenkins/module5.js'
 import MODULE6, { AGENT_DOCKERFILE, COMPOSE_AGENT_BUILD, POM_XML, CI_SETTINGS, JF_API, JF_WEB, JF_PY, PACKAGE_JSON, OSV_TOML, REQUIREMENTS, REQUIREMENTS_V1 } from '../../src/lib/jenkins/module6.js'
 import MODULE7, { COMPOSE_DOCKER, COMPOSE_AGENT1, DOCKERFILE_AGENT_EXTRAIT, DOCKERFILE, JF_SERVICE, DSL_EXTRAIT, DOCKER_CLEANUP } from '../../src/lib/jenkins/module7.js'
+import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
+import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -302,6 +304,44 @@ test('module 7 : démon Docker TLS, Dockerfile, pipeline d’image et sorties r�
   const texte = JSON.stringify(MODULE7).replace(/(revision=|Revision |checkout -f |rev-list --no-walk |buildx v[\d.]+ )[0-9a-f]{40}/g, '')
   assert.ok(!/(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])/.test(texte), 'pas de jeton de 40 caractères hexadécimaux')
   assert.equal(MODULE7.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {
+  assert.ok(DURÉE_TOTALE <= 120, `durée totale ${DURÉE_TOTALE} min`)
+  assert.equal(durée(DURÉE_TOTALE), '2 h')
+  assert.deepEqual(Object.keys(CONTENU_BASES), PLAN_BASES.map(l => l.id))
+  const tout = [...parcourir(PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]))]
+  // Chaque leçon a un titre et un visuel (capture réelle ou schéma) ; le bilan a quiz, checklist et récap.
+  for (const l of PLAN_BASES.slice(0, -1)) {
+    assert.ok(CONTENU_BASES[l.id].some(x => x.t === 'h'), `${l.id} : titre`)
+    assert.ok(CONTENU_BASES[l.id].some(x => x.t === 'shot' || x.t === 'diagram'), `${l.id} : visuel`)
+  }
+  for (const t of ['quiz', 'checklist', 'recap']) assert.ok(CONTENU_BASES.b9.some(x => x.t === t), t)
+  // Les blocs repris sont les objets mêmes des modules (pas des copies à la main).
+  const sources = new Set([LAB0, MODULE1, MODULE3, MODULE4, MODULE5].flatMap(m => [...parcourir(m)]))
+  assert.ok(tout.filter(b => sources.has(b)).length >= 25, 'au moins 25 blocs repris tels quels')
+  // Tout ce qui se lance tourne sur un Jenkins de Lab 0 : agent any, jamais un label d’agent.
+  const pipelines = tout.filter(x => x.t === 'code' && /pipeline \{/.test(x.code))
+  assert.equal(pipelines.length, 4)
+  for (const b of pipelines) assert.ok(/agent any/.test(b.code) && !/label '/.test(b.code), b.file)
+  // Le pipeline cassé ne diffère de celui du Module 1 que par la ligne du test.
+  const diff = BASICS_FAIL.split('\n').filter((l, i) => l !== JENKINSFILE_HELLO.split('\n')[i])
+  assert.equal(diff.length, 1)
+  assert.match(diff[0], /test -s release-notes\.txt/)
+  // Les sorties réelles des pipelines propres à la formation : nœud intégré et résultats annoncés.
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  for (const m of [/failing test/, /basics-tests #1/, /basics-secret #1/]) {
+    assert.ok(sortie(m).includes('Running on Jenkins in /var/jenkins_home/workspace/'), String(m))
+    assert.ok(!/\[Pipeline\]|\[Gitea\]/.test(sortie(m)), String(m))
+  }
+  assert.ok(sortie(/failing test/).includes('Stage "Package" skipped due to earlier failure(s)') && sortie(/failing test/).endsWith('Finished: FAILURE'))
+  assert.ok(sortie(/basics-tests #1/).includes('Recording test results') && sortie(/basics-tests #1/).endsWith('Finished: UNSTABLE'))
+  assert.ok(sortie(/basics-secret #1/).includes('Token: ****') && sortie(/basics-secret #1/).includes('Masking supported pattern matches of $API_TOKEN'))
+  assert.ok(sortie(/Freestyle job/).includes("Build step 'Execute shell' marked build as failure"))
+  // Les renvois internes des blocs repris pointent vers les leçons, pas vers des sections d’autres modules.
+  const textes = JSON.stringify(tout.filter(b => b.t !== 'table'))
+  for (const renvoi of ['(Module 1)', 'line 39', 'Lab 1.2', 'section 4.8']) assert.ok(!textes.includes(renvoi), renvoi)
+  assert.equal(CONTENU_BASES.b9.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {

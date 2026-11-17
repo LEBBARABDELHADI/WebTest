@@ -84,6 +84,7 @@ function libelléRécent(lire, chemin) {
   if (outil === 'lire') return { titre: `À lire ${type.toLowerCase()}`, icône: 'livre' }
   if (outil === 'ansible') return { titre: 'Learning Ansible', icône: 'code' }
   if (outil === 'jenkins') return { titre: 'Learning Jenkins', icône: 'code' }
+  if (outil === 'jenkins-basics') return { titre: 'Jenkins Basics', icône: 'code' }
   if (outil === 'livret2026') return { titre: 'Livret du citoyen 2026', icône: 'livre' }
   if (outil === 'notion') {
     const n = notions.find(x => x.id === espace)
@@ -207,6 +208,7 @@ export default function Home({ foyerId = 'lebbar' }) {
   if (estDimanche && !revueFaite) résumé.push('📝 revue de la semaine à faire')
   const ansibleFaites = (() => { try { return Object.keys(JSON.parse(localStorage.getItem('react-blocs-ansible') || '{}').faites || {}).length } catch { return 0 } })()
   const jenkinsFaits = (() => { try { return Object.values(JSON.parse(localStorage.getItem('react-blocs-jenkins') || '{}').faits || {}).filter(Boolean).length } catch { return 0 } })()
+  const basesFaites = (() => { try { return Object.values(JSON.parse(localStorage.getItem('react-blocs-jenkins-basics') || '{}').faites || {}).filter(Boolean).length } catch { return 0 } })()
   const livret = lireLocal('livret', espace)
   const livretFaites = Object.values(livret.leçons || {}).filter(l => l?.faite).length
   const pilotes = [
@@ -251,7 +253,8 @@ export default function Home({ foyerId = 'lebbar' }) {
     { to: `/tableau/${espace}`, icône: 'reseau', titre: 'Graphe amélioré', chiffre: '✦', unité: 'tableau blanc', détail: 'Pense-bêtes, formes, flèches…' },
     { to: '/timer', icône: 'horloge', titre: 'Timer', chiffre: heure, unité: '', détail: 'Chrono · minuteur' },
     { to: `/ansible/${espace}`, icône: 'code', titre: 'Learning Ansible', chiffre: `${ansibleFaites}/6`, unité: 'étapes', détail: ansibleFaites ? 'Reprendre la formation' : 'Définitions, bases, simulateur…' },
-    { to: `/jenkins/${espace}`, icône: 'code', titre: 'Learning Jenkins', chiffre: `${jenkinsFaits}/2`, unité: 'modules', détail: jenkinsFaits ? 'Reprendre la formation (EN)' : 'Jenkins réel, captures, TP (EN)' },
+    { to: `/jenkins/${espace}`, icône: 'code', titre: 'Learning Jenkins', chiffre: `${jenkinsFaits}/14`, unité: 'modules', détail: jenkinsFaits ? 'Reprendre la formation (EN)' : 'Jenkins réel, captures, TP (EN)' },
+    { to: `/jenkins-basics/${espace}`, icône: 'code', titre: 'Jenkins Basics', chiffre: `${basesFaites}/9`, unité: 'étapes', détail: basesFaites ? 'Reprendre · 2 h (EN)' : 'Les bases en 2 h (EN)' },
     { to: `/outils/${espace}`, icône: 'code', titre: 'Outils DevOps', chiffre: (lireLocal('commandes', espace).commandes || []).length, unité: 'commandes', détail: 'CIDR, cron, chmod, JWT, JSON/YAML…' },
   ]
 

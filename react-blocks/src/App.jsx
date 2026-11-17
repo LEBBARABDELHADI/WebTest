@@ -42,6 +42,7 @@ const PAGES = {
   Livret2026: () => import('./pages/Livret2026'),
   Ansible: () => import('./pages/Ansible'),
   Jenkins: () => import('./pages/Jenkins'),
+  JenkinsBasics: () => import('./pages/JenkinsBasics'),
 }
 const NotionPage = charger(PAGES.NotionPage)
 const Taches = charger(PAGES.Taches)
@@ -63,6 +64,7 @@ const ObjectifsAnnee = charger(PAGES.ObjectifsAnnee)
 const Livret2026 = charger(PAGES.Livret2026)
 const Ansible = charger(PAGES.Ansible)
 const Jenkins = charger(PAGES.Jenkins)
+const JenkinsBasics = charger(PAGES.JenkinsBasics)
 
 // Une fois la page affichée, les autres outils sont préchargés en douceur
 // (ouverture instantanée ensuite, et disponibles hors ligne).
@@ -185,6 +187,8 @@ function App() {
       <Route path="/ansible/:espace" element={<EspaceRoute Page={Ansible} />} />
       <Route path="/jenkins" element={<Navigate to="/jenkins/perso" replace />} />
       <Route path="/jenkins/:espace" element={<EspaceRoute Page={Jenkins} />} />
+      <Route path="/jenkins-basics" element={<Navigate to="/jenkins-basics/perso" replace />} />
+      <Route path="/jenkins-basics/:espace" element={<EspaceRoute Page={JenkinsBasics} />} />
     </Routes>
     </Suspense>
     </>

@@ -71,6 +71,12 @@ Le labo gagne un service `docker` (`docker:29.10.0-dind`, privilégié, TLS mutu
 
 Particularités de la machine de capture, absentes de la formation : le démon dind y reçoit en plus `--registry-mirror=https://mirror.gcr.io` (limite de débit de Docker Hub) et le certificat du proxy TLS, par `docker-compose.override.yml`.
 
+## Jenkins Basics : la formation courte (2 h)
+
+Un second bouton de l'accueil, **Jenkins Basics** (`/jenkins-basics/:espace`), ouvre une formation de deux heures pour grands débutants, en neuf étapes chronométrées (10 à 25 min, 120 min au total) : ce que fait Jenkins, installation Docker, tour de l'interface, premier job Freestyle, premier pipeline (lancé, cassé, réparé), pipelines depuis Git et webhooks, tests, artefacts et résultats, credentials, puis récap, quiz et checklist. Tout ce qui s'y lance fonctionne sur le seul Jenkins du Lab 0 (`agent any`).
+
+Réutilisation : `src/lib/jenkins/basics.js` ne recopie rien à la main. Des fonctions (`capture`, `commande`, `code`, `schéma`, `tableau`, `glossaire`, `erreurs`) vont chercher les blocs dans `lab0.js` et les modules 1, 3, 4 et 5 — mêmes captures, mêmes sorties réelles, mêmes explications ligne par ligne — et échouent au chargement si un bloc disparaît ; `adapter` remplace seulement les renvois internes (« Module 1 » → « lesson 1.2 »). Trois petits pipelines propres à la formation (`basics-fail`, `basics-tests`, `basics-secret`) et un job Freestyle en échec ont été exécutés pour de vrai ; les pipelines l'ont été sur le nœud intégré, comme dans un Lab 0 neuf (agent-1 mis hors ligne le temps des essais, puis remis en service), et cinq captures `bas-*` en proviennent. Le plan léger est dans `basics-plan.js`, le contenu est chargé à la demande ; la progression est gardée sous `react-blocs-jenkins-basics`.
+
 ## Architecture
 
 ```

@@ -4486,5 +4486,173 @@
     "h": 4.75
    }
   ]
+ },
+ "bas-01-hello-stages": {
+  "fichier": "bas-01-hello-stages.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/hello-pipeline/2/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Build",
+    "x": 32.19,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Test",
+    "x": 43.13,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "Package: the artifact is archived",
+    "x": 54.06,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 4,
+    "libellé": "post { success }",
+    "x": 65,
+    "y": 26.38,
+    "l": 10.47,
+    "h": 4.25
+   }
+  ]
+ },
+ "bas-02-fail-stages": {
+  "fichier": "bas-02-fail-stages.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/basics-fail/1/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Test failed",
+    "x": 43.13,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Package: skipped",
+    "x": 52.9,
+    "y": 23.63,
+    "l": 5.13,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "The command that failed",
+    "x": 31.17,
+    "y": 53.63,
+    "l": 18.4,
+    "h": 2.75
+   }
+  ]
+ },
+ "bas-03-tests-build": {
+  "fichier": "bas-03-tests-build.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/basics-tests/1/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The archived artifact",
+    "x": 35.55,
+    "y": 19.19,
+    "l": 4.3,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "Tests: 1 failure",
+    "x": 4.3,
+    "y": 34.19,
+    "l": 3.39,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "The failed test",
+    "x": 28.44,
+    "y": 49.81,
+    "l": 26.29,
+    "h": 11.31
+   }
+  ]
+ },
+ "bas-04-test-report": {
+  "fichier": "bas-04-test-report.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/basics-tests/1/testReport/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The failed test",
+    "x": 28.28,
+    "y": 19,
+    "l": 9.58,
+    "h": 3.25
+   },
+   {
+    "n": 2,
+    "libellé": "rejects_negative_stock",
+    "x": 32.62,
+    "y": 32.41,
+    "l": 12.57,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "3 tests: 1 failed, 2 passed",
+    "x": 28.28,
+    "y": 43.6,
+    "l": 5.69,
+    "h": 3.25
+   }
+  ]
+ },
+ "bas-05-secret-masked": {
+  "fichier": "bas-05-secret-masked.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/basics-secret/1/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Jenkins knows the secret",
+    "x": 29.61,
+    "y": 40.71,
+    "l": 31.57,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "The script used it",
+    "x": 34.22,
+    "y": 52.33,
+    "l": 9.84,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "Printed by mistake: masked",
+    "x": 34.22,
+    "y": 61.04,
+    "l": 7.87,
+    "h": 2.75
+   }
+  ]
  }
 }
