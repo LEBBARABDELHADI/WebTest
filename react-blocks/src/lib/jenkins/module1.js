@@ -452,3 +452,5 @@ Finished: SUCCESS`, note: '`[Pipeline] …` lines are written by Jenkins for eac
     'I can explain how Jenkins and Ansible complement each other.',
   ] },
 ]
+
+export default MODULE1

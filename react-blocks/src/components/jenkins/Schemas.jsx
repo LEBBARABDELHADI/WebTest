@@ -195,8 +195,62 @@ function JenkinsAnsible({ T }) {
   )
 }
 
+function Volume({ cx, cy, titre, sous, T }) {
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={92} ry={11} fill={T.surface} stroke={BLEU} strokeWidth={2} />
+      <path d={`M${cx - 92},${cy} L${cx - 92},${cy + 40} A92,11 0 0 0 ${cx + 92},${cy + 40} L${cx + 92},${cy}`} fill={T.surface} stroke={BLEU} strokeWidth={2} />
+      <text x={cx} y={cy + 26} textAnchor="middle" fontFamily={grotesk} fontWeight={800} fontSize={13.5} fill={T.text}>{titre}</text>
+      <text x={cx} y={cy + 43} textAnchor="middle" fontFamily={grotesk} fontSize={12} fill={T.textMuted}>{sous}</text>
+    </g>
+  )
+}
+
+// Module 2 : le labo après l'ajout de l'agent et du proxy HTTPS.
+function M2Lab({ T }) {
+  return (
+    <svg viewBox="0 0 760 350" role="img" aria-label="The lab after Module 2: the browser reaches the Nginx proxy over HTTPS on port 8443, Nginx forwards to the jenkins controller on port 8080, the agent-1 container connects to the controller over WebSocket, and each container keeps its data in a named volume">
+      <Défs T={T} />
+      <rect x={10} y={10} width={740} height={330} rx={14} fill="none" stroke={T.border} strokeWidth={2} strokeDasharray="8 6" />
+      <text x={24} y={34} fontFamily={grotesk} fontWeight={800} fontSize={14} fill={T.textMuted}>DOCKER COMPOSE PROJECT « jenkins-lab »</text>
+      <Boite x={24} y={58} l={160} h={70} titre="Browser" lignes={['https://localhost:8443']} T={T} />
+      <Boite x={224} y={52} l={170} h={82} titre="proxy (nginx)" lignes={['TLS, port 443 → 8443', 'X-Forwarded-Proto']} couleur={VERT} T={T} />
+      <Boite x={440} y={46} l={292} h={110} titre="jenkins (controller)" lignes={['Jenkins 2.580.2 LTS · Java 21', 'built-in node: 0 executors', 'UI · queue · plugins · API']} couleur={ROUGE} T={T} />
+      <Boite x={440} y={214} l={292} h={92} titre="agent-1 (inbound agent)" lignes={['label linux · 2 executors', 'runs every build']} couleur={BLEU} T={T} />
+      <Volume cx={130} cy={214} titre="jenkins_home" sous="→ /var/jenkins_home" T={T} />
+      <Volume cx={318} cy={244} titre="agent1_work" sous="→ /home/jenkins/agent" T={T} />
+      <Flèche d="M184,93 L220,93" T={T} libellé="HTTPS" lx={202} ly={84} />
+      <Flèche d="M394,93 L436,93" T={T} libellé=":8080" lx={415} ly={84} />
+      <Flèche d="M586,210 L586,160" T={T} libellé="WebSocket (agent → controller)" lx={640} ly={190} couleur={BLEU} />
+      <Flèche d="M222,226 L436,140" T={T} tirets />
+      <Flèche d="M410,272 L436,262" T={T} tirets />
+      <text x={150} y={300} fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>dashed: data persisted in volumes</text>
+    </svg>
+  )
+}
+
+// Module 2 : de la configuration versionnée à un contrôleur prêt, sans assistant.
+function M2Casc({ T }) {
+  return (
+    <svg viewBox="0 0 760 300" role="img" aria-label="Configuration as code: a Git repository holds the Dockerfile, plugins.txt and casc.yaml; docker build installs the pinned plugins into an image; the container starts with casc.yaml and a Docker secret mounted and comes up fully configured without the setup wizard">
+      <Défs T={T} />
+      <Boite x={20} y={24} l={210} h={110} titre="Git repository" lignes={['Dockerfile', 'plugins.txt (pinned)', 'casc.yaml']} T={T} />
+      <Boite x={280} y={24} l={200} h={110} titre="docker build" lignes={['FROM jenkins/jenkins:', '2.580.2-lts-jdk21', 'jenkins-plugin-cli']} couleur={AMBRE} T={T} />
+      <Boite x={530} y={24} l={210} h={110} titre="image" lignes={['lab/jenkins-casc:2.580.2', '74 plugins inside', 'no state, rebuildable']} couleur={BLEU} T={T} />
+      <Flèche d="M230,79 L276,79" T={T} />
+      <Flèche d="M480,79 L526,79" T={T} />
+      <Boite x={280} y={178} l={200} h={100} titre="container" lignes={['CASC_JENKINS_CONFIG', 'secret admin_password', 'volume casc_home']} couleur={ROUGE} T={T} />
+      <Boite x={530} y={178} l={210} h={100} titre="Jenkins ready" lignes={['no setup wizard', 'users, matrix, agent node', 'CSP enforced']} couleur={VERT} plein T={T} />
+      <Boite x={20} y={178} l={210} h={100} titre="secrets/ (never in Git)" lignes={['admin_password', 'owner uid 1000, mode 400']} couleur={ROUGE} T={T} />
+      <Flèche d="M635,134 L420,174" T={T} libellé="docker compose up" lx={560} ly={162} />
+      <Flèche d="M230,228 L276,228" T={T} />
+      <Flèche d="M480,228 L526,228" T={T} />
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

@@ -9,12 +9,13 @@ import yaml from 'js-yaml'
 import { PLAN, LAB } from '../../src/lib/jenkins/plan.js'
 import { LAB0, COMPOSE, SCRIPT_SHELL } from '../../src/lib/jenkins/lab0.js'
 import { MODULE1, JENKINSFILE_HELLO } from '../../src/lib/jenkins/module1.js'
+import MODULE2, { COMPOSE_AGENT, PROXY_SERVICE, NGINX_CONF, DOCKERFILE_CASC, PLUGINS_TXT, CASC_YAML, COMPOSE_CASC, INSTALL_SH, OVERRIDE_CONF } from '../../src/lib/jenkins/module2.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2 }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -108,6 +109,46 @@ test('module 1 : le pipeline de démonstration et sa sortie réelle concordent',
   for (const s of ['{ (Build)', '{ (Test)', '{ (Package)', 'Archiving artifacts', 'Pipeline finished: the artifact is archived.', 'Finished: SUCCESS']) assert.ok(sortie.includes(s), s)
   const quiz = MODULE1.find(b => b.t === 'quiz')
   assert.equal(quiz.questions.length, 10)
+})
+
+test('module 2 : fichiers cohérents entre eux et avec le labo', () => {
+  // Compose du labo : contrôleur inchangé + agent WebSocket ; le service proxy s'insère avant « volumes: ».
+  const doc = yaml.load(COMPOSE_AGENT)
+  assert.equal(doc.services.jenkins.image, LAB.image)
+  const a = doc.services['agent-1']
+  assert.match(a.image, /^jenkins\/inbound-agent:[\w.-]+-jdk21$/)
+  assert.equal(a.environment.JENKINS_URL, 'http://jenkins:8080')
+  assert.equal(a.environment.JENKINS_AGENT_NAME, 'agent-1')
+  assert.equal(a.environment.JENKINS_SECRET, '${AGENT_1_SECRET}')
+  assert.equal(a.environment.JENKINS_WEB_SOCKET, 'true')
+  assert.deepEqual(Object.keys(doc.volumes), ['jenkins_home', 'agent1_work'])
+  const complet = yaml.load(COMPOSE_AGENT.replace('volumes:\n  jenkins_home:', `${PROXY_SERVICE}\nvolumes:\n  jenkins_home:`))
+  assert.equal(complet.services.proxy.ports[0], '8443:443')
+  assert.ok(complet.services.proxy.volumes.includes('./nginx/jenkins.conf:/etc/nginx/conf.d/default.conf:ro'))
+  // Nginx : pas de barre finale après proxy_pass, en-têtes WebSocket et X-Forwarded-Proto.
+  assert.match(NGINX_CONF, /proxy_pass\s+http:\/\/jenkins;/)
+  for (const h of ['Connection', 'Upgrade', 'Host', 'X-Forwarded-Proto']) assert.ok(new RegExp(`proxy_set_header\\s+${h}\\s`).test(NGINX_CONF), h)
+  // Image « production » : plugins épinglés, JCasC lu au chemin monté par Compose, secret via ${…}.
+  assert.match(DOCKERFILE_CASC, new RegExp(`^FROM ${LAB.image.replace(/[.]/g, '\\.')}$`, 'm'))
+  const plugins = PLUGINS_TXT.split('\n').filter(l => l && !l.startsWith('#'))
+  assert.ok(plugins.length >= 5 && plugins.every(l => /^[a-z0-9-]+:[\w.-]+$/.test(l)), 'plugins.txt : id:version')
+  const casc = yaml.load(CASC_YAML)
+  assert.equal(casc.jenkins.numExecutors, 0)
+  assert.equal(casc.jenkins.securityRealm.local.users[0].password, '${admin_password}')
+  assert.equal(casc.jenkins.nodes[0].permanent.launcher, 'inbound')
+  assert.equal(casc.security.contentSecurityPolicy.enforce, true)
+  const cc = yaml.load(COMPOSE_CASC)
+  const conf = DOCKERFILE_CASC.match(/CASC_JENKINS_CONFIG=(\S+)/)[1]
+  assert.ok(cc.services.jenkins.volumes.some(v => v.endsWith(`:${conf}:ro`)), 'casc.yaml monté là où JCasC le lit')
+  assert.ok(cc.services.jenkins.secrets.includes('admin_password') && cc.secrets.admin_password.file)
+  // Script d'installation = commandes officielles ; override systemd valide.
+  for (const l of ['set -euo pipefail', 'openjdk-21-jre', 'https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key', 'apt-get install -y jenkins']) assert.ok(INSTALL_SH.includes(l), l)
+  assert.ok(INSTALL_SH.includes('\\\n'), 'continuations de ligne conservées')
+  assert.match(OVERRIDE_CONF, /^\[Service\]\nEnvironment="JENKINS_PORT=8081"/)
+  // Le build de démonstration tourne bien sur l'agent.
+  const sortie = [...parcourir(MODULE2)].find(b => b.t === 'cmd' && /hello-jenkins → Build Now/.test(b.where)).out
+  assert.ok(sortie.includes('Building remotely on agent-1 (linux)') && sortie.includes('Finished: SUCCESS'))
+  assert.equal(MODULE2.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {

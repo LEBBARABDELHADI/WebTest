@@ -18,7 +18,8 @@ C'est une formation progressive, du niveau débutant au niveau expert, en **13 m
 | Plan général (13 modules) | Objectifs, sujets et TP de chaque module |
 | **Lab 0 — Run Jenkins locally** | Rédigé : Docker Compose, déverrouillage, plugins, administrateur, premier job, exploitation, dépannage |
 | **Module 1 — Introduction to Jenkins** | Rédigé : CI/CD, comparatif des outils, architecture, contrôleur et agents, Jenkins + Ansible, 2 TP, 3 exercices, quiz de 10 questions |
-| Modules 2 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
+| **Module 2 — Installation and configuration** | Rédigé : prérequis, choix de la méthode, apt + systemd (override), VM Vagrant, plugins, agent WebSocket et 0 exécuteur sur le contrôleur, contrôleur « production » (plugins.txt + JCasC + secrets Docker), utilisateurs et matrice, Nginx HTTPS, CSP, 9 erreurs réelles, 5 TP, 3 exercices, quiz |
+| Modules 3 à 13 | Annoncés (« Coming next ») avec leur plan, rédigés un par un, dans l'ordre |
 
 ## Les captures sont réelles
 
@@ -31,6 +32,14 @@ Les 22 captures viennent d'un vrai **Jenkins 2.580.2 LTS** (image officielle `je
 - Les **schémas** sont signalés « Diagram — an illustration, not a Jenkins screenshot ».
 - Les sorties de commandes (`docker compose up`, journaux, `initialAdminPassword`, console des builds, `ls` de JENKINS_HOME, sauvegarde, port déjà utilisé) sont réelles. Les identifiants, mots de passe et durées diffèrent sur une autre machine.
 
+### Module 2 : trois environnements réels
+
+- Le **contrôleur du Lab 0**, enrichi pas à pas : plugin Configuration as Code, nœud `agent-1` (image `jenkins/inbound-agent:3395.v6e5377b_0fb_3c-5-jdk21`, WebSocket), 0 exécuteur sur le nœud intégré, utilisateurs `alice`/`bob` et matrice des droits (plugin Matrix Authorization 3.3), proxy Nginx 1.30.6 en HTTPS (captures prises par `https://localhost:8443`).
+- Une machine **Ubuntu 24.04.5** avec systemd pour l'installation par apt (dépôt `debian-stable`, clé `jenkins.io-2026.key`) : c'est un conteneur systemd, faute d'hyperviseur sur la machine de capture. La formation le dit, et la ligne `CGroup:` le montre. Le script `install-jenkins.sh` de la VM Vagrant a été exécuté tel quel sur une Ubuntu neuve (code de sortie 0). Le démarrage de la VM Vagrant elle-même n'a pas pu être capturé.
+- Un **contrôleur « production »** sur le port 8081, construit depuis `Dockerfile` + `plugins.txt` (74 plugins avec les dépendances) + `casc.yaml` + un secret Docker. Ses captures portent l'image `lab/jenkins-casc:2.580.2`.
+
+Les blocs de code du module 2 sont **générés depuis les fichiers réellement exécutés** (et non recopiés). Les erreurs réelles rencontrées sont reprises en dépannage : secret illisible par l'uid 1000, faute de frappe JCasC, port déjà pris, volume monté sans droits, Java 17, mauvais secret d'agent, proxy inverse mal réglé.
+
 Particularité de la machine de capture : ses connexions HTTPS passent par un proxy qui réinspecte TLS. Java, dans le conteneur, a donc reçu un magasin de certificats complété par un fichier Compose séparé, absent de la formation. Le message réel obtenu sans ce réglage, `PKIX path building failed`, figure dans le dépannage du Lab 0, avec la correction à appliquer en entreprise.
 
 ## Architecture
@@ -41,14 +50,14 @@ src/components/jenkins/Blocs.jsx       rendu des blocs : texte, tableaux, code e
                                        captures avec repères, TP/exercices avec corrigé, erreurs, quiz, checklist, récap
 src/components/jenkins/Schemas.jsx     schémas SVG (lab, boucle DevOps, CI/CD, architecture, vie d'un build, entreprise, Jenkins + Ansible)
 src/lib/jenkins/plan.js                les 14 parties (Lab 0 + 13 modules) et l'environnement du lab
-src/lib/jenkins/lab0.js · module1.js   le contenu, sous forme de blocs
+src/lib/jenkins/lab0.js · moduleN.js  le contenu, sous forme de blocs (un fichier chargé à la demande par module)
 src/lib/jenkins/captures.json          manifeste des captures : fichier, page Jenkins, repères (en % de l'image)
-public/jenkins/*.jpg                   les captures (2,4 Mo, chargées à la demande)
+public/jenkins/*.jpg                   les captures (chargées à la demande ; un champ `outil` signale celles d'un autre outil que Jenkins)
 ```
 
 Pour ajouter un module :
 1. Écrire `src/lib/jenkins/moduleN.js`.
-2. L'ajouter à `CONTENU` dans `Jenkins.jsx`.
+2. L'ajouter à `CHARGEURS` dans `Jenkins.jsx` (import dynamique : un fichier JS par module).
 3. Passer `disponible: true` dans `plan.js`.
 4. Ajouter ses captures dans `public/jenkins` et dans le manifeste.
 

@@ -116,16 +116,19 @@ export function Capture({ b, T }) {
   if (!c) return <p role="alert" style={{ color: '#dc2626' }}>Missing screenshot: {b.id}</p>
   const src = `${BASE}jenkins/${c.fichier}`
   const repères = c.marqueurs
+  // Par défaut, le Jenkins du labo ; sinon l'outil réellement photographié (Gitea, SonarQube, Grafana…).
+  const outil = c.outil ? `${c.outil.nom} ${c.outil.version}` : `Jenkins ${LAB.jenkins} ${LAB.ligne}`
+  const image = c.image ?? (c.outil ? c.outil.image : LAB.image)
   return (
     <figure style={{ margin: '16px 0', border: `1px solid ${T.border}`, borderRadius: 14, overflow: 'hidden', background: T.surface }}>
       <div style={{ padding: '10px 12px 8px', borderBottom: `1px solid ${T.border}` }}>
         <p style={{ margin: 0, fontFamily: grotesk, fontWeight: 800, fontSize: 15.5 }}>📸 {b.titre}</p>
-        <p style={{ margin: '2px 0 0', fontSize: 12, color: T.textMuted }}>Real screenshot · Jenkins {LAB.jenkins} {LAB.ligne} · image <span style={{ fontFamily: MONO }}>{LAB.image}</span> · {LAB.date}{c.url ? <> · page <span style={{ fontFamily: MONO }}>{c.url}</span></> : null} · numbered markers added by the course</p>
+        <p style={{ margin: '2px 0 0', fontSize: 12, color: T.textMuted }}>Real screenshot · {outil}{image ? <> · image <span style={{ fontFamily: MONO }}>{image}</span></> : null} · {LAB.date}{c.url ? <> · page <span style={{ fontFamily: MONO }}>{c.url}</span></> : null} · numbered markers added by the course</p>
       </div>
       <div style={{ position: 'relative', background: '#e5e7eb', cursor: zoom ? 'zoom-out' : 'zoom-in' }} onClick={() => setZoom(z => !z)}>
         <div style={{ overflowX: zoom ? 'auto' : 'hidden' }}>
           <div style={{ position: 'relative', width: zoom ? 1280 : '100%' }}>
-            <img src={src} alt={`Jenkins screenshot: ${b.titre}`} width={c.largeur} height={c.hauteur} loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
+            <img src={src} alt={`${c.outil?.nom ?? 'Jenkins'} screenshot: ${b.titre}`} width={c.largeur} height={c.hauteur} loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
             {repères.map(m => (
               <div key={m.n} aria-hidden="true" style={{ position: 'absolute', left: `${m.x}%`, top: `${m.y}%`, width: `${m.l}%`, height: `${m.h}%`, outline: '2.5px solid #f59e0b', borderRadius: 6, boxShadow: '0 0 0 4px rgba(245,158,11,.18)', pointerEvents: 'none' }}>
                 <span style={{ position: 'absolute', left: -11, top: -11, width: 22, height: 22, borderRadius: 11, background: '#f59e0b', color: '#111', fontFamily: grotesk, fontWeight: 900, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,.4)' }}>{m.n}</span>

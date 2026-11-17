@@ -1,7 +1,7 @@
 // Formation « Learning Jenkins » (contenu en anglais) : plan des 13 modules, Lab 0 (Jenkins en local)
 // et modules rédigés un par un, avec de vraies captures de Jenkins, des TP corrigés, des quiz et des
 // checklists. La progression est gardée dans ce navigateur.
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { BoutonIcone } from '../components/UI'
@@ -9,10 +9,13 @@ import { grotesk, serif, useTheme, useThemeMode } from '../lib/theme'
 import { FOYERS, foyerDeLEspace } from '../lib/foyers'
 import Blocs from '../components/jenkins/Blocs'
 import { PLAN, NIVEAUX, LAB, STRUCTURE } from '../lib/jenkins/plan'
-import { LAB0 } from '../lib/jenkins/lab0'
-import { MODULE1 } from '../lib/jenkins/module1'
 
-const CONTENU = { lab0: LAB0, m1: MODULE1 }
+// Chaque module est un fichier chargé à la demande : la page reste légère même avec 14 modules.
+const CHARGEURS = {
+  lab0: () => import('../lib/jenkins/lab0'),
+  m1: () => import('../lib/jenkins/module1'),
+  m2: () => import('../lib/jenkins/module2'),
+}
 const CLÉ = 'react-blocs-jenkins'
 const ROUGE = '#d24939'
 const lireProgrès = () => { try { return JSON.parse(localStorage.getItem(CLÉ) || '{}') } catch { return {} } }
@@ -43,7 +46,18 @@ export default function Jenkins() {
     bouton: (plein = false) => ({ minHeight: 44, padding: '0 16px', borderRadius: 12, border: `1px solid ${plein ? T.accent : T.border}`, background: plein ? T.accent : T.surface, color: plein ? T.accentText : T.text, fontFamily: grotesk, fontWeight: 700, fontSize: 14.5, cursor: 'pointer' }),
   }
   const marquerFait = id => enregistrer(p => ({ ...p, faits: { ...(p.faits ?? {}), [id]: p.faits?.[id] ? undefined : new Date().toISOString().slice(0, 10) } }))
-  const sommaire = module?.disponible ? CONTENU[vue].filter(b => b.t === 'h') : []
+  const [contenus, setContenus] = useState({})
+  const [échec, setÉchec] = useState(null)
+  const contenu = contenus[vue]
+  useEffect(() => {
+    if (!CHARGEURS[vue] || contenus[vue]) return
+    let actif = true
+    CHARGEURS[vue]()
+      .then(m => { if (actif) setContenus(c => ({ ...c, [vue]: m.default })) })
+      .catch(() => { if (actif) setÉchec(vue) })
+    return () => { actif = false }
+  }, [vue, contenus])
+  const sommaire = module?.disponible && contenu ? contenu.filter(b => b.t === 'h') : []
 
   return (
     <div lang="en" style={{ background: T.bg, minHeight: '100dvh', color: T.text, padding: 'max(18px, env(safe-area-inset-top)) 16px 70px', overflowWrap: 'anywhere' }}>
@@ -86,7 +100,13 @@ export default function Jenkins() {
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: T.textMuted }}>{module.résumé}</p>
             </header>
 
-            {module.disponible ? (
+            {module.disponible && !contenu ? (
+              <div style={S.carte} role="status">
+                {échec === vue
+                  ? <p style={{ margin: 0 }}>⚠️ The module could not be loaded. Check your connection and <button type="button" onClick={() => window.location.reload()} style={{ ...S.bouton(false), minHeight: 36 }}>reload the page</button>.</p>
+                  : <p style={{ margin: 0, color: T.textMuted }}>⏳ Loading the module…</p>}
+              </div>
+            ) : module.disponible ? (
               <>
                 <details style={{ ...S.carte, padding: '10px 14px' }}>
                   <summary style={{ cursor: 'pointer', fontFamily: grotesk, fontWeight: 800 }}>📑 Contents ({sommaire.length} sections)</summary>
@@ -95,7 +115,7 @@ export default function Jenkins() {
                   </ol>
                 </details>
                 <div style={{ ...S.carte, padding: '6px 16px 16px' }}>
-                  <Blocs blocs={CONTENU[vue]} T={T} état={état} />
+                  <Blocs blocs={contenu} T={T} état={état} />
                 </div>
                 <div style={{ ...S.carte, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => marquerFait(vue)} style={S.bouton(!progrès.faits?.[vue])}>{progrès.faits?.[vue] ? `✓ Completed on ${progrès.faits[vue]} (undo)` : '✓ Mark this module as completed'}</button>

@@ -36,11 +36,11 @@ export const PLAN = [
     tp: ['Lab 1.1 — Explore the architecture of your Jenkins', 'Lab 1.2 — Your first pipeline as code (preview)', 'Exercises: classify pipelines, choose a CI tool'],
   },
   {
-    id: 'm2', num: 'Module 2', titre: 'Installation and configuration', niveau: 'débutant', durée: '3 h',
-    résumé: 'Every supported way to install Jenkins and harden a fresh instance.',
-    objectifs: ['Install Jenkins on Ubuntu/Debian with the official apt repository', 'Run Jenkins with Docker and Docker Compose in a production-like layout', 'Install it on a virtual machine', 'Manage plugins, users and permissions', 'Apply the first security measures'],
-    sujets: ['Technical prerequisites (Java 21/25, RAM, disk, ports)', 'Ubuntu/Debian (apt, systemd)', 'Docker and Docker Compose', 'Virtual machine (Vagrant/VirtualBox)', 'Initial configuration and unlock', 'Plugin management', 'Users and rights (Matrix authorization)', 'Securing the instance (HTTPS reverse proxy, CSP, agent security)'],
-    tp: ['Install on an Ubuntu VM with apt and systemd', 'Put Jenkins behind an Nginx reverse proxy with HTTPS', 'Create users and a role matrix'],
+    id: 'm2', num: 'Module 2', titre: 'Installation and configuration', niveau: 'débutant', durée: '3 h', disponible: true,
+    résumé: 'Every supported way to install Jenkins — apt and systemd, a reproducible VM, Docker Compose with a build agent, a controller rebuilt from code — then plugins, users, rights and the first security measures.',
+    objectifs: ['Install Jenkins on Ubuntu/Debian with the official apt repository and systemd', 'Install it reproducibly on a virtual machine (Vagrant)', 'Add a WebSocket build agent and stop building on the controller', 'Build a production-like controller with plugins.txt, Configuration as Code and Docker secrets', 'Manage plugins, users and permissions', 'Apply the first security measures (HTTPS reverse proxy, CSP)'],
+    sujets: ['Technical prerequisites (Java 21/25, RAM, disk, ports)', 'Choosing an installation method', 'Ubuntu/Debian (apt, systemd override)', 'Virtual machine (Vagrant, provisioning script)', 'Plugin management', 'Docker Compose build agent (WebSocket)', 'plugins.txt and Configuration as Code (JCasC)', 'Users and rights (Matrix authorization)', 'Securing the instance (Nginx HTTPS, CSP)', 'Real errors and fixes'],
+    tp: ['Lab 2.1 — Ubuntu VM with apt and systemd', 'Lab 2.2 — A build agent, 0 executors on the controller', 'Lab 2.3 — Users and a role matrix', 'Lab 2.4 — Jenkins behind Nginx with HTTPS', 'Lab 2.5 — A controller rebuilt from code'],
   },
   {
     id: 'm3', num: 'Module 3', titre: 'Mastering the Jenkins UI', niveau: 'débutant', durée: '3 h',
@@ -110,7 +110,7 @@ export const PLAN = [
     résumé: 'Agents and nodes, resources, backup and restore, logs, maintenance, upgrades, plugins, performance and troubleshooting.',
     objectifs: ['Run builds on agents only', 'Back up and restore JENKINS_HOME', 'Upgrade Jenkins and plugins safely', 'Diagnose and fix production issues'],
     sujets: ['Agents', 'Nodes', 'Resources', 'Backup and restore', 'Logs', 'Maintenance', 'Upgrades', 'Plugins', 'Performance', 'Troubleshooting'],
-    tp: ['Add an SSH agent and set the built-in node to 0 executors', 'Restore a backup on a fresh instance'],
+    tp: ['Add an SSH agent with labels and take a node offline for maintenance', 'Restore a backup on a fresh instance'],
   },
   {
     id: 'm13', num: 'Module 13', titre: 'Final professional project', niveau: 'expert', durée: '10 h',
