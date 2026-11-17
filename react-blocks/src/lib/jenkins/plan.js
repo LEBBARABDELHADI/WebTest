@@ -57,11 +57,11 @@ export const PLAN = [
     tp: ['Lab 4.1 — Five Jenkinsfiles of growing complexity', 'Lab 4.2 — Fix a broken pipeline'],
   },
   {
-    id: 'm5', num: 'Module 5', titre: 'Git integration', niveau: 'intermédiaire', durée: '4 h',
-    résumé: 'Connect Jenkins to Git, GitHub, GitLab and Bitbucket, trigger builds with webhooks and build branches and pull requests.',
+    id: 'm5', num: 'Module 5', titre: 'Git integration', niveau: 'intermédiaire', durée: '4 h', disponible: true,
+    résumé: 'Connect Jenkins to Git with a bot token, read the Jenkinsfile from SCM, trigger builds with webhooks, build every branch and pull request (GitFlow) and report statuses — on a real Gitea server, with the GitHub, GitLab and Bitbucket equivalents.',
     objectifs: ['Connect Jenkins to a Git repository with credentials', 'Configure webhooks for GitHub, GitLab and Bitbucket', 'Use Multibranch Pipelines', 'Apply a GitFlow branching strategy', 'Build every commit and pull request'],
     sujets: ['Git connection', 'GitHub, GitLab, Bitbucket', 'Webhooks', 'Automatic triggers', 'Branches', 'GitFlow', 'Pull/merge request pipelines'],
-    tp: ['Multibranch pipeline triggered by a webhook', 'Status checks on pull requests'],
+    tp: ['Lab 5.1 — A Jenkinsfile read from Git', 'Lab 5.2 — A multibranch pipeline triggered by a webhook', 'Lab 5.3 — Status checks on pull requests'],
   },
   {
     id: 'm6', num: 'Module 6', titre: 'Continuous Integration (CI)', niveau: 'intermédiaire', durée: '5 h',

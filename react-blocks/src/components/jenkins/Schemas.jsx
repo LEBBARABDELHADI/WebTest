@@ -302,8 +302,48 @@ function M4Anatomie({ T }) {
   )
 }
 
+// Module 5 : du push au statut affiché dans la pull request.
+function M5Flux({ T }) {
+  return (
+    <svg viewBox="0 0 760 300" role="img" aria-label="Webhook flow: a developer pushes to Gitea; Gitea sends a webhook POST to Jenkins; the multibranch job finds the branch and builds it on agent-1, which clones the repository with the jenkins-bot credential; Jenkins reports the commit status back to Gitea, where it appears on the commit and the pull request">
+      <Défs T={T} />
+      <Boite x={10} y={110} l={140} h={70} titre="Developer" lignes={['git push']} T={T} />
+      <Boite x={200} y={100} l={170} h={90} titre="Gitea" lignes={['lab/inventory', 'webhook → Jenkins']} couleur={VERT} T={T} />
+      <Boite x={430} y={20} l={310} h={92} titre="Jenkins: multibranch « inventory »" lignes={['/gitea-webhook/post', 'finds the branch, schedules a build']} couleur={ROUGE} T={T} />
+      <Boite x={430} y={190} l={310} h={92} titre="agent-1" lignes={['git clone (jenkins-bot token)', 'runs the Jenkinsfile of the branch']} couleur={BLEU} T={T} />
+      <Flèche d="M150,145 L196,145" T={T} libellé="1" lx={173} ly={137} />
+      <Flèche d="M370,120 L426,70" T={T} libellé="2 POST" lx={385} ly={86} />
+      <Flèche d="M585,112 L585,186" T={T} libellé="3 build" lx={620} ly={154} />
+      <Flèche d="M430,240 L372,176" T={T} libellé="4 clone" lx={392} ly={226} tirets />
+      <Flèche d="M430,92 L372,140" T={T} libellé="5 status" lx={410} ly={130} couleur={VERT} />
+    </svg>
+  )
+}
+
+// Module 5 : GitFlow et ce que le pipeline fait sur chaque branche.
+function M5GitFlow({ T }) {
+  const lignes = [['main', 'production', ROUGE, 'Deploy to production'], ['release/*', 'stabilization', AMBRE, 'Release candidate'], ['develop', 'integration', BLEU, 'Deploy to staging'], ['feature/*', 'one feature', VERT, 'Pull request checks (PR)']]
+  return (
+    <svg viewBox="0 0 760 270" role="img" aria-label="GitFlow branches and the pipeline stages they trigger: main deploys to production, release branches build a release candidate, develop deploys to staging, feature branches are built as pull requests">
+      <Défs T={T} />
+      {lignes.map(([b, r, c, étape], i) => (
+        <g key={b}>
+          <line x1={150} y1={40 + i * 60} x2={560} y2={40 + i * 60} stroke={c} strokeWidth={4} strokeLinecap="round" />
+          <text x={20} y={45 + i * 60} fontFamily="ui-monospace, monospace" fontWeight={700} fontSize={14} fill={c}>{b}</text>
+          <text x={20} y={62 + i * 60} fontFamily={grotesk} fontSize={11.5} fill={T.textMuted}>{r}</text>
+          {[0, 1, 2].map(k => <circle key={k} cx={200 + k * 150 + (i % 2) * 40} cy={40 + i * 60} r={7} fill={T.surface} stroke={c} strokeWidth={3} />)}
+          <Boite x={580} y={20 + i * 60} l={170} h={40} titre={étape} couleur={c} T={T} taille={12.5} />
+        </g>
+      ))}
+      <Flèche d="M280,214 L330,166" T={T} libellé="merge (PR)" lx={250} ly={196} tirets />
+      <Flèche d="M430,154 L470,106" T={T} libellé="release" lx={480} ly={140} tirets />
+      <Flèche d="M520,94 L540,46" T={T} libellé="merge" lx={548} ly={80} tirets />
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

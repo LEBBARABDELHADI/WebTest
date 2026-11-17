@@ -12,12 +12,13 @@ import { MODULE1, JENKINSFILE_HELLO } from '../../src/lib/jenkins/module1.js'
 import MODULE2, { COMPOSE_AGENT, PROXY_SERVICE, NGINX_CONF, DOCKERFILE_CASC, PLUGINS_TXT, CASC_YAML, COMPOSE_CASC, INSTALL_SH, OVERRIDE_CONF } from '../../src/lib/jenkins/module2.js'
 import MODULE3, { BUILD_REPORT_SH } from '../../src/lib/jenkins/module3.js'
 import MODULE4, { JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_BROKEN_A, JF_BROKEN_B, JF_FIXED } from '../../src/lib/jenkins/module4.js'
+import MODULE5, { COMPOSE_GITEA, JF_INVENTORY, BUILD_SH, TEST_SH } from '../../src/lib/jenkins/module5.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5 }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -193,6 +194,29 @@ test('module 4 : chaque Jenkinsfile et sa sortie réelle concordent', () => {
   assert.ok(sortie(/version A/).includes('Unknown stage section "sh"'))
   assert.ok(sortie(/version B/).includes("expecting anything but ''\\n''; got it anyway"))
   assert.equal(MODULE4.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 5 : Gitea, Jenkinsfile GitFlow et sorties réelles concordent', () => {
+  const tout = [...parcourir(MODULE5)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  const g = yaml.load(COMPOSE_GITEA).gitea
+  assert.match(g.image, /^docker\.gitea\.com\/gitea:\d+\.\d+\.\d+$/)
+  assert.equal(g.environment.GITEA__security__ALLOWED_HOST_LIST, 'private')
+  assert.ok(!('GITEA__webhook__ALLOWED_HOST_LIST' in g.environment), 'ancienne option dépréciée absente')
+  // Le Jenkinsfile GitFlow : une condition par type de branche, et les scripts qu'il appelle.
+  for (const s of ["branch 'develop'", "branch pattern: 'release/.*', comparator: 'REGEXP'", "branch 'main'", 'changeRequest()', './scripts/build.sh', './scripts/test.sh']) assert.ok(JF_INVENTORY.includes(s), s)
+  assert.ok(BUILD_SH.includes('cat VERSION') && TEST_SH.includes('grep -q'))
+  // Chaque branche exécute sa propre étape dans les journaux réels.
+  assert.ok(sortie(/develop #2/).includes('Push event to branch develop') && sortie(/develop #2/).includes('Deploying develop to staging'))
+  assert.ok(sortie(/release\/1\.1 #1/).includes('Building a release candidate from release/1.1'))
+  assert.ok(sortie(/PR-1 #1/).includes('Merging remotes/origin/develop'))
+  assert.ok(sortie(/PR-1 #2/).includes('cat: VERSION: No such file or directory'))
+  assert.ok(sortie(/Scan Multibranch/).includes('Scheduled build for branch: PR-1'))
+  assert.ok(sortie(/inventory-main #1/).includes('Branch: null'))
+  // Les URL de webhook annoncées sont celles des documentations des plugins.
+  const t = JSON.stringify(MODULE5)
+  for (const u of ['/github-webhook/', '/gitlab-webhook/post', '/project/<job>', '/gitea-webhook/post']) assert.ok(t.includes(u), u)
+  assert.equal(MODULE5.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {
