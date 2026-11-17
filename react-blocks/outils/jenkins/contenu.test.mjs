@@ -46,6 +46,8 @@ test('captures : chaque capture citée existe, avec son image et des repères va
       assert.ok(existsSync(fichier) && statSync(fichier).size > 20000, `${b.id} : image absente ou vide`)
       assert.ok(b.titre && b.ce && b.éléments.length && b.actions.length && b.résultat, `${b.id} : titre, explication, éléments, actions et résultat attendus`)
       assert.ok(c.marqueurs.length <= b.éléments.length, `${b.id} : plus de repères que d'éléments décrits`)
+      const vus = new Set(c.marqueurs.map(m => `${m.x}/${m.y}/${m.l}/${m.h}`))
+      assert.equal(vus.size, c.marqueurs.length, `${b.id} : deux repères au même endroit`)
       c.marqueurs.forEach((m, i) => {
         assert.equal(m.n, i + 1, `${b.id} : repères numérotés de 1 à n`)
         assert.ok(m.x >= 0 && m.y >= 0 && m.l > 0 && m.h > 0 && m.x + m.l <= 100.01 && m.y + m.h <= 100.01, `${b.id} : repère ${m.n} hors de l'image`)
