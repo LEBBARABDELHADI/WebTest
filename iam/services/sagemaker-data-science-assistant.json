@@ -1,0 +1,1 @@
+{"p":"sagemaker-data-science-assistant","nom":"Amazon SageMaker data science assistant","cat":"machine-learning-and-ai","cles":[],"res":{},"act":[["SendConversation",2,"Grants permission to start a conversation with SageMaker data science assistant",[],[]]]}

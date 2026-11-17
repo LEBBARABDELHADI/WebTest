@@ -1,0 +1,1 @@
+{"p":"arsenal","nom":"Application Discovery Arsenal","cat":"migration-and-transfer","cles":[],"res":{},"act":[["RegisterOnPremisesAgent",2,"Grants permission to register AWS provided data collectors to the Application Discovery Service",[],[]]]}

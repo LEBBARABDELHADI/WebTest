@@ -1,0 +1,1 @@
+{"p":"inspector-scan","nom":"Amazon InspectorScan","cat":"security-identity-and-compliance","cles":[],"res":{},"act":[["ScanSbom",1,"Grants permission to scan the customer provided SBOM and return vulnerabilities detected within",[],[]]]}

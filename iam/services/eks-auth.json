@@ -1,0 +1,1 @@
+{"p":"eks-auth","nom":"Amazon EKS Auth","cat":"containers","cles":[],"res":{"cluster":"arn:${Partition}:eks:${Region}:${Account}:cluster/${ClusterName}"},"act":[["AssumeRoleForPodIdentity",1,"Grants permission to exchange a Kubernetes service account token for temporary AWS credentials",["cluster*"],[]]]}

@@ -1,0 +1,1 @@
+{"p":"consolidatedbilling","nom":"AWS Consolidated Billing","cat":"cloud-financial-management","cles":[],"res":{},"act":[["GetAccountBillingRole",1,"Grants permission to get account role (Payer, Linked, Regular)",[],[]],["ListLinkedAccounts",0,"Grants permission to get list of member/linked accounts",[],[]]]}

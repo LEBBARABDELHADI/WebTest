@@ -1,0 +1,1 @@
+{"p":"action-recommendations","nom":"AWS Action Recommendations","cat":"management-and-governance","cles":[],"res":{},"act":[["ListRecommendedActions",0,"Grants permission to list recommended actions in the AWS Management Console",[],[]]]}

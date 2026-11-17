@@ -1,0 +1,1 @@
+{"p":"mobileanalytics","nom":"Amazon Mobile Analytics","cat":"front-end-web-and-mobile","cles":[],"res":{},"act":[["GetFinancialReports",1,"Grant access to financial metrics for an app",[],[]],["GetReports",1,"Grant access to standard metrics for an app",[],[]],["PutEvents",2,"The PutEvents operation records one or more events",[],[]]]}

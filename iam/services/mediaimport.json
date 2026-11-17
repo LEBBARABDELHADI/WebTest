@@ -1,0 +1,1 @@
+{"p":"mediaimport","nom":"AmazonMediaImport","cat":"media","cles":[],"res":{},"act":[["CreateDatabaseBinarySnapshot",2,"Grants permission to create a database binary snapshot on the customer's aws account",[],[]]]}

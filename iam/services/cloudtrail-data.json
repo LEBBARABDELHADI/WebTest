@@ -1,0 +1,1 @@
+{"p":"cloudtrail-data","nom":"AWS CloudTrail Data","cat":"management-and-governance","cles":[],"res":{"channel":"arn:${Partition}:cloudtrail:${Region}:${Account}:channel/${ChannelId}"},"act":[["PutAuditEvents",2,"Grants permission to ingest your application events into CloudTrail Lake",["channel*"],[]]]}

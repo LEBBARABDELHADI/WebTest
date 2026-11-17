@@ -1,0 +1,1 @@
+{"p":"ecs-mcp","nom":"Amazon ECS MCP Service","cat":"containers","cles":[],"res":{},"act":[["InvokeReadOnlyTools",1,"Grants permission to call read-only tools in MCP service",[],[]],["UseMcp",1,"Grants permission to use MCP service",[],[]]]}
