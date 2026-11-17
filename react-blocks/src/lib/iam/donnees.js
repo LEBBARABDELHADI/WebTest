@@ -17,6 +17,14 @@ const échapper = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const PLACEHOLDER = /\$\{[^}]*\}|<[^>]+>/
 const regexClé = clé => new RegExp(`^${clé.split(new RegExp(PLACEHOLDER.source, 'g')).map(échapper).join('.+')}$`, 'i')
 
+// Types de ressources d'une action du plus « naturel » au moins naturel : requis d'abord, puis ceux de son propre
+// service (ec2:StartInstances → instance, pas resource-groups), puis les moins paramétrés.
+export function gabaritsOrdonnés(action) {
+  const propre = rt => rt.modèle.startsWith(`arn:\${Partition}:${action.service}:`)
+  const paramètres = rt => (rt.modèle.match(/\$\{/g) ?? []).length
+  return action.ressources.filter(r => r.modèle).sort((a, b) => Number(b.requis) - Number(a.requis) || Number(propre(b)) - Number(propre(a)) || paramètres(a) - paramètres(b))
+}
+
 function normaliserService(brut) {
   const clés = new Map()
   const tableClés = brut.cles.map(([clé, type, desc]) => {

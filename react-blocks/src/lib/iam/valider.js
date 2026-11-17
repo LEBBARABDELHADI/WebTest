@@ -8,6 +8,7 @@ import { analyserOpérateur, bitsHôteNonNuls, enTexte, lireCidr, lireDate, lire
 import { étendreMotif, découperAction, servicesVisés } from './etendre.js'
 import { ÉLÉMENTS_DÉCLARATION, ÉLÉMENTS_RACINE, TYPES, VERSION_COURANTE, limitesPour, normaliser, normaliserDéclaration, tailleDoc } from './politique.js'
 import { suggérer } from './texte.js'
+import { gabaritsOrdonnés } from './donnees.js'
 import { analyserSécurité } from './securite.js'
 
 export const GRAVITÉS = ['erreur', 'sécurité', 'avertissement', 'suggestion', 'info']
@@ -328,7 +329,7 @@ function sémantique({ norm, i }, { cat, ajouter, cheminD, type }) {
         const exemples = sans.slice(0, 4).map(a => a.id).join(', ')
         const tousMorts = sans.length === uniques.length
         const a0 = sans[0]
-        const attendu = a0.ressources.length ? [...a0.ressources.filter(r => r.modèle)].sort((x, y) => (x.modèle.match(/\$\{/g) ?? []).length - (y.modèle.match(/\$\{/g) ?? []).length).map(r => `${r.nom} : ${r.modèle.replace('${Partition}', 'aws')}`).slice(0, 3).join(' ; ') : 'cette action ne gère pas les ressources précises : utilisez "Resource": "*"'
+        const attendu = a0.ressources.length ? gabaritsOrdonnés(a0).map(r => `${r.nom} : ${r.modèle.replace('${Partition}', 'aws')}`).slice(0, 3).join(' ; ') : 'cette action ne gère pas les ressources précises : utilisez "Resource": "*"'
         const refus = norm.effet === 'Deny'
         ajouter('RESSOURCE_INCOMPATIBLE', 'erreur', `Déclaration ${i + 1} : ${tousMorts ? 'aucune des actions' : `${sans.length > 1 ? 'les actions' : 'l\'action'} ${exemples}`} ne s'applique ${norm.ressources.liste.length > 1 ? 'aux ressources indiquées' : 'à la ressource indiquée'} — ${refus ? 'le Deny ne protège rien' : 'l\'autorisation ne sert à rien'}. Attendu pour ${a0.id} : ${attendu}.`, { déclaration: d, chemin: cheminD(i, 'Resource'), correctif: correctifS3(norm, d, a0, sans) })
       }

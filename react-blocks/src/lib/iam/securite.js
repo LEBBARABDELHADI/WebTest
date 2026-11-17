@@ -4,6 +4,7 @@
 import { correspond } from './glob.js'
 import { ACTIONS_À_RISQUE, CLÉS_RESTRICTIVES_PRINCIPAL } from './globales.js'
 import { enTexte } from './conditions.js'
+import { gabaritsOrdonnés } from './donnees.js'
 
 const SERVICES_SENSIBLES = ['iam', 'organizations', 'sts', 'kms', 'secretsmanager', 'ssm', 'cloudtrail', 'config', 'guardduty', 'account']
 const clésDe = norm => norm.conditions.map(c => c.clé.toLowerCase())
@@ -76,7 +77,7 @@ export function analyserSécurité({ entrées, type, cat, ajouter, cheminD }) {
       }
       if (trouvées.length) {
         const ex = trouvées[0]
-        const modèle = [...ex.ressources.filter(r => r.modèle)].sort((x, y) => (x.modèle.match(/\$\{/g) ?? []).length - (y.modèle.match(/\$\{/g) ?? []).length)[0].modèle
+        const modèle = gabaritsOrdonnés(ex)[0].modèle
         ajouter('RESSOURCE_TROP_LARGE', 'suggestion', `Déclaration ${n} : Resource « * » alors que ${trouvées.length > 1 ? `${trouvées.length} actions d'écriture acceptent` : `${ex.id} accepte`} des ressources précises (ex. ${modèle.replace('${Partition}', 'aws')}). Restreindre limite les dégâts d'une erreur ou d'une fuite d'identifiants.`, { déclaration: d, chemin: cheminD(i, 'Resource') })
       }
     }

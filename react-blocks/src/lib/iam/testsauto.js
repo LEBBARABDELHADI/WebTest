@@ -7,6 +7,7 @@ import { découperArn, arnCompatible } from './arn.js'
 import { analyserOpérateur, enTexte, lireCidr, lireDate, normaliserContexte, évaluerConditions } from './conditions.js'
 import { évaluerSelonType } from './evaluer.js'
 import { normaliser } from './politique.js'
+import { gabaritsOrdonnés } from './donnees.js'
 import { unique } from './texte.js'
 
 const JOUR = 86400000
@@ -23,13 +24,15 @@ export function concret(motif, exemple = 'exemple') {
 
 // Un ARN pour une action : une instance de l'un de ses gabarits qui reste dans les motifs de ressources donnés.
 function ressourcePour(action, motifs) {
+  const gabarits = gabaritsOrdonnés(action)
   if (!motifs || motifs.includes('*')) {
-    const rt = action.ressources.find(r => r.modèle)
+    const rt = gabarits[0]
     if (!rt) return '*'
     return concret(rt.modèle.replace(/\$\{Partition\}/, 'aws').replace(/\$\{Region\}/, 'eu-west-3').replace(/\$\{Account\}/, '123456789012').replace(/\$\{[^}]+\}/g, 'exemple'))
   }
-  for (const m of motifs) {
-    if (action.ressources.some(rt => rt.modèle && arnCompatible(m, rt.modèle))) return concret(m)
+  for (const rt of gabarits) {
+    const m = motifs.find(x => arnCompatible(x, rt.modèle))
+    if (m) return concret(m)
   }
   return null
 }
