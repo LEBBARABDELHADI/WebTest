@@ -366,8 +366,34 @@ function M6Ci({ T }) {
   )
 }
 
+// Module 7 : l'agent pilote un démon Docker (dind) par TLS ; images poussées dans Gitea, staging sur :8090.
+function M7Docker({ T }) {
+  const petit = (x, y, t) => <text x={x} y={y} fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>{t}</text>
+  return (
+    <svg viewBox="0 0 760 330" role="img" aria-label="Docker in the lab: the Jenkins controller sends the build to agent-1; agent-1 runs the docker command, which talks to the Docker daemon of the docker service over mutual TLS on port 2376; the daemon builds the image, runs the test container and the staging container published on port 8090, and pushes the image to the registry of Gitea; agent-1 and the daemon share the workspace volume and the client certificates">
+      <Défs T={T} />
+      <Boite x={10} y={14} l={200} h={64} titre="Jenkins controller" lignes={['schedules the stages']} couleur={ROUGE} T={T} />
+      <Boite x={10} y={140} l={220} h={112} titre="agent-1 (label docker)" lignes={['docker CLI 29.10 + buildx', 'DOCKER_HOST=tcp://docker:2376', 'client certificate (read-only)']} couleur={BLEU} T={T} />
+      <Cadre x={300} y={112} l={250} h={204} titre="docker (dind 29.10.0)" couleur={BLEU}>
+        <Boite x={316} y={146} l={218} h={44} titre="docker build → image" couleur={BLEU} T={T} taille={13} />
+        <Boite x={316} y={200} l={218} h={44} titre="test container (healthcheck)" couleur={AMBRE} T={T} taille={13} />
+        <Boite x={316} y={254} l={218} h={44} titre="stock-service-staging :8090" couleur={VERT} T={T} taille={13} />
+      </Cadre>
+      <Boite x={590} y={14} l={160} h={92} titre="Gitea registry" lignes={['lab/stock-service', '1.0.N · sha-… · latest']} couleur={VERT} T={T} />
+      <Boite x={590} y={236} l={160} h={64} titre="You" lignes={['localhost:8090/health']} couleur={BLEU} T={T} />
+      <Flèche d="M110,78 L110,136" T={T} libellé="WebSocket" lx={160} ly={112} />
+      <Flèche d="M230,186 L296,186" T={T} libellé="TLS :2376" lx={262} ly={176} />
+      <Flèche d="M534,168 L640,110" T={T} libellé="docker push" lx={610} ly={150} />
+      <Flèche d="M586,270 L538,276" T={T} />
+      <path d="M120,252 C120,300 250,306 296,290" fill="none" stroke={T.textMuted} strokeWidth={2} strokeDasharray="6 5" />
+      {petit(28, 290, 'shared volumes:')}
+      {petit(28, 306, 'workspace + certificates')}
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

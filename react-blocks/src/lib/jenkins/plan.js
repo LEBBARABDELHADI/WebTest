@@ -71,11 +71,11 @@ export const PLAN = [
     tp: ['Lab 6.1: CI for a Maven project', 'Lab 6.2: quality gates for Node.js and Python', 'Lab 6.3: FAILURE or UNSTABLE when a test fails', 'Lab 6.4: publish to a package registry'],
   },
   {
-    id: 'm7', num: 'Module 7', titre: 'Jenkins and Docker', niveau: 'intermédiaire', durée: '4 h',
-    résumé: 'Build, tag, publish and run Docker images from Jenkins, and keep the hosts clean.',
-    objectifs: ['Give Jenkins access to Docker safely', 'Build images and tag them properly', 'Push to Docker Hub or a private registry', 'Deploy and clean up containers'],
-    sujets: ['Docker setup', 'Docker in Jenkins (agents, docker CLI, Docker Pipeline)', 'Building images', 'Tags', 'Publishing', 'Deploying containers', 'Cleanup'],
-    tp: ['Pipeline: build and publish a Docker image'],
+    id: 'm7', num: 'Module 7', titre: 'Jenkins and Docker', niveau: 'intermédiaire', durée: '4 h', disponible: true,
+    résumé: 'A Docker daemon over mutual TLS in the lab, and a real service built, tested in a container, tagged, published to a registry and deployed by its pipeline — with the real mistakes: bash-only syntax, tokens left on the agent, colliding container names, a broken image stopped by its health check.',
+    objectifs: ['Give Jenkins access to Docker safely', 'Build images and tag them properly', 'Push to a private registry or Docker Hub without leaking the token', 'Deploy and clean up containers'],
+    sujets: ['Docker set-ups (socket, Docker-in-Docker over TLS, rootless)', 'Docker in Jenkins (agents, docker CLI, Docker Pipeline)', 'A Dockerfile for CI', 'Building images', 'Container tests', 'Tags', 'Publishing', 'Deploying containers', 'Cleanup'],
+    tp: ['Lab 7.1: give Jenkins a Docker daemon', 'Lab 7.2: build, publish and deploy an image', 'Lab 7.3: break the image, read the diagnosis', 'Lab 7.4: the cleanup job'],
   },
   {
     id: 'm8', num: 'Module 8', titre: 'Jenkins and Kubernetes', niveau: 'avancé', durée: '5 h',

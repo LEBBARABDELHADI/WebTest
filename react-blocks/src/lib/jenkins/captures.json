@@ -4273,5 +4273,218 @@
     "h": 2.88
    }
   ]
+ },
+ "m7-01-plugin-docker": {
+  "fichier": "m7-01-plugin-docker.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/pluginManager/available",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Search: Docker Pipeline",
+    "x": 28.59,
+    "y": 8.25,
+    "l": 45,
+    "h": 5.75
+   },
+   {
+    "n": 2,
+    "libellé": "Tick Docker Pipeline",
+    "x": 28.75,
+    "y": 21.23,
+    "l": 4.55,
+    "h": 24.95
+   },
+   {
+    "n": 3,
+    "libellé": "Health score",
+    "x": 89.45,
+    "y": 31.7,
+    "l": 2.5,
+    "h": 4
+   },
+   {
+    "n": 4,
+    "libellé": "Install",
+    "x": 83.54,
+    "y": 8.75,
+    "l": 7.75,
+    "h": 4.75
+   }
+  ]
+ },
+ "m7-02-stages": {
+  "fichier": "m7-02-stages.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-service/job/main/7/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Unit tests: in a node container",
+    "x": 26.72,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Container test: the image starts and is healthy",
+    "x": 48.59,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "Publish: push to the registry",
+    "x": 59.53,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 4,
+    "libellé": "Deploy to staging",
+    "x": 70.47,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   }
+  ]
+ },
+ "m7-03-gitea-image": {
+  "fichier": "m7-03-gitea-image.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:3000/lab/-/packages/container/stock-service/1.0.7",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The image and its tag",
+    "x": 2.19,
+    "y": 27.64,
+    "l": 21.87,
+    "h": 5
+   },
+   {
+    "n": 2,
+    "libellé": "Pushed by the bot of Jenkins",
+    "x": 16.76,
+    "y": 32.14,
+    "l": 6.45,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "How to pull it",
+    "x": 4.53,
+    "y": 48.3,
+    "l": 70.94,
+    "h": 4.75
+   },
+   {
+    "n": 4,
+    "libellé": "Platform and size",
+    "x": 30.8,
+    "y": 85.46,
+    "l": 7.07,
+    "h": 2.88
+   },
+   {
+    "n": 5,
+    "libellé": "Tags: versions, sha-…, latest, branch tags",
+    "x": 78.83,
+    "y": 60.64,
+    "l": 7.55,
+    "h": 2.88
+   }
+  ],
+  "outil": {
+   "nom": "Gitea",
+   "version": "28.4.0",
+   "image": "docker.gitea.com/gitea:28.4.0"
+  }
+ },
+ "m7-04-container-test-failed": {
+  "fichier": "m7-04-container-test-failed.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-service/job/feature%252Fwrong-port/3/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Container test failed",
+    "x": 48.59,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Publish and Deploy: skipped, the bad image goes nowhere",
+    "x": 59.53,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "The image under test",
+    "x": 37.76,
+    "y": 53.63,
+    "l": 33.55,
+    "h": 2.75
+   }
+  ]
+ },
+ "m7-05-container-logs": {
+  "fichier": "m7-05-container-logs.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-service/job/feature%252Fwrong-port/3/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Docker marked the container unhealthy",
+    "x": 40.8,
+    "y": 37.62,
+    "l": 11.82,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "The logs say why: port 3000, not 8080",
+    "x": 36.2,
+    "y": 52.14,
+    "l": 28.28,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "Nothing is published",
+    "x": 29.61,
+    "y": 72.47,
+    "l": 32.89,
+    "h": 2.75
+   }
+  ]
+ },
+ "m7-06-agent-labels": {
+  "fichier": "m7-06-agent-labels.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/computer/agent-1/configure",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Labels: linux docker",
+    "x": 28.59,
+    "y": 32.5,
+    "l": 65,
+    "h": 4.75
+   }
+  ]
  }
 }

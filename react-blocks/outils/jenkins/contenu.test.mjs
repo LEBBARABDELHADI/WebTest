@@ -14,12 +14,13 @@ import MODULE3, { BUILD_REPORT_SH } from '../../src/lib/jenkins/module3.js'
 import MODULE4, { JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_BROKEN_A, JF_BROKEN_B, JF_FIXED } from '../../src/lib/jenkins/module4.js'
 import MODULE5, { COMPOSE_GITEA, JF_INVENTORY, BUILD_SH, TEST_SH } from '../../src/lib/jenkins/module5.js'
 import MODULE6, { AGENT_DOCKERFILE, COMPOSE_AGENT_BUILD, POM_XML, CI_SETTINGS, JF_API, JF_WEB, JF_PY, PACKAGE_JSON, OSV_TOML, REQUIREMENTS, REQUIREMENTS_V1 } from '../../src/lib/jenkins/module6.js'
+import MODULE7, { COMPOSE_DOCKER, COMPOSE_AGENT1, DOCKERFILE_AGENT_EXTRAIT, DOCKERFILE, JF_SERVICE, DSL_EXTRAIT, DOCKER_CLEANUP } from '../../src/lib/jenkins/module7.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6 }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7 }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -258,6 +259,49 @@ test('module 6 : image d’agent, Jenkinsfiles, publication et sorties réelles 
   // Aucun jeton réel ne figure dans le contenu.
   assert.ok(!/(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])/.test(JSON.stringify(MODULE6)), 'pas de jeton de 40 caractères hexadécimaux')
   assert.equal(MODULE6.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 7 : démon Docker TLS, Dockerfile, pipeline d’image et sorties réelles concordent', () => {
+  const tout = [...parcourir(MODULE7)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Le démon : dind épinglé, TLS, volume de l’espace de travail partagé avec l’agent.
+  const d = yaml.load(COMPOSE_DOCKER).docker
+  assert.match(d.image, /^docker:\d+\.\d+\.\d+-dind$/)
+  assert.equal(d.privileged, true)
+  assert.equal(d.environment.DOCKER_TLS_CERTDIR, '/certs')
+  assert.ok(d.volumes.includes('agent1_work:/home/jenkins/agent'))
+  const a = yaml.load(COMPOSE_AGENT1)['agent-1']
+  assert.equal(a.environment.DOCKER_HOST, 'tcp://docker:2376')
+  assert.equal(a.environment.DOCKER_TLS_VERIFY, '1')
+  assert.ok(a.volumes.includes('docker_certs:/certs/client:ro') && a.depends_on.includes('docker'))
+  // CLI de l’agent et version du serveur : la même version partout.
+  const v = d.image.match(/docker:([\d.]+)-dind/)[1]
+  assert.ok(DOCKERFILE_AGENT_EXTRAIT.includes(`docker:${v}-cli`))
+  assert.ok(sortie(/in ~\/jenkins-lab/).includes(`Client: ${v}  Server: ${v}`))
+  // Le Dockerfile de l’image : base épinglée, utilisateur non root, contrôle de santé.
+  assert.match(DOCKERFILE, /^FROM node:\d+\.\d+\.\d+-alpine\d+\.\d+$/m)
+  for (const s of ['USER node', 'HEALTHCHECK', 'CMD ["node", "src/server.js"]']) assert.ok(DOCKERFILE.includes(s), s)
+  // Le Jenkinsfile final : corrections réelles appliquées.
+  for (const s of ["agent { label 'docker' }", 'disableConcurrentBuilds()', "docker { image 'node:", 'git rev-parse --short=7 HEAD', 'cid=$(docker run -d', "trap 'docker rm -f $cid", '--password-stdin', 'DOCKER_CONFIG="$WORKSPACE_TMP/docker-config"', "when { branch 'main' }", 'curl -fsS http://docker:8090/health']) assert.ok(JF_SERVICE.includes(s), s)
+  for (const interdit of ['${GIT_COMMIT:0:7}', '--name stock-service-ci-', 'docker login -p', ' -p $']) assert.ok(!JF_SERVICE.includes(interdit), interdit)
+  assert.equal((JF_SERVICE.match(/\{/g) || []).length, (JF_SERVICE.match(/\}/g) || []).length)
+  assert.ok(DSL_EXTRAIT.includes('docker.build(') && DSL_EXTRAIT.includes('docker.withRegistry(') && DSL_EXTRAIT.includes('image.inside'))
+  assert.ok(DOCKER_CLEANUP.includes('${UNTIL:-168h}') && DOCKER_CLEANUP.includes("cron('H 3 * * 0')"))
+  // Les journaux réels racontent l’histoire du module.
+  assert.ok(sortie(/main #1 →/).includes('Bad substitution') && sortie(/main #1 →/).includes('seems to be running inside container'))
+  assert.ok(sortie(/main #2 →/).includes("stored unencrypted in '/home/jenkins/.docker/config.json'"))
+  assert.ok(sortie(/main #3 →/).includes('Using --password via the CLI is insecure'))
+  const final = sortie(/main #7 →/)
+  assert.ok(final.includes('health: healthy') && final.includes('{"status":"UP","version":"1.0.7"}') && final.includes('Finished: SUCCESS'))
+  const digests = new Set([...final.matchAll(/(?:1\.0\.7|sha-[0-9a-f]{7}|latest): digest: (sha256:[0-9a-f]{64})/g)].map(m => m[1]))
+  assert.equal(digests.size, 1, 'les trois étiquettes désignent la même image')
+  assert.ok(sortie(/docker-dsl #1/).includes('is already in use') && sortie(/wrong-port #1/).includes('no such object'))
+  assert.ok(sortie(/docker-cleanup #1/).includes('value is empty'))
+  assert.ok(sortie(/without --insecure-registry/).includes('http: server gave HTTP response to HTTPS client'))
+  // Aucun jeton : les seules empreintes de 40 caractères sont des commits Git (projet, buildx).
+  const texte = JSON.stringify(MODULE7).replace(/(revision=|Revision |checkout -f |rev-list --no-walk |buildx v[\d.]+ )[0-9a-f]{40}/g, '')
+  assert.ok(!/(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])/.test(texte), 'pas de jeton de 40 caractères hexadécimaux')
+  assert.equal(MODULE7.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('langue : le contenu pédagogique est en anglais', () => {
