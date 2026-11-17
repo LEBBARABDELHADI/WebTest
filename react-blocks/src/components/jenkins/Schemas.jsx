@@ -392,8 +392,37 @@ function M7Docker({ T }) {
   )
 }
 
+// Module 8 : Jenkins crée des pods d'agents dans le cluster kind ; le pod déploie avec Helm dans « stock ».
+function M8K8s({ T }) {
+  return (
+    <svg viewBox="0 0 760 340" role="img" aria-label="Jenkins and the kind cluster of the lab: the Jenkins controller asks the API server of the cluster, with the token of the service account jenkins, to create an agent pod in the namespace jenkins-agents; the pod connects back to Jenkins over WebSocket, runs kubectl and Helm as the service account deployer, and upgrades the release stock-service in the namespace stock: a Deployment of three pods with probes and preStop, an optional canary release, and a NodePort Service that you reach on localhost port 30080; the node pulls the images from the registry of Gitea">
+      <Défs T={T} />
+      <Boite x={10} y={14} l={196} h={78} titre="Jenkins controller" lignes={['cloud kind-lab', 'token of SA jenkins']} couleur={ROUGE} T={T} />
+      <Boite x={10} y={150} l={196} h={72} titre="Gitea registry" lignes={['lab/stock-service:1.0.N']} couleur={VERT} T={T} />
+      <Boite x={10} y={262} l={196} h={60} titre="You" lignes={['localhost:30080']} couleur={BLEU} T={T} />
+      <Cadre x={236} y={8} l={516} h={324} titre="kind cluster « lab »" couleur={BLEU}>
+        <Boite x={252} y={40} l={200} h={50} titre="API server :6443" couleur={BLEU} T={T} taille={13.5} />
+        <Cadre x={252} y={106} l={220} h={150} titre="jenkins-agents" couleur={AMBRE}>
+          <Boite x={264} y={138} l={196} h={104} titre="agent pod (per build)" lignes={['jnlp → Jenkins', 'k8s: kubectl + Helm', 'SA deployer']} couleur={AMBRE} T={T} taille={13} />
+        </Cadre>
+        <Cadre x={490} y={40} l={250} h={276} titre="stock" couleur={VERT}>
+          <Boite x={504} y={72} l={222} h={50} titre="Service NodePort 30080" couleur={VERT} T={T} taille={13} />
+          <Boite x={504} y={136} l={222} h={84} titre="release stock-service" lignes={['3 pods · rolling update', 'probes · preStop']} couleur={VERT} T={T} taille={13} />
+          <Boite x={504} y={234} l={222} h={66} titre="release …-canary" lignes={['1 pod, same Service']} couleur={AMBRE} T={T} taille={13} />
+        </Cadre>
+      </Cadre>
+      <Flèche d="M206,48 L248,58" T={T} libellé="1 pod" lx={226} ly={42} />
+      <Flèche d="M352,90 L352,134" T={T} />
+      <Flèche d="M264,190 C228,170 214,120 160,96" T={T} libellé="2 WebSocket" lx={196} ly={136} tirets />
+      <Flèche d="M460,190 L500,178" T={T} libellé="3 helm" lx={482} ly={166} />
+      <Flèche d="M206,186 C330,286 420,290 500,270" T={T} libellé="image pull" lx={282} ly={236} tirets />
+      <Flèche d="M206,300 C300,326 470,328 512,124" T={T} />
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

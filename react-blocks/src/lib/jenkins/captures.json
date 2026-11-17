@@ -4654,5 +4654,253 @@
     "h": 2.75
    }
   ]
+ },
+ "m8-01-plugin-kubernetes": {
+  "fichier": "m8-01-plugin-kubernetes.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/pluginManager/available",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Search: Kubernetes",
+    "x": 28.59,
+    "y": 8.25,
+    "l": 45,
+    "h": 5.75
+   },
+   {
+    "n": 2,
+    "libellé": "Tick Kubernetes (the plugin itself)",
+    "x": 28.75,
+    "y": 21.23,
+    "l": 4.55,
+    "h": 12.2
+   },
+   {
+    "n": 3,
+    "libellé": "Health score",
+    "x": 89.45,
+    "y": 25.33,
+    "l": 2.5,
+    "h": 4
+   },
+   {
+    "n": 4,
+    "libellé": "Install",
+    "x": 83.54,
+    "y": 8.75,
+    "l": 7.75,
+    "h": 4.75
+   }
+  ]
+ },
+ "m8-02-new-cloud": {
+  "fichier": "m8-02-new-cloud.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/cloud/new",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Cloud name: kind-lab",
+    "x": 9.53,
+    "y": 19.38,
+    "l": 50,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Type: Kubernetes",
+    "x": 9.53,
+    "y": 31,
+    "l": 8.52,
+    "h": 2.63
+   },
+   {
+    "n": 3,
+    "libellé": "Create",
+    "x": 9.53,
+    "y": 40.63,
+    "l": 8.13,
+    "h": 4.75
+   }
+  ]
+ },
+ "m8-03-cloud-config": {
+  "fichier": "m8-03-cloud-config.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/cloud/create",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Kubernetes URL: the API server",
+    "x": 9.53,
+    "y": 14.97,
+    "l": 80,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Server certificate: the CA of the cluster",
+    "x": 9.53,
+    "y": 32.6,
+    "l": 80,
+    "h": 12.88
+   },
+   {
+    "n": 3,
+    "libellé": "Namespace of the agent pods",
+    "x": 9.53,
+    "y": 58.35,
+    "l": 80,
+    "h": 4.75
+   },
+   {
+    "n": 4,
+    "libellé": "Credential: the ServiceAccount token",
+    "x": 9.53,
+    "y": 87.6,
+    "l": 72.29,
+    "h": 4.75
+   },
+   {
+    "n": 5,
+    "libellé": "Test Connection: connected",
+    "x": 9.53,
+    "y": 95.6,
+    "l": 69.06,
+    "h": 2.63
+   }
+  ]
+ },
+ "m8-04-cloud-jenkins-url": {
+  "fichier": "m8-04-cloud-jenkins-url.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/cloud/kind-lab/configure",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Credential: the ServiceAccount token",
+    "x": 28.59,
+    "y": 17.47,
+    "l": 57.29,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Test Connection",
+    "x": 28.59,
+    "y": 25.47,
+    "l": 54.06,
+    "h": 2.63
+   },
+   {
+    "n": 3,
+    "libellé": "WebSocket: agents connect over HTTP",
+    "x": 28.59,
+    "y": 34.47,
+    "l": 8.54,
+    "h": 2.75
+   },
+   {
+    "n": 4,
+    "libellé": "Jenkins URL as seen from the pods",
+    "x": 28.59,
+    "y": 48.3,
+    "l": 65,
+    "h": 4.75
+   }
+  ]
+ },
+ "m8-05-deploy-params": {
+  "fichier": "m8-05-deploy-params.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-deploy/build?delay=0sec",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "VERSION: the image tag to deploy",
+    "x": 28.59,
+    "y": 28.38,
+    "l": 65,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Build",
+    "x": 28.59,
+    "y": 40.13,
+    "l": 8.13,
+    "h": 4.75
+   }
+  ]
+ },
+ "m8-06-deploy-stages": {
+  "fichier": "m8-06-deploy-stages.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-deploy/13/stages/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Deploy: helm upgrade --install",
+    "x": 48.59,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 2,
+    "libellé": "Smoke test from inside the cluster",
+    "x": 59.53,
+    "y": 26.38,
+    "l": 13.75,
+    "h": 4.25
+   },
+   {
+    "n": 3,
+    "libellé": "The build ran in a pod of the cluster",
+    "x": 73.32,
+    "y": 41.19,
+    "l": 9.46,
+    "h": 2.88
+   },
+   {
+    "n": 4,
+    "libellé": "post: the state of the Deployment",
+    "x": 31.17,
+    "y": 48.69,
+    "l": 20.49,
+    "h": 2.88
+   }
+  ]
+ },
+ "m8-07-deploy-history": {
+  "fichier": "m8-07-deploy-history.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-deploy/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Build with Parameters",
+    "x": 4.3,
+    "y": 19.19,
+    "l": 11.88,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "The history: every deployment and its result",
+    "x": 4.09,
+    "y": 67.52,
+    "l": 2.33,
+    "h": 2.75
+   }
+  ]
  }
 }

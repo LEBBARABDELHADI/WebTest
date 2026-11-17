@@ -78,11 +78,11 @@ export const PLAN = [
     tp: ['Lab 7.1: give Jenkins a Docker daemon', 'Lab 7.2: build, publish and deploy an image', 'Lab 7.3: break the image, read the diagnosis', 'Lab 7.4: the cleanup job'],
   },
   {
-    id: 'm8', num: 'Module 8', titre: 'Jenkins and Kubernetes', niveau: 'avancé', durée: '5 h',
-    résumé: 'Kubernetes agents, automatic deployments with manifests and Helm, and deployment strategies.',
-    objectifs: ['Connect Jenkins to a cluster', 'Run builds in ephemeral pod agents', 'Deploy with manifests and Helm', 'Choose a deployment strategy'],
-    sujets: ['Jenkins/Kubernetes integration', 'Cluster setup (kind/minikube)', 'Connecting Jenkins', 'Kubernetes agents', 'Automatic deployment', 'YAML manifests', 'Helm', 'Rolling, blue/green, canary'],
-    tp: ['Pod agents + deployment to a local cluster'],
+    id: 'm8', num: 'Module 8', titre: 'Jenkins and Kubernetes', niveau: 'avancé', durée: '5 h', disponible: true,
+    résumé: 'A real Kubernetes 1.37 cluster (kind) in the lab: least-privilege service accounts, builds in ephemeral pods, a deployment pipeline with manifests then Helm 4, zero downtime measured and fixed, automatic rollbacks, and a real canary.',
+    objectifs: ['Connect Jenkins to a cluster with least privilege', 'Run builds in ephemeral pod agents', 'Deploy with manifests and Helm, roll back automatically', 'Measure and choose a deployment strategy'],
+    sujets: ['Jenkins/Kubernetes integration', 'Cluster setup (kind)', 'RBAC for Jenkins', 'Kubernetes cloud and pod agents', 'Automatic deployment', 'YAML manifests', 'Zero-downtime rolling updates', 'Helm charts and releases', 'Rolling, blue/green, canary'],
+    tp: ['Lab 8.1: a cluster that Jenkins can use', 'Lab 8.2: your first pod agent', 'Lab 8.3: deploy, measure, fail safely', 'Lab 8.4: Helm and a canary'],
   },
   {
     id: 'm9', num: 'Module 9', titre: 'Credentials and security', niveau: 'avancé', durée: '4 h',

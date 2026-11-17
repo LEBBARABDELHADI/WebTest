@@ -15,6 +15,7 @@ import MODULE4, { JF1, JF2, JF3, JF4, JF5, JF_SCRIPTED, JF_BROKEN_A, JF_BROKEN_B
 import MODULE5, { COMPOSE_GITEA, JF_INVENTORY, BUILD_SH, TEST_SH } from '../../src/lib/jenkins/module5.js'
 import MODULE6, { AGENT_DOCKERFILE, COMPOSE_AGENT_BUILD, POM_XML, CI_SETTINGS, JF_API, JF_WEB, JF_PY, PACKAGE_JSON, OSV_TOML, REQUIREMENTS, REQUIREMENTS_V1 } from '../../src/lib/jenkins/module6.js'
 import MODULE7, { COMPOSE_DOCKER, COMPOSE_AGENT1, DOCKERFILE_AGENT_EXTRAIT, DOCKERFILE, JF_SERVICE, DSL_EXTRAIT, DOCKER_CLEANUP } from '../../src/lib/jenkins/module7.js'
+import MODULE8, { KIND_CLUSTER, RBAC_YAML, JF_K8S_HELLO, DEPLOYMENT_YAML, JF_DEPLOY_MANIFESTS, JF_DEPLOY_HELM, JF_DEPLOY_HELM_STAGE, VALUES_YAML, TPL_DEPLOYMENT, TPL_SERVICE } from '../../src/lib/jenkins/module8.js'
 import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
 import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
@@ -22,7 +23,7 @@ import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -304,6 +305,57 @@ test('module 7 : démon Docker TLS, Dockerfile, pipeline d’image et sorties r�
   const texte = JSON.stringify(MODULE7).replace(/(revision=|Revision |checkout -f |rev-list --no-walk |buildx v[\d.]+ )[0-9a-f]{40}/g, '')
   assert.ok(!/(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])/.test(texte), 'pas de jeton de 40 caractères hexadécimaux')
   assert.equal(MODULE7.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 8 : cluster kind, RBAC minimal, pods agents, manifestes, Helm et mesures réelles concordent', () => {
+  const tout = [...parcourir(MODULE8)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Le cluster : un nœud, le port 30080 publié, containerd lit certs.d (registre HTTP de Gitea).
+  const kc = yaml.load(KIND_CLUSTER)
+  assert.equal(kc.name, 'lab')
+  assert.equal(kc.nodes[0].extraPortMappings[0].hostPort, 30080)
+  assert.ok(KIND_CLUSTER.includes('config_path = "/etc/containerd/certs.d"'))
+  assert.ok(!/failCgroupV1|restrict_oom_score_adj/.test(KIND_CLUSTER), 'aucun correctif du bac à sable dans la formation')
+  // RBAC : jenkins gère les pods de jenkins-agents ; deployer a le rôle edit dans stock seulement.
+  const docs = yaml.loadAll(RBAC_YAML)
+  const lien = docs.find(d => d.kind === 'RoleBinding' && d.metadata.name === 'deployer-edit')
+  assert.equal(lien.metadata.namespace, 'stock')
+  assert.deepEqual([lien.roleRef.kind, lien.roleRef.name], ['ClusterRole', 'edit'])
+  const rôle = docs.find(d => d.kind === 'Role' && d.metadata.name === 'pod-agents')
+  assert.ok(rôle.rules[0].resources.includes('pods') && !docs.some(d => d.kind === 'ClusterRoleBinding'))
+  assert.equal(sortie(/check the rights/).match(/^(yes|no)$/gm).join(','), 'yes,no,yes,no,no')
+  // Pods agents et déploiement : pod en sh, compte deployer, garde-fou, attente du rollout, retour arrière.
+  assert.ok(JF_K8S_HELLO.includes("container('node')"))
+  for (const s of ["serviceAccountName: deployer", "defaultContainer 'k8s'", '[ -n "$VERSION" ]', "envsubst '$VERSION'", 'rollout status', 'rollout undo', 'curl -fsS http://stock-service.stock.svc/health']) assert.ok(JF_DEPLOY_MANIFESTS.includes(s), s)
+  assert.ok(!/defaultContainer 'k8s' +#/.test(JF_DEPLOY_MANIFESTS), 'commentaire Groovy corrigé')
+  const dep = yaml.load(DEPLOYMENT_YAML)
+  const c = dep.spec.template.spec.containers[0]
+  assert.equal(dep.spec.strategy.rollingUpdate.maxUnavailable, 0)
+  assert.equal(c.securityContext.runAsUser, 1000)
+  assert.equal(c.lifecycle.preStop.sleep.seconds, 5)
+  assert.ok(c.readinessProbe && c.livenessProbe)
+  // Helm : une seule commande idempotente, retour arrière automatique ; le chart sépare stable et canary.
+  assert.ok(JF_DEPLOY_HELM.includes(JF_DEPLOY_HELM_STAGE.trim().split('\n')[3].trim()))
+  assert.ok(JF_DEPLOY_HELM_STAGE.includes('helm upgrade --install') && JF_DEPLOY_HELM_STAGE.includes('--rollback-on-failure'))
+  assert.equal(yaml.load(VALUES_YAML).service.nodePort, 30080)
+  assert.ok(TPL_DEPLOYMENT.includes('track: {{ .Values.track }}') && TPL_SERVICE.includes('{{- if .Values.service.enabled }}'))
+  // Les mesures et journaux réels racontent l’histoire du module.
+  assert.ok(sortie(/k8s-hello #2/).includes('Created Pod: kind-lab jenkins-agents/') && sortie(/k8s-hello #2/).includes('Finished: SUCCESS'))
+  assert.ok(sortie(/why are the pods/).includes('non-numeric user (node)'))
+  assert.match(sortie(/no preStop/), /5 000\n +371 200/)
+  assert.match(sortie(/with preStop/), /422 200\n/)
+  assert.ok(!sortie(/with preStop/).includes(' 000'))
+  assert.ok(sortie(/stock-deploy #8 →/).includes('rolled back') && sortie(/45 s after/).includes('ErrImagePull'))
+  assert.ok(sortie(/stock-deploy #9/).includes('invalid ownership metadata'))
+  assert.ok(sortie(/stock-deploy #11/).includes('has been rolled back due to rollback-on-failure'))
+  assert.match(sortie(/stock-deploy #10/), /REVISION: 1/)
+  const canary = sortie(/in lab\/stock-deploy/)
+  const [stable, nouveau] = [canary.match(/(\d+) \{"status":"UP","version":"1\.0\.6"\}/)[1], canary.match(/(\d+) \{"status":"UP","version":"1\.0\.7"\}/)[1]].map(Number)
+  assert.equal(stable + nouveau, 200)
+  assert.ok(nouveau > 20 && nouveau < 80, `part du canary ${nouveau}/200`)
+  assert.ok(sortie(/k8s-hello #1/).includes('http://localhost:8080/login is not ready'))
+  assert.ok(tout.find(b => b.t === 'cmd' && b.cmd.includes('create deployment essai')).out.includes('is forbidden'))
+  assert.equal(MODULE8.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {
