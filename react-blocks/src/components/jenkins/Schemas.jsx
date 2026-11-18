@@ -472,8 +472,35 @@ function M11Chaine({ T }) {
   )
 }
 
+// Module 12 : un nœud qu'on bascule hors ligne puis en ligne, et une sauvegarde restaurée sur une instance neuve.
+function M12Admin({ T }) {
+  return (
+    <svg viewBox="0 0 760 420" role="img" aria-label="Lab 12.1: the controller keeps agent-1 always online while ops-1, labelled maintenance-pool, is marked temporarily offline with a reason; a job restricted to that label queues and waits, then runs once ops-1 is back online. Lab 12.2: the controller's own backup job writes a tarball of its config, jobs, nodes and plugins, excluding workspaces and caches; that tarball is extracted into a fresh, empty instance before its first boot; the restore is verified through its real REST API, and the throwaway instance is then torn down">
+      <Défs T={T} />
+      <Boite x={290} y={14} l={180} h={58} titre="Jenkins controller" couleur={ROUGE} plein T={T} />
+
+      <text x={16} y={108} fontFamily={grotesk} fontWeight={800} fontSize={13} fill={T.textMuted}>Lab 12.1 — offline for maintenance</text>
+      <Boite x={16} y={128} l={150} h={60} titre="agent-1" lignes={['always online']} couleur={BLEU} T={T} taille={13} />
+      <Boite x={296} y={128} l={190} h={78} titre="ops-1" lignes={['label: maintenance-pool', 'temporarily offline → online']} couleur={AMBRE} T={T} taille={13} />
+      <Boite x={556} y={128} l={190} h={78} titre="maintenance-job" lignes={["needs 'maintenance-pool'", 'queues, then runs']} couleur={VERT} T={T} taille={13} />
+      <Flèche d="M340,72 C260,95 160,108 91,126" T={T} />
+      <Flèche d="M380,72 L390,126" T={T} />
+      <Flèche d="M486,160 L552,160" T={T} libellé="label match" lx={519} ly={148} />
+
+      <text x={16} y={246} fontFamily={grotesk} fontWeight={800} fontSize={13} fill={T.textMuted}>Lab 12.2 — backup, then restore on a fresh instance</text>
+      <Boite x={16} y={266} l={230} h={76} titre="backup-&lt;timestamp&gt;.tar.gz" lignes={['config, jobs, nodes, plugins', 'not workspaces, not caches']} couleur={BLEU} T={T} taille={12.5} />
+      <Boite x={316} y={266} l={230} h={76} titre="fresh instance :8082" lignes={['empty volume', 'extracted before first boot']} couleur={AMBRE} T={T} taille={12.5} />
+      <Boite x={616} y={266} l={130} h={76} titre="torn down" lignes={['after the REST API', 'confirms the restore']} couleur={VERT} T={T} taille={12.5} />
+      <Flèche d="M370,110 C300,160 220,220 150,264" T={T} libellé="written by the controller" lx={220} ly={210} />
+      <Flèche d="M246,304 L312,304" T={T} libellé="extract, before boot" lx={279} ly={292} />
+      <path d="M546,304 L612,304" fill="none" stroke={T.textMuted} strokeWidth={2} strokeDasharray="6 5" />
+      <text x={579} y={296} textAnchor="middle" fontFamily={grotesk} fontSize={12} fill={T.textMuted}>verified, then</text>
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils, 'm11-chaine': M11Chaine }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils, 'm11-chaine': M11Chaine, 'm12-admin': M12Admin }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]
