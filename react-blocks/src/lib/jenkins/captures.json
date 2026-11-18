@@ -5006,5 +5006,769 @@
     "h": 0.25
    }
   ]
+ },
+ "m10-01-plugin-ansible": {
+  "fichier": "m10-01-plugin-ansible.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/pluginManager/available",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Search: Ansible",
+    "x": 28.59,
+    "y": 8.25,
+    "l": 45,
+    "h": 5.75
+   },
+   {
+    "n": 2,
+    "libellé": "Tick Ansible",
+    "x": 28.75,
+    "y": 21.23,
+    "l": 4.55,
+    "h": 15.82
+   },
+   {
+    "n": 3,
+    "libellé": "Health score",
+    "x": 89.45,
+    "y": 27.14,
+    "l": 2.5,
+    "h": 4
+   },
+   {
+    "n": 4,
+    "libellé": "Install",
+    "x": 83.54,
+    "y": 8.75,
+    "l": 7.75,
+    "h": 4.75
+   }
+  ]
+ },
+ "m10-02-plugins-installes": {
+  "fichier": "m10-02-plugins-installes.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/pluginManager/updates/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Installed and loaded",
+    "x": 28.52,
+    "y": 27.88,
+    "l": 4.44,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "This one needs a restart",
+    "x": 44.78,
+    "y": 34.92,
+    "l": 27.53,
+    "h": 2.88
+   },
+   {
+    "n": 3,
+    "libellé": "Safe restart: waits for running builds",
+    "x": 0,
+    "y": 65.98,
+    "l": 79.28,
+    "h": 34.02
+   }
+  ]
+ },
+ "m10-03-tool-ansible": {
+  "fichier": "m10-03-tool-ansible.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/configureTools/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Ansible installations (added by the plugin)",
+    "x": 9.53,
+    "y": 22.78,
+    "l": 80,
+    "h": 3
+   },
+   {
+    "n": 2,
+    "libellé": "Name used by the pipeline: installation: …",
+    "x": 10.7,
+    "y": 46.15,
+    "l": 77.66,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "Folder of ansible-playbook on the agent",
+    "x": 10.7,
+    "y": 57.78,
+    "l": 77.66,
+    "h": 4.75
+   }
+  ]
+ },
+ "m10-04-ansible-console": {
+  "fichier": "m10-04-ansible-console.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-ansible/7/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The command built by the plugin",
+    "x": 51.34,
+    "y": 14.68,
+    "l": 38.82,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "Temporary key file from the credential",
+    "x": 29.61,
+    "y": 14.68,
+    "l": 62.52,
+    "h": 5.65
+   },
+   {
+    "n": 3,
+    "libellé": "Extra variables, hidden in the log",
+    "x": 29.61,
+    "y": 17.59,
+    "l": 63.84,
+    "h": 5.65
+   },
+   {
+    "n": 4,
+    "libellé": "Already installed: ok",
+    "x": 29.61,
+    "y": 43.72,
+    "l": 13.8,
+    "h": 2.75
+   }
+  ]
+ },
+ "m10-05-ansible-recap": {
+  "fichier": "m10-05-ansible-recap.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-ansible/7/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "One line per server",
+    "x": 29.61,
+    "y": 47.56,
+    "l": 7.21,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "Three changes: folder, page, link",
+    "x": 53.97,
+    "y": 50.46,
+    "l": 6.55,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "Smoke test of the pipeline",
+    "x": 34.22,
+    "y": 85.32,
+    "l": 12.48,
+    "h": 2.75
+   }
+  ]
+ },
+ "m10-06-ansible-builds": {
+  "fichier": "m10-06-ansible-builds.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-ansible/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "#7: 1.0.8 deployed",
+    "x": 42.98,
+    "y": 41.17,
+    "l": 1.95,
+    "h": 2.88
+   },
+   {
+    "n": 2,
+    "libellé": "#6: dry run, nothing changed",
+    "x": 4.09,
+    "y": 76.86,
+    "l": 1.91,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "#5: check mode failed (section 10.2)",
+    "x": 44.44,
+    "y": 38.55,
+    "l": 2,
+    "h": 2.88
+   },
+   {
+    "n": 4,
+    "libellé": "#2: without become, permission denied",
+    "x": 4.09,
+    "y": 94.2,
+    "l": 1.9,
+    "h": 2.75
+   }
+  ]
+ },
+ "m10-07-stock-web-app-1": {
+  "fichier": "m10-07-stock-web-app-1.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:8091/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The version deployed by Ansible",
+    "x": 0.63,
+    "y": 2.68,
+    "l": 98.75,
+    "h": 4.63
+   },
+   {
+    "n": 2,
+    "libellé": "Variables of the inventory: environment, host",
+    "x": 0.63,
+    "y": 9.98,
+    "l": 98.75,
+    "h": 2.25
+   }
+  ],
+  "outil": {
+   "nom": "nginx on app-1",
+   "version": "deployed by Ansible",
+   "image": "lab/managed-node:1"
+  }
+ },
+ "m10-08-secret-file": {
+  "fichier": "m10-08-secret-file.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/credentials/store/system/domain/_/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The kubeconfig, uploaded",
+    "x": 29.3,
+    "y": 41,
+    "l": 39.84,
+    "h": 7
+   },
+   {
+    "n": 2,
+    "libellé": "ID used by the pipeline",
+    "x": 30.08,
+    "y": 54.13,
+    "l": 39.84,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "Say which account it is",
+    "x": 30.08,
+    "y": 65,
+    "l": 39.84,
+    "h": 4.75
+   }
+  ]
+ },
+ "m10-09-tf-plan": {
+  "fichier": "m10-09-tf-plan.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/platform-terraform/4/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "One resource changed in place",
+    "x": 60.56,
+    "y": 14.98,
+    "l": 16.43,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "The change of the pull request",
+    "x": 40.15,
+    "y": 32.41,
+    "l": 21.7,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "The summary to read before approving",
+    "x": 29.61,
+    "y": 58.54,
+    "l": 28.28,
+    "h": 2.75
+   }
+  ]
+ },
+ "m10-10-tf-approve": {
+  "fichier": "m10-10-tf-approve.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/platform-terraform/5/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Terraform puts the code back",
+    "x": 40.15,
+    "y": 11.41,
+    "l": 21.04,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "Read the plan…",
+    "x": 29.61,
+    "y": 37.54,
+    "l": 28.28,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "…then decide",
+    "x": 29.61,
+    "y": 86.92,
+    "l": 23.67,
+    "h": 2.75
+   },
+   {
+    "n": 4,
+    "libellé": "Apply: only the submitter (admin)",
+    "x": 29.92,
+    "y": 90.2,
+    "l": 3.29,
+    "h": 2
+   },
+   {
+    "n": 5,
+    "libellé": "Abort: nothing is changed",
+    "x": 35.85,
+    "y": 90.2,
+    "l": 3.29,
+    "h": 2
+   }
+  ]
+ },
+ "m10-11-sonar-token": {
+  "fichier": "m10-11-sonar-token.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:9000/account/security",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Name: who uses it",
+    "x": 6.56,
+    "y": 49.75,
+    "l": 19.3,
+    "h": 4.5
+   },
+   {
+    "n": 2,
+    "libellé": "Shown once: copy it into Jenkins",
+    "x": 10.39,
+    "y": 57.38,
+    "l": 20.28,
+    "h": 2.88
+   }
+  ],
+  "outil": {
+   "nom": "SonarQube",
+   "version": "26.11.0.134175 (Community Build)",
+   "image": "sonarqube:26.11.0.134175-community"
+  }
+ },
+ "m10-12-sonar-webhook": {
+  "fichier": "m10-12-sonar-webhook.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:9000/admin/webhooks",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "URL: the endpoint of the Jenkins plugin",
+    "x": 31.56,
+    "y": 39.75,
+    "l": 34.78,
+    "h": 4.5
+   },
+   {
+    "n": 2,
+    "libellé": "Secret: Jenkins checks the signature",
+    "x": 31.56,
+    "y": 61.75,
+    "l": 36.88,
+    "h": 4.5
+   }
+  ],
+  "outil": {
+   "nom": "SonarQube",
+   "version": "26.11.0.134175 (Community Build)",
+   "image": "sonarqube:26.11.0.134175-community"
+  }
+ },
+ "m10-13-sonar-webhook-refused": {
+  "fichier": "m10-13-sonar-webhook-refused.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:9000/admin/webhooks",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Refused: jenkins resolves to a private address",
+    "x": 67.73,
+    "y": 84.63,
+    "l": 6.37,
+    "h": 2.88
+   }
+  ],
+  "outil": {
+   "nom": "SonarQube",
+   "version": "26.11.0.134175 (Community Build)",
+   "image": "sonarqube:26.11.0.134175-community"
+  }
+ },
+ "m10-14-sonar-server": {
+  "fichier": "m10-14-sonar-server.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/configure",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Name used by withSonarQubeEnv()",
+    "x": 10.7,
+    "y": 15.02,
+    "l": 77.66,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "The server, reached from the agent network",
+    "x": 10.7,
+    "y": 30.15,
+    "l": 77.66,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "Authentication token (Secret text credential)",
+    "x": 10.7,
+    "y": 45.28,
+    "l": 69.95,
+    "h": 4.75
+   },
+   {
+    "n": 4,
+    "libellé": "Webhook secret: checks the callback really comes from this SonarQube",
+    "x": 13.2,
+    "y": 80.03,
+    "l": 67.45,
+    "h": 4.75
+   }
+  ]
+ },
+ "m10-15-sonar-gate-fail": {
+  "fichier": "m10-15-sonar-gate-fail.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api-sonar/5/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "…but the quality gate failed",
+    "x": 72.41,
+    "y": 40.24,
+    "l": 15.77,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "waitForQualityGate aborts the build",
+    "x": 34.22,
+    "y": 75.09,
+    "l": 29.6,
+    "h": 2.75
+   }
+  ]
+ },
+ "m10-16-sonar-gate-pass": {
+  "fichier": "m10-16-sonar-gate-pass.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/stock-api-sonar/6/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Tests added: the gate passes",
+    "x": 72.41,
+    "y": 43.11,
+    "l": 13.8,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": null,
+    "x": 29.61,
+    "y": 80.86,
+    "l": 11.82,
+    "h": 2.75
+   }
+  ]
+ },
+ "m10-17-sonar-dashboard": {
+  "fichier": "m10-17-sonar-dashboard.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:9000/dashboard?id=stock-api",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Quality gate: Passed, after the fix",
+    "x": 6.25,
+    "y": 28.75,
+    "l": 5.63,
+    "h": 8.75
+   },
+   {
+    "n": 2,
+    "libellé": "Coverage of the whole project",
+    "x": 66.02,
+    "y": 58.75,
+    "l": 5.72,
+    "h": 2.88
+   }
+  ],
+  "outil": {
+   "nom": "SonarQube",
+   "version": "26.11.0.134175 (Community Build)",
+   "image": "sonarqube:26.11.0.134175-community"
+  }
+ },
+ "m10-18-sonar-activity": {
+  "fichier": "m10-18-sonar-activity.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:9000/project/activity?id=stock-api",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Version 1.0.5: new feature, no tests",
+    "x": 0.31,
+    "y": 49.13,
+    "l": 2.74,
+    "h": 2.63
+   },
+   {
+    "n": 2,
+    "libellé": "Version 1.0.6: the fix, tests added",
+    "x": 0.31,
+    "y": 23.88,
+    "l": 2.74,
+    "h": 2.63
+   }
+  ],
+  "outil": {
+   "nom": "SonarQube",
+   "version": "26.11.0.134175 (Community Build)",
+   "image": "sonarqube:26.11.0.134175-community"
+  }
+ },
+ "m10-19-nexus-login": {
+  "fichier": "m10-19-nexus-login.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:8093/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Where the generated password lives, like Jenkins (Module 2)",
+    "x": 39.3,
+    "y": 53,
+    "l": 17.75,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "admin",
+    "x": 36.25,
+    "y": 66,
+    "l": 27.5,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "The generated password",
+    "x": 36.25,
+    "y": 76.5,
+    "l": 27.5,
+    "h": 4.75
+   }
+  ],
+  "outil": {
+   "nom": "Nexus Repository",
+   "version": "3.98.1 (OSS)",
+   "image": "sonatype/nexus3:3.98.1"
+  }
+ },
+ "m10-22-nexus-browse": {
+  "fichier": "m10-22-nexus-browse.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:8093/#browse/browse:maven-releases:com/example/stock-api/1.0.2",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The artifact Jenkins uploaded",
+    "x": 4.92,
+    "y": 32,
+    "l": 19.4,
+    "h": 7
+   },
+   {
+    "n": 2,
+    "libellé": "Its POM, generated by the flatten plugin",
+    "x": 4.92,
+    "y": 42.13,
+    "l": 20.44,
+    "h": 7
+   }
+  ],
+  "outil": {
+   "nom": "Nexus Repository",
+   "version": "3.98.1 (OSS)",
+   "image": "sonatype/nexus3:3.98.1"
+  }
+ },
+ "m10-23-grafana-login": {
+  "fichier": "m10-23-grafana-login.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:3001/login",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "admin",
+    "x": 35.04,
+    "y": 52.01,
+    "l": 29.92,
+    "h": 4
+   },
+   {
+    "n": 2,
+    "libellé": "GF_SECURITY_ADMIN_PASSWORD (docker-compose.yml)",
+    "x": 35.04,
+    "y": 60.38,
+    "l": 29.92,
+    "h": 4
+   }
+  ],
+  "outil": {
+   "nom": "Grafana",
+   "version": "13.3.1",
+   "image": "grafana/grafana:13.3.1"
+  }
+ },
+ "m10-24-grafana-datasource": {
+  "fichier": "m10-24-grafana-datasource.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:3001/connections/datasources/new",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The data source type",
+    "x": 65.27,
+    "y": 9.63,
+    "l": 7.08,
+    "h": 6.25
+   },
+   {
+    "n": 2,
+    "libellé": "The service, reached on the lab network",
+    "x": 42.81,
+    "y": 68.75,
+    "l": 29.53,
+    "h": 4
+   }
+  ],
+  "outil": {
+   "nom": "Grafana",
+   "version": "13.3.1",
+   "image": "grafana/grafana:13.3.1"
+  }
+ },
+ "m10-25-grafana-datasource-ok": {
+  "fichier": "m10-25-grafana-datasource-ok.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:3001/connections/datasources/edit/ag4m8wnwc8jcwd",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The connection to Prometheus works",
+    "x": 31.64,
+    "y": 83.75,
+    "l": 23.05,
+    "h": 2.88
+   }
+  ],
+  "outil": {
+   "nom": "Grafana",
+   "version": "13.3.1",
+   "image": "grafana/grafana:13.3.1"
+  }
+ },
+ "m10-26-grafana-dashboard": {
+  "fichier": "m10-26-grafana-dashboard.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:3001/d/jenkins-lab/jenkins-lab",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "default_jenkins_up — 1 means reachable",
+    "x": 26.95,
+    "y": 14.88,
+    "l": 15.31,
+    "h": 3.75
+   },
+   {
+    "n": 2,
+    "libellé": "Mostly idle: correct, the lab is quiet",
+    "x": 26.64,
+    "y": 43.38,
+    "l": 32.58,
+    "h": 38.82
+   },
+   {
+    "n": 3,
+    "libellé": "A metric that always moves, even at rest",
+    "x": 60.62,
+    "y": 43.38,
+    "l": 32.58,
+    "h": 38.82
+   }
+  ],
+  "outil": {
+   "nom": "Grafana",
+   "version": "13.3.1",
+   "image": "grafana/grafana:13.3.1"
+  }
  }
 }

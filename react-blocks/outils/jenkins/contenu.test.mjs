@@ -17,6 +17,7 @@ import MODULE6, { AGENT_DOCKERFILE, COMPOSE_AGENT_BUILD, POM_XML, CI_SETTINGS, J
 import MODULE7, { COMPOSE_DOCKER, COMPOSE_AGENT1, DOCKERFILE_AGENT_EXTRAIT, DOCKERFILE, JF_SERVICE, DSL_EXTRAIT, DOCKER_CLEANUP } from '../../src/lib/jenkins/module7.js'
 import MODULE8, { KIND_CLUSTER, RBAC_YAML, JF_K8S_HELLO, DEPLOYMENT_YAML, JF_DEPLOY_MANIFESTS, JF_DEPLOY_HELM, JF_DEPLOY_HELM_STAGE, VALUES_YAML, TPL_DEPLOYMENT, TPL_SERVICE } from '../../src/lib/jenkins/module8.js'
 import MODULE9, { COMPOSE_WEB1, DEPLOY_WEB1, SAFE_PIPELINE, LEAKY_PIPELINE, USE_TEAM_TOKEN, SANDBOX_DEMO } from '../../src/lib/jenkins/module9.js'
+import MODULE10, { SITE_YML, JENKINSFILE_ANSIBLE, TF_MAIN, TERRAFORM_RBAC, JENKINSFILE_TERRAFORM, JENKINSFILE_SONAR, JENKINSFILE_NEXUS, CI_SETTINGS as CI_SETTINGS_M10, PROMETHEUS_YML } from '../../src/lib/jenkins/module10.js'
 import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
 import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
@@ -24,7 +25,7 @@ import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -385,6 +386,47 @@ test('module 9 : SSH avec clé d’hôte, jetons, limites du masquage, dossiers 
   // Les deux captures reprises du Module 2 sont les mêmes blocs.
   for (const id of ['m2-17-matrix-summary', 'm2-19-access-denied']) assert.ok(tout.some(b => b.t === 'shot' && b.id === id), id)
   assert.equal(MODULE9.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 10 : Ansible, Terraform, SonarQube, Nexus, Prometheus/Grafana concordent avec le labo réel', () => {
+  const tout = [...parcourir(MODULE10)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Ansible : become + force écrits dans le playbook réellement exécuté, et le Jenkinsfile les appelle bien.
+  assert.ok(SITE_YML.includes('become: true') && SITE_YML.includes('force: true'))
+  assert.ok(JENKINSFILE_ANSIBLE.includes("installation: 'ansible-2.22'") && JENKINSFILE_ANSIBLE.includes('checkMode: params.DRY_RUN'))
+  assert.ok(sortie(/stock-ansible #1/).includes('VERSION is empty'))
+  assert.ok(sortie(/stock-ansible #2/).includes('Failed to lock apt') && sortie(/stock-ansible #3/).includes('changed:'))
+  assert.ok(sortie(/stock-ansible #5/).includes("use 'force=yes'") && sortie(/stock-ansible #7/).includes('serves 1.0.8'))
+  // Terraform : état verrouillé dans le cluster, RBAC avec un bind explicite, verrouillage concurrent réel.
+  assert.match(TF_MAIN, /kubernetes_role_binding_v1/)
+  assert.ok(TERRAFORM_RBAC.includes('verbs: ["bind"]') && TERRAFORM_RBAC.includes('resourceNames: ["edit"]'))
+  assert.ok(JENKINSFILE_TERRAFORM.includes('disableConcurrentBuilds()') && JENKINSFILE_TERRAFORM.includes("input id: 'apply'"))
+  assert.ok(sortie(/platform-terraform #1/).includes('Plan: 8 to add') && sortie(/platform-terraform #1/).includes('is attempting to grant RBAC'))
+  assert.ok(sortie(/platform-terraform #3/).includes('Plan: 2 to add') && sortie(/platform-terraform #3/).includes('Apply complete'))
+  assert.ok(sortie(/platform-terraform #6/).includes('Error acquiring the state lock') && sortie(/platform-terraform #7/).includes('No changes'))
+  // SonarQube : le pipeline attend vraiment le webhook et peut avorter ; l'échec et le correctif sont réels.
+  assert.ok(JENKINSFILE_SONAR.includes('waitForQualityGate') && JENKINSFILE_SONAR.includes('abortPipeline: true'))
+  assert.ok(sortie(/stock-api-sonar #1/).includes("Quality gate is 'OK'"))
+  assert.ok(sortie(/stock-api-sonar #5/).includes("Quality gate is 'ERROR'") && sortie(/stock-api-sonar #5/).includes('aborted due to quality gate'))
+  assert.ok(sortie(/stock-api-sonar #6/).includes("Quality gate is 'OK'"))
+  const gate = JSON.parse(sortie(/the failing condition, read right after/))
+  assert.equal(gate.projectStatus.status, 'ERROR')
+  assert.ok(gate.projectStatus.conditions.some(c => c.metricKey === 'new_coverage' && c.status === 'ERROR'))
+  // Nexus : le compte CI est bien limité (add/read/browse, pas delete), et l'EULA — pas un droit — bloquait au début.
+  assert.ok(JENKINSFILE_NEXUS.includes("credentialsId: 'nexus-deployer'") && JENKINSFILE_NEXUS.includes('-DaltDeploymentRepository'))
+  assert.ok(CI_SETTINGS_M10.includes('<id>nexus</id>') && CI_SETTINGS_M10.includes('${env.NEXUS_TOKEN}'))
+  const cmds10 = tout.filter(b => b.t === 'cmd')
+  assert.ok(cmds10.some(b => b.out.includes('"deployer-maven-releases"')))
+  assert.ok(cmds10.some(b => b.out.includes('You must accept the End User License Agreement')))
+  assert.ok(cmds10.some(b => b.out.includes('403 Forbidden') && b.out.includes('200 OK')))
+  // Prometheus/Grafana : la cible réellement scrapée, le tableau de bord réellement provisionné.
+  assert.ok(PROMETHEUS_YML.includes('metrics_path: /prometheus/') && PROMETHEUS_YML.includes('jenkins:8080'))
+  assert.ok(sortie(/Prometheus — its own API/).includes('default_jenkins_up'))
+  assert.ok(sortie(/the dashboard JSON, posted once/).includes('"status": "success"'))
+  // Artifactory : documenté, jamais prétendu exécuté.
+  const artifactory = tout.filter(b => b.t === 'callout' && /Artifactory/.test(JSON.stringify(b)))
+  assert.ok(artifactory.some(b => /[Nn]ot run/.test(b.title ?? '') || /[Nn]ot run/.test(b.text)))
+  assert.equal(MODULE10.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {

@@ -421,8 +421,33 @@ function M8K8s({ T }) {
   )
 }
 
+// Module 10 : six outils autour du même contrôleur Jenkins, chacun avec sa relation réelle du labo.
+function M10Outils({ T }) {
+  return (
+    <svg viewBox="0 0 760 460" role="img" aria-label="The DevOps tools around one Jenkins controller: Ansible deploys over SSH to the managed servers; Terraform plans, waits for a human approval, then applies to the Kubernetes cluster, with its state locked in that same cluster; SonarQube receives a Maven analysis and calls back a webhook that carries the quality gate result; Nexus receives the published jar over a least-privilege account; Prometheus scrapes a metrics endpoint on the controller, and Grafana queries Prometheus to draw dashboards">
+      <Défs T={T} />
+      <Boite x={290} y={195} l={180} h={70} titre="Jenkins controller" lignes={['one pipeline per tool']} couleur={ROUGE} plein T={T} />
+
+      <Boite x={10} y={20} l={190} h={64} titre="Ansible 2.22" lignes={['installation: ansible-2.22']} couleur={BLEU} T={T} taille={13.5} />
+      <Boite x={285} y={20} l={190} h={64} titre="Terraform 1.17" lignes={['state locked in the cluster']} couleur={AMBRE} T={T} taille={13.5} />
+      <Boite x={560} y={20} l={190} h={64} titre="SonarQube 26.11" lignes={['server: sonarqube-lab']} couleur={VERT} T={T} taille={13.5} />
+      <Boite x={10} y={376} l={190} h={64} titre="Nexus 3.98" lignes={['repo: maven-releases']} couleur={BLEU} T={T} taille={13.5} />
+      <Boite x={285} y={376} l={190} h={64} titre="Prometheus" lignes={['scrapes /prometheus/']} couleur={AMBRE} T={T} taille={13.5} />
+      <Boite x={560} y={376} l={190} h={64} titre="Grafana" lignes={['dashboard: Jenkins (lab)']} couleur={VERT} T={T} taille={13.5} />
+
+      <Flèche d="M135,84 C180,130 230,166 294,208" T={T} libellé="ansible-playbook, SSH key" lx={210} ly={112} />
+      <Flèche d="M380,84 L380,192" T={T} libellé="plan → approve → apply" lx={380} ly={150} />
+      <Flèche d="M470,222 C520,150 570,100 612,84" T={T} libellé="mvn sonar:sonar" lx={560} ly={140} />
+      <Flèche d="M612,86 C560,120 500,160 470,230" T={T} libellé="webhook: quality gate" lx={598} ly={168} tirets couleur={VERT} />
+      <Flèche d="M294,252 C230,296 180,332 137,374" T={T} libellé="mvn deploy, jenkins-deployer" lx={210} ly={340} />
+      <Flèche d="M380,268 L380,372" T={T} libellé="metrics (text format)" lx={380} ly={330} />
+      <Flèche d="M490,406 L556,406" T={T} libellé="PromQL" lx={522} ly={396} />
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

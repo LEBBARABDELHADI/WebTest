@@ -92,11 +92,11 @@ export const PLAN = [
     tp: ['Lab 9.1: deploy over SSH with a key credential', 'Lab 9.2: audit a pipeline that leaks a secret', 'Lab 9.3: credentials and scripts under control'],
   },
   {
-    id: 'm10', num: 'Module 10', titre: 'Jenkins and DevOps tools', niveau: 'avancé', durée: '6 h',
-    résumé: 'Architecture, configuration and a working example for Ansible, Terraform, SonarQube, Nexus, Artifactory, Docker, Kubernetes, GitLab/GitHub, Prometheus and Grafana.',
-    objectifs: ['Integrate each tool with the right plugin or mechanism', 'Understand the architecture of each integration', 'Run a working example for each'],
-    sujets: ['Ansible', 'Terraform', 'SonarQube', 'Nexus', 'JFrog Artifactory', 'Docker', 'Kubernetes', 'GitLab/GitHub', 'Prometheus and Grafana'],
-    tp: ['One working pipeline per tool'],
+    id: 'm10', num: 'Module 10', titre: 'Jenkins and DevOps tools', niveau: 'avancé', durée: '6 h', disponible: true,
+    résumé: 'Six real tools connected to the lab controller — Ansible, Terraform, SonarQube, Nexus, Prometheus and Grafana — with a genuine quality-gate failure and fix; Artifactory explained; what changes for GitHub/GitLab.',
+    objectifs: ['Run Ansible and Terraform from a pipeline, with a real human approval gate', 'Make a SonarQube quality gate genuinely block a build, then fix it with a test, not a threshold', 'Publish to Nexus with a least-privilege account', 'Scrape Jenkins\' own metrics with Prometheus and read them in Grafana'],
+    sujets: ['Ansible', 'Terraform', 'SonarQube', 'Nexus', 'JFrog Artifactory', 'Docker and Kubernetes (cross-reference)', 'GitHub/GitLab (cross-reference)', 'Prometheus and Grafana'],
+    tp: ['Lab 10.1: deploy over SSH with Ansible, break it, fix it', 'Lab 10.2: Terraform with a human gate and a locked state', 'Lab 10.3: make a quality gate fail, then fix it with a test'],
   },
   {
     id: 'm11', num: 'Module 11', titre: 'End-to-end CI/CD case studies', niveau: 'avancé', durée: '8 h',
