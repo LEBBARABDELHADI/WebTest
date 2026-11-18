@@ -981,13 +981,18 @@ Finished: SUCCESS` },
   { t: 'p', text: 'A least-privilege role and user, created through the REST API — the UI equivalent is *Security → Roles / Users*:' },
   { t: 'cmd', where: 'Your terminal', cmd: '', out: `$ curl -s -u admin:*** -X POST http://nexus:8081/service/rest/v1/security/roles -d '{...}'
 {
-  "id" : "deployer-maven-releases",
-  "source" : "default",
-  "name" : "deployer-maven-releases",
-  "description" : "Publish and browse maven-releases only (Module 10)",
-  "readOnly" : false,
-  "privileges" : [ "nx-repository-view-maven2-maven-releases-browse", "nx-repository-view-maven2-maven-releases-add", "nx-repository-view-maven2-maven-releases-read" ],
-  "roles" : [ ]
+  "id": "deployer-maven-releases",
+  "source": "default",
+  "name": "deployer-maven-releases",
+  "description": "Publish (including new versions of an existing artifact) and browse maven-releases only",
+  "readOnly": false,
+  "privileges": [
+    "nx-repository-view-maven2-maven-releases-browse",
+    "nx-repository-view-maven2-maven-releases-edit",
+    "nx-repository-view-maven2-maven-releases-add",
+    "nx-repository-view-maven2-maven-releases-read"
+  ],
+  "roles": []
 }
 
 $ curl -s -u admin:*** 'http://nexus:8081/service/rest/v1/security/users?userId=jenkins-deployer'
@@ -1006,6 +1011,23 @@ $ curl -s -u admin:*** 'http://nexus:8081/service/rest/v1/security/users?userId=
     "externalRoles": []
   }
 ]` },
+  { t: 'callout', kind: 'why', title: 'A second real wall: add alone was not enough', text: 'The first publish of a brand-new artifact only writes new files — `add` is enough. The next version of the **same** artifact also rewrites `com/example/stock-api/maven-metadata.xml`, a file that already exists: that is an **edit**, not an add. A role with only `add`, `read` and `browse` publishes version 1 fine, then gets a 403 on version 2 — found here by publishing the same version twice, on purpose.' },
+  { t: 'cmd', where: 'Your terminal — the real 403, then the fix', cmd: '', out: `$ curl -u jenkins-deployer:*** -X PUT --data-binary @stock-api-1.0.3.pom \\
+    http://nexus:8081/repository/maven-releases/com/example/stock-api/1.0.3/stock-api-1.0.3.pom
+
+< HTTP/1.1 403 Forbidden    (role: add, read, browse only — stock-api already has published versions)
+
+$ # add alone creates a brand-new artifact fine, but a second version of the same artifact also writes
+$ # com/example/stock-api/maven-metadata.xml, an EXISTING file — that is an edit, not an add.
+$ curl -u admin:*** -X PUT ... -d '{"privileges":[".../add",".../edit",".../read",".../browse"]}' \\
+    http://nexus:8081/service/rest/v1/security/roles/deployer-maven-releases
+
+< 204 No Content
+
+$ curl -u jenkins-deployer:*** -X PUT --data-binary @stock-api-1.0.3.pom \\
+    http://nexus:8081/repository/maven-releases/com/example/stock-api/1.0.3/stock-api-1.0.3.pom
+
+< HTTP/1.1 201 Created` },
   { t: 'p', text: 'Yet the very first deploy — even as **admin** — was refused:' },
   { t: 'cmd', where: 'A direct PUT to the repository, admin account', cmd: '', out: `$ curl -v -u admin:*** -X PUT --data-binary @test.pom \\
     http://nexus:8081/repository/maven-releases/com/example/stock-api/1.0.1/stock-api-1.0.1.pom
@@ -1051,10 +1073,10 @@ $ curl -s -u admin:*** http://nexus:8081/service/rest/v1/system/eula
 [INFO] BUILD SUCCESS` },
   { t: 'shot', id: 'm10-22-nexus-browse', titre: 'Nexus — Browse → maven-releases → com/example/stock-api/1.0.2', ce: 'What actually landed, with its checksums and generated metadata.', éléments: ['The jar Jenkins built.', 'Its POM, written by the `flatten` plugin (Module 6).'], actions: ['Open the .sha1 file next to the jar: Maven checks it on every download.'], résultat: 'Anyone with read access can now depend on `com.example:stock-api:1.0.2`.' },
   { t: 'cmd', where: 'Checking the least-privilege account actually is least-privilege', cmd: '', out: `$ curl -u jenkins-deployer:*** -X DELETE http://nexus:8081/repository/maven-releases/com/example/stock-api/1.0.2/stock-api-1.0.2.jar
-< HTTP/1.1 403 Forbidden   (the role only grants add, browse and read)
+< HTTP/1.1 403 Forbidden   (the role grants add, edit, browse and read — never delete)
 
 $ curl -u jenkins-deployer:*** http://nexus:8081/repository/maven-releases/com/example/stock-api/1.0.2/stock-api-1.0.2.jar
-< HTTP/1.1 200 OK`, note: 'The role grants `add`, `browse` and `read` only — no `delete`, no `edit`. Delete is refused; read still works.' },
+< HTTP/1.1 200 OK`, note: 'The role grants `add`, `edit`, `browse` and `read` — no `delete`. Delete is refused; read still works.' },
 
   { t: 'h', id: 'm10-6', text: '10.6 JFrog Artifactory — explained, not run' },
   { t: 'callout', kind: 'warning', title: 'Not run in this lab', text: 'Artifactory\'s free tier (JFrog Platform, Cloud) requires creating a real account on JFrog\'s own service — something this offline lab cannot do honestly. Everything below is accurate documentation of the product and its Jenkins plugin (installed in this lab, section 10.4\'s plugin batch), not a captured run.' },
@@ -1183,7 +1205,7 @@ default_jenkins_executors_available{label="docker",} 2.0` },
   { t: 'exercise', id: 'ex104', titre: 'Exercise 10.4 — Choose the Nexus privilege', énoncé: [
     { t: 'p', text: 'For each account, name the exact privileges (among `add`, `browse`, `read`, `edit`, `delete`) its role should hold on `maven-releases`: (a) the Jenkins account that publishes releases; (b) a developer who only needs to resolve dependencies from Nexus in their local Maven; (c) a release manager who must be able to remove a badly published artifact.' },
   ], solution: [
-    { t: 'ul', items: ['(a) `add`, `browse`, `read` — exactly `nexus-deployer`\'s role in this module. No `delete`: a CI account should not be able to erase history.', '(b) `browse`, `read` only.', '(c) `browse`, `read`, `delete` — and ideally a separate, personal account, audited, not shared.'] },
+    { t: 'ul', items: ['(a) `add`, `edit`, `browse`, `read` — exactly `nexus-deployer`\'s role in this module (`edit` because a second version rewrites `maven-metadata.xml`). No `delete`: a CI account should not be able to erase history.', '(b) `browse`, `read` only.', '(c) `browse`, `read`, `delete` — and ideally a separate, personal account, audited, not shared.'] },
   ] },
 
   { t: 'recap', items: [
@@ -1191,7 +1213,7 @@ default_jenkins_executors_available{label="docker",} 2.0` },
     'Terraform: state locked in the cluster itself; a real `input` step for human approval; least-privilege RBAC must grant `bind` explicitly, not just CRUD verbs.',
     'SonarQube: `withSonarQubeEnv()` + `waitForQualityGate()` genuinely blocks and can abort — verified here with a real failure and a real fix, not a staged one.',
     'A quality gate exempts small changes from new-code coverage checks, and trivially passes test-only changes — know both before trusting a green gate blindly.',
-    'Nexus: a least-privilege account (`add`, `read`, `browse`, no `delete`); this Community Build also requires accepting its EULA before any write, independent of permissions.',
+    'Nexus: a least-privilege account needs `add` **and** `edit` to publish more than one version (`edit` updates the shared `maven-metadata.xml`), plus `read`/`browse`, never `delete`; this Community Build also requires accepting its EULA before any write, independent of permissions.',
     'Artifactory adds Jenkins-native build metadata over what Nexus offers; otherwise the same mechanics (server, least-privilege token, Jenkinsfile stage).',
     'GitHub and GitLab replace Gitea\'s branch-source plugin and webhook signing, but change nothing in the Jenkinsfile itself.',
     'Prometheus scrapes Jenkins\' own `/prometheus/` endpoint; Grafana queries Prometheus — dashboards can be provisioned as code, the same spirit as a Jenkinsfile.',
