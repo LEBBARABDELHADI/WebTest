@@ -5770,5 +5770,77 @@
    "version": "13.3.1",
    "image": "grafana/grafana:13.3.1"
   }
+ },
+ "m11-01-e2e-java-stages": {
+  "fichier": "m11-01-e2e-java-stages.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:8080/job/stock-api-e2e/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Module 10: the real gate, read on the job page",
+    "x": 28.28,
+    "y": 30.38,
+    "l": 20.65,
+    "h": 4
+   },
+   {
+    "n": 2,
+    "libellé": "Stock API: Passed",
+    "x": 37.23,
+    "y": 38.05,
+    "l": 4.13,
+    "h": 2.63
+   },
+   {
+    "n": 3,
+    "libellé": "12 tests, 0 failed, across all 3 builds",
+    "x": 58.59,
+    "y": 21.5,
+    "l": 39.69,
+    "h": 28.5
+   },
+   {
+    "n": 4,
+    "libellé": "The published artifact",
+    "x": 36.64,
+    "y": 24.75,
+    "l": 6.01,
+    "h": 5.5
+   }
+  ]
+ },
+ "m11-02-e2e-trigger": {
+  "fichier": "m11-02-e2e-trigger.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:8080/job/stock-service-e2e/2/console",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Lab 11.3: the build step triggers the next job",
+    "x": 36.2,
+    "y": 37.51,
+    "l": 21.7,
+    "h": 2.75
+   },
+   {
+    "n": 2,
+    "libellé": "A real, numbered build of the downstream job",
+    "x": 36.2,
+    "y": 40.41,
+    "l": 23.67,
+    "h": 2.75
+   },
+   {
+    "n": 3,
+    "libellé": "image -> registry -> cluster, closed automatically",
+    "x": 36.2,
+    "y": 43.32,
+    "l": 27.63,
+    "h": 2.75
+   }
+  ]
  }
 }

@@ -99,11 +99,11 @@ export const PLAN = [
     tp: ['Lab 10.1: deploy over SSH with Ansible, break it, fix it', 'Lab 10.2: Terraform with a human gate and a locked state', 'Lab 10.3: make a quality gate fail, then fix it with a test'],
   },
   {
-    id: 'm11', num: 'Module 11', titre: 'End-to-end CI/CD case studies', niveau: 'avancé', durée: '8 h',
-    résumé: 'Five complete projects, from Git to production.',
-    objectifs: ['Chain all the previous modules into real pipelines'],
-    sujets: ['Java: Git → Jenkins → Maven → tests → SonarQube', 'Docker: Git → Jenkins → build → Docker Hub', 'Kubernetes: Git → Jenkins → image → registry → cluster', 'Ansible: playbooks, inventories and variables on several servers', 'DevSecOps: tests, SonarQube, dependency scan, image scan, security gates'],
-    tp: ['Lab 11.1 to 11.5'],
+    id: 'm11', num: 'Module 11', titre: 'End-to-end CI/CD case studies', niveau: 'avancé', durée: '5 h', disponible: true,
+    résumé: 'Five real pipelines that chain Modules 6 to 10 end to end — no new tool: a quality gate that genuinely blocks a release, a CI job that triggers its own CD job, and a dependency scan plus an image scan feeding one real security gate.',
+    objectifs: ['Chain build, test and a real quality gate into one Java pipeline, Git to published artifact', 'Chain test, a dependency scan, an image scan and a registry push into one Docker pipeline', 'Make a CI pipeline trigger its own CD pipeline, with no person clicking between the two', 'Give an Ansible inventory per-host variables, not just per-group ones'],
+    sujets: ['Java: Git → Maven → tests → SonarQube → Nexus', 'Docker: Git → build → image scan → a registry (Docker Hub documented, not run)', 'Kubernetes: one pipeline triggering another, automatically', 'Ansible: host_vars overriding group_vars on one server only', 'DevSecOps: dependency scan + image scan feeding one real error()-based gate'],
+    tp: ['Lab 11.1: Java build, test, quality gate, publish — in one pipeline', 'Lab 11.2: Docker build and registry push, a second registry documented', 'Lab 11.3: one pipeline triggers a Kubernetes deployment automatically', 'Lab 11.4: Ansible host_vars, a real per-server difference', 'Lab 11.5: dependency scan + image scan + a security gate that can really stop a release'],
   },
   {
     id: 'm12', num: 'Module 12', titre: 'Administration and operations', niveau: 'expert', durée: '5 h',

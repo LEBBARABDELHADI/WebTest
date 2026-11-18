@@ -446,8 +446,34 @@ function M10Outils({ T }) {
   )
 }
 
+// Module 11 : deux pipelines qui se terminent, un troisième que le premier déclenche lui-même.
+function M11Chaine({ T }) {
+  return (
+    <svg viewBox="0 0 760 300" role="img" aria-label="Two pipelines close the loop by themselves: stock-api-e2e builds, tests, waits for the SonarQube quality gate, packages and publishes to Nexus; stock-service-e2e tests, scans dependencies, builds the image, scans the image, publishes it to the registry, and on success triggers a build of stock-deploy, which runs Helm against the Kubernetes cluster — no person clicks between the image and the cluster">
+      <Défs T={T} />
+      <Boite x={10} y={118} l={150} h={64} titre="git push" lignes={['main']} couleur={BLEU} T={T} />
+      <Cadre x={200} y={16} l={260} h={110} titre="stock-api-e2e" couleur={ROUGE}>
+        <text x={330} y={58} textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>build → test → quality gate</text>
+        <text x={330} y={78} textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>→ package → Nexus</text>
+        <text x={330} y={100} textAnchor="middle" fontFamily={grotesk} fontWeight={800} fontSize={13} fill={ROUGE}>Lab 11.1</text>
+      </Cadre>
+      <Cadre x={200} y={174} l={260} h={112} titre="stock-service-e2e" couleur={AMBRE}>
+        <text x={330} y={216} textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>test → OSV scan → build</text>
+        <text x={330} y={236} textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>→ Trivy scan → registry</text>
+        <text x={330} y={258} textAnchor="middle" fontFamily={grotesk} fontWeight={800} fontSize={13} fill={AMBRE}>Labs 11.2, 11.5</text>
+      </Cadre>
+      <Boite x={520} y={192} l={230} h={76} titre="stock-deploy" lignes={['Helm upgrade, cluster lab']} couleur={VERT} T={T} taille={13.5} />
+      <Flèche d="M160,150 L204,110" T={T} />
+      <Flèche d="M160,150 L204,220" T={T} />
+      <Flèche d="M460,230 L516,230" T={T} libellé="build job: 'stock-deploy'" lx={488} ly={212} />
+      <path d="M460,88 C500,88 500,150 500,150" fill="none" stroke={T.textMuted} strokeWidth={2} strokeDasharray="6 5" />
+      <text x={500} y={168} textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>no auto-trigger (Lab 11.4 is Ansible, a separate target)</text>
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils, 'm11-chaine': M11Chaine }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

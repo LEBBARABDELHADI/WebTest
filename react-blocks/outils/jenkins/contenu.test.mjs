@@ -18,6 +18,7 @@ import MODULE7, { COMPOSE_DOCKER, COMPOSE_AGENT1, DOCKERFILE_AGENT_EXTRAIT, DOCK
 import MODULE8, { KIND_CLUSTER, RBAC_YAML, JF_K8S_HELLO, DEPLOYMENT_YAML, JF_DEPLOY_MANIFESTS, JF_DEPLOY_HELM, JF_DEPLOY_HELM_STAGE, VALUES_YAML, TPL_DEPLOYMENT, TPL_SERVICE } from '../../src/lib/jenkins/module8.js'
 import MODULE9, { COMPOSE_WEB1, DEPLOY_WEB1, SAFE_PIPELINE, LEAKY_PIPELINE, USE_TEAM_TOKEN, SANDBOX_DEMO } from '../../src/lib/jenkins/module9.js'
 import MODULE10, { SITE_YML, JENKINSFILE_ANSIBLE, TF_MAIN, TERRAFORM_RBAC, JENKINSFILE_TERRAFORM, JENKINSFILE_SONAR, JENKINSFILE_NEXUS, CI_SETTINGS as CI_SETTINGS_M10, PROMETHEUS_YML } from '../../src/lib/jenkins/module10.js'
+import MODULE11, { JENKINSFILE_E2E_JAVA, JENKINSFILE_E2E_DOCKER, HOST_VARS_APP2 } from '../../src/lib/jenkins/module11.js'
 import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
 import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
@@ -25,7 +26,7 @@ import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, m11: MODULE11, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -427,6 +428,35 @@ test('module 10 : Ansible, Terraform, SonarQube, Nexus, Prometheus/Grafana conco
   const artifactory = tout.filter(b => b.t === 'callout' && /Artifactory/.test(JSON.stringify(b)))
   assert.ok(artifactory.some(b => /[Nn]ot run/.test(b.title ?? '') || /[Nn]ot run/.test(b.text)))
   assert.equal(MODULE10.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 11 : les 5 TP chaînent Modules 6 à 10 pour de vrai, sans nouvel outil', () => {
+  const tout = [...parcourir(MODULE11)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Lab 11.1 (Java) : le gate attend vraiment, package après le gate, publish Nexus réel (edit, pas seulement add).
+  assert.ok(JENKINSFILE_E2E_JAVA.includes('waitForQualityGate abortPipeline: true'))
+  assert.ok(JENKINSFILE_E2E_JAVA.includes("credentialsId: 'nexus-deployer'") && JENKINSFILE_E2E_JAVA.includes('-DaltDeploymentRepository'))
+  assert.ok(sortie(/stock-api-e2e #3/).includes('Tests run: 12') && sortie(/stock-api-e2e #3/).includes("Quality gate is 'OK'"))
+  assert.ok(sortie(/stock-api-e2e #3/).includes('tested, gated, packaged, published') && sortie(/stock-api-e2e #3/).includes('Finished: SUCCESS'))
+  // Lab 11.2/11.5 (Docker + DevSecOps) : scan dépendances réel (rien à signaler), scan image réel (7 HIGH, 0 CRITICAL), gate lit le compte.
+  assert.ok(JENKINSFILE_E2E_DOCKER.includes('osv-scanner scan source'))
+  assert.ok(JENKINSFILE_E2E_DOCKER.includes('trivy image --severity CRITICAL,HIGH --exit-code 1'))
+  assert.ok(JENKINSFILE_E2E_DOCKER.includes("error(\"Security gate: ${env.CRITICAL_FOUND} CRITICAL"))
+  assert.ok(JENKINSFILE_E2E_DOCKER.includes('dockerhub-deployer'), 'Docker Hub documenté, même commenté')
+  assert.ok(sortie(/stock-service-e2e #1 → Console Output \(real text, excerpt\)$/).includes('No package sources found'))
+  const trivy = sortie(/Trivy on the built image/)
+  assert.ok(trivy.includes('Total: 7 (HIGH: 7, CRITICAL: 0)') && trivy.includes('brace-expansion') && trivy.includes('Security gate: 0 CRITICAL'))
+  // Lab 11.3 (Kubernetes) : le CI déclenche vraiment le CD, et attend son résultat.
+  assert.ok(JENKINSFILE_E2E_DOCKER.includes("build job: 'stock-deploy'") && JENKINSFILE_E2E_DOCKER.includes('wait: true'))
+  assert.ok(sortie(/stock-service-e2e #2/).includes('Starting building: stock-deploy #14') && sortie(/stock-service-e2e #2/).includes('Build stock-deploy #14 completed: SUCCESS'))
+  // Lab 11.4 (Ansible) : host_vars réel, et la différence se voit dans la config nginx déployée.
+  assert.ok(HOST_VARS_APP2.includes('site_root: /var/www/stock-web-canary'))
+  assert.ok(sortie(/stock-ansible #9/).includes('changed=4') && sortie(/stock-ansible #9/).includes('changed=5') && sortie(/stock-ansible #9/).includes('serves 1.0.9'))
+  assert.ok(sortie(/Two servers, two configurations/).includes('/var/www/stock-web/current') && sortie(/Two servers, two configurations/).includes('/var/www/stock-web-canary/current'))
+  // Pas de nouvel outil : Docker Hub est documenté, jamais prétendu exécuté.
+  const dockerhub = tout.filter(b => b.t === 'callout' && /Docker Hub/.test(JSON.stringify(b)))
+  assert.ok(dockerhub.some(b => /[Nn]ot run/.test(b.title ?? '') || /[Nn]ot run/.test(b.text)))
+  assert.equal(MODULE11.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {
