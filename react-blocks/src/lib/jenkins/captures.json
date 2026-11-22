@@ -5842,5 +5842,237 @@
     "h": 2.75
    }
   ]
+ },
+ "m12-01-ops1-offline": {
+  "fichier": "m12-01-ops1-offline.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/computer/ops-1/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "ops-1 is offline",
+    "x": 20.58,
+    "y": 62.6,
+    "l": 4.65,
+    "h": 2.25
+   },
+   {
+    "n": 2,
+    "libellé": "The real reason given when taking it offline",
+    "x": 30.81,
+    "y": 18.38,
+    "l": 67.16,
+    "h": 2.63
+   },
+   {
+    "n": 3,
+    "libellé": "The same action, now offered in reverse",
+    "x": 62,
+    "y": 8.75,
+    "l": 16.55,
+    "h": 4.75
+   }
+  ]
+ },
+ "m12-01-ssh-credential-ops": {
+  "fichier": "m12-01-ssh-credential-ops.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/credentials/store/system/domain/_/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "ID: ops-agent (not web-1-deploy)",
+    "x": 30.08,
+    "y": 21,
+    "l": 39.84,
+    "h": 4.75
+   },
+   {
+    "n": 2,
+    "libellé": "Username on the target: jenkins",
+    "x": 30.08,
+    "y": 42.75,
+    "l": 39.84,
+    "h": 4.75
+   },
+   {
+    "n": 3,
+    "libellé": "Private key: entered directly",
+    "x": 30.08,
+    "y": 59.62,
+    "l": 9.45,
+    "h": 2.63
+   },
+   {
+    "n": 4,
+    "libellé": "The private key (hidden by the course)",
+    "x": 32.58,
+    "y": 74.83,
+    "l": 37.34,
+    "h": 22.25
+   }
+  ]
+ },
+ "m12-02-build-after-online": {
+  "fichier": "m12-02-build-after-online.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/job/ops-maintenance-demo/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Build #2 — the one that was queued while ops-1 was offline",
+    "x": 4.41,
+    "y": 71.88,
+    "l": 18.53,
+    "h": 3.34
+   },
+   {
+    "n": 2,
+    "libellé": "It completed successfully, once ops-1 came back",
+    "x": 31.72,
+    "y": 33.67,
+    "l": 22.8,
+    "h": 2.13
+   }
+  ]
+ },
+ "m12-03-restore-dashboard": {
+  "fichier": "m12-03-restore-dashboard.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "http://localhost:8082/ — a fresh, throwaway instance restored from the backup (not the lab's real Jenkins on :8080)",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "A real job, restored — same name, same build history as the primary Jenkins",
+    "x": 40.75,
+    "y": 33.45,
+    "l": 6.89,
+    "h": 3.5
+   },
+   {
+    "n": 2,
+    "libellé": "ops-1 trying to reconnect here too — both instances share the same lab network, a side-effect of testing in place, not a restore flaw",
+    "x": 18.49,
+    "y": 57.45,
+    "l": 6.74,
+    "h": 2.25
+   }
+  ]
+ },
+ "m12-04-log-recorder": {
+  "fichier": "m12-04-log-recorder.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/log/run-lifecycle/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "Real FINE-level entries — never shown in the default Jenkins log",
+    "x": 24.41,
+    "y": 17.72,
+    "l": 2.26,
+    "h": 1.75
+   },
+   {
+    "n": 2,
+    "libellé": "The exact moment a real job entered the queue",
+    "x": 9.61,
+    "y": 54.94,
+    "l": 80.78,
+    "h": 3.1
+   }
+  ]
+ },
+ "m12-05-system-info": {
+  "fichier": "m12-05-system-info.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/systemInfo",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The real JENKINS_HOME path",
+    "x": 33.6,
+    "y": 62.61,
+    "l": 11.68,
+    "h": 3
+   }
+  ]
+ },
+ "m12-06-plugin-update-available": {
+  "fichier": "m12-06-plugin-update-available.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/pluginManager/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "A real available update: the Coverage plugin (JaCoCo reports, Module 6)",
+    "x": 35.22,
+    "y": 22.95,
+    "l": 18.14,
+    "h": 1.75
+   },
+   {
+    "n": 2,
+    "libellé": "Installed version",
+    "x": 73.95,
+    "y": 21.35,
+    "l": 15.89,
+    "h": 10.07
+   },
+   {
+    "n": 3,
+    "libellé": "The newer version the real Update Center just reported",
+    "x": 40.91,
+    "y": 22.95,
+    "l": 12.45,
+    "h": 1.75
+   }
+  ]
+ },
+ "m12-07-plugin-installed-restart": {
+  "fichier": "m12-07-plugin-installed-restart.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/manage/pluginManager/updates/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The download is complete",
+    "x": 28.75,
+    "y": 27.88,
+    "l": 7.15,
+    "h": 3.27
+   },
+   {
+    "n": 2,
+    "libellé": "Safe Restart: waits for the installation and any running job before restarting",
+    "x": 30.81,
+    "y": 43.65,
+    "l": 38.7,
+    "h": 2.75
+   }
+  ]
+ },
+ "m12-09-disk-space-offline": {
+  "fichier": "m12-09-disk-space-offline.jpg",
+  "largeur": 1920,
+  "hauteur": 1200,
+  "url": "/computer/(built-in)/",
+  "marqueurs": [
+   {
+    "n": 1,
+    "libellé": "The real, exact reason Jenkins itself took this node offline",
+    "x": 28.59,
+    "y": 27.63,
+    "l": 69.38,
+    "h": 2.63
+   }
+  ]
  }
 }

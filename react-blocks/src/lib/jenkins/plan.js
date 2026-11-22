@@ -106,11 +106,11 @@ export const PLAN = [
     tp: ['Lab 11.1: Java build, test, quality gate, publish — in one pipeline', 'Lab 11.2: Docker build and registry push, a second registry documented', 'Lab 11.3: one pipeline triggers a Kubernetes deployment automatically', 'Lab 11.4: Ansible host_vars, a real per-server difference', 'Lab 11.5: dependency scan + image scan + a security gate that can really stop a release'],
   },
   {
-    id: 'm12', num: 'Module 12', titre: 'Administration and operations', niveau: 'expert', durée: '5 h',
-    résumé: 'Agents and nodes, resources, backup and restore, logs, maintenance, upgrades, plugins, performance and troubleshooting.',
-    objectifs: ['Run builds on agents only', 'Back up and restore JENKINS_HOME', 'Upgrade Jenkins and plugins safely', 'Diagnose and fix production issues'],
-    sujets: ['Agents', 'Nodes', 'Resources', 'Backup and restore', 'Logs', 'Maintenance', 'Upgrades', 'Plugins', 'Performance', 'Troubleshooting'],
-    tp: ['Add an SSH agent with labels and take a node offline for maintenance', 'Restore a backup on a fresh instance'],
+    id: 'm12', num: 'Module 12', titre: 'Administration and operations', niveau: 'expert', durée: '5 h', disponible: true,
+    résumé: 'The same controller and agents, operated for real: a new agent node taken offline for maintenance with a real queue reacting to it, a scoped backup proven by restoring it on a disposable instance, real logs, a real plugin update with a real Safe Restart, real Prometheus numbers under load, and a real disk-space admin warning, deliberately provoked and reverted.',
+    objectifs: ['Add a node with labels and take it offline for maintenance without failing a single build', 'Back up JENKINS_HOME on purpose, scoped, and prove the restore on a disposable instance', 'Read real logs with a targeted recorder, and know what a support bundle needs', 'Update a plugin for real and understand what Safe Restart actually waits for', 'Read real executor and queue metrics under real load'],
+    sujets: ['Agents and nodes', 'Resources', 'Backup and restore', 'Logs', 'Maintenance', 'Upgrades', 'Plugins', 'Performance', 'Troubleshooting'],
+    tp: ['Lab 12.1: a new agent with labels, taken offline for maintenance', 'Lab 12.2: a backup proven by a real restore on a disposable instance', 'Exercise: logs, plugins, performance, disk space'],
   },
   {
     id: 'm13', num: 'Module 13', titre: 'Final professional project', niveau: 'expert', durée: '10 h',

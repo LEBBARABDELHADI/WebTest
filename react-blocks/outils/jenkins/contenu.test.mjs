@@ -19,6 +19,7 @@ import MODULE8, { KIND_CLUSTER, RBAC_YAML, JF_K8S_HELLO, DEPLOYMENT_YAML, JF_DEP
 import MODULE9, { COMPOSE_WEB1, DEPLOY_WEB1, SAFE_PIPELINE, LEAKY_PIPELINE, USE_TEAM_TOKEN, SANDBOX_DEMO } from '../../src/lib/jenkins/module9.js'
 import MODULE10, { SITE_YML, JENKINSFILE_ANSIBLE, TF_MAIN, TERRAFORM_RBAC, JENKINSFILE_TERRAFORM, JENKINSFILE_SONAR, JENKINSFILE_NEXUS, CI_SETTINGS as CI_SETTINGS_M10, PROMETHEUS_YML } from '../../src/lib/jenkins/module10.js'
 import MODULE11, { JENKINSFILE_E2E_JAVA, JENKINSFILE_E2E_DOCKER, HOST_VARS_APP2 } from '../../src/lib/jenkins/module11.js'
+import MODULE12, { JENKINSFILE_MAINTENANCE, JENKINSFILE_BACKUP, COMPOSE_OPS1 } from '../../src/lib/jenkins/module12.js'
 import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
 import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
@@ -26,7 +27,7 @@ import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, m11: MODULE11, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, m11: MODULE11, m12: MODULE12, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -457,6 +458,32 @@ test('module 11 : les 5 TP chaînent Modules 6 à 10 pour de vrai, sans nouvel o
   const dockerhub = tout.filter(b => b.t === 'callout' && /Docker Hub/.test(JSON.stringify(b)))
   assert.ok(dockerhub.some(b => /[Nn]ot run/.test(b.title ?? '') || /[Nn]ot run/.test(b.text)))
   assert.equal(MODULE11.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 12 : un nœud mis hors ligne et restauré pour de vrai sur une instance jetable', () => {
+  const tout = [...parcourir(MODULE12)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Lab 12.1 : ops-1 a son propre volume de clé d'hôte, sa connexion, puis la file réelle pendant qu'il est hors ligne.
+  assert.ok(COMPOSE_OPS1.includes('ops1_hostkeys:/etc/ssh') && COMPOSE_OPS1.includes('JENKINS_AGENT_SSH_PUBKEY: ${OPS_AGENT_PUBKEY}'))
+  assert.ok(JENKINSFILE_MAINTENANCE.includes("label 'maintenance-pool'"))
+  assert.ok(sortie(/Host key, fetched/).includes('SHA256:53gl1ldC3Js+TEh1Tj+9nBT7zwR6PQlGftT5ehvB6dY'))
+  assert.ok(sortie(/ops-1 connects/).includes('SSH host key matched') && sortie(/ops-1 connects/).includes('Agent successfully connected and online'))
+  assert.ok(sortie(/Queue API, while ops-1 is offline/).includes('‘ops-1’ is offline'))
+  assert.ok(sortie(/ops-maintenance-demo #2/).includes('Still waiting to schedule task') && sortie(/ops-maintenance-demo #2/).includes('Finished: SUCCESS'))
+  // Lab 12.2 : sauvegarde réelle et scoped, puis restauration vérifiée par l'API d'une instance jetable.
+  assert.ok(JENKINSFILE_BACKUP.includes("--exclude='workspace'") && JENKINSFILE_BACKUP.includes('config.xml jobs users credentials.xml secrets nodes plugins'))
+  assert.ok(sortie(/jenkins-backup #1/).includes('296M'))
+  assert.ok(sortie(/A second, throwaway instance/).includes('jenkins_restore_home') && sortie(/A second, throwaway instance/).includes('113 plugins restored'))
+  // Logs, plugins, performance, espace disque : tous avec des traces réelles.
+  assert.ok(sortie(/logger hudson\.model\.Queue/).includes('[log-demo] added to queue'))
+  assert.ok(sortie(/Manage Jenkins → System Information/).includes('JENKINS_HOME=/var/jenkins_home') && sortie(/Manage Jenkins → System Information/).includes('Eclipse Adoptium'))
+  assert.ok(sortie(/Plugin Manager, before and after/).includes('4.3583.v1a_a_ee48b_1b_dd') && sortie(/Plugin Manager, before and after/).includes('4.3620.v407ef5b_88f0d'))
+  assert.ok(sortie(/agent-1 reduced to 1 executor/).includes('default_jenkins_executors_busy{label="agent-1"} 1.0') && sortie(/agent-1 reduced to 1 executor/).includes('jenkins_queue_size_history'))
+  assert.ok(sortie(/Disk Space Monitoring, threshold raised/).includes('Disk space is below threshold of 10.00 GiB') && sortie(/Disk Space Monitoring, threshold raised/).includes('7.23 GiB'))
+  // Support bundle : documenté, jamais prétendu généré.
+  const bundle = tout.filter(b => b.t === 'callout' && /support bundle/i.test(JSON.stringify(b)))
+  assert.ok(bundle.some(b => /[Nn]ot run/.test(b.title ?? '') || /[Nn]ot run/.test(b.text)))
+  assert.equal(MODULE12.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {
