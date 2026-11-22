@@ -499,8 +499,36 @@ function M12Admin({ T }) {
   )
 }
 
+// Module 13 : un seul projet, huit outils déjà construits, enchaînés dans un seul pipeline réel.
+function M13Capstone({ T }) {
+  return (
+    <svg viewBox="0 0 820 400" role="img" aria-label="One real pipeline, eight stages, each reusing a tool already built in an earlier module: build and test with Maven (Module 6), a SonarQube quality gate that can abort the pipeline (Module 10), package and build the image (Module 7), a Trivy image scan with a real security gate (Module 11), publish the jar to Nexus and the image to the registry (Modules 10 and 7), deploy to the kind cluster with Helm (Module 8), an Ansible playbook that gives the project a second front door on app-1 (Modules 9 and 10), and a smoke test that checks both real doors before the pipeline calls itself done">
+      <Défs T={T} />
+      <Boite x={20} y={20} l={180} h={76} titre="Build &amp; test" lignes={['mvn test — Module 6']} couleur={BLEU} T={T} taille={14} />
+      <Boite x={220} y={20} l={180} h={76} titre="Quality gate" lignes={['SonarQube — Module 10']} couleur={VERT} T={T} taille={14} />
+      <Boite x={420} y={20} l={180} h={76} titre="Package &amp; image" lignes={['Docker build — Module 7']} couleur={AMBRE} T={T} taille={14} />
+      <Boite x={620} y={20} l={180} h={76} titre="Image scan" lignes={['Trivy — Module 11']} couleur={ROUGE} T={T} taille={14} />
+
+      <Boite x={20} y={240} l={180} h={76} titre="Publish" lignes={['Nexus + registry — M7/M10']} couleur={BLEU} T={T} taille={14} />
+      <Boite x={220} y={240} l={180} h={76} titre="Deploy" lignes={['Helm, kind cluster — M8']} couleur={VERT} T={T} taille={14} />
+      <Boite x={420} y={240} l={180} h={76} titre="Ansible" lignes={['front door on app-1 — M9/M10']} couleur={AMBRE} T={T} taille={14} />
+      <Boite x={620} y={240} l={180} h={76} titre="Smoke test" lignes={['both real doors checked']} couleur={ROUGE} T={T} taille={14} />
+
+      <Flèche d="M200,58 L216,58" T={T} />
+      <Flèche d="M400,58 L416,58" T={T} />
+      <Flèche d="M600,58 L616,58" T={T} />
+      <path d="M710,96 C710,175 110,175 110,236" fill="none" stroke={T.textMuted} strokeWidth={2} markerEnd="url(#jk-pointe)" />
+      <text x="410" y="170" textAnchor="middle" fontFamily={grotesk} fontSize={12.5} fill={T.textMuted}>0 CRITICAL, 0 HIGH — the gate never had to fire</text>
+      <Flèche d="M200,278 L216,278" T={T} />
+      <Flèche d="M400,278 L416,278" T={T} />
+      <Flèche d="M600,278 L616,278" T={T} />
+      <text x="410" y="344" textAnchor="middle" fontFamily={grotesk} fontSize={13} fill={T.textMuted}>Every stage reuses a tool, server or credential an earlier module already built — only the chain is new.</text>
+    </svg>
+  )
+}
+
 // Liste tenue à jour avec src/lib/jenkins/schemas.js (vérifié par les tests).
-const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils, 'm11-chaine': M11Chaine, 'm12-admin': M12Admin }
+const SCHÉMAS = { lab0: Lab0, boucle: Boucle, cicd: CiCd, architecture: Architecture, 'vie-build': VieBuild, entreprise: Entreprise, 'jenkins-ansible': JenkinsAnsible, 'm2-lab': M2Lab, 'm2-casc': M2Casc, 'm3-freestyle': M3Freestyle, 'm4-anatomie': M4Anatomie, 'm5-flux': M5Flux, 'm5-gitflow': M5GitFlow, 'm6-ci': M6Ci, 'm7-docker': M7Docker, 'm8-k8s': M8K8s, 'm10-outils': M10Outils, 'm11-chaine': M11Chaine, 'm12-admin': M12Admin, 'm13-capstone': M13Capstone }
 
 export default function Schema({ id, légende, T }) {
   const Dessin = SCHÉMAS[id]

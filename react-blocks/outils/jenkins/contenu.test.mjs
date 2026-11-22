@@ -20,6 +20,7 @@ import MODULE9, { COMPOSE_WEB1, DEPLOY_WEB1, SAFE_PIPELINE, LEAKY_PIPELINE, USE_
 import MODULE10, { SITE_YML, JENKINSFILE_ANSIBLE, TF_MAIN, TERRAFORM_RBAC, JENKINSFILE_TERRAFORM, JENKINSFILE_SONAR, JENKINSFILE_NEXUS, CI_SETTINGS as CI_SETTINGS_M10, PROMETHEUS_YML } from '../../src/lib/jenkins/module10.js'
 import MODULE11, { JENKINSFILE_E2E_JAVA, JENKINSFILE_E2E_DOCKER, HOST_VARS_APP2 } from '../../src/lib/jenkins/module11.js'
 import MODULE12, { JENKINSFILE_MAINTENANCE, JENKINSFILE_BACKUP, COMPOSE_OPS1 } from '../../src/lib/jenkins/module12.js'
+import MODULE13, { JENKINSFILE_CAPSTONE, ANSIBLE_CAPSTONE_PROXY, APP_JAVA, DOCKERFILE_CAPSTONE } from '../../src/lib/jenkins/module13.js'
 import CONTENU_BASES, { BASICS_FAIL } from '../../src/lib/jenkins/basics.js'
 import { PLAN_BASES, DURÉE_TOTALE, durée } from '../../src/lib/jenkins/basics-plan.js'
 import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
@@ -27,7 +28,7 @@ import { SCHÉMAS_IDS } from '../../src/lib/jenkins/schemas.js'
 const ici = dirname(fileURLToPath(import.meta.url))
 const racine = join(ici, '..', '..')
 const CAPTURES = JSON.parse(readFileSync(join(racine, 'src/lib/jenkins/captures.json'), 'utf8'))
-const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, m11: MODULE11, m12: MODULE12, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
+const CONTENUS = { lab0: LAB0, m1: MODULE1, m2: MODULE2, m3: MODULE3, m4: MODULE4, m5: MODULE5, m6: MODULE6, m7: MODULE7, m8: MODULE8, m9: MODULE9, m10: MODULE10, m11: MODULE11, m12: MODULE12, m13: MODULE13, basics: PLAN_BASES.flatMap(l => CONTENU_BASES[l.id]) }
 const TYPES = new Set(['objectives', 'h', 'h3', 'p', 'ul', 'ol', 'table', 'code', 'cmd', 'shot', 'diagram', 'callout', 'errors', 'lab', 'exercise', 'checklist', 'quiz', 'recap'])
 
 // Tous les blocs, y compris ceux des TP et exercices (étapes et corrigés).
@@ -484,6 +485,25 @@ test('module 12 : un nœud mis hors ligne et restauré pour de vrai sur une inst
   const bundle = tout.filter(b => b.t === 'callout' && /support bundle/i.test(JSON.stringify(b)))
   assert.ok(bundle.some(b => /[Nn]ot run/.test(b.title ?? '') || /[Nn]ot run/.test(b.text)))
   assert.equal(MODULE12.find(b => b.t === 'quiz').questions.length, 10)
+})
+
+test('module 13 : le projet capstone chaîne les huit outils dans un seul pipeline réel', () => {
+  const tout = [...parcourir(MODULE13)]
+  const sortie = motif => tout.find(b => b.t === 'cmd' && motif.test(b.where)).out
+  // Le Jenkinsfile complet porte bien les neuf étapes réelles, dans l'ordre.
+  assert.ok(JENKINSFILE_CAPSTONE.includes("stage('Quality gate')") && JENKINSFILE_CAPSTONE.includes('waitForQualityGate abortPipeline: true'))
+  assert.ok(JENKINSFILE_CAPSTONE.includes("stage('Ansible: front door on app-1')") && JENKINSFILE_CAPSTONE.includes("stage('Smoke test')"))
+  assert.ok(DOCKERFILE_CAPSTONE.includes('COPY target/capstone-*.jar'))
+  assert.ok(ANSIBLE_CAPSTONE_PROXY.includes('blockinfile') && ANSIBLE_CAPSTONE_PROXY.includes('hosts: app-1'))
+  assert.ok(APP_JAVA.includes('createContext("/health"'))
+  // Un seul run réel, de bout en bout : build/test/gate, scan, publish, Helm, Ansible, smoke test.
+  assert.ok(sortie(/Build\/Test\/Gate/).includes('Tests run: 14') && sortie(/Build\/Test\/Gate/).includes("Quality gate is 'OK'"))
+  assert.ok(sortie(/image scan/).includes('Security gate: 0 CRITICAL'))
+  assert.ok(sortie(/Publish \(real text/).includes('Uploaded to nexus') && sortie(/Publish \(real text/).includes('digest: sha256'))
+  assert.ok(sortie(/Helm \(real text/).includes('STATUS: deployed') && sortie(/Helm \(real text/).includes('REVISION:'))
+  assert.ok(sortie(/Ansible --diff/).includes('ANSIBLE MANAGED BLOCK') && sortie(/Ansible --diff/).includes('changed: [app-1]'))
+  assert.ok(sortie(/smoke test/).includes('cluster NodePort 30081: OK') && sortie(/smoke test/).includes('Finished: SUCCESS'))
+  assert.equal(MODULE13.find(b => b.t === 'quiz').questions.length, 10)
 })
 
 test('jenkins basics : 2 h au plus, blocs repris des modules, pipelines du Lab 0 exécutés pour de vrai', () => {

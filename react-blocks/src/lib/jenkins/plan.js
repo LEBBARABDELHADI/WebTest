@@ -113,11 +113,11 @@ export const PLAN = [
     tp: ['Lab 12.1: a new agent with labels, taken offline for maintenance', 'Lab 12.2: a backup proven by a real restore on a disposable instance', 'Exercise: logs, plugins, performance, disk space'],
   },
   {
-    id: 'm13', num: 'Module 13', titre: 'Final professional project', niveau: 'expert', durée: '10 h',
-    résumé: 'An enterprise DevOps chain: GitLab/GitHub → Jenkins → Maven → SonarQube → Docker → Nexus/Registry → Kubernetes → Ansible.',
-    objectifs: ['Design, build, validate and troubleshoot a complete enterprise pipeline'],
-    sujets: ['Architecture and diagram', 'Prerequisites', 'Configurations', 'Jenkinsfiles', 'Scripts', 'Dockerfiles', 'Kubernetes manifests', 'Ansible playbooks', 'Execution steps', 'Validation tests', 'Troubleshooting procedures'],
-    tp: ['The final project, with validation checklist'],
+    id: 'm13', num: 'Module 13', titre: 'Final professional project', niveau: 'expert', durée: '4 h', disponible: true,
+    résumé: 'One real project, "capstone", chaining all eight tools of this course in a single successful Jenkinsfile — Git, Jenkins, Maven, SonarQube, Docker, Nexus/registry, Kubernetes and, for the first time triggered inside the same run, Ansible.',
+    objectifs: ['Chain every tool of this course into one real, successful pipeline', 'Reuse working code and infrastructure deliberately instead of inventing new application logic', 'Give Ansible a genuine, triggered role inside the same pipeline that builds and deploys the project', 'Validate a finished pipeline with real evidence, and know exactly what each piece of evidence does and does not prove'],
+    sujets: ['Architecture and diagram', 'Reusing tested code honestly', 'The nine real stages', 'Validation: what each piece of evidence proves', 'Troubleshooting'],
+    tp: ['The final project: one pipeline, eight tools, start to finish'],
   },
 ]
 
