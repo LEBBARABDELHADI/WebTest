@@ -1,257 +1,257 @@
 import { useEffect, useRef, useState } from 'react'
-import { nouvelÉtat, pas, hauteurJ, étoiles, J } from '../../lib/jeux/moteur'
-import { NIVEAUX, HAUTEUR, TUILE } from '../../lib/jeux/niveaux'
-import { activer, sfx, musique, régler, estMuet } from '../../lib/jeux/audio'
+import { nouvelÉtat, pas, hauteurJ, étoiles, critères } from '../../lib/jeux/moteur'
+import { NIVEAUX, COMPTE_NIVEAUX } from '../../lib/jeux/niveaux'
+import { VUE_L, VUE_H } from '../../lib/jeux/config'
+import { créerRendu } from '../../lib/jeux/rendu'
+import { créerEffets } from '../../lib/jeux/effets'
+import { créerCaméra, majCaméra, recaler } from '../../lib/jeux/camera'
+import { créerEntrées } from '../../lib/jeux/entrees'
+import * as audio from '../../lib/jeux/audio'
 
-const W = 640, H = HAUTEUR * TUILE
-const CLAVIER = { ArrowLeft: 'gauche', KeyA: 'gauche', KeyQ: 'gauche', ArrowRight: 'droite', KeyD: 'droite', Space: 'saut', ArrowUp: 'saut', KeyW: 'saut', KeyZ: 'saut', ShiftLeft: 'course', ShiftRight: 'course', KeyX: 'course' }
-const INTRO = 110
+const INTRO = 100
+const PAS = 1000 / 60
+const SFX = { saut: 'saut', pièce: 'piece', bloc: 'bloc', coup: 'coup', brique: 'brique', écrase: 'ecrase', rapetisse: 'degat', mort: 'mort', agrandir: 'agrandir', bonus: 'piece', point: 'point', vie: 'vie', secret: 'secret', atterrit: 'atterrit', victoire_mat: 'victoire_mat' }
+const AIDES = { clavier: 'FLECHES : BOUGER   ESPACE : SAUTER   MAJ : COURIR', tactile: 'CROIX : BOUGER   A : SAUTER   B : COURIR', manette: 'STICK : BOUGER   A : SAUTER   X : COURIR' }
+const GB = { fond: '#0f380f', moyen: '#306230', clair: '#8bac0f', pâle: '#9bbc0f' }
 
-function dessiner(g, s, cam, parts, textes, t, intro, shake) {
-  const th = NIVEAUX[s.niveau].thème
-  g.save()
-  if (shake > 0) g.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake)
-  const ciel = g.createLinearGradient(0, 0, 0, H); ciel.addColorStop(0, th.ciel[0]); ciel.addColorStop(1, th.ciel[1])
-  g.fillStyle = ciel; g.fillRect(-10, -10, W + 20, H + 20)
-  if (th.nuit) {
-    g.fillStyle = '#fff'
-    for (let i = 0; i < 40; i++) { const x = (i * 97 + 13) % W, y = (i * 53 + 7) % 200; g.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(t / 700 + i)); g.fillRect(x - cam * 0.03 % W, y, 2, 2) }
-    g.globalAlpha = 1; g.fillStyle = '#f4f1d0'; g.beginPath(); g.arc(540, 60, 26, 0, 7); g.fill(); g.fillStyle = th.ciel[0]; g.beginPath(); g.arc(550, 54, 22, 0, 7); g.fill()
-  }
-  g.fillStyle = th.nuage
-  for (let i = 0; i < 12; i++) { const x = ((i * 260 - cam * 0.2) % (W + 300) + W + 300) % (W + 300) - 100, y = 30 + (i * 37) % 80; g.beginPath(); g.ellipse(x, y, 42, 16, 0, 0, 7); g.ellipse(x + 26, y - 8, 30, 14, 0, 0, 7); g.ellipse(x - 26, y - 4, 26, 12, 0, 0, 7); g.fill() }
-  g.fillStyle = th.colline
-  for (let i = 0; i < 10; i++) { const x = ((i * 300 - cam * 0.5) % (W + 400) + W + 400) % (W + 400) - 150; g.beginPath(); g.ellipse(x, 9 * TUILE, 130, 90 - (i % 3) * 14, 0, Math.PI, 0); g.fill() }
-  g.save(); g.translate(-Math.round(cam), 0)
-  const c0 = Math.max(0, Math.floor(cam / TUILE)), c1 = Math.min(s.largeur - 1, c0 + W / TUILE + 1)
-  for (let r = 0; r < HAUTEUR; r++) for (let c = c0; c <= c1; c++) {
-    const ch = s.grille[r][c]; if (ch === '.') continue
-    const x = c * TUILE; let y = r * TUILE
-    const b = s.bosse.find(q => q.c === c && q.r === r); if (b) y -= Math.sin((b.t / 8) * Math.PI) * 8
-    if (ch === '#') { const herbe = r === 0 || s.grille[r - 1][c] !== '#'; g.fillStyle = th.terre; g.fillRect(x, y, TUILE, TUILE); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x, y + TUILE - 4, TUILE, 4); if (herbe) { g.fillStyle = th.herbe[0]; g.fillRect(x, y, TUILE, 8); g.fillStyle = th.herbe[1]; g.fillRect(x, y, TUILE, 3) } }
-    else if (ch === 'B' || ch === '=') { g.fillStyle = ch === 'B' ? '#c8693a' : '#8a6bd1'; g.fillRect(x, y, TUILE, TUILE); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 2; g.strokeRect(x + 1, y + 1, TUILE - 2, TUILE - 2); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x + 2, y + 2, TUILE - 4, 4) }
-    else if (ch === '?' || ch === 'M' || ch === 'U') { g.fillStyle = ch === 'U' ? '#8c8c8c' : '#f7b733'; g.fillRect(x, y, TUILE, TUILE); g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 2; g.strokeRect(x + 1, y + 1, TUILE - 2, TUILE - 2); if (ch !== 'U') { g.fillStyle = '#fff'; g.font = 'bold 22px sans-serif'; g.textAlign = 'center'; g.fillText('?', x + 16, y + 24 + Math.sin(t / 200 + c) * 0) } }
-    else if (ch === 'P') { const haut = s.grille[r - 1]?.[c] !== 'P'; const gauche = s.grille[r]?.[c - 1] !== 'P'; g.fillStyle = '#2fa84f'; g.fillRect(haut ? x - 2 : x, y, TUILE + (haut ? 4 : 0), TUILE); g.fillStyle = 'rgba(255,255,255,.28)'; g.fillRect(gauche ? x + 4 : x + 4, y, 5, TUILE); g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(x + TUILE - 6, y, 6, TUILE); if (haut) { g.strokeStyle = '#17692e'; g.lineWidth = 2; g.strokeRect(x - 1, y + 1, TUILE + 2, TUILE - 2) } }
-    else if (ch === 'C') { const w = Math.abs(Math.cos(t / 220 + c)) * 9 + 2; g.fillStyle = '#ffd23f'; g.beginPath(); g.ellipse(x + 16, y + 16, w, 11, 0, 0, 7); g.fill(); g.strokeStyle = '#c99a00'; g.lineWidth = 2; g.stroke() }
-    else if (ch === 'K') { const actif = s.point >= c; g.fillStyle = '#d9d9d9'; g.fillRect(x + 14, y, 4, TUILE); if (s.grille[r - 1]?.[c] !== 'K') { g.fillStyle = actif ? '#2fbf5b' : '#8d8d8d'; g.beginPath(); g.moveTo(x + 18, y + 2); g.lineTo(x + 34, y + 9); g.lineTo(x + 18, y + 16); g.fill() } }
-    else if (ch === 'F') { if (s.grille[r - 1][c] !== 'F') { g.fillStyle = '#e63946'; g.beginPath(); g.moveTo(x + 14, y); g.lineTo(x - 14, y + 10 + Math.sin(t / 180) * 2); g.lineTo(x + 14, y + 20); g.fill() } g.fillStyle = '#e9e9e9'; g.fillRect(x + 13, y, 5, TUILE) }
-  }
-  for (const m of s.objets) { g.fillStyle = '#f4f4f4'; g.beginPath(); g.ellipse(m.x + 12, m.y + 18, 8, 7, 0, 0, 7); g.fill(); g.fillStyle = '#e63946'; g.beginPath(); g.ellipse(m.x + 12, m.y + 10, 13, 10, 0, Math.PI, 0); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(m.x + 7, m.y + 7, 3, 0, 7); g.arc(m.x + 17, m.y + 6, 3, 0, 7); g.fill() }
-  for (const e of s.ennemis) {
-    if (!e.vivant && e.écrasé <= 0) continue
-    const h = e.vivant ? e.h : 8, y = e.y + e.h - h
-    if (e.type === 'pic') {
-      g.fillStyle = '#b4232f'; g.beginPath(); g.ellipse(e.x + 13, y + h / 2 + 2, 14, h / 2 + 2, 0, 0, 7); g.fill()
-      if (e.vivant) { g.fillStyle = '#f4f4f4'; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(e.x + 2 + k * 7, y + 6); g.lineTo(e.x + 5.5 + k * 7, y - 5); g.lineTo(e.x + 9 + k * 7, y + 6); g.fill() } g.fillStyle = '#fff'; g.fillRect(e.x + 6, y + 10, 5, 5); g.fillRect(e.x + 15, y + 10, 5, 5); g.fillStyle = '#111'; g.fillRect(e.x + 8 + e.dir, y + 12, 2, 3); g.fillRect(e.x + 17 + e.dir, y + 12, 2, 3) }
-    } else {
-      g.fillStyle = '#8b4a2b'; g.beginPath(); g.ellipse(e.x + 13, y + h / 2 + 2, 14, h / 2 + 2, 0, 0, 7); g.fill()
-      if (e.vivant) { g.fillStyle = '#fff'; g.fillRect(e.x + 6, y + 6, 5, 6); g.fillRect(e.x + 15, y + 6, 5, 6); g.fillStyle = '#111'; g.fillRect(e.x + 8 + e.dir, y + 8, 2, 3); g.fillRect(e.x + 17 + e.dir, y + 8, 2, 3); const p = Math.sin(t / 90) * 3; g.fillStyle = '#3b2314'; g.fillRect(e.x + 3 + p, y + h - 2, 7, 4); g.fillRect(e.x + 16 - p, y + h - 2, 7, 4) }
-    }
-  }
-  // joueur : coordonnées locales, origine aux pieds, étirement/écrasement selon la vitesse verticale
-  if (!(s.invuln > 0 && Math.floor(s.invuln / 4) % 2 === 0 && s.statut === 'jeu')) {
-    const h = hauteurJ(s), k = h / 30, air = !s.sol && s.statut !== 'mort'
-    const sy = air ? 1 + Math.max(-0.12, Math.min(0.14, -s.vy * 0.016)) : 1, sx = 1 / sy
-    const marche = s.sol && Math.abs(s.vx) > 0.6 ? Math.sin(t / 55) * 3.5 : 0
-    g.save(); g.translate(s.x + J.w / 2, s.y + h); g.scale(s.dir * k * sx, k * sy)
-    if (s.statut === 'mort') g.rotate(Math.sin(s.mortT / 5) * 0.4)
-    g.fillStyle = '#2b4acb'; g.fillRect(-8, -14, 16, 9); g.fillRect(-8 + marche, -7, 7, 7); g.fillRect(1 - marche, -7, 7, 7)
-    g.fillStyle = '#3b2314'; g.fillRect(-9 + marche, -2, 8, 3); g.fillRect(1 - marche, -2, 8, 3)
-    g.fillStyle = '#e63946'; g.fillRect(-9, -22, 18, 9)
-    g.fillStyle = '#f2c29b'; g.fillRect(air ? 7 : -12, air ? -26 : -18, 5, 4); g.fillRect(-7, -29, 14, 9)
-    g.fillStyle = '#e63946'; g.fillRect(-9, -32, 18, 6); g.fillRect(2, -27, 10, 3)
-    g.fillStyle = '#111'; g.fillRect(2, -25, 2, 3); g.fillStyle = '#4a2a14'; g.fillRect(1, -21, 8, 2)
-    g.restore()
-  }
-  for (const p of parts) { g.globalAlpha = Math.max(0, p.vie / 30); g.fillStyle = p.c; g.fillRect(p.x, p.y, p.t || 4, p.t || 4) }
-  g.globalAlpha = 1
-  g.font = 'bold 15px sans-serif'; g.textAlign = 'center'
-  for (const tx of textes) { g.globalAlpha = Math.min(1, tx.vie / 20); g.fillStyle = '#000'; g.fillText(tx.txt, tx.x + 1, tx.y + 1); g.fillStyle = '#fff'; g.fillText(tx.txt, tx.x, tx.y) }
-  g.globalAlpha = 1
-  g.restore()
-  g.restore()
-  // HUD
-  g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, 0, W, 26)
-  g.fillStyle = '#fff'; g.font = 'bold 14px sans-serif'; g.textAlign = 'left'
-  g.fillText(`❤ ${s.vies}${s.grand ? '  🍄' : ''}   🪙 ${s.pièces}/${s.piècesTotal}`, 10, 18); g.textAlign = 'center'; g.fillText(`★ ${s.score}`, W / 2, 18); g.textAlign = 'right'; g.fillText(`⏱ ${Math.floor(s.temps / 60)} s`, W - 112, 18)
-  if (intro > 0) {
-    const a = Math.min(1, intro / 25, (INTRO - intro) / 12 + 0.2)
-    g.fillStyle = `rgba(0,0,0,${0.55 * a})`; g.fillRect(0, 0, W, H)
-    g.globalAlpha = a; g.fillStyle = '#fff'; g.textAlign = 'center'
-    g.font = 'bold 18px sans-serif'; g.fillText(`NIVEAU ${s.niveau + 1}`, W / 2, H / 2 - 22)
-    g.font = 'italic 40px Georgia, serif'; g.fillText(NIVEAUX[s.niveau].nom, W / 2, H / 2 + 20)
-    g.font = '14px sans-serif'; g.fillText('Touche pour commencer', W / 2, H / 2 + 52); g.globalAlpha = 1
-  }
+const pref = (k, déf) => { try { const v = localStorage.getItem(k); return v === null ? déf : v } catch { return déf } }
+
+function BoutonCoin({ lib, ico, onClick }) {
+  return <button type="button" onClick={onClick} aria-label={lib} title={lib} style={{ width: 'calc(var(--k, 3px) * 11)', height: 'calc(var(--k, 3px) * 9)', minWidth: 22, minHeight: 20, padding: 0, border: `1px solid ${GB.pâle}`, background: 'rgba(15,56,15,.7)', color: GB.pâle, fontSize: 'max(11px, calc(var(--k, 3px) * 6))', fontWeight: 900, fontFamily: 'ui-monospace, monospace', cursor: 'pointer' }}>{ico}</button>
 }
 
-export default function Plateforme({ T, niveau, aSuivant, onFin, onSuivant, onMenu }) {
-  const conteneur = useRef(null), cv = useRef(null)
-  const etat = useRef(nouvelÉtat(niveau)), ent = useRef({}), parts = useRef([]), textes = useRef([]), fini = useRef(false), pauseRef = useRef(false)
-  const cam = useRef({ x: 0, look: 0 }), intro = useRef(INTRO), secousse = useRef(0), échelle = useRef(1), onFinRef = useRef(onFin)
+export default function Plateforme({ niveau, aSuivant, meilleur, profilNiveaux, onFin, onSuivant, onMenu }) {
+  const conteneur = useRef(null), zone = useRef(null), cv = useRef(null)
+  const jeu = useRef(null)          // tout l'état mutable du jeu (hors React)
   const [fin, setFin] = useState(null)
   const [pause, setPause] = useState(false)
-  const [muet, setMuet] = useState(estMuet)
-  const [plein, setPlein] = useState(() => { try { return localStorage.getItem('react-blocs-jeux-grand') !== '0' } catch { return true } })
-  const [portrait, setPortrait] = useState(() => window.matchMedia?.('(orientation: portrait)').matches)
-  const pleinRef = useRef(plein), réel = useRef(false), essayé = useRef(false), basculerRef = useRef(() => {})
-  pleinRef.current = plein
-  const [tactile] = useState(() => window.matchMedia?.('(pointer: coarse)').matches)
-  onFinRef.current = onFin
-  const réduit = useRef(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const [plein, setPlein] = useState(() => pref('react-blocs-jeux-grand', '1') !== '0')
+  const [portrait, setPortrait] = useState(() => !!window.matchMedia?.('(orientation: portrait)').matches)
+  const [tactile] = useState(() => !!window.matchMedia?.('(pointer: coarse)').matches)
+  const [vol, setVol] = useState(() => ({ musique: audio.volume('musique'), effets: audio.volume('effets'), muet: audio.estMuet() }))
+  const [toast, setToast] = useState('')
+  const [appareil, setAppareil] = useState('clavier')
+  const [manette, setManette] = useState(null)
+  const pleinRef = useRef(plein), pauseRef = useRef(false), finRef = useRef(null), réel = useRef(false), essayé = useRef(false)
+  const surFin = useRef(onFin), basculerRef = useRef(() => {}), pauseFnRef = useRef(() => {})
 
-  const basculerPause = v => { pauseRef.current = v; setPause(v); musique(!v && !muet, niveau) }
-  const recommencer = () => { etat.current = nouvelÉtat(niveau); parts.current = []; textes.current = []; fini.current = false; intro.current = INTRO; cam.current = { x: 0, look: 0 }; setFin(null); basculerPause(false) }
+  const montrer = t => { setToast(t); clearTimeout(montrer.id); montrer.id = setTimeout(() => setToast(''), 2600) }
 
-  useEffect(() => {
-    if (!plein) return
-    const a = document.body.style.overflow, b = document.documentElement.style.overscrollBehavior
-    document.body.style.overflow = 'hidden'; document.documentElement.style.overscrollBehavior = 'none'
-    return () => { document.body.style.overflow = a; document.documentElement.style.overscrollBehavior = b }
-  }, [plein])
-
-  useEffect(() => {
-    const clavier = (v, e) => {
-      if (e.code === 'Escape' || e.code === 'KeyP') { if (v && !e.repeat && !fini.current) basculerPause(!pauseRef.current); e.preventDefault(); return }
-      if (e.code === 'KeyF') { if (v && !e.repeat) basculerRef.current(); e.preventDefault(); return }
-      const k = CLAVIER[e.code]; if (!k) return
-      ent.current[k] = v; e.preventDefault()
-      if (v) { activer(); essayerPleinÉcran(); if (intro.current > 0 && intro.current < INTRO - 20) intro.current = 0 }
-    }
-    const bas = e => clavier(true, e), haut = e => clavier(false, e)
-    const cacher = () => { if (document.hidden && !fini.current) basculerPause(true) }
-    window.addEventListener('keydown', bas); window.addEventListener('keyup', haut); document.addEventListener('visibilitychange', cacher)
-    const obs = new ResizeObserver(() => { const cssW = cv.current.clientWidth; échelle.current = Math.min(3, Math.max(1, (cssW * (window.devicePixelRatio || 1)) / W)); cv.current.width = Math.round(W * échelle.current); cv.current.height = Math.round(H * échelle.current) })
-    obs.observe(cv.current)
-    const g = cv.current.getContext('2d')
-    if (import.meta.env.DEV) window.__jeu = etat
-    let id, dernier = performance.now(), reste = 0, boutonPause = false
-    const boucle = now => {
-      const gp = navigator.getGamepads?.()[0], s = etat.current
-      const clavierEnt = { ...ent.current }
-      if (gp) {
-        const ax = gp.axes[0] || 0
-        if (ax < -0.35 || gp.buttons[14]?.pressed) clavierEnt.gauche = true
-        if (ax > 0.35 || gp.buttons[15]?.pressed) clavierEnt.droite = true
-        if (gp.buttons[0]?.pressed || gp.buttons[3]?.pressed) clavierEnt.saut = true
-        if (gp.buttons[1]?.pressed || gp.buttons[2]?.pressed || gp.buttons[7]?.pressed) clavierEnt.course = true
-        const start = !!gp.buttons[9]?.pressed
-        if (start && !boutonPause && !fini.current) basculerPause(!pauseRef.current)
-        boutonPause = start
-        if (Object.values(clavierEnt).some(Boolean)) activer()
-        if ((clavierEnt.saut || clavierEnt.gauche || clavierEnt.droite) && intro.current > 0 && intro.current < INTRO - 20) intro.current = 0
-      }
-      reste += Math.min(100, now - dernier); dernier = now
-      while (reste >= 1000 / 60) {
-        reste -= 1000 / 60
-        if (pauseRef.current) continue
-        if (intro.current > 0) { intro.current--; if (intro.current === 0) musique(!estMuet(), niveau); continue }
-        pas(s, clavierEnt)
-        for (const ev of s.événements) {
-          sfx(ev.t === 'écrase' ? 'écrase' : ev.t === 'victoire' ? 'victoire' : ev.t)
-          if (ev.t === 'mort') { musique(false); navigator.vibrate?.(40); secousse.current = réduit.current ? 0 : 10 }
-          if (ev.t === 'rapetisse') { navigator.vibrate?.(30); secousse.current = réduit.current ? 0 : 8 }
-          if (ev.t === 'écrase') secousse.current = réduit.current ? 0 : 3
-          if (ev.t === 'victoire') { musique(false); navigator.vibrate?.([30, 40, 60]) }
-          if (ev.pts) textes.current.push({ x: ev.x, y: ev.y, txt: `+${ev.pts}`, vie: 45 })
-          if (ev.t === 'point') textes.current.push({ x: ev.x, y: ev.y - 10, txt: 'Point de passage !', vie: 70 })
-          if (ev.t === 'agrandir') textes.current.push({ x: ev.x, y: ev.y - 14, txt: 'Grand !', vie: 60 })
-          const n = ev.t === 'pièce' ? 7 : ev.t === 'atterrit' || ev.t === 'saut' ? 4 : ev.t === 'brique' ? 10 : ev.t === 'écrase' ? 8 : 0
-          for (let i = 0; i < n; i++) parts.current.push({ x: ev.x, y: ev.y, vx: (Math.random() - 0.5) * (ev.t === 'saut' || ev.t === 'atterrit' ? 3 : 4.5), vy: ev.t === 'saut' || ev.t === 'atterrit' ? -Math.random() * 1.2 : -Math.random() * 4, vie: 30, c: ev.t === 'pièce' ? '#ffd23f' : ev.t === 'brique' ? '#c8693a' : '#e8e8e8', t: ev.t === 'saut' || ev.t === 'atterrit' ? 3 : 4 })
-        }
-        if (s.statut === 'jeu' && s.sol && Math.abs(s.vx) > 3 && s.temps % 6 === 0) parts.current.push({ x: s.x + 10, y: s.y + hauteurJ(s), vx: -s.dir * Math.random(), vy: -Math.random() * 0.6, vie: 18, c: 'rgba(235,235,235,.8)', t: 3 })
-        parts.current = parts.current.filter(p => p.vie > 0).map(p => ({ ...p, x: p.x + p.vx, y: p.y + p.vy, vy: p.vy + 0.2, vie: p.vie - 1 }))
-        textes.current = textes.current.filter(t => t.vie > 0).map(t => ({ ...t, y: t.y - 0.7, vie: t.vie - 1 }))
-        if (secousse.current > 0) secousse.current = Math.max(0, secousse.current - 0.6)
-        const cible = Math.max(0, Math.min(s.largeur * TUILE - W, s.x + J.w / 2 - W / 2 + cam.current.look))
-        cam.current.look += (s.dir * 60 - cam.current.look) * 0.03
-        cam.current.x += (cible - cam.current.x) * (s.statut === 'mort' ? 0 : 0.14)
-        if (s.statut !== 'jeu' && s.statut !== 'mort' && !fini.current) {
-          fini.current = true
-          const bilan = { statut: s.statut, score: s.score, pièces: s.pièces, total: s.piècesTotal, temps: s.temps, étoiles: étoiles(s), mortsNiveau: s.mortsNiveau, écrasés: s.écrasés, aGrandi: s.aGrandi }
-          if (s.statut === 'perdu') { musique(false); sfx('mort') }
-          setTimeout(() => { setFin(bilan); onFinRef.current?.(bilan) }, s.statut === 'gagné' ? 900 : 300)
-        }
-      }
-      g.setTransform(échelle.current, 0, 0, échelle.current, 0, 0)
-      dessiner(g, s, cam.current.x, parts.current, textes.current, now, intro.current, secousse.current)
-      id = requestAnimationFrame(boucle)
-    }
-    cam.current.x = Math.max(0, Math.min(etat.current.largeur * TUILE - W, etat.current.x - W / 2))
-    id = requestAnimationFrame(boucle)
-    const changerPlein = () => { if (!document.fullscreenElement && réel.current) { réel.current = false; setPlein(false); try { localStorage.setItem('react-blocs-jeux-grand', '0') } catch { /* ignore */ } } }
-    const orientation = window.matchMedia?.('(orientation: portrait)'); const surOrientation = e => { setPortrait(e.matches); if (e.matches && tactile && pleinRef.current && !fini.current) basculerPause(true) }
-    orientation?.addEventListener?.('change', surOrientation)
-    document.addEventListener('fullscreenchange', changerPlein)
-    return () => { cancelAnimationFrame(id); obs.disconnect(); musique(false); window.removeEventListener('keydown', bas); window.removeEventListener('keyup', haut); document.removeEventListener('visibilitychange', cacher); document.removeEventListener('fullscreenchange', changerPlein); orientation?.removeEventListener?.('change', surOrientation) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [niveau])
-
+  // ---------- plein écran (API réelle sur le document + repli CSS pour iOS) ----------
   const entrerPleinÉcran = async () => {
     const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen
     if (!f || document.fullscreenElement) return
-    try { réel.current = true; await f.call(el); try { await screen.orientation?.lock?.('landscape') } catch { /* verrou non supporté */ } } catch { réel.current = false }
+    try { réel.current = true; await f.call(el); try { await screen.orientation?.lock?.('landscape') } catch { /* non supporté */ } } catch { réel.current = false }
   }
-  function essayerPleinÉcran() { if (pleinRef.current && !essayé.current && !document.fullscreenElement) { essayé.current = true; entrerPleinÉcran() } }
+  const essayerPleinÉcran = () => { if (pleinRef.current && !essayé.current && !document.fullscreenElement) { essayé.current = true; entrerPleinÉcran() } }
   const basculerPlein = async () => {
     const v = !pleinRef.current
     setPlein(v); try { localStorage.setItem('react-blocs-jeux-grand', v ? '1' : '0') } catch { /* ignore */ }
     if (v) { essayé.current = true; await entrerPleinÉcran() } else { réel.current = false; if (document.fullscreenElement) await document.exitFullscreen().catch(() => {}) }
   }
-  basculerRef.current = basculerPlein
-  const basculerMuet = () => { const v = !muet; setMuet(v); régler(v); activer(); musique(!v && !pauseRef.current && intro.current === 0 && !fini.current, niveau) }
 
-  const touche = (k, lib, extra = {}) => (
-    <button aria-label={lib} onContextMenu={e => e.preventDefault()}
-      onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); ent.current[k] = true; activer(); essayerPleinÉcran(); if (intro.current > 0 && intro.current < INTRO - 20) intro.current = 0; navigator.vibrate?.(8) }}
-      onPointerUp={() => { ent.current[k] = false }} onPointerCancel={() => { ent.current[k] = false }}
-      style={{ width: 70, height: 70, borderRadius: 35, border: '2px solid rgba(255,255,255,.55)', background: 'rgba(20,20,30,.5)', color: '#fff', fontSize: 26, fontWeight: 800, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', ...extra }}>{lib}</button>
+  const définirPause = v => {
+    if (finRef.current || pauseRef.current === v) return
+    pauseRef.current = v; setPause(v)
+    jeu.current?.entrées.vider()
+    if (v) { audio.suspendre(); audio.sfx('pause') } else { audio.reprendre(); audio.sfx('reprise') }
+  }
+  useEffect(() => { surFin.current = onFin; pleinRef.current = plein; basculerRef.current = basculerPlein; pauseFnRef.current = définirPause })
+
+  const recommencer = () => {
+    const J = jeu.current; if (!J) return
+    J.s = nouvelÉtat(niveau); J.fx.vider(); recaler(J.cam, J.s); J.intro = INTRO; J.iris = { r: 0, vers: 220, v: 7 }
+    finRef.current = null; setFin(null); J.musiqueOn = false
+    pauseRef.current = false; setPause(false); audio.reprendre()
+  }
+  const quitterVers = (cb) => { const J = jeu.current; if (!J) return cb(); J.iris = { r: J.iris?.r ?? 220, vers: 0, v: -8, après: cb, cx: VUE_L / 2, cy: VUE_H / 2 } }
+
+  // ---------- boucle de jeu ----------
+  useEffect(() => {
+    const s0 = nouvelÉtat(niveau)
+    const entrées = créerEntrées({
+      pause: () => pauseFnRef.current(!pauseRef.current),
+      plein: () => basculerRef.current(),
+      muet: () => { const v = !audio.estMuet(); audio.régler(v); setVol(x => ({ ...x, muet: v })) },
+      geste: () => { audio.activer(); essayerPleinÉcran(); if (J.intro > 0 && J.intro < INTRO - 20) J.intro = 0 },
+      caché: () => pauseFnRef.current(true),
+      bloqué: () => pauseRef.current || !!finRef.current,
+      manette: (ok, id) => { setManette(ok ? id : null); montrer(ok ? 'Manette connectée' : 'Manette déconnectée — jeu en pause'); if (!ok) pauseFnRef.current(true) },
+    })
+    const J = jeu.current = { s: s0, cam: créerCaméra(s0), fx: créerEffets(), rendu: créerRendu(niveau), entrées, intro: INTRO, iris: { r: 0, vers: 220, v: 7 }, musiqueOn: false, reste: 0, dernier: performance.now(), id: 0 }
+    J.fx.réduit = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (import.meta.env.DEV) { window.__jeu = { get état() { return J.s }, entrées, J } }
+    entrées.attacher()
+    const g = cv.current.getContext('2d', { alpha: false })
+    g.imageSmoothingEnabled = false
+
+    // échelle entière : pixels nets (le canvas garde 256×144, seul son affichage change)
+    const ajuster = () => {
+      const dpr = window.devicePixelRatio || 1
+      const wrap = zone.current; if (!wrap) return
+      const dispoL = wrap.clientWidth, dispoH = pleinRef.current ? window.innerHeight : Math.max(140, window.innerHeight - 190)
+      let k = Math.floor(Math.min(dispoL * dpr / VUE_L, dispoH * dpr / VUE_H))
+      const cssL = k >= 1 ? (VUE_L * k) / dpr : Math.min(dispoL, (dispoH * VUE_L) / VUE_H)
+      cv.current.style.width = cssL + 'px'; cv.current.style.height = (cssL * VUE_H) / VUE_L + 'px'
+      cv.current.parentElement.style.setProperty('--k', cssL / VUE_L + 'px')
+    }
+    const obs = new ResizeObserver(ajuster); obs.observe(zone.current); window.addEventListener('resize', ajuster)
+    ajuster()
+
+    const orient = window.matchMedia?.('(orientation: portrait)')
+    const surOrient = e => { setPortrait(e.matches); if (e.matches && tactile && pleinRef.current) pauseFnRef.current(true) }
+    orient?.addEventListener?.('change', surOrient)
+    const changerPlein = () => { if (!document.fullscreenElement && réel.current) { réel.current = false; setPlein(false); try { localStorage.setItem('react-blocs-jeux-grand', '0') } catch { /* ignore */ } } ajuster() }
+    document.addEventListener('fullscreenchange', changerPlein)
+
+    const pasLogique = () => {
+      const s = J.s
+      if (J.intro > 0) { J.intro--; if (J.intro > 0) return }
+      if (!J.musiqueOn && s.statut === 'jeu') { J.musiqueOn = true; audio.musique(true, niveau) }
+      const e = entrées.lire()
+      if (e.appareil !== J.appareil) { J.appareil = e.appareil; setAppareil(e.appareil) }
+      pas(s, e)
+      for (let i = 0; i < s.événements.length; i++) {
+        const ev = s.événements[i]
+        const son = SFX[ev.t]; if (son) audio.sfx(son)
+        J.fx.sur(ev)
+        if (ev.t === 'mort') { audio.musique(false); J.musiqueOn = false; navigator.vibrate?.(40) }
+        else if (ev.t === 'rapetisse') navigator.vibrate?.(30)
+        else if (ev.t === 'réapparition') { recaler(J.cam, s); J.iris = { r: 0, vers: 220, v: 7, cx: s.x + 5 - J.cam.x, cy: s.y - J.cam.y }; J.musiqueOn = true; audio.musique(true, niveau) }
+        else if (ev.t === 'victoire_mat') { audio.musique(false); J.musiqueOn = false; navigator.vibrate?.([30, 40, 60]) }
+        else if (ev.t === 'résultats') audio.jingle(niveau === COMPTE_NIVEAUX - 1 ? 'final' : 'niveau')
+        else if (ev.t === 'perdu') audio.jingle('perdu')
+      }
+      if (s.statut === 'mort' && s.mortT === 38) J.iris = { r: 220, vers: 0, v: -7, cx: s.x + 5 - J.cam.x, cy: s.y - J.cam.y }
+      if (s.statut === 'jeu' && s.sol && Math.abs(s.vx) > 1.7 && s.temps % 7 === 0) J.fx.particule(0, s.x + 5 - s.dir * 3, s.y + hauteurJ(s), -s.dir * 0.3, -0.2, 14, 0.01)
+      J.fx.maj(); majCaméra(J.cam, s)
+      if ((s.statut === 'gagné' || s.statut === 'perdu') && !finRef.current) {
+        const bilan = { statut: s.statut, score: s.score, pièces: s.pièces, total: s.piècesTotal, temps: s.temps, étoiles: étoiles(s), critères: critères(s), mortsNiveau: s.mortsNiveau, écrasés: s.écrasés, aGrandi: s.aGrandi, secrets: s.secrets, secretsTotal: s.secretsTotal, comboMax: s.comboMax, bonus: s.bonus, par: s.par, niveau }
+        finRef.current = bilan; J.finT = 0
+        setTimeout(() => { setFin(bilan); surFin.current?.(bilan) }, s.statut === 'gagné' ? 1100 : 600)
+      }
+    }
+
+    const boucle = now => {
+      J.id = requestAnimationFrame(boucle)
+      J.reste += Math.min(100, now - J.dernier); J.dernier = now
+      if (!pauseRef.current) while (J.reste >= PAS) { J.reste -= PAS; pasLogique() } else { J.reste = 0; entrées.sonder() }
+      // transition en iris
+      const ir = J.iris
+      if (ir) {
+        ir.r += ir.v
+        if ((ir.v > 0 && ir.r >= ir.vers) || (ir.v < 0 && ir.r <= ir.vers)) { ir.r = ir.vers; if (ir.après) { const f = ir.après; ir.après = null; f() } if (ir.v > 0) J.iris = null }
+      }
+      const s = J.s
+      const aide = niveau === 0 && s.statut === 'jeu' && s.temps < 420 && J.intro === 0 ? AIDES[J.appareil || 'clavier'] : null
+      const ui = { intro: J.intro, aide, iris: J.iris ? { r: J.iris.r, cx: J.iris.cx ?? Math.round(s.x + 5 - J.cam.x), cy: J.iris.cy ?? Math.round(s.y - J.cam.y) } : null }
+      J.rendu.dessiner(g, s, J.cam, J.fx, now, ui)
+    }
+    J.id = requestAnimationFrame(boucle)
+    return () => {
+      cancelAnimationFrame(J.id); obs.disconnect(); window.removeEventListener('resize', ajuster); entrées.détacher(); audio.musique(false)
+      orient?.removeEventListener?.('change', surOrient); document.removeEventListener('fullscreenchange', changerPlein)
+      jeu.current = null; if (import.meta.env.DEV) delete window.__jeu
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [niveau])
+
+  useEffect(() => {
+    if (!plein) return
+    const a = document.body.style.overflow, b = document.documentElement.style.overscrollBehavior
+    document.body.style.overflow = 'hidden'; document.documentElement.style.overscrollBehavior = 'none'
+    jeu.current && zone.current && window.dispatchEvent(new Event('resize'))
+    return () => { document.body.style.overflow = a; document.documentElement.style.overscrollBehavior = b; window.dispatchEvent(new Event('resize')) }
+  }, [plein])
+
+  // ---------- commandes tactiles : croix glissante + A/B ----------
+  const croix = useRef(null)
+  const surCroix = e => {
+    const J = jeu.current; if (!J) return
+    if (e.type === 'pointerup' || e.type === 'pointercancel' || e.type === 'lostpointercapture') { J.entrées.toucherTactile('gauche', false); J.entrées.toucherTactile('droite', false); return }
+    const r = croix.current.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5
+    J.entrées.toucherTactile('gauche', x < -0.08); J.entrées.toucherTactile('droite', x > 0.08)
+  }
+  const bouton = (k, lib, taille, extra = {}) => (
+    <button type="button" aria-label={k === 'saut' ? 'Sauter' : 'Courir'} onContextMenu={e => e.preventDefault()}
+      onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); jeu.current?.entrées.toucherTactile(k, true); navigator.vibrate?.(8) }}
+      onPointerUp={() => jeu.current?.entrées.toucherTactile(k, false)} onPointerCancel={() => jeu.current?.entrées.toucherTactile(k, false)}
+      style={{ width: taille, height: taille, borderRadius: taille / 2, border: `3px solid ${GB.pâle}`, background: 'rgba(15,56,15,.6)', color: GB.pâle, fontSize: taille / 3, fontWeight: 900, fontFamily: 'ui-monospace, monospace', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', ...extra }}>{lib}</button>
   )
-  const petit = { width: 40, height: 40, borderRadius: 20, border: '1px solid rgba(255,255,255,.4)', background: 'rgba(20,20,30,.55)', color: '#fff', fontSize: 17, cursor: 'pointer', display: 'grid', placeItems: 'center' }
-  const btn = (plein = false) => ({ minHeight: 46, padding: '0 20px', borderRadius: 12, border: plein ? 'none' : '1px solid rgba(255,255,255,.5)', background: plein ? '#ffd23f' : 'transparent', color: plein ? '#222' : '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' })
+
+  const changerVolume = (type, v) => { audio.régler_volume(type, v); setVol(x => ({ ...x, [type]: v })) }
+  const style = { fontFamily: 'ui-monospace, "Courier New", monospace', textTransform: 'uppercase', letterSpacing: '.04em' }
+  const btn = (plein = false) => ({ ...style, minHeight: 44, minWidth: 140, padding: '0 16px', border: `3px solid ${GB.pâle}`, background: plein ? GB.pâle : GB.fond, color: plein ? GB.fond : GB.pâle, fontWeight: 900, fontSize: 14, cursor: 'pointer' })
+  const panneau = { position: 'absolute', inset: 0, lineHeight: 1.45, background: 'rgba(15,56,15,.86)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, color: GB.pâle, textAlign: 'center', padding: 10, zIndex: 20, overflowY: 'auto', ...style }
+  const rec = fin && meilleur ? { score: fin.score > (meilleur.meilleur || 0), temps: fin.statut === 'gagné' && (!meilleur.temps || fin.temps < meilleur.temps), étoiles: fin.étoiles > (meilleur.étoiles || 0) } : {}
+  const sec = n => Math.floor(n / 60) + ' s'
+  const totalÉtoiles = Object.values(profilNiveaux || {}).reduce((a, x) => a + (x.étoiles || 0), 0)
+  const finale = fin?.statut === 'gagné' && !aSuivant
+
+  const ligneCritère = (ok, txt) => <div style={{ display: 'flex', gap: 8, justifyContent: 'center', opacity: ok ? 1 : .75 }}><span aria-hidden="true">{ok ? '★' : '☆'}</span><span>{txt}</span><span className="sr-only" style={{ position: 'absolute', left: -9999 }}>{ok ? 'obtenue' : 'manquante'}</span></div>
+
   return (
-    <div ref={conteneur} onPointerDown={() => { activer(); essayerPleinÉcran() }} style={plein ? { position: 'fixed', inset: 0, zIndex: 1000, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', overscrollBehavior: 'none', touchAction: 'none', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' } : {}}>
-      <div style={{ position: 'relative', width: plein ? 'min(100vw, calc(100dvh * 640 / 352))' : 'min(100%, 896px, calc((100dvh - 110px) * 640 / 352))', maxWidth: 'none', margin: '0 auto', aspectRatio: `${W}/${H}`, borderRadius: plein ? 0 : 14, overflow: 'hidden', border: plein ? 'none' : `1px solid ${T.border}`, background: '#000', touchAction: 'none' }}>
-        <canvas ref={cv} width={W} height={H} onDoubleClick={basculerPlein} style={{ width: '100%', height: '100%', display: 'block' }} role="img" aria-label={`Super Plombier, niveau ${niveau + 1}`} />
-        <div style={{ position: 'absolute', top: 0, right: 4, height: 26, display: 'flex', gap: 2, alignItems: 'center' }}>
-          <button onClick={() => basculerPause(!pause)} aria-label="Pause" style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>{pause ? '▶' : '⏸'}</button>
-          <button onClick={basculerMuet} aria-label={muet ? 'Activer le son' : 'Couper le son'} style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>{muet ? '🔇' : '🔊'}</button>
-          <button onClick={basculerPlein} aria-label={plein ? 'Quitter le grand écran' : 'Grand écran'} style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>{plein ? '🗗' : '⛶'}</button>
-        </div>
-        {tactile && !fin && !pause && (
-          <div style={{ position: 'absolute', left: 10, right: 10, bottom: 10, display: 'flex', justifyContent: 'space-between', pointerEvents: 'none' }}>
-            <div style={{ display: 'flex', gap: 10, pointerEvents: 'auto' }}>{touche('gauche', '◀')}{touche('droite', '▶')}</div>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', pointerEvents: 'auto' }}>{touche('course', 'B', { width: 56, height: 56, fontSize: 20 })}{touche('saut', 'A', { width: 78, height: 78, background: 'rgba(230,57,70,.75)', borderColor: 'rgba(255,255,255,.7)' })}</div>
+    <div ref={conteneur} onPointerDown={() => { audio.activer(); essayerPleinÉcran() }} style={plein ? { position: 'fixed', inset: 0, zIndex: 1000, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', overscrollBehavior: 'none', touchAction: 'none' } : {}}>
+      <div ref={zone} style={{ position: 'relative', width: plein ? '100vw' : '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', height: plein ? '100dvh' : 'auto' }}>
+        <div style={{ position: 'relative', lineHeight: 0, border: plein ? 'none' : `3px solid ${GB.moyen}`, background: '#000' }}>
+          <canvas ref={cv} width={VUE_L} height={VUE_H} onDoubleClick={basculerPlein} role="img" aria-label={`Super Plombier, niveau ${niveau + 1} : ${NIVEAUX[niveau].nom}`} style={{ imageRendering: 'pixelated', display: 'block' }} />
+          <div style={{ position: 'absolute', top: 'calc(var(--k, 3px) * 1)', right: 'calc(var(--k, 3px) * 1)', display: 'flex', gap: 'calc(var(--k, 3px) * 1)', lineHeight: 1 }}>
+            <BoutonCoin lib="Pause" ico={pause ? '▶' : 'II'} onClick={() => définirPause(!pause)} />
+            <BoutonCoin lib={vol.muet ? 'Activer le son' : 'Couper le son'} ico={vol.muet ? '×' : '♪'} onClick={() => { const v = !audio.estMuet(); audio.activer(); audio.régler(v); setVol(x => ({ ...x, muet: v })) }} />
+            <BoutonCoin lib={plein ? 'Quitter le grand écran' : 'Grand écran'} ico={plein ? '▭' : '⛶'} onClick={basculerPlein} />
           </div>
-        )}
-        {tactile && plein && portrait && !fin && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', gap: 8, zIndex: 5 }}>
-            <div style={{ fontSize: 44 }}>↻ 📱</div><div style={{ fontWeight: 800, fontSize: 17 }}>Tourne ton téléphone en paysage</div><div style={{ fontSize: 13, opacity: .8 }}>Le jeu est en pause</div>
-          </div>
-        )}
-        {pause && !fin && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.72)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#fff' }}>
-            <div style={{ fontSize: 26, fontWeight: 800, marginBottom: 6 }}>⏸ Pause</div>
-            <button onClick={() => basculerPause(false)} style={btn(true)}>Reprendre</button>
-            <button onClick={recommencer} style={btn()}>Recommencer le niveau</button>
-            <button onClick={onMenu} style={btn()}>Quitter vers le menu</button>
-          </div>
-        )}
-        {fin && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.72)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#fff', textAlign: 'center', padding: 12 }}>
-            <div style={{ fontSize: 'clamp(20px, 5vw, 28px)', fontWeight: 800 }}>{fin.statut === 'gagné' ? '🏁 Niveau terminé !' : '💀 Plus de vies'}</div>
-            {fin.statut === 'gagné' && <div style={{ fontSize: 'clamp(26px, 7vw, 38px)', letterSpacing: 6 }} aria-label={`${fin.étoiles} étoiles sur 3`}>{[1, 2, 3].map(i => <span key={i} style={{ color: i <= fin.étoiles ? '#ffd23f' : '#555' }}>★</span>)}</div>}
-            <div style={{ fontSize: 14, opacity: .9 }}>Score {fin.score} · pièces {fin.pièces}/{fin.total} · {Math.floor(fin.temps / 60)} s</div>
-            {fin.statut === 'gagné' && <div style={{ fontSize: 12, opacity: .7 }}>★ terminer · ★ 80 % des pièces · ★ sans perdre de vie</div>}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginTop: 6 }}>
-              {fin.statut === 'gagné' && aSuivant && <button onClick={onSuivant} style={btn(true)}>Niveau suivant ▶</button>}
-              <button onClick={recommencer} style={btn(fin.statut !== 'gagné' || !aSuivant)}>Rejouer</button>
-              <button onClick={onMenu} style={btn()}>Menu</button>
+          {toast && <div role="status" style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', background: GB.fond, color: GB.pâle, border: `2px solid ${GB.pâle}`, padding: '4px 10px', fontSize: 12, ...style, lineHeight: 1.4, zIndex: 30, whiteSpace: 'nowrap' }}>{toast}</div>}
+          {tactile && !fin && !pause && (
+            <div style={{ position: 'absolute', left: 10, right: 10, bottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', pointerEvents: 'none', lineHeight: 1 }}>
+              <div ref={croix} onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); surCroix(e) }} onPointerMove={e => { if (e.buttons || e.pointerType === 'touch') surCroix(e) }} onPointerUp={surCroix} onPointerCancel={surCroix} onLostPointerCapture={surCroix} onContextMenu={e => e.preventDefault()}
+                style={{ pointerEvents: 'auto', width: 150, height: 70, borderRadius: 35, border: `3px solid ${GB.pâle}`, background: 'rgba(15,56,15,.55)', color: GB.pâle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 18px', fontSize: 24, fontWeight: 900, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }} aria-label="Croix directionnelle gauche et droite" role="group"><span>◀</span><span>▶</span></div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', pointerEvents: 'auto' }}>{bouton('course', 'B', 58)}{bouton('saut', 'A', 76, { background: 'rgba(139,172,15,.55)' })}</div>
             </div>
-          </div>
-        )}
+          )}
+          {tactile && plein && portrait && !fin && (
+            <div style={{ ...panneau, zIndex: 40 }}><div style={{ fontSize: 40 }}>↻ 📱</div><div style={{ fontWeight: 900 }}>Tourne ton téléphone en paysage</div><div style={{ fontSize: 12, opacity: .8 }}>Le jeu est en pause</div></div>
+          )}
+          {pause && !fin && (
+            <div style={panneau} role="dialog" aria-label="Pause">
+              <div style={{ fontSize: 22, fontWeight: 900 }}>Pause</div>
+              <div style={{ display: 'grid', gap: 6, fontSize: 12, textAlign: 'left' }}>
+                <label style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>Musique <input type="range" min="0" max="1" step="0.05" value={vol.musique} onChange={e => changerVolume('musique', +e.target.value)} style={{ accentColor: GB.pâle, width: 130 }} aria-label="Volume de la musique" /></label>
+                <label style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>Effets <input type="range" min="0" max="1" step="0.05" value={vol.effets} onChange={e => changerVolume('effets', +e.target.value)} style={{ accentColor: GB.pâle, width: 130 }} aria-label="Volume des effets" /></label>
+                <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}><input type="checkbox" checked={vol.muet} onChange={e => { audio.régler(e.target.checked); setVol(x => ({ ...x, muet: e.target.checked })) }} style={{ appearance: 'none', WebkitAppearance: 'none', width: 18, height: 18, margin: 0, border: `3px solid ${GB.pâle}`, background: vol.muet ? GB.pâle : 'transparent', cursor: 'pointer' }} /> Couper tout le son (M)</label>
+              </div>
+              <button type="button" autoFocus onClick={() => définirPause(false)} style={btn(true)}>Reprendre</button>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <button type="button" onClick={recommencer} style={btn()}>Recommencer</button>
+                <button type="button" onClick={() => quitterVers(onMenu)} style={btn()}>Menu</button>
+              </div>
+              <div style={{ fontSize: 11, opacity: .8, maxWidth: 300, lineHeight: 1.5, textTransform: 'none' }}>{appareil === 'manette' ? 'Manette : croix/stick bouger · A sauter · X/B/gâchette courir · Start pause' : appareil === 'tactile' ? 'Croix et boutons A/B à l\'écran' : '← → ou Q/D · Espace ou ↑ sauter · Maj ou B courir · Échap/P pause · F grand écran · M son'}{manette ? ' · manette détectée' : ''}</div>
+            </div>
+          )}
+          {fin && (
+            <div style={panneau} role="dialog" aria-label="Résultats">
+              <div style={{ fontSize: 'clamp(16px, 4vw, 22px)', fontWeight: 900 }}>{fin.statut === 'gagné' ? (finale ? '★ Victoire finale ! ★' : 'Niveau terminé !') : 'Plus de vies'}</div>
+              {fin.statut === 'gagné' && <div style={{ fontSize: 30, letterSpacing: 6 }} aria-label={`${fin.étoiles} étoiles sur 3`}>{[1, 2, 3].map(i => <span key={i} style={{ color: i <= fin.étoiles ? GB.pâle : GB.moyen }}>★</span>)}</div>}
+              <div style={{ fontSize: 12, lineHeight: 1.55 }}>
+                <div>Score {fin.score}{rec.score ? ' — nouveau record !' : ''}</div>
+                <div>Pièces {fin.pièces}/{fin.total} · Secrets {fin.secrets}/{fin.secretsTotal} · {sec(fin.temps)}{rec.temps ? ' — record !' : ''}</div>
+              </div>
+              {fin.statut === 'gagné' ? (
+                <div style={{ fontSize: 12, lineHeight: 1.6 }}>
+                  {ligneCritère(fin.critères.terminé, 'Terminer le niveau')}
+                  {ligneCritère(fin.critères.pièces, `Collecter 80 % des pièces (${Math.ceil(fin.total * 0.8)} sur ${fin.total})`)}
+                  {ligneCritère(fin.critères.sansMort, 'Terminer sans perdre de vie')}
+                </div>
+              ) : <div style={{ fontSize: 12 }}>Tu y es presque : réessaie, les points de passage te rapprochent.</div>}
+              {finale && <div style={{ fontSize: 12, textTransform: 'none' }}>Total : {totalÉtoiles}/{COMPTE_NIVEAUX * 3} étoiles{totalÉtoiles < COMPTE_NIVEAUX * 3 ? ' — rejoue les niveaux pour compléter les étoiles manquantes.' : ' — parfait, tu as tout débloqué !'}</div>}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginTop: 4 }}>
+                {fin.statut === 'gagné' && aSuivant && <button type="button" autoFocus onClick={() => quitterVers(onSuivant)} style={btn(true)}>Niveau suivant</button>}
+                <button type="button" autoFocus={fin.statut !== 'gagné' || !aSuivant} onClick={recommencer} style={btn(fin.statut !== 'gagné' || !aSuivant)}>Rejouer</button>
+                <button type="button" onClick={() => quitterVers(onMenu)} style={btn()}>Menu</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      {!plein && <div style={{ textAlign: 'center', marginTop: 12 }}><button onClick={basculerPlein} style={{ minHeight: 44, padding: '0 20px', borderRadius: 12, border: '2px solid #107c10', background: '#107c10', color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>🖥️ Passer en grand écran (F)</button></div>}
-      {!plein && <p style={{ textAlign: 'center', color: T.textMuted, fontSize: 12.5, margin: '10px 0 0', lineHeight: 1.5 }}>{tactile ? 'Boutons à l\'écran · garde A appuyé pour sauter plus haut · B pour courir · ⛶ pour le plein écran' : '← → ou Q/D : bouger · Espace ou ↑ : sauter (reste appuyé = plus haut) · Maj : courir · F : grand écran · Échap/P : pause · manette Xbox compatible'}</p>}
     </div>
   )
 }
