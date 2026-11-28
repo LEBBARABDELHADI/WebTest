@@ -91,7 +91,10 @@ export default function Plateforme({ T, niveau, aSuivant, onFin, onSuivant, onMe
   const [fin, setFin] = useState(null)
   const [pause, setPause] = useState(false)
   const [muet, setMuet] = useState(estMuet)
-  const [plein, setPlein] = useState(false)
+  const [plein, setPlein] = useState(() => { try { return localStorage.getItem('react-blocs-jeux-grand') !== '0' } catch { return true } })
+  const [portrait, setPortrait] = useState(() => window.matchMedia?.('(orientation: portrait)').matches)
+  const pleinRef = useRef(plein), réel = useRef(false), essayé = useRef(false), basculerRef = useRef(() => {})
+  pleinRef.current = plein
   const [tactile] = useState(() => window.matchMedia?.('(pointer: coarse)').matches)
   onFinRef.current = onFin
   const réduit = useRef(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
@@ -100,11 +103,19 @@ export default function Plateforme({ T, niveau, aSuivant, onFin, onSuivant, onMe
   const recommencer = () => { etat.current = nouvelÉtat(niveau); parts.current = []; textes.current = []; fini.current = false; intro.current = INTRO; cam.current = { x: 0, look: 0 }; setFin(null); basculerPause(false) }
 
   useEffect(() => {
+    if (!plein) return
+    const a = document.body.style.overflow, b = document.documentElement.style.overscrollBehavior
+    document.body.style.overflow = 'hidden'; document.documentElement.style.overscrollBehavior = 'none'
+    return () => { document.body.style.overflow = a; document.documentElement.style.overscrollBehavior = b }
+  }, [plein])
+
+  useEffect(() => {
     const clavier = (v, e) => {
       if (e.code === 'Escape' || e.code === 'KeyP') { if (v && !e.repeat && !fini.current) basculerPause(!pauseRef.current); e.preventDefault(); return }
+      if (e.code === 'KeyF') { if (v && !e.repeat) basculerRef.current(); e.preventDefault(); return }
       const k = CLAVIER[e.code]; if (!k) return
       ent.current[k] = v; e.preventDefault()
-      if (v) { activer(); if (intro.current > 0 && intro.current < INTRO - 20) intro.current = 0 }
+      if (v) { activer(); essayerPleinÉcran(); if (intro.current > 0 && intro.current < INTRO - 20) intro.current = 0 }
     }
     const bas = e => clavier(true, e), haut = e => clavier(false, e)
     const cacher = () => { if (document.hidden && !fini.current) basculerPause(true) }
@@ -167,41 +178,54 @@ export default function Plateforme({ T, niveau, aSuivant, onFin, onSuivant, onMe
     }
     cam.current.x = Math.max(0, Math.min(etat.current.largeur * TUILE - W, etat.current.x - W / 2))
     id = requestAnimationFrame(boucle)
-    const changerPlein = () => setPlein(!!document.fullscreenElement)
+    const changerPlein = () => { if (!document.fullscreenElement && réel.current) { réel.current = false; setPlein(false); try { localStorage.setItem('react-blocs-jeux-grand', '0') } catch { /* ignore */ } } }
+    const orientation = window.matchMedia?.('(orientation: portrait)'); const surOrientation = e => { setPortrait(e.matches); if (e.matches && tactile && pleinRef.current && !fini.current) basculerPause(true) }
+    orientation?.addEventListener?.('change', surOrientation)
     document.addEventListener('fullscreenchange', changerPlein)
-    return () => { cancelAnimationFrame(id); obs.disconnect(); musique(false); window.removeEventListener('keydown', bas); window.removeEventListener('keyup', haut); document.removeEventListener('visibilitychange', cacher); document.removeEventListener('fullscreenchange', changerPlein) }
+    return () => { cancelAnimationFrame(id); obs.disconnect(); musique(false); window.removeEventListener('keydown', bas); window.removeEventListener('keyup', haut); document.removeEventListener('visibilitychange', cacher); document.removeEventListener('fullscreenchange', changerPlein); orientation?.removeEventListener?.('change', surOrientation) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [niveau])
 
-  const basculerPlein = async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen()
-      else { await conteneur.current.requestFullscreen(); try { await screen.orientation?.lock?.('landscape') } catch { /* non supporté */ } }
-    } catch { /* plein écran indisponible */ }
+  const entrerPleinÉcran = async () => {
+    const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen
+    if (!f || document.fullscreenElement) return
+    try { réel.current = true; await f.call(el); try { await screen.orientation?.lock?.('landscape') } catch { /* verrou non supporté */ } } catch { réel.current = false }
   }
+  function essayerPleinÉcran() { if (pleinRef.current && !essayé.current && !document.fullscreenElement) { essayé.current = true; entrerPleinÉcran() } }
+  const basculerPlein = async () => {
+    const v = !pleinRef.current
+    setPlein(v); try { localStorage.setItem('react-blocs-jeux-grand', v ? '1' : '0') } catch { /* ignore */ }
+    if (v) { essayé.current = true; await entrerPleinÉcran() } else { réel.current = false; if (document.fullscreenElement) await document.exitFullscreen().catch(() => {}) }
+  }
+  basculerRef.current = basculerPlein
   const basculerMuet = () => { const v = !muet; setMuet(v); régler(v); activer(); musique(!v && !pauseRef.current && intro.current === 0 && !fini.current, niveau) }
 
   const touche = (k, lib, extra = {}) => (
     <button aria-label={lib} onContextMenu={e => e.preventDefault()}
-      onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); ent.current[k] = true; activer(); if (intro.current > 0 && intro.current < INTRO - 20) intro.current = 0; navigator.vibrate?.(8) }}
+      onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); ent.current[k] = true; activer(); essayerPleinÉcran(); if (intro.current > 0 && intro.current < INTRO - 20) intro.current = 0; navigator.vibrate?.(8) }}
       onPointerUp={() => { ent.current[k] = false }} onPointerCancel={() => { ent.current[k] = false }}
       style={{ width: 70, height: 70, borderRadius: 35, border: '2px solid rgba(255,255,255,.55)', background: 'rgba(20,20,30,.5)', color: '#fff', fontSize: 26, fontWeight: 800, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', ...extra }}>{lib}</button>
   )
   const petit = { width: 40, height: 40, borderRadius: 20, border: '1px solid rgba(255,255,255,.4)', background: 'rgba(20,20,30,.55)', color: '#fff', fontSize: 17, cursor: 'pointer', display: 'grid', placeItems: 'center' }
   const btn = (plein = false) => ({ minHeight: 46, padding: '0 20px', borderRadius: 12, border: plein ? 'none' : '1px solid rgba(255,255,255,.5)', background: plein ? '#ffd23f' : 'transparent', color: plein ? '#222' : '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' })
   return (
-    <div ref={conteneur} style={{ background: plein ? '#000' : 'transparent', display: plein ? 'flex' : 'block', alignItems: 'center', justifyContent: 'center', width: plein ? '100vw' : 'auto', height: plein ? '100vh' : 'auto' }}>
-      <div style={{ position: 'relative', width: plein ? 'min(100vw, calc(100vh * 640 / 352))' : 'min(100%, 896px, calc((100dvh - 110px) * 640 / 352))', maxWidth: 'none', margin: '0 auto', aspectRatio: `${W}/${H}`, borderRadius: plein ? 0 : 14, overflow: 'hidden', border: plein ? 'none' : `1px solid ${T.border}`, background: '#000', touchAction: 'none' }}>
-        <canvas ref={cv} width={W} height={H} style={{ width: '100%', height: '100%', display: 'block' }} role="img" aria-label={`Super Plombier, niveau ${niveau + 1}`} />
+    <div ref={conteneur} onPointerDown={() => { activer(); essayerPleinÉcran() }} style={plein ? { position: 'fixed', inset: 0, zIndex: 1000, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', overscrollBehavior: 'none', touchAction: 'none', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' } : {}}>
+      <div style={{ position: 'relative', width: plein ? 'min(100vw, calc(100dvh * 640 / 352))' : 'min(100%, 896px, calc((100dvh - 110px) * 640 / 352))', maxWidth: 'none', margin: '0 auto', aspectRatio: `${W}/${H}`, borderRadius: plein ? 0 : 14, overflow: 'hidden', border: plein ? 'none' : `1px solid ${T.border}`, background: '#000', touchAction: 'none' }}>
+        <canvas ref={cv} width={W} height={H} onDoubleClick={basculerPlein} style={{ width: '100%', height: '100%', display: 'block' }} role="img" aria-label={`Super Plombier, niveau ${niveau + 1}`} />
         <div style={{ position: 'absolute', top: 0, right: 4, height: 26, display: 'flex', gap: 2, alignItems: 'center' }}>
           <button onClick={() => basculerPause(!pause)} aria-label="Pause" style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>{pause ? '▶' : '⏸'}</button>
           <button onClick={basculerMuet} aria-label={muet ? 'Activer le son' : 'Couper le son'} style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>{muet ? '🔇' : '🔊'}</button>
-          <button onClick={basculerPlein} aria-label="Plein écran" style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>⛶</button>
+          <button onClick={basculerPlein} aria-label={plein ? 'Quitter le grand écran' : 'Grand écran'} style={{ ...petit, width: 30, height: 26, borderRadius: 6, fontSize: 15, border: 'none', background: 'transparent' }}>{plein ? '🗗' : '⛶'}</button>
         </div>
         {tactile && !fin && !pause && (
           <div style={{ position: 'absolute', left: 10, right: 10, bottom: 10, display: 'flex', justifyContent: 'space-between', pointerEvents: 'none' }}>
             <div style={{ display: 'flex', gap: 10, pointerEvents: 'auto' }}>{touche('gauche', '◀')}{touche('droite', '▶')}</div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', pointerEvents: 'auto' }}>{touche('course', 'B', { width: 56, height: 56, fontSize: 20 })}{touche('saut', 'A', { width: 78, height: 78, background: 'rgba(230,57,70,.75)', borderColor: 'rgba(255,255,255,.7)' })}</div>
+          </div>
+        )}
+        {tactile && plein && portrait && !fin && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', gap: 8, zIndex: 5 }}>
+            <div style={{ fontSize: 44 }}>↻ 📱</div><div style={{ fontWeight: 800, fontSize: 17 }}>Tourne ton téléphone en paysage</div><div style={{ fontSize: 13, opacity: .8 }}>Le jeu est en pause</div>
           </div>
         )}
         {pause && !fin && (
@@ -226,7 +250,8 @@ export default function Plateforme({ T, niveau, aSuivant, onFin, onSuivant, onMe
           </div>
         )}
       </div>
-      {!plein && <p style={{ textAlign: 'center', color: T.textMuted, fontSize: 12.5, margin: '10px 0 0', lineHeight: 1.5 }}>{tactile ? 'Boutons à l\'écran · garde A appuyé pour sauter plus haut · B pour courir · ⛶ pour le plein écran' : '← → ou Q/D : bouger · Espace ou ↑ : sauter (reste appuyé = plus haut) · Maj : courir · Échap/P : pause · manette Xbox compatible'}</p>}
+      {!plein && <div style={{ textAlign: 'center', marginTop: 12 }}><button onClick={basculerPlein} style={{ minHeight: 44, padding: '0 20px', borderRadius: 12, border: '2px solid #107c10', background: '#107c10', color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>🖥️ Passer en grand écran (F)</button></div>}
+      {!plein && <p style={{ textAlign: 'center', color: T.textMuted, fontSize: 12.5, margin: '10px 0 0', lineHeight: 1.5 }}>{tactile ? 'Boutons à l\'écran · garde A appuyé pour sauter plus haut · B pour courir · ⛶ pour le plein écran' : '← → ou Q/D : bouger · Espace ou ↑ : sauter (reste appuyé = plus haut) · Maj : courir · F : grand écran · Échap/P : pause · manette Xbox compatible'}</p>}
     </div>
   )
 }
