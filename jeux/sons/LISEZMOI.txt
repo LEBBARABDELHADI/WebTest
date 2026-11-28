@@ -1,0 +1,11 @@
+Sons personnalisés de Super Plombier (facultatif)
+=================================================
+Le jeu fabrique ses propres sons 8 bits. Si tu veux utiliser d'autres sons (par exemple des fichiers dont tu as
+les droits), dépose-les ici : ils remplacent automatiquement les sons synthétisés, sans modifier le code.
+
+Noms attendus (extension .mp3, .ogg ou .wav) :
+  musique   musique de fond (jouée en boucle)
+  saut  piece  ecrase  mort  victoire  agrandir  rapetisse  point  bloc  brique
+
+Exemple : public/jeux/sons/saut.mp3
+Les enregistrements officiels de Super Mario appartiennent à Nintendo : ils ne sont pas fournis avec ce projet.
